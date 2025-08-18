@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://b6k4n067ypio4"]
+
+[ext_resource type="PackedScene" uid="uid://bo4couelf4d0s" path="res://mouse_toggle.tscn" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://by27axwrqm55n" path="res://following_entity.tscn" id="2_h2yge"]
+
+[node name="Main" type="Node"]
+
+[node name="MouseToggle" parent="." instance=ExtResource("1_0xm2m")]
+
+[node name="FollowingEntity" parent="." instance=ExtResource("2_h2yge")]
+visible = false
+angular_damp_mode = 0
+
+[node name="FollowingEntity3" parent="." instance=ExtResource("2_h2yge")]
+modulate = Color(1, 0.501961, 1, 1)
+collision_layer = 2
+collision_mask = 2
