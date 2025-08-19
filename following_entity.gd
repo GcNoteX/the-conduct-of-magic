@@ -10,4 +10,5 @@ func _physics_process(delta: float) -> void:
 		#linear_velocity = dir * speed
 		linear_velocity = linear_velocity.lerp(dir.normalized() * speed, 0.05)
 	else:
+		#Comment
 		apply_central_force(power*(get_global_mouse_position() - position))

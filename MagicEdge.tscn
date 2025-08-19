@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dwbfjrap74hrn"]
+
+[ext_resource type="Script" uid="uid://8d4tata55k2e" path="res://magic_edge.gd" id="1_f34a8"]
+
+[node name="MagicEdge" type="Line2D"]
+script = ExtResource("1_f34a8")
