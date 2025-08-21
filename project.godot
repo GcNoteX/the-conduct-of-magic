@@ -15,6 +15,11 @@ run/main_scene="uid://b6k4n067ypio4"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
 
+[autoload]
+
+UtilityFunctions="*res://globals/UtilityFunctions.gd"
+SceneReferences="*res://globals/SceneReferences.gd"
+
 [display]
 
 window/size/always_on_top=true

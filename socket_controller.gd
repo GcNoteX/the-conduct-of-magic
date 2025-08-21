@@ -19,14 +19,18 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if is_drawing:
-		floating_magic_edge.update_floating_line(get_global_mouse_position())
+		floating_magic_edge.stretch_magic_edge(get_global_mouse_position())
 
 func _on_start_socket_selected(s: Socket) -> void:
 	starting_socket = s
-	floating_magic_edge = MagicEdge.create_magic_edge(starting_socket)
+	floating_magic_edge = MagicEdge.start_magic_edge(starting_socket)
 	add_child(floating_magic_edge)
 	is_drawing = true
-
+	
+	# TESTING
+	print("Decay tick rate of edge:", floating_magic_edge.decay_component.decay_tick_rate)
+	floating_magic_edge.focus_line()
+	# TESTING END
 
 func _on_end_socket_selected(s: Socket) -> void:
 	ending_socket = s
@@ -45,7 +49,11 @@ func _attempt_lock_line() -> void:
 		# TODO: Store line in a list
 	else:
 		# When there was not start and end - i.e. line not drawn
-		floating_magic_edge.queue_free()
+		# NOTE: There will be a start always since a line only generates on a starting node
+		#floating_magic_edge.queue_free()
+		# TESTING
+		floating_magic_edge.unfocus_line()
+		# TESTING END
 		
 	_clear_saved_selections()
 

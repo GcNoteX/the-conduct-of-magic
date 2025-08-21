@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://dwbfjrap74hrn"]
+
+[ext_resource type="Script" uid="uid://bes7iyggiu43d" path="res://magic_line/magic_edge.gd" id="1_5a71e"]
+[ext_resource type="PackedScene" uid="uid://b6r4uc6pwg8nt" path="res://utilities/DecayComponent.tscn" id="2_5a71e"]
+[ext_resource type="PackedScene" uid="uid://drytd7qhc11dg" path="res://utilities/HealthComponent.tscn" id="2_gglsk"]
+
+[node name="MagicEdge" type="Line2D"]
+default_color = Color(0.501961, 1, 1, 1)
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("1_5a71e")
+
+[node name="HealthComponent" parent="." instance=ExtResource("2_gglsk")]
+
+[node name="DecayComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("2_5a71e")]
+decay_tick_rate = 0.1
+health_component = NodePath("../HealthComponent")
+
+[connection signal="health_depleted" from="HealthComponent" to="." method="_on_health_component_health_depleted"]
+[connection signal="health_updated" from="HealthComponent" to="." method="_on_health_component_health_updated"]

@@ -1,17 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://b6k4n067ypio4"]
+[gd_scene load_steps=5 format=3 uid="uid://b6k4n067ypio4"]
 
 [ext_resource type="PackedScene" uid="uid://bo4couelf4d0s" path="res://utilities/mouse_toggle.tscn" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ovqsolmtq3ns" path="res://utilities/Debugger.tscn" id="1_lquwl"]
 [ext_resource type="PackedScene" uid="uid://dn6r8e32ar5tt" path="res://socket.tscn" id="2_1bvp3"]
 [ext_resource type="Script" uid="uid://pctmngxpde5t" path="res://socket_controller.gd" id="4_1bvp3"]
-[ext_resource type="PackedScene" uid="uid://dwbfjrap74hrn" path="res://MagicEdge.tscn" id="4_lquwl"]
-
-[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_7mycd"]
-scenes/1/scene = ExtResource("2_1bvp3")
-scenes/2/scene = ExtResource("4_lquwl")
-
-[sub_resource type="TileSet" id="TileSet_7mycd"]
-sources/3 = SubResource("TileSetScenesCollectionSource_7mycd")
 
 [node name="Main" type="Node"]
 
@@ -24,10 +16,6 @@ nodes = []
 
 [node name="MouseToggle" parent="." instance=ExtResource("1_0xm2m")]
 
-[node name="TileMapLayer" type="TileMapLayer" parent="."]
-tile_map_data = PackedByteArray(0, 0, 239, 255, 4, 0, 3, 0, 0, 0, 0, 0, 1, 0, 255, 255, 5, 0, 3, 0, 0, 0, 0, 0, 1, 0, 13, 0, 7, 0, 3, 0, 0, 0, 0, 0, 1, 0, 20, 0, 2, 0, 3, 0, 0, 0, 0, 0, 1, 0)
-tile_set = SubResource("TileSet_7mycd")
-
 [node name="SocketController" type="Node2D" parent="."]
 script = ExtResource("4_1bvp3")
 
@@ -35,7 +23,7 @@ script = ExtResource("4_1bvp3")
 position = Vector2(263, -100)
 
 [node name="Socket2" parent="SocketController" instance=ExtResource("2_1bvp3")]
-position = Vector2(-242, -111)
+position = Vector2(-320, -128)
 
 [node name="Socket3" parent="SocketController" instance=ExtResource("2_1bvp3")]
-position = Vector2(9, -89)
+position = Vector2(-48, -128)
