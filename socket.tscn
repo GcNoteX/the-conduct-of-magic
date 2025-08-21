@@ -1,21 +1,21 @@
 [gd_scene load_steps=4 format=3 uid="uid://dn6r8e32ar5tt"]
 
-[ext_resource type="Texture2D" uid="uid://bql6rf4olblxq" path="res://placeholder_assets/square.png" id="1_ad3ct"]
 [ext_resource type="Script" uid="uid://cj5urdqe5fr7h" path="res://socket.gd" id="1_mud4j"]
+[ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_mud4j"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_mud4j"]
-size = Vector2(64, 64)
+[sub_resource type="CircleShape2D" id="CircleShape2D_frn1o"]
+radius = 32.3883
 
 [node name="Socket" type="Node2D"]
 script = ExtResource("1_mud4j")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("1_ad3ct")
+texture = ExtResource("2_mud4j")
 
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
-shape = SubResource("RectangleShape2D_mud4j")
+shape = SubResource("CircleShape2D_frn1o")
 
 [connection signal="mouse_entered" from="Area2D" to="." method="_on_area_2d_mouse_entered"]
 [connection signal="mouse_exited" from="Area2D" to="." method="_on_area_2d_mouse_exited"]

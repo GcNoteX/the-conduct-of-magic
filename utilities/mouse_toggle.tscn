@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bo4couelf4d0s"]
 
-[ext_resource type="Script" uid="uid://cb8jveixy0dbm" path="res://mouse_toggle.gd" id="1_lkg5k"]
+[ext_resource type="Script" uid="uid://cb8jveixy0dbm" path="res://utilities/mouse_toggle.gd" id="1_lkg5k"]
 
 [node name="MouseToggle" type="Node"]
 script = ExtResource("1_lkg5k")

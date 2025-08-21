@@ -3,7 +3,7 @@ extends Node2D
 
 signal selected_as_start(s: Socket)
 signal selected_as_end(s: Socket)
-signal cancel_selection
+signal cancel_selection(s: Socket)
 
 var is_selected = false
 var is_hovered_over = false
@@ -28,7 +28,7 @@ func _process(delta: float) -> void:
 		if is_selected:
 			is_selected = false
 			if is_debug: print(self, "cancelled selection")
-			emit_signal("cancel_selection")
+			emit_signal("cancel_selection", self)
 
 
 func _on_area_2d_mouse_entered() -> void:
@@ -37,6 +37,7 @@ func _on_area_2d_mouse_entered() -> void:
 
 func _on_area_2d_mouse_exited() -> void:
 	is_hovered_over = false
+
 
 func enable_debug() -> void:
 	is_debug = true
