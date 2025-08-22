@@ -44,14 +44,11 @@ func attempt_create_magic_edge(starting_socket: Socket) -> bool:
 ## Returns True if attempt successful, False otherwise.
 func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 	if ending_socket.can_connect_edge() and magic_edge_selected:
-		magic_edge_selected.lock_line(ending_socket)
-		#magic_edge_selected = null
+		magic_edge_selected.ending_socket = ending_socket
 		return true
-	#magic_edge_selected = null
 	return false
 
 
 func release_selected_edge() -> void:
 	magic_edge_selected.start_decay()
 	magic_edge_selected = null
-	

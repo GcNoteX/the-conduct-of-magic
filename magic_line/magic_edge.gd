@@ -27,7 +27,8 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 				clear_points()
 				return
 			if !s.can_connect_edge():
-				push_error("Socket is at max capacity, unable to connect")
+
+				push_error("Socket is at max capacity, unable to connect start")
 				return
 			starting_socket = s
 			starting_socket.add_connection(self)
@@ -47,13 +48,13 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 				if Engine.is_editor_hint(): push_error("Cannot add an Ending Socket before Starting Socket")
 				return
 			if !s.can_connect_edge():
-				if Engine.is_editor_hint(): push_error("Socket is at max capacity, unable to connect")
+				if Engine.is_editor_hint(): push_error("Socket is at max capacity, unable to connect end")
 				print("Socket is at max capacity, unable to connect")
 				return
 			ending_socket = s
 			ending_socket.add_connection(self)
 			if is_instance_valid(ending_socket) and Engine.is_editor_hint():
-				lock_line(ending_socket)
+				lock_line()
 
 
 # States of the line
@@ -67,11 +68,10 @@ var is_locked: bool = false ## The edge has both sockets selected, it cannot be 
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
-		
 	assert(starting_socket, "ERROR: MagicEdge placed in scene without a starting socket, suggest using start_magic_edge()")
 	add_point(starting_socket.position)
 	if ending_socket: # A line is not created with an ending socket unless it is instantiated as such
-		lock_line(ending_socket)
+		lock_line()
 
 
 ## Creates a magic edge only with the starting socket. Use lock_line() to lock it to another socket, stretch_magic_edge() to move it.
@@ -107,16 +107,15 @@ func stretch_magic_edge(v: Vector2) -> void:
 
 
 ## Finalize the edge, should not be edited anymore
-func lock_line(end_socket: Socket) -> void:
-	assert(end_socket != null, "ERROR: Attempting to lock MagicEdge without a valid ending Socket")
-	stretch_magic_edge(end_socket.position)
-	ending_socket = end_socket
+func lock_line() -> void:
+	assert(ending_socket != null, "ERROR: Attempting to lock MagicEdge without a valid ending Socket")
+	stretch_magic_edge(ending_socket.position)
 	is_locked = true
 	
 	if Engine.is_editor_hint():
 		return
 		
-	stop_decay
+	stop_decay()
 
 
 func stop_decay() -> void:

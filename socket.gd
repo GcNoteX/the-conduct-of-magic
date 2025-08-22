@@ -62,6 +62,8 @@ func remove_connection(_magic_edge: MagicEdge) -> void:
 
 func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
 	# Has capacity, and not connecting to itself
+	#print("Capacity Check:", cur_capacity < max_capacity )
+	#print("Does not connect to self check:", !(e.starting_socket == self))
 	return cur_capacity < max_capacity and !(e.starting_socket == self)
 
 
