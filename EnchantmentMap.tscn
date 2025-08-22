@@ -8,15 +8,26 @@
 script = ExtResource("1_0f8cq")
 
 [node name="MagicEdge" parent="." node_paths=PackedStringArray("starting_socket", "ending_socket") instance=ExtResource("3_tq3s1")]
-points = PackedVector2Array(299, 228, 680, 225)
+points = PackedVector2Array(299, 228, 496, 449)
 starting_socket = NodePath("../Socket")
-ending_socket = NodePath("../Socket2")
+ending_socket = NodePath("../Socket3")
 
 [node name="Socket" parent="." instance=ExtResource("2_gh3tp")]
 position = Vector2(299, 228)
+
+[node name="Socket4" parent="." instance=ExtResource("2_gh3tp")]
+position = Vector2(684, 396)
+
+[node name="Socket5" parent="." instance=ExtResource("2_gh3tp")]
+position = Vector2(509, 105)
+max_capacity = 3
 
 [node name="Socket2" parent="." instance=ExtResource("2_gh3tp")]
 position = Vector2(680, 225)
 
 [node name="Socket3" parent="." instance=ExtResource("2_gh3tp")]
 position = Vector2(496, 449)
+
+[node name="Socket6" parent="." instance=ExtResource("2_gh3tp")]
+position = Vector2(850, 120)
+max_capacity = 2

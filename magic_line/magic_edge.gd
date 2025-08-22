@@ -37,17 +37,18 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 		
 @export var ending_socket: Socket:
 		set(s):
-			if s == null and ending_socket:
+			if s == null and ending_socket: # For editor use, clearing connection
 				ending_socket.remove_connection(self)
 				ending_socket = null
 				is_locked = false
 				remove_point(1)
 				return
 			if !starting_socket:
-				push_error("Cannot add an Ending Socket before Starting Socket")
+				if Engine.is_editor_hint(): push_error("Cannot add an Ending Socket before Starting Socket")
 				return
 			if !s.can_connect_edge():
-				push_error("Socket is at max capacity, unable to connect")
+				if Engine.is_editor_hint(): push_error("Socket is at max capacity, unable to connect")
+				print("Socket is at max capacity, unable to connect")
 				return
 			ending_socket = s
 			ending_socket.add_connection(self)
@@ -56,7 +57,6 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 
 
 # States of the line
-var is_in_focus: bool = false ## The edge is 'selected'. (i.e. The player is controlling the line, has it selected).
 var is_locked: bool = false ## The edge has both sockets selected, it cannot be modified, only destroyed.
 
 
@@ -109,25 +109,26 @@ func stretch_magic_edge(v: Vector2) -> void:
 ## Finalize the edge, should not be edited anymore
 func lock_line(end_socket: Socket) -> void:
 	assert(end_socket != null, "ERROR: Attempting to lock MagicEdge without a valid ending Socket")
-	stretch_magic_edge(ending_socket.position)
+	stretch_magic_edge(end_socket.position)
+	ending_socket = end_socket
 	is_locked = true
 	
 	if Engine.is_editor_hint():
 		return
 		
+	stop_decay
+
+
+func stop_decay() -> void:
+	# NOTE: Incase of animation, seperate to a function
 	decay_component.stop_decay()
 
 
-## Unfocusing a line starts decay
-func unfocus_line() -> void:
-	is_in_focus = false
+func start_decay() -> void:
+	if is_locked:
+		return
+	# NOTE: Incase of animation, seperate to a function
 	decay_component.start_decay()
-
-
-## Focusing a line stops decay
-func focus_line() -> void:
-	is_in_focus = true
-	decay_component.stop_decay()
 
 
 func _on_health_component_health_depleted() -> void:

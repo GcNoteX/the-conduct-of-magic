@@ -31,11 +31,12 @@ func _process(_delta: float) -> void:
 	if Engine.is_editor_hint(): return
 	# Select the socket with clicking leftclick over it
 	if Input.is_action_just_pressed('left_click') and is_hovered_over:
-		#is_selected_as_start = true
-		if is_debug: print(self, "selected as start")
-		emit_signal("selected_as_start", self)
+		is_selected_as_start = true
+		#if is_debug: print(self, "selected as start")
+		#emit_signal("selected_as_start", self)
 	
 	if Input.is_action_just_released("left_click") and is_hovered_over:
+		is_selected_as_start = false
 		if is_debug: print(self, "selected as end")
 		emit_signal("selected_as_end", self)
 	
@@ -53,21 +54,27 @@ func _process(_delta: float) -> void:
 
 
 func add_connection(_magic_edge: MagicEdge) -> void:
+	#print("Adding connection")
 	cur_capacity += 1
 
 func remove_connection(_magic_edge: MagicEdge) -> void:
 	cur_capacity -= 1
 
-func can_connect_edge() -> bool:
-	return cur_capacity < max_capacity
+func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
+	# Has capacity, and not connecting to itself
+	return cur_capacity < max_capacity and !(e.starting_socket == self)
 
 
 func _on_area_2d_mouse_entered() -> void:
 	is_hovered_over = true
+	is_selected_as_start = false
 
 
 func _on_area_2d_mouse_exited() -> void:
 	is_hovered_over = false
+	if is_selected_as_start:
+		if is_debug: print(self, "selected as start")
+		emit_signal("selected_as_start", self)
 
 
 func enable_debug() -> void:
