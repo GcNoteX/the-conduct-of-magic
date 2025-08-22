@@ -1,3 +1,4 @@
+@tool
 class_name MagicEdge
 extends Line2D
 
@@ -15,8 +16,22 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 
 
 # The socket the edge goes between
-var starting_socket: Socket
-var ending_socket: Socket
+@export var starting_socket: Socket:
+		set(s):
+			starting_socket = s
+			if is_instance_valid(starting_socket) and Engine.is_editor_hint(): 
+				clear_points()
+				add_point(starting_socket.position)
+		
+@export var ending_socket: Socket:
+		set(s):
+			if !starting_socket:
+				push_error("Cannot add an Ending Socket before Starting Socket")
+				return
+			ending_socket = s
+			if is_instance_valid(ending_socket) and Engine.is_editor_hint():
+				lock_line(ending_socket)
+
 
 # States of the line
 var is_in_focus: bool = false ## The edge is 'selected'. (i.e. The player is controlling the line, has it selected).
@@ -26,7 +41,11 @@ var is_locked: bool = false ## The edge has both sockets selected, it cannot be 
 # Other attributes of the line
 @onready var max_width: float = self.width
 
+
 func _ready() -> void:
+	if Engine.is_editor_hint():
+		return
+		
 	assert(starting_socket, "ERROR: MagicEdge placed in scene without a starting socket, suggest using start_magic_edge()")
 	add_point(starting_socket.position)
 	if ending_socket: # A line is not created with an ending socket unless it is instantiated as such
@@ -57,7 +76,6 @@ static func create_magic_edge(start: Socket, end: Socket, is_debug = false) -> M
 func stretch_magic_edge(v: Vector2) -> void:
 	# NOTE: Given it is an Edge, there will only be two points, but I am leaving the option to making curved lines in which this has to be overrided.
 	# Updates the second/ending/final point (since its an edge)
-	
 	assert(is_locked == false, "MagicEdge can only be updated when not locked!")
 	
 	if get_point_count() == 1: # A final point has not been made
@@ -69,22 +87,21 @@ func stretch_magic_edge(v: Vector2) -> void:
 ## Finalize the edge, should not be edited anymore
 func lock_line(end_socket: Socket) -> void:
 	assert(end_socket != null, "ERROR: Attempting to lock MagicEdge without a valid ending Socket")
-	ending_socket = end_socket
 	stretch_magic_edge(ending_socket.position)
 	is_locked = true
-	decay_component.stop_decay()
-
-
-## Focusing a line stops decay
-func focus_line() -> void:
-	is_in_focus = true
-	decay_component.stop_decay()
+	decay_component.call_deferred("stop_decay")
 
 
 ## Unfocusing a line starts decay
 func unfocus_line() -> void:
 	is_in_focus = false
 	decay_component.start_decay()
+
+
+## Focusing a line stops decay
+func focus_line() -> void:
+	is_in_focus = true
+	decay_component.stop_decay()
 
 
 func _on_health_component_health_depleted() -> void:
@@ -94,5 +111,5 @@ func _on_health_component_health_depleted() -> void:
 
 
 func _on_health_component_health_updated() -> void:
-	print("Update health")
+	#print("MagicEdge health updated")
 	self.width = health_component.health/health_component.max_health * max_width

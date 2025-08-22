@@ -1,3 +1,4 @@
+@tool
 class_name HealthComponent
 extends Node2D
 

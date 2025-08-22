@@ -1,3 +1,4 @@
+@tool
 class_name DecayComponent
 extends Node2D
 
@@ -29,5 +30,5 @@ func stop_decay() -> void:
 
 
 func _on_timer_timeout() -> void:
-	print("Decay Timer Timeout")
+	#print("Decay Timer Timeout")
 	health_component.take_damage(decay_strength)

@@ -1,9 +1,7 @@
-[gd_scene load_steps=5 format=3 uid="uid://b6k4n067ypio4"]
+[gd_scene load_steps=3 format=3 uid="uid://b6k4n067ypio4"]
 
-[ext_resource type="PackedScene" uid="uid://bo4couelf4d0s" path="res://utilities/mouse_toggle.tscn" id="1_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://ovqsolmtq3ns" path="res://utilities/Debugger.tscn" id="1_lquwl"]
-[ext_resource type="PackedScene" uid="uid://dn6r8e32ar5tt" path="res://socket.tscn" id="2_1bvp3"]
-[ext_resource type="Script" uid="uid://pctmngxpde5t" path="res://socket_controller.gd" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://dvuvding13ynd" path="res://EnchantmentMap.tscn" id="2_0xm2m"]
 
 [node name="Main" type="Node"]
 
@@ -13,17 +11,6 @@ deep_search = false
 nodes = []
 
 [node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
 
-[node name="MouseToggle" parent="." instance=ExtResource("1_0xm2m")]
-
-[node name="SocketController" type="Node2D" parent="."]
-script = ExtResource("4_1bvp3")
-
-[node name="Socket" parent="SocketController" instance=ExtResource("2_1bvp3")]
-position = Vector2(263, -100)
-
-[node name="Socket2" parent="SocketController" instance=ExtResource("2_1bvp3")]
-position = Vector2(-320, -128)
-
-[node name="Socket3" parent="SocketController" instance=ExtResource("2_1bvp3")]
-position = Vector2(-48, -128)
+[node name="EnchantmentMap" parent="." instance=ExtResource("2_0xm2m")]
