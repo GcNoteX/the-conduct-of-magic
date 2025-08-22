@@ -18,17 +18,39 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 # The socket the edge goes between
 @export var starting_socket: Socket:
 		set(s):
+			if s == null:
+				if starting_socket:
+					starting_socket.remove_connection(self)
+					starting_socket = null
+				if ending_socket:
+					ending_socket = null
+				clear_points()
+				return
+			if !s.can_connect_edge():
+				push_error("Socket is at max capacity, unable to connect")
+				return
 			starting_socket = s
+			starting_socket.add_connection(self)
 			if is_instance_valid(starting_socket) and Engine.is_editor_hint(): 
 				clear_points()
 				add_point(starting_socket.position)
 		
 @export var ending_socket: Socket:
 		set(s):
+			if s == null and ending_socket:
+				ending_socket.remove_connection(self)
+				ending_socket = null
+				is_locked = false
+				remove_point(1)
+				return
 			if !starting_socket:
 				push_error("Cannot add an Ending Socket before Starting Socket")
 				return
+			if !s.can_connect_edge():
+				push_error("Socket is at max capacity, unable to connect")
+				return
 			ending_socket = s
+			ending_socket.add_connection(self)
 			if is_instance_valid(ending_socket) and Engine.is_editor_hint():
 				lock_line(ending_socket)
 
@@ -89,7 +111,11 @@ func lock_line(end_socket: Socket) -> void:
 	assert(end_socket != null, "ERROR: Attempting to lock MagicEdge without a valid ending Socket")
 	stretch_magic_edge(ending_socket.position)
 	is_locked = true
-	decay_component.call_deferred("stop_decay")
+	
+	if Engine.is_editor_hint():
+		return
+		
+	decay_component.stop_decay()
 
 
 ## Unfocusing a line starts decay

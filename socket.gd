@@ -7,6 +7,9 @@ signal selected_as_start(s: Socket)
 signal selected_as_end(s: Socket)
 signal cancel_selection(s: Socket)
 
+@onready var cap_labal: Label = $Label
+
+
 var is_selected_as_start = false
 var is_hovered_over = false
 
@@ -15,14 +18,17 @@ var is_hovered_over = false
 		if c < 0:
 			return
 		max_capacity = c
-var cur_capacity: int = 0
+		call_deferred("update_capacity_label")
+var cur_capacity: int = 0:
+	set(c):
+		cur_capacity = c
+		call_deferred("update_capacity_label")
 
 @export_category("Debug Settings")
 @export var is_debug: bool = false
 
 func _process(_delta: float) -> void:
-	if Engine.is_editor_hint():
-		return
+	if Engine.is_editor_hint(): return
 	# Select the socket with clicking leftclick over it
 	if Input.is_action_just_pressed('left_click') and is_hovered_over:
 		#is_selected_as_start = true
@@ -46,6 +52,16 @@ func _process(_delta: float) -> void:
 			#emit_signal("cancel_selection", self)
 
 
+func add_connection(_magic_edge: MagicEdge) -> void:
+	cur_capacity += 1
+
+func remove_connection(_magic_edge: MagicEdge) -> void:
+	cur_capacity -= 1
+
+func can_connect_edge() -> bool:
+	return cur_capacity < max_capacity
+
+
 func _on_area_2d_mouse_entered() -> void:
 	is_hovered_over = true
 
@@ -56,3 +72,7 @@ func _on_area_2d_mouse_exited() -> void:
 
 func enable_debug() -> void:
 	is_debug = true
+
+
+func update_capacity_label() -> void:
+	cap_labal.text = str(cur_capacity) + '/' + str(max_capacity)

@@ -8,6 +8,7 @@ radius = 32.3883
 
 [node name="Socket" type="Node2D"]
 script = ExtResource("1_mud4j")
+max_capacity = 1
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("2_mud4j")
@@ -16,6 +17,18 @@ texture = ExtResource("2_mud4j")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 shape = SubResource("CircleShape2D_frn1o")
+
+[node name="Label" type="Label" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_top = 39.0
+offset_right = 20.0
+offset_bottom = 62.0
+grow_horizontal = 2
+text = "0/1"
+horizontal_alignment = 1
 
 [connection signal="mouse_entered" from="Area2D" to="." method="_on_area_2d_mouse_entered"]
 [connection signal="mouse_exited" from="Area2D" to="." method="_on_area_2d_mouse_exited"]
