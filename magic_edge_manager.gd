@@ -12,6 +12,9 @@ extends Node2D
 
 @export var enchantment_map: EnchantmentMap
 
+
+var magic_edge_highlighted: MagicEdge = null
+
 var magic_edge_selected: MagicEdge = null:
 	set(i):
 		#print("Magic Edge Selected:", i)
@@ -24,7 +27,10 @@ func _ready() -> void:
 	enchantment_map.starting_socket_selected.connect(attempt_create_magic_edge)
 	enchantment_map.ending_socket_selected.connect(attempt_lock_magic_edge)
 	enchantment_map.magic_edge_destroyed.connect(_on_magic_edge_destroyed)
-	
+	enchantment_map.magic_edge_hovered_over.connect(_on_magic_edge_highlighted)
+	enchantment_map.magic_edge_unhovered_over.connect(_on_magic_edge_unhighlighted)
+
+
 func _process(_delta: float) -> void:
 	if Input.is_action_just_released("left_click") and magic_edge_selected:
 		release_selected_edge()
@@ -46,6 +52,7 @@ func attempt_create_magic_edge(starting_socket: Socket) -> bool:
 func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 	if ending_socket.can_connect_edge() and magic_edge_selected:
 		magic_edge_selected.ending_socket = ending_socket
+		magic_edge_selected.lock_line()
 		return true
 	return false
 
@@ -63,3 +70,11 @@ func destroy_magic_edge(e: MagicEdge) -> void:
 
 func _on_magic_edge_destroyed(e: MagicEdge) -> void:
 	destroy_magic_edge(e)
+
+func _on_magic_edge_highlighted(e: MagicEdge) -> void:
+	magic_edge_highlighted = e
+	magic_edge_highlighted.modulate = Color(1, 1, 0, 1)
+	
+func _on_magic_edge_unhighlighted(e: MagicEdge) -> void:
+	magic_edge_highlighted.modulate = Color(1, 1, 1, 1)
+	magic_edge_highlighted = null

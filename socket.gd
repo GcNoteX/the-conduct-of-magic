@@ -2,16 +2,22 @@
 class_name Socket
 extends Node2D
 
-
+signal hovered_over(s: Socket)
+signal unhovered_over(s: Socket)
 signal selected_as_start(s: Socket)
 signal selected_as_end(s: Socket)
-signal cancel_selection(s: Socket)
 
 @onready var cap_labal: Label = $Label
 
 
 var is_selected_as_start = false
-var is_hovered_over = false
+var is_hovered_over = false:
+	set(h):
+		is_hovered_over = h
+		if is_hovered_over:
+			emit_signal("hovered_over", self)
+		else:
+			emit_signal("unhovered_over", self)
 
 @export var max_capacity: int = 0: ## Number of magic edges that can be connected to this socket
 	set(c):

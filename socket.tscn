@@ -7,6 +7,7 @@
 radius = 32.3883
 
 [node name="Socket" type="Node2D"]
+z_index = 1
 script = ExtResource("1_mud4j")
 max_capacity = 1
 
