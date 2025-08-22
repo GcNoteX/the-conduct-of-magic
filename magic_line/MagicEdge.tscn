@@ -13,6 +13,7 @@ script = ExtResource("1_5a71e")
 [node name="HealthComponent" parent="." instance=ExtResource("2_gglsk")]
 
 [node name="DecayComponent" parent="." node_paths=PackedStringArray("health_component") instance=ExtResource("2_5a71e")]
+decay_strength = 3.0
 decay_tick_rate = 0.1
 health_component = NodePath("../HealthComponent")
 

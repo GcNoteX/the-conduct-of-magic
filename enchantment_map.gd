@@ -10,24 +10,20 @@ the EnchantmentMap will emit signals to work with the nodes within it.
 
 signal starting_socket_selected(s: Socket)
 signal ending_socket_selected(s: Socket)
+signal magic_edge_destroyed(e: MagicEdge)
 
-@export var sockets: Array[Socket]
-@export var magic_edges: Array[MagicEdge]
 
 func _ready() -> void:
-	sockets.clear()
-	magic_edges.clear()
-	
 	for child in get_children():
 		if child is Socket:
 			child.selected_as_start.connect(_on_start_socket_selected)
 			child.selected_as_end.connect(_on_end_socket_selected)
-			sockets.append(child)
 		elif child is MagicEdge:
-			magic_edges.append(child)
+			child.magic_edge_destroyed.connect(_on_edge_destroyed)
 
 
 func add_magic_edge_to_map(e: MagicEdge) -> void:
+	e.magic_edge_destroyed.connect(_on_edge_destroyed)
 	add_child(e)
 
 func _on_start_socket_selected(s: Socket) -> void:
@@ -35,3 +31,6 @@ func _on_start_socket_selected(s: Socket) -> void:
 
 func _on_end_socket_selected(s: Socket) -> void:
 	emit_signal("ending_socket_selected", s)
+
+func _on_edge_destroyed(e: MagicEdge) -> void:
+	emit_signal("magic_edge_destroyed", e)

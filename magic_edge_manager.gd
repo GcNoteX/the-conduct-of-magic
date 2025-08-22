@@ -23,7 +23,8 @@ func _ready() -> void:
 		return
 	enchantment_map.starting_socket_selected.connect(attempt_create_magic_edge)
 	enchantment_map.ending_socket_selected.connect(attempt_lock_magic_edge)
-
+	enchantment_map.magic_edge_destroyed.connect(_on_magic_edge_destroyed)
+	
 func _process(_delta: float) -> void:
 	if Input.is_action_just_released("left_click") and magic_edge_selected:
 		release_selected_edge()
@@ -52,3 +53,13 @@ func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 func release_selected_edge() -> void:
 	magic_edge_selected.start_decay()
 	magic_edge_selected = null
+
+
+func destroy_magic_edge(e: MagicEdge) -> void:
+	e.starting_socket.remove_connection(e)
+	if e.ending_socket:
+		e.ending_socket.remove_connection(e)
+	
+
+func _on_magic_edge_destroyed(e: MagicEdge) -> void:
+	destroy_magic_edge(e)

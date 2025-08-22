@@ -8,7 +8,8 @@ A MagicEdge has to start from a Socket and end at a Socket when finalized.
 While connecting the sockets, the data of what happens in between to the line should be tracked.
 """
 
-signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
+#signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
+signal magic_edge_destroyed(e: MagicEdge)
 
 
 @onready var decay_component: DecayComponent = $DecayComponent
@@ -19,7 +20,7 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 @export var starting_socket: Socket:
 		set(s):
 			if s == null:
-				if starting_socket:
+				if starting_socket and Engine.is_editor_hint():
 					starting_socket.remove_connection(self)
 					starting_socket = null
 				if ending_socket:
@@ -38,7 +39,7 @@ signal magic_edge_destroyed(v1: Vector2, v2: Vector2)
 		
 @export var ending_socket: Socket:
 		set(s):
-			if s == null and ending_socket: # For editor use, clearing connection
+			if s == null and ending_socket and Engine.is_editor_hint(): # For editor use, clearing connection
 				ending_socket.remove_connection(self)
 				ending_socket = null
 				is_locked = false
@@ -132,10 +133,10 @@ func start_decay() -> void:
 
 func _on_health_component_health_depleted() -> void:
 	# As the line deletes itself, we give the points of the line to do any manual effects needed based on where the line would be drawn.
-	emit_signal("magic_edge_destroyed", get_point_position(0), get_point_position(1))
+	emit_signal("magic_edge_destroyed", self)
 	queue_free()
 
 
 func _on_health_component_health_updated() -> void:
-	#print("MagicEdge health updated")
+	print("MagicEdge health updated")
 	self.width = health_component.health/health_component.max_health * max_width
