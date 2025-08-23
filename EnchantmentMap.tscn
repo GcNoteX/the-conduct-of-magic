@@ -16,6 +16,21 @@ max_capacity = 2
 
 [node name="Socket4" parent="." instance=ExtResource("2_gh3tp")]
 position = Vector2(616, 198)
+max_capacity = 3
+
+[node name="Socket7" parent="." instance=ExtResource("2_gh3tp")]
+position = Vector2(849, 102)
+
+[node name="Socket8" parent="." instance=ExtResource("2_gh3tp")]
+position = Vector2(448, 93)
+
+[node name="Socket9" parent="." instance=ExtResource("2_gh3tp")]
+position = Vector2(295, 482)
+max_capacity = 2
+
+[node name="Socket10" parent="." instance=ExtResource("2_gh3tp")]
+position = Vector2(98, 113)
+max_capacity = 2
 
 [node name="Socket5" parent="." instance=ExtResource("2_gh3tp")]
 position = Vector2(791, 323)
@@ -25,16 +40,11 @@ position = Vector2(678, 516)
 max_capacity = 3
 
 [node name="MagicEdge" parent="." node_paths=PackedStringArray("starting_socket", "ending_socket") instance=ExtResource("3_tq3s1")]
-rotation = -0.000983636
-points = PackedVector2Array(299, 228, 496, 449)
 starting_socket = NodePath("../Socket")
 ending_socket = NodePath("../Socket3")
 highlight_color = Color(1, 1, 1, 1)
 
 [node name="MagicEdge2" parent="." node_paths=PackedStringArray("starting_socket", "ending_socket") instance=ExtResource("3_tq3s1")]
-rotation = 0.00149358
-scale = Vector2(1, 1)
-points = PackedVector2Array(791, 323, 678, 516)
 starting_socket = NodePath("../Socket5")
 ending_socket = NodePath("../Socket6")
 highlight_color = Color(1, 1, 1, 1)

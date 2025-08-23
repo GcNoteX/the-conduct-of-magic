@@ -6,14 +6,10 @@
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5a71e"]
 radius = 7.0
-height = 223.647
+height = 14.0
 
-[node name="MagicEdge" type="Line2D"]
-default_color = Color(0.838826, 0.461346, 0.594515, 1)
-begin_cap_mode = 2
-end_cap_mode = 2
+[node name="MagicEdge" type="Area2D"]
 script = ExtResource("1_5a71e")
-highlight_color = Color(0.96183, 0.580641, 2.07925e-05, 1)
 
 [node name="HealthComponent" parent="." instance=ExtResource("2_gglsk")]
 
@@ -22,12 +18,13 @@ decay_strength = 3.0
 decay_tick_rate = 0.1
 health_component = NodePath("../HealthComponent")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="MagicLine" type="Line2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="LineCollisionShape" type="CollisionShape2D" parent="."]
+rotation = -1.5708
 shape = SubResource("CapsuleShape2D_5a71e")
 
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
+[connection signal="mouse_exited" from="." to="." method="_on_mouse_exited"]
 [connection signal="health_depleted" from="HealthComponent" to="." method="_on_health_component_health_depleted"]
 [connection signal="health_updated" from="HealthComponent" to="." method="_on_health_component_health_updated"]
-[connection signal="mouse_entered" from="Area2D" to="." method="_on_area_2d_mouse_entered"]
-[connection signal="mouse_exited" from="Area2D" to="." method="_on_area_2d_mouse_exited"]

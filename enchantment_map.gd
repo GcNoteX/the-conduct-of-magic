@@ -7,31 +7,36 @@ to do operations on the map is on other nodes,
 the EnchantmentMap will emit signals to work with the nodes within it.
 """
 
-
+signal map_initialized()
+signal magic_edge_destroyed(e: MagicEdge)
+signal magic_edge_added(e: MagicEdge)
 signal starting_socket_selected(s: Socket)
 signal ending_socket_selected(s: Socket)
-signal magic_edge_destroyed(e: MagicEdge)
-signal magic_edge_hovered_over(e: MagicEdge)
-signal magic_edge_unhovered_over(e: MagicEdge)
 
-var is_hovering_on_socket: bool = false
+
+var sockets: Array[Socket]
+var magic_edges: Array[MagicEdge]
 
 func _ready() -> void:
 	for child in get_children():
 		if child is Socket:
 			child.selected_as_start.connect(_on_start_socket_selected)
 			child.selected_as_end.connect(_on_end_socket_selected)
-			child.hovered_over.connect(_on_Socket_hovered_over)
-			child.unhovered_over.connect(_on_Socket_unhovered_over)
+			sockets.append(child)
 		elif child is MagicEdge:
 			child.magic_edge_destroyed.connect(_on_edge_destroyed)
-			child.magic_edge_hovered_over.connect(magic_edge_hovered_over)
-			child.magic_edge_unhovered_over.connect(magic_edge_unhovered_over)
-
+			#child.magic_edge_hovered_over.connect(_on_magic_edge_hovered_over)
+			#child.magic_edge_unhovered_over.connect(_on_magic_edge_unhovered_over)
+			magic_edges.append(child)
+	
+	emit_signal("map_initialized")
 
 func add_magic_edge_to_map(e: MagicEdge) -> void:
 	e.magic_edge_destroyed.connect(_on_edge_destroyed)
+	#e.magic_edge_hovered_over.connect(_on_magic_edge_hovered_over)
+	#e.magic_edge_unhovered_over.connect(_on_magic_edge_unhovered_over)
 	add_child(e)
+	emit_signal("magic_edge_added", e)
 
 func _on_start_socket_selected(s: Socket) -> void:
 	emit_signal("starting_socket_selected", s)
@@ -42,14 +47,8 @@ func _on_end_socket_selected(s: Socket) -> void:
 func _on_edge_destroyed(e: MagicEdge) -> void:
 	emit_signal("magic_edge_destroyed", e)
 
-func _on_magic_edge_hovered_over(e: MagicEdge) -> void:
-	emit_signal("magic_edge_hovered_over", e)
-	
-func _on_magic_edge_unhovered_over(e: MagicEdge) -> void:
-	emit_signal("magic_edge_unhovered_over", e)
-
-func _on_Socket_hovered_over(e: Socket) -> void:
-	is_hovering_on_socket = true
-
-func _on_Socket_unhovered_over(e: Socket) -> void:
-	is_hovering_on_socket = false
+#func _on_magic_edge_hovered_over(e: MagicEdge) -> void:
+	#emit_signal("magic_edge_hovered_over", e)
+	#
+#func _on_magic_edge_unhovered_over(e: MagicEdge) -> void:
+	#emit_signal("magic_edge_unhovered_over", e)

@@ -10,7 +10,6 @@ signal selected_as_end(s: Socket)
 @onready var cap_labal: Label = $Label
 
 
-var is_selected_as_start = false
 var is_hovered_over = false:
 	set(h):
 		is_hovered_over = h
@@ -33,32 +32,6 @@ var cur_capacity: int = 0:
 @export_category("Debug Settings")
 @export var is_debug: bool = false
 
-func _process(_delta: float) -> void:
-	if Engine.is_editor_hint(): return
-	# Select the socket with clicking leftclick over it
-	if Input.is_action_just_pressed('left_click') and is_hovered_over:
-		is_selected_as_start = true
-		#if is_debug: print(self, "selected as start")
-		#emit_signal("selected_as_start", self)
-	
-	if Input.is_action_just_released("left_click") and is_hovered_over:
-		is_selected_as_start = false
-		if is_debug: print(self, "selected as end")
-		emit_signal("selected_as_end", self)
-	
-	#if Input.is_action_just_released("left_click"):
-		## If it was not selected, but was released on, it was selected as an end (how parent logic handles this is important)
-		#if is_hovered_over and !is_selected_as_start:
-			#if is_debug: print(self, "selected as end")
-			#emit_signal("selected_as_end", self)
-		
-		# Cancel selection only if it was start (we do not want this signal continuously sending)
-		#if is_selected_as_start:
-			#is_selected_as_start = false
-			#if is_debug: print(self, "cancelled selection")
-			#emit_signal("cancel_selection", self)
-
-
 func add_connection(_magic_edge: MagicEdge) -> void:
 	#print("Adding connection")
 	cur_capacity += 1
@@ -75,14 +48,14 @@ func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
 
 func _on_area_2d_mouse_entered() -> void:
 	is_hovered_over = true
-	is_selected_as_start = false
 
 
 func _on_area_2d_mouse_exited() -> void:
 	is_hovered_over = false
-	if is_selected_as_start:
-		if is_debug: print(self, "selected as start")
-		emit_signal("selected_as_start", self)
+	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		if can_connect_edge():
+			if is_debug: print(self, "selected as start")
+			emit_signal("selected_as_start", self)
 
 
 func enable_debug() -> void:
@@ -91,3 +64,16 @@ func enable_debug() -> void:
 
 func update_capacity_label() -> void:
 	cap_labal.text = str(cur_capacity) + '/' + str(max_capacity)
+
+
+func _on_area_2d_area_entered(area: Area2D) -> void:
+	if area is MagicEdge:
+		# If the area is someone else and capacity == max
+		if area.starting_socket == self: # Ignore if point to self
+			return
+
+		if can_connect_edge():
+			print(area, " selected as end")
+			emit_signal("selected_as_end", self)
+		else:
+			push_warning("MagicEdge Overlapping with Full Socket")
