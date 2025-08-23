@@ -16,6 +16,8 @@ extends Node2D
 @export var enchantment_map: EnchantmentMap
 @export var map_selection_manager: MapSelectionManager
 
+# BUG: DO NOT ALLOW THE SAME EDGE (more than one edge between two vertexes) TO BE MADE TWICE
+
 var chaining_counter: int = 0
 var magic_edge_highlighted: MagicEdge = null
 var selected_magic_edge: MagicEdge = null:
