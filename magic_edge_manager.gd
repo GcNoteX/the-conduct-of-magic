@@ -51,7 +51,11 @@ func _physics_process(_delta: float) -> void:
 
 ## Returns True if attempt successful, False otherwise.
 func attempt_create_magic_edge(starting_socket: Socket) -> bool:
-	#print("Creeating magic edge")
+	
+	# This code block ensures the first of a chain has to have had the socket clicked on.
+	if chaining_counter == 0 and starting_socket.clicked_on == false: # First in the combo
+		return false
+	
 	if starting_socket.can_connect_edge():
 		var edge: MagicEdge = MagicEdge.start_magic_edge(starting_socket)
 		enchantment_map.call_deferred("add_magic_edge_to_map", edge)

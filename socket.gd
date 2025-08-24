@@ -9,7 +9,7 @@ signal selected_as_end(s: Socket)
 
 @onready var cap_labal: Label = $Label
 
-
+var clicked_on: bool = false
 var is_hovered_over = false:
 	set(h):
 		is_hovered_over = h
@@ -31,6 +31,12 @@ var cur_capacity: int = 0:
 
 @export_category("Debug Settings")
 @export var is_debug: bool = false
+
+func _physics_process(_delta: float) -> void:
+	if Input.is_action_just_pressed("left_click") and is_hovered_over:
+		clicked_on = true
+	if Input.is_action_just_released("left_click"):
+		clicked_on = false
 
 func add_connection(_magic_edge: MagicEdge) -> void:
 	#print("Adding connection")
