@@ -33,6 +33,9 @@ var cur_capacity: int = 0:
 @export var is_debug: bool = false
 
 func _physics_process(_delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+		
 	if Input.is_action_just_pressed("left_click") and is_hovered_over:
 		clicked_on = true
 	if Input.is_action_just_released("left_click"):

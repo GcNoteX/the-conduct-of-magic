@@ -1,9 +1,9 @@
 [gd_scene load_steps=5 format=3 uid="uid://b6k4n067ypio4"]
 
 [ext_resource type="PackedScene" uid="uid://ovqsolmtq3ns" path="res://utilities/Debugger.tscn" id="1_lquwl"]
-[ext_resource type="PackedScene" uid="uid://dvuvding13ynd" path="res://EnchantmentMap.tscn" id="2_0xm2m"]
 [ext_resource type="PackedScene" uid="uid://b6s43lermrlap" path="res://MapSelectionManager.tscn" id="3_1bvp3"]
 [ext_resource type="Script" uid="uid://dt40h0hdvc6sk" path="res://magic_edge_manager.gd" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://cqre7xowyixim" path="res://EnchantmentMap2.tscn" id="4_1bvp3"]
 
 [node name="Main" type="Node"]
 
@@ -24,4 +24,4 @@ metadata/_custom_type_script = "uid://dt40h0hdvc6sk"
 [node name="MapSelectionManager" parent="." node_paths=PackedStringArray("map") instance=ExtResource("3_1bvp3")]
 map = NodePath("../EnchantmentMap")
 
-[node name="EnchantmentMap" parent="." instance=ExtResource("2_0xm2m")]
+[node name="EnchantmentMap" parent="." instance=ExtResource("4_1bvp3")]

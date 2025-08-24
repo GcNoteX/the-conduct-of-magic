@@ -59,7 +59,6 @@ func attempt_create_magic_edge(starting_socket: Socket) -> bool:
 	if starting_socket.can_connect_edge():
 		var edge: MagicEdge = MagicEdge.start_magic_edge(starting_socket)
 		enchantment_map.call_deferred("add_magic_edge_to_map", edge)
-		edge.socket_limit_reached.connect(_on_socket_limit_reached)
 		await enchantment_map.magic_edge_added
 		selected_magic_edge = edge
 		#print("Updated selected edge to ", selected_magic_edge)
@@ -73,8 +72,12 @@ func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 		if !enchantment_map.is_edge_duplicate(ending_socket, selected_magic_edge):
 			selected_magic_edge.ending_socket = ending_socket
 			chaining_counter += 1
-			selected_magic_edge.lock_line()
+			var can_continue = selected_magic_edge.lock_line() # Lock line will tell us if we can continue or not as a signal is emitted to _on_socket_limit_reached
+			
 			# Continue line if the cursor is not on the ending socket and the ending socket has space
+			if can_continue and map_selection_manager.determine_selected() != ending_socket: # Second boolean part is to ensure it doesnt double up with the Socket code to emit when used as start.
+				attempt_create_magic_edge(ending_socket)
+			
 			return true
 		else:
 			#print("Attempting to connect a duplicate edge, destroying edge!")
@@ -86,10 +89,6 @@ func release_selected_edge() -> void:
 	selected_magic_edge.start_decay()
 	selected_magic_edge = null
 
-
-func _on_socket_limit_reached(_s: Socket) -> void:
-	print("Chaining Length: ", chaining_counter)
-	chaining_counter = 0
 
 #func _on_magic_edge_highlighted(e: MagicEdge) -> void:
 	#magic_edge_highlighted = e

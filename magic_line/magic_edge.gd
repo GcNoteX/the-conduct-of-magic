@@ -10,7 +10,6 @@ While connecting the sockets, the data of what happens in between to the line sh
 
 signal magic_edge_hovered_over(e: MagicEdge)
 signal magic_edge_unhovered_over(e: MagicEdge)
-signal socket_limit_reached(s: Socket)
 signal magic_edge_destroyed(e: MagicEdge)
 
 @onready var decay_component: DecayComponent = $DecayComponent
@@ -122,17 +121,18 @@ func stretch_magic_edge(v: Vector2) -> void:
 		call_deferred("update_collision_shape")
 
 ## Finalize the edge, should not be edited anymore
-func lock_line() -> void:
+## Boolean return to determine if the socket can continue to be used or if limit is reached
+func lock_line() -> bool:
 	assert(ending_socket != null, "ERROR: Attempting to lock MagicEdge without a valid ending Socket")
 	stretch_magic_edge(ending_socket.position)
 	is_locked = true
 	if !ending_socket.can_connect_edge():
-		emit_signal("socket_limit_reached", ending_socket)
-		
+		return false
 	if Engine.is_editor_hint():
-		return
+		return true
 		
 	stop_decay()
+	return true
 
 func stop_decay() -> void:
 	# NOTE: Incase of animation, seperate to a function
