@@ -33,12 +33,11 @@ func _ready() -> void:
 		push_error("MagicEdgeManager has no selection manager!")
 		return
 		
-	enchantment_map.starting_socket_selected.connect(create_magic_edge)
-	enchantment_map.ending_socket_selected.connect(lock_magic_edge)
-	enchantment_map.magic_edge_destroyed.connect(_on_magic_edge_destroyed)
+	enchantment_map.starting_socket_selected.connect(attempt_create_magic_edge)
+	enchantment_map.ending_socket_selected.connect(attempt_lock_magic_edge)
 
 func _physics_process(_delta: float) -> void:
-	var selected_entity = map_selection_manager.determine_selected()
+	#var selected_entity = map_selection_manager.determine_selected()
 
 	if Input.is_action_just_pressed("left_click"):
 		chaining_counter = 0
@@ -48,30 +47,34 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_released("left_click") and selected_magic_edge:
 		release_selected_edge()
 	if selected_magic_edge and !selected_magic_edge.is_locked:
-		#print("About to stretch")
 		selected_magic_edge.stretch_magic_edge(get_global_mouse_position())
 
 ## Returns True if attempt successful, False otherwise.
-func create_magic_edge(starting_socket: Socket) -> bool:
+func attempt_create_magic_edge(starting_socket: Socket) -> bool:
+	#print("Creeating magic edge")
 	if starting_socket.can_connect_edge():
 		var edge: MagicEdge = MagicEdge.start_magic_edge(starting_socket)
 		enchantment_map.call_deferred("add_magic_edge_to_map", edge)
-		#enchantment_map.add_magic_edge_to_map(edge)
 		edge.socket_limit_reached.connect(_on_socket_limit_reached)
 		await enchantment_map.magic_edge_added
 		selected_magic_edge = edge
+		#print("Updated selected edge to ", selected_magic_edge)
 		return true
 	return false
 
 
 ## Returns True if attempt successful, False otherwise.
-func lock_magic_edge(ending_socket: Socket) -> bool:
+func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 	if selected_magic_edge:
-		selected_magic_edge.ending_socket = ending_socket
-		chaining_counter += 1
-		selected_magic_edge.lock_line()
-		# Continue line if the cursor is not on the ending socket and the ending socket has space
-		return true
+		if !enchantment_map.is_edge_duplicate(ending_socket, selected_magic_edge):
+			selected_magic_edge.ending_socket = ending_socket
+			chaining_counter += 1
+			selected_magic_edge.lock_line()
+			# Continue line if the cursor is not on the ending socket and the ending socket has space
+			return true
+		else:
+			#print("Attempting to connect a duplicate edge, destroying edge!")
+			selected_magic_edge.kill_edge()
 	return false
 
 
@@ -79,15 +82,6 @@ func release_selected_edge() -> void:
 	selected_magic_edge.start_decay()
 	selected_magic_edge = null
 
-
-func destroy_magic_edge(e: MagicEdge) -> void:
-	e.starting_socket.remove_connection(e)
-	if e.ending_socket:
-		e.ending_socket.remove_connection(e)
-	
-
-func _on_magic_edge_destroyed(e: MagicEdge) -> void:
-	destroy_magic_edge(e)
 
 func _on_socket_limit_reached(_s: Socket) -> void:
 	print("Chaining Length: ", chaining_counter)

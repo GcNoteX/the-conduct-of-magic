@@ -19,6 +19,7 @@ decay_tick_rate = 0.1
 health_component = NodePath("../HealthComponent")
 
 [node name="MagicLine" type="Line2D" parent="."]
+width = 5.0
 
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
 rotation = -1.5708

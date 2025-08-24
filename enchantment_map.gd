@@ -8,7 +8,6 @@ the EnchantmentMap will emit signals to work with the nodes within it.
 """
 
 signal map_initialized()
-signal magic_edge_destroyed(e: MagicEdge)
 signal magic_edge_added(e: MagicEdge)
 signal starting_socket_selected(s: Socket)
 signal ending_socket_selected(s: Socket)
@@ -25,17 +24,14 @@ func _ready() -> void:
 			sockets.append(child)
 		elif child is MagicEdge:
 			child.magic_edge_destroyed.connect(_on_edge_destroyed)
-			#child.magic_edge_hovered_over.connect(_on_magic_edge_hovered_over)
-			#child.magic_edge_unhovered_over.connect(_on_magic_edge_unhovered_over)
 			magic_edges.append(child)
 	
 	emit_signal("map_initialized")
 
 func add_magic_edge_to_map(e: MagicEdge) -> void:
 	e.magic_edge_destroyed.connect(_on_edge_destroyed)
-	#e.magic_edge_hovered_over.connect(_on_magic_edge_hovered_over)
-	#e.magic_edge_unhovered_over.connect(_on_magic_edge_unhovered_over)
 	add_child(e)
+	magic_edges.append(e)
 	emit_signal("magic_edge_added", e)
 
 func _on_start_socket_selected(s: Socket) -> void:
@@ -45,10 +41,18 @@ func _on_end_socket_selected(s: Socket) -> void:
 	emit_signal("ending_socket_selected", s)
 
 func _on_edge_destroyed(e: MagicEdge) -> void:
-	emit_signal("magic_edge_destroyed", e)
+	magic_edges.erase(e)
 
-#func _on_magic_edge_hovered_over(e: MagicEdge) -> void:
-	#emit_signal("magic_edge_hovered_over", e)
-	#
-#func _on_magic_edge_unhovered_over(e: MagicEdge) -> void:
-	#emit_signal("magic_edge_unhovered_over", e)
+## Checks if the edge goes between the same sockets as any other edge.
+func is_edge_duplicate(end_socket: Socket, new_edge: MagicEdge) -> bool:
+	assert(end_socket.can_connect_edge(), "Redundancy check for valid socket tripped, socket should be able to connect edge! Please check why.")
+	
+	var starting_socket: Socket = new_edge.starting_socket
+	for edge in magic_edges:
+		if (edge.starting_socket == starting_socket or \
+			edge.starting_socket == end_socket) and \
+			(edge.ending_socket == starting_socket or \
+			edge.ending_socket == end_socket):
+			return true 
+	
+	return false

@@ -10,8 +10,8 @@ While connecting the sockets, the data of what happens in between to the line sh
 
 signal magic_edge_hovered_over(e: MagicEdge)
 signal magic_edge_unhovered_over(e: MagicEdge)
-signal magic_edge_destroyed(e: MagicEdge)
 signal socket_limit_reached(s: Socket)
+signal magic_edge_destroyed(e: MagicEdge)
 
 @onready var decay_component: DecayComponent = $DecayComponent
 @onready var health_component: HealthComponent = $HealthComponent
@@ -65,7 +65,7 @@ signal socket_limit_reached(s: Socket)
 
 # States of the line
 var is_locked: bool = false ## The edge has both sockets selected, it cannot be modified, only destroyed.
-const SHAPE_PADDING: int = 2
+const SHAPE_PADDING: int = 1
 
 # Other attributes of the line
 @onready var max_width: float = magic_line.width
@@ -138,12 +138,20 @@ func stop_decay() -> void:
 	# NOTE: Incase of animation, seperate to a function
 	decay_component.stop_decay()
 
-
 func start_decay() -> void:
 	if is_locked:
 		return
 	# NOTE: Incase of animation, seperate to a function
 	decay_component.start_decay()
+
+## Kills the edge safely, guranteed kill
+func kill_edge() -> void:
+	if starting_socket:
+		starting_socket.remove_connection(self)
+	if ending_socket:
+		ending_socket.remove_connection(self)
+	queue_free()
+	emit_signal("magic_edge_destroyed", self)
 
 
 func update_collision_shape():
@@ -165,14 +173,13 @@ func _reset_collision_shape() -> void:
 
 func _on_health_component_health_depleted() -> void:
 	# As the line deletes itself, we give the points of the line to do any manual effects needed based on where the line would be drawn.
-	emit_signal("magic_edge_destroyed", self)
-	queue_free()
+	kill_edge()
 
 
 func _on_health_component_health_updated() -> void:
 	#print("MagicEdge health updated")
 	magic_line.width = health_component.health/health_component.max_health * max_width
-
+	call_deferred("update_collision_shape")
 
 func _on_mouse_entered() -> void:
 	emit_signal("magic_edge_hovered_over", self)

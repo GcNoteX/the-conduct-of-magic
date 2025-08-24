@@ -16,6 +16,7 @@ signal health_depleted
 	set(h):
 		if h < 0:
 			health = 0
+			print("Health Component depleted")
 			emit_signal("health_updated")
 			emit_signal("health_depleted")
 		else:
@@ -24,6 +25,12 @@ signal health_depleted
 
 func take_damage(damage: float) -> void:
 	health -= damage
+	#await get_tree().process_frame
+	#print("Health Component took damage")
+	#if health < 0:
+		#health = 0
+		#emit_signal("health_updated")
+		#emit_signal("health_depleted")
 
 func heal_health(healing: float) -> void:
 	health += healing

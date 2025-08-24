@@ -73,7 +73,8 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			return
 
 		if can_connect_edge():
-			print(area, " selected as end")
+			#print(area, " selected as end")
 			emit_signal("selected_as_end", self)
 		else:
-			push_warning("MagicEdge Overlapping with Full Socket")
+			area.kill_edge()
+			#push_warning("MagicEdge Overlapping with Full Socket")
