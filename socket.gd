@@ -38,8 +38,6 @@ func _physics_process(_delta: float) -> void:
 		
 	if Input.is_action_just_pressed("left_click") and is_hovered_over:
 		clicked_on = true
-	if Input.is_action_just_released("left_click"):
-		clicked_on = false
 
 func add_connection(_magic_edge: MagicEdge) -> void:
 	cur_capacity += 1

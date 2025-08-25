@@ -17,7 +17,9 @@ extends Node2D
 @export var map_selection_manager: MapSelectionManager
 @export var cursor: EnchantmentCursor
 
-var chaining_counter: int = 0
+var chaining_counter: int = 0:
+	set(i):
+		chaining_counter = i
 var magic_edge_highlighted: MagicEdge = null
 var selected_magic_edge: MagicEdge = null:
 	set(i):
@@ -38,10 +40,11 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	#var selected_entity = map_selection_manager.determine_selected()
 
-	if Input.is_action_just_pressed("left_click"):
-		chaining_counter = 0
-	if Input.is_action_just_released("left_click"):
-		print("Chain Length: ", chaining_counter)
+	#if Input.is_action_just_pressed("left_click"):
+		#chaining_counter = 0
+	#if Input.is_action_just_released("left_click"):
+		#print("Chain Length: ", chaining_counter)
+		#chaining_counter = 0
 		
 	if Input.is_action_just_released("left_click") and selected_magic_edge:
 		release_selected_edge()
@@ -55,14 +58,19 @@ func attempt_create_magic_edge(starting_socket: Socket) -> bool:
 	# This code block ensures the first of a chain has to have had the socket clicked on.
 	if chaining_counter == 0 and starting_socket.clicked_on == false: # First in the combo
 		return false
+	starting_socket.clicked_on = false
 	
 	if starting_socket.can_connect_edge():
 		var edge: MagicEdge = MagicEdge.start_magic_edge(starting_socket)
 		enchantment_map.call_deferred("add_magic_edge_to_map", edge)
 		await enchantment_map.magic_edge_added
 		selected_magic_edge = edge
+		
 		#print("Updated selected edge to ", selected_magic_edge)
 		return true
+	#else: # Covers for when player hits a socket that then bnecomes full
+		#print("Chain Length: ", chaining_counter)
+		#chaining_counter = 0
 	return false
 
 
@@ -72,16 +80,23 @@ func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 		if !enchantment_map.is_edge_duplicate(ending_socket, selected_magic_edge):
 			selected_magic_edge.ending_socket = ending_socket
 			chaining_counter += 1
-			var can_continue = selected_magic_edge.lock_line() # Lock line will tell us if we can continue or not as a signal is emitted to _on_socket_limit_reached
+			var can_continue = selected_magic_edge.lock_line() # Lock line will tell us if we can continue or not
 			
 			selected_magic_edge = null
+			
+			if !can_continue:
+				print("Chain Length: ", chaining_counter) # Covers for failed connections
+				print("Reseting Chain")
+				chaining_counter = 0
 			# Continue line if the cursor is not on the ending socket and the ending socket has space
 			if can_continue and map_selection_manager.determine_selected() != ending_socket: # Second boolean part is to ensure it doesnt double up with the Socket code to emit when used as start.
 				attempt_create_magic_edge(ending_socket)
 				
 			return true
 		else:
-			#print("Attempting to connect a duplicate edge, destroying edge!")
+			print("Chain Length: ", chaining_counter) # Covers for failed connections
+			print("Reseting Chain")
+			chaining_counter = 0
 			selected_magic_edge.kill_edge()
 	return false
 
