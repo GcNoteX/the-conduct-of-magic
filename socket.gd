@@ -65,8 +65,7 @@ func _on_area_2d_mouse_exited() -> void:
 		if can_connect_edge():
 			if is_debug: print(self, "selected as start")
 			emit_signal("selected_as_start", self)
-
-
+			
 func enable_debug() -> void:
 	is_debug = true
 
@@ -86,4 +85,3 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			emit_signal("selected_as_end", self)
 		else:
 			area.kill_edge()
-			#push_warning("MagicEdge Overlapping with Full Socket")

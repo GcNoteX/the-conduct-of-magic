@@ -51,7 +51,8 @@ func _physics_process(_delta: float) -> void:
 
 ## Returns True if attempt successful, False otherwise.
 func attempt_create_magic_edge(starting_socket: Socket) -> bool:
-	
+	if selected_magic_edge:
+		return false
 	# This code block ensures the first of a chain has to have had the socket clicked on.
 	if chaining_counter == 0 and starting_socket.clicked_on == false: # First in the combo
 		return false
@@ -74,10 +75,11 @@ func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 			chaining_counter += 1
 			var can_continue = selected_magic_edge.lock_line() # Lock line will tell us if we can continue or not as a signal is emitted to _on_socket_limit_reached
 			
+			selected_magic_edge = null
 			# Continue line if the cursor is not on the ending socket and the ending socket has space
 			if can_continue and map_selection_manager.determine_selected() != ending_socket: # Second boolean part is to ensure it doesnt double up with the Socket code to emit when used as start.
 				attempt_create_magic_edge(ending_socket)
-			
+				
 			return true
 		else:
 			#print("Attempting to connect a duplicate edge, destroying edge!")

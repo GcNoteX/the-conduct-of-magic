@@ -2,6 +2,9 @@
 class_name MagicEdge
 extends Area2D
 
+# BUG: Connect node to self results in duplicate line 
+# BUG: Direct entries create extra line
+
 """
 An Edge is a line between two points
 A MagicEdge has to start from a Socket and end at a Socket when finalized.
