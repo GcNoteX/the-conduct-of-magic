@@ -43,6 +43,10 @@ right_click={
 ]
 }
 
+[layer_names]
+
+2d_physics/layer_2="Cursor"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

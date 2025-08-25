@@ -42,7 +42,6 @@ func _physics_process(_delta: float) -> void:
 		clicked_on = false
 
 func add_connection(_magic_edge: MagicEdge) -> void:
-	#print("Adding connection")
 	cur_capacity += 1
 
 func remove_connection(_magic_edge: MagicEdge) -> void:
@@ -55,16 +54,16 @@ func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
 	return cur_capacity < max_capacity and !(e.starting_socket == self)
 
 
-func _on_area_2d_mouse_entered() -> void:
-	is_hovered_over = true
-
-
-func _on_area_2d_mouse_exited() -> void:
-	is_hovered_over = false
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		if can_connect_edge():
-			if is_debug: print(self, "selected as start")
-			emit_signal("selected_as_start", self)
+#func _on_area_2d_mouse_entered() -> void:
+	#is_hovered_over = true
+#
+#
+#func _on_area_2d_mouse_exited() -> void:
+	#is_hovered_over = false
+	#if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		#if can_connect_edge():
+			#if is_debug: print(self, "selected as start")
+			#emit_signal("selected_as_start", self)
 			
 func enable_debug() -> void:
 	is_debug = true
@@ -75,6 +74,9 @@ func update_capacity_label() -> void:
 
 
 func _on_area_2d_area_entered(area: Area2D) -> void:
+	if area is EnchantmentCursor:
+		is_hovered_over = true
+		
 	if area is MagicEdge:
 		# If the area is someone else and capacity == max
 		if area.starting_socket == self: # Ignore if point to self
@@ -85,3 +87,12 @@ func _on_area_2d_area_entered(area: Area2D) -> void:
 			emit_signal("selected_as_end", self)
 		else:
 			area.kill_edge()
+
+
+func _on_area_2d_area_exited(area: Area2D) -> void:
+	if area is EnchantmentCursor:
+		is_hovered_over = false
+		if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+			if can_connect_edge():
+				if is_debug: print(self, "selected as start")
+				emit_signal("selected_as_start", self)

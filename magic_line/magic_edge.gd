@@ -2,8 +2,6 @@
 class_name MagicEdge
 extends Area2D
 
-# BUG: Connect node to self results in duplicate line 
-# BUG: Direct entries create extra line
 
 """
 An Edge is a line between two points
@@ -63,8 +61,17 @@ signal magic_edge_destroyed(e: MagicEdge)
 			if is_instance_valid(magic_line) and is_instance_valid(ending_socket) and Engine.is_editor_hint():
 				lock_line()
 
-@export var highlight_color: Color = Color(1.0, 0.894, 0.795, 1)
-
+@export var line_highlighted: bool:
+	set(l):
+		line_highlighted = l
+		if line_highlighted:
+			modulate = Color(1, 1, 0, 1)
+		else:
+			modulate = Color(1, 1, 1, 1)
+@export var kill: bool:
+	set(i):
+		kill_edge()
+		
 # States of the line
 var is_locked: bool = false ## The edge has both sockets selected, it cannot be modified, only destroyed.
 const SHAPE_PADDING: int = 1
@@ -169,10 +176,18 @@ func update_collision_shape():
 	magic_edge_collision_shape.position = (a + b) / 2
 	magic_edge_collision_shape.rotation = angle
 
+
 func _reset_collision_shape() -> void:
 	magic_edge_collision_shape.position = Vector2.ZERO
 	magic_edge_collision_shape.rotation = 0.0
 	magic_edge_collision_shape.shape = CapsuleShape2D.new()
+
+
+func highlight() -> void:
+	line_highlighted = true
+
+func unhighlight() -> void:
+	line_highlighted = false
 
 func _on_health_component_health_depleted() -> void:
 	# As the line deletes itself, we give the points of the line to do any manual effects needed based on where the line would be drawn.
@@ -184,9 +199,20 @@ func _on_health_component_health_updated() -> void:
 	magic_line.width = health_component.health/health_component.max_health * max_width
 	call_deferred("update_collision_shape")
 
+
 func _on_mouse_entered() -> void:
-	emit_signal("magic_edge_hovered_over", self)
+	pass # Replace with function body.
 
 
 func _on_mouse_exited() -> void:
+	pass # Replace with function body.
+
+
+func _on_area_entered(area: Area2D) -> void:
+	print("Cursor detected entering")
 	emit_signal("magic_edge_unhovered_over", self)
+
+
+func _on_area_exited(area: Area2D) -> void:
+	print("Cursor detected exiting")
+	emit_signal("magic_edge_hovered_over", self)

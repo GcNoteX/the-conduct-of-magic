@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3 uid="uid://b6k4n067ypio4"]
+[gd_scene load_steps=6 format=3 uid="uid://b6k4n067ypio4"]
 
 [ext_resource type="PackedScene" uid="uid://ovqsolmtq3ns" path="res://utilities/Debugger.tscn" id="1_lquwl"]
 [ext_resource type="PackedScene" uid="uid://b6s43lermrlap" path="res://MapSelectionManager.tscn" id="3_1bvp3"]
 [ext_resource type="Script" uid="uid://dt40h0hdvc6sk" path="res://magic_edge_manager.gd" id="3_h2yge"]
 [ext_resource type="PackedScene" uid="uid://cqre7xowyixim" path="res://EnchantmentMap2.tscn" id="4_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://EnchantmentCursor.tscn" id="5_lquwl"]
 
 [node name="Main" type="Node"]
 
@@ -15,13 +16,17 @@ nodes = []
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
 
-[node name="MagicEdgeManager" type="Node2D" parent="." node_paths=PackedStringArray("enchantment_map", "map_selection_manager")]
+[node name="MagicEdgeManager" type="Node2D" parent="." node_paths=PackedStringArray("enchantment_map", "map_selection_manager", "cursor")]
 script = ExtResource("3_h2yge")
 enchantment_map = NodePath("../EnchantmentMap")
 map_selection_manager = NodePath("../MapSelectionManager")
+cursor = NodePath("../EnchantmentCursor")
 metadata/_custom_type_script = "uid://dt40h0hdvc6sk"
 
-[node name="MapSelectionManager" parent="." node_paths=PackedStringArray("map") instance=ExtResource("3_1bvp3")]
+[node name="MapSelectionManager" parent="." node_paths=PackedStringArray("map", "selector") instance=ExtResource("3_1bvp3")]
 map = NodePath("../EnchantmentMap")
+selector = NodePath("../EnchantmentCursor")
 
 [node name="EnchantmentMap" parent="." instance=ExtResource("4_1bvp3")]
+
+[node name="EnchantmentCursor" parent="." instance=ExtResource("5_lquwl")]

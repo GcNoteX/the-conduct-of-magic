@@ -11,6 +11,7 @@ For logical functionality of tasks where overlapping elements may determine the 
 """
 
 @export var map: EnchantmentMap
+@export var selector: EnchantmentCursor
 
 var socket_queue: Array = [] ## The queue of items, one in front takes priority
 var edges_queue: Array = []

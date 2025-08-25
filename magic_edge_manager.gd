@@ -15,8 +15,7 @@ extends Node2D
 
 @export var enchantment_map: EnchantmentMap
 @export var map_selection_manager: MapSelectionManager
-
-# BUG: DO NOT ALLOW THE SAME EDGE (more than one edge between two vertexes) TO BE MADE TWICE
+@export var cursor: EnchantmentCursor
 
 var chaining_counter: int = 0
 var magic_edge_highlighted: MagicEdge = null
@@ -47,7 +46,7 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_released("left_click") and selected_magic_edge:
 		release_selected_edge()
 	if selected_magic_edge and !selected_magic_edge.is_locked:
-		selected_magic_edge.stretch_magic_edge(get_global_mouse_position())
+		selected_magic_edge.stretch_magic_edge(cursor.get_location())
 
 ## Returns True if attempt successful, False otherwise.
 func attempt_create_magic_edge(starting_socket: Socket) -> bool:
@@ -90,12 +89,3 @@ func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 func release_selected_edge() -> void:
 	selected_magic_edge.start_decay()
 	selected_magic_edge = null
-
-
-#func _on_magic_edge_highlighted(e: MagicEdge) -> void:
-	#magic_edge_highlighted = e
-	#magic_edge_highlighted.modulate = Color(1, 1, 0, 1)
-	#
-#func _on_magic_edge_unhighlighted(_e: MagicEdge) -> void:
-	#magic_edge_highlighted.modulate = Color(1, 1, 1, 1)
-	#magic_edge_highlighted = null
