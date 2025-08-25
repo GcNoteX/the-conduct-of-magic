@@ -23,13 +23,13 @@ func _ready() -> void:
 			child.selected_as_end.connect(_on_end_socket_selected)
 			sockets.append(child)
 		elif child is MagicEdge:
-			child.magic_edge_destroyed.connect(_on_edge_destroyed)
+			child.destroyed.connect(_on_edge_destroyed)
 			magic_edges.append(child)
 	
 	emit_signal("map_initialized")
 
 func add_magic_edge_to_map(e: MagicEdge) -> void:
-	e.magic_edge_destroyed.connect(_on_edge_destroyed)
+	e.destroyed.connect(_on_edge_destroyed)
 	add_child(e)
 	magic_edges.append(e)
 	emit_signal("magic_edge_added", e)

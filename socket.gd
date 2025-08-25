@@ -54,17 +54,6 @@ func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
 	return cur_capacity < max_capacity and !(e.starting_socket == self)
 
 
-#func _on_area_2d_mouse_entered() -> void:
-	#is_hovered_over = true
-#
-#
-#func _on_area_2d_mouse_exited() -> void:
-	#is_hovered_over = false
-	#if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		#if can_connect_edge():
-			#if is_debug: print(self, "selected as start")
-			#emit_signal("selected_as_start", self)
-			
 func enable_debug() -> void:
 	is_debug = true
 

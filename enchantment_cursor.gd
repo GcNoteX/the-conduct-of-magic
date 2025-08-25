@@ -7,7 +7,7 @@ extends Area2D
 # want to do chain linking since the cursor is not on
 # the socket when the edge locks.
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	position = get_global_mouse_position()
 
 ## Get the location of the cursor

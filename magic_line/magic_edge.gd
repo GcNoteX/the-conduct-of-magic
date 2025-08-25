@@ -9,9 +9,9 @@ A MagicEdge has to start from a Socket and end at a Socket when finalized.
 While connecting the sockets, the data of what happens in between to the line should be tracked.
 """
 
-signal magic_edge_hovered_over(e: MagicEdge)
-signal magic_edge_unhovered_over(e: MagicEdge)
-signal magic_edge_destroyed(e: MagicEdge)
+signal hovered_over(e: MagicEdge)
+signal unhovered_over(e: MagicEdge)
+signal destroyed(e: MagicEdge)
 
 @onready var decay_component: DecayComponent = $DecayComponent
 @onready var health_component: HealthComponent = $HealthComponent
@@ -73,6 +73,14 @@ signal magic_edge_destroyed(e: MagicEdge)
 		kill_edge()
 		
 # States of the line
+var is_hovered_over = false:
+	set(h):
+		is_hovered_over = h
+		if is_hovered_over:
+			emit_signal("hovered_over", self)
+		else:
+			emit_signal("unhovered_over", self)
+			
 var is_locked: bool = false ## The edge has both sockets selected, it cannot be modified, only destroyed.
 const SHAPE_PADDING: int = 1
 
@@ -161,7 +169,7 @@ func kill_edge() -> void:
 	if ending_socket:
 		ending_socket.remove_connection(self)
 	queue_free()
-	emit_signal("magic_edge_destroyed", self)
+	emit_signal("destroyed", self)
 
 
 func update_collision_shape():
@@ -200,19 +208,9 @@ func _on_health_component_health_updated() -> void:
 	call_deferred("update_collision_shape")
 
 
-func _on_mouse_entered() -> void:
-	pass # Replace with function body.
+func _on_area_entered(_area: Area2D) -> void:
+	is_hovered_over = true
 
 
-func _on_mouse_exited() -> void:
-	pass # Replace with function body.
-
-
-func _on_area_entered(area: Area2D) -> void:
-	print("Cursor detected entering")
-	emit_signal("magic_edge_unhovered_over", self)
-
-
-func _on_area_exited(area: Area2D) -> void:
-	print("Cursor detected exiting")
-	emit_signal("magic_edge_hovered_over", self)
+func _on_area_exited(_area: Area2D) -> void:
+	is_hovered_over = false
