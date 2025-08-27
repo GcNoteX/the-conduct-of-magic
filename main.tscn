@@ -14,8 +14,9 @@ debug_all = false
 deep_search = false
 nodes = []
 
-[node name="EnchantmentReader" type="Node" parent="."]
+[node name="EnchantmentReader" type="Node" parent="." node_paths=PackedStringArray("map")]
 script = ExtResource("2_7mycd")
+map = NodePath("../EnchantmentMap")
 metadata/_custom_type_script = "uid://xeo7o5u8o5o2"
 
 [node name="Camera2D" type="Camera2D" parent="."]

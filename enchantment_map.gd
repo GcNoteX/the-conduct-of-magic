@@ -8,10 +8,10 @@ the EnchantmentMap will emit signals to work with the nodes within it.
 """
 
 signal map_initialized()
+signal updated()
 signal magic_edge_added(e: MagicEdge)
 signal starting_socket_selected(s: Socket)
 signal ending_socket_selected(s: Socket)
-
 
 var sockets: Array[Socket]
 var magic_edges: Array[MagicEdge]
@@ -24,12 +24,14 @@ func _ready() -> void:
 			sockets.append(child)
 		elif child is MagicEdge:
 			child.destroyed.connect(_on_edge_destroyed)
+			child.locked.connect(_on_edge_locked)
 			magic_edges.append(child)
 	
 	emit_signal("map_initialized")
 
 func add_magic_edge_to_map(e: MagicEdge) -> void:
 	e.destroyed.connect(_on_edge_destroyed)
+	e.locked.connect(_on_edge_locked)
 	add_child(e)
 	magic_edges.append(e)
 	emit_signal("magic_edge_added", e)
@@ -42,6 +44,10 @@ func _on_end_socket_selected(s: Socket) -> void:
 
 func _on_edge_destroyed(e: MagicEdge) -> void:
 	magic_edges.erase(e)
+
+func _on_edge_locked(_e: MagicEdge) -> void:
+	print("Map Updated")
+	emit_signal("updated")
 
 ## Checks if the edge goes between the same sockets as any other edge.
 func is_edge_duplicate(end_socket: Socket, new_edge: MagicEdge) -> bool:

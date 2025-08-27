@@ -12,6 +12,7 @@ While connecting the sockets, the data of what happens in between to the line sh
 signal hovered_over(e: MagicEdge)
 signal unhovered_over(e: MagicEdge)
 signal destroyed(e: MagicEdge)
+signal locked(e: MagicEdge)
 
 @onready var decay_component: DecayComponent = $DecayComponent
 @onready var health_component: HealthComponent = $HealthComponent
@@ -81,7 +82,13 @@ var is_hovered_over = false:
 		else:
 			emit_signal("unhovered_over", self)
 			
-var is_locked: bool = false ## The edge has both sockets selected, it cannot be modified, only destroyed.
+var is_locked: bool = false: ## The edge has both sockets selected, it cannot be modified, only destroyed.
+	set(i):
+		is_locked = i
+		if is_locked:
+			print("Locked")
+			emit_signal("locked", self)
+
 const SHAPE_PADDING: int = 1
 
 # Other attributes of the line
@@ -146,6 +153,7 @@ func lock_line() -> bool:
 	is_locked = true
 	if !ending_socket.can_connect_edge():
 		return false
+	
 	if Engine.is_editor_hint():
 		return true
 		
