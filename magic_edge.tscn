@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://dwbfjrap74hrn"]
 
-[ext_resource type="Script" uid="uid://bes7iyggiu43d" path="res://magic_line/magic_edge.gd" id="1_5a71e"]
+[ext_resource type="Script" uid="uid://bes7iyggiu43d" path="res://magic_edge.gd" id="1_5a71e"]
 [ext_resource type="PackedScene" uid="uid://b6r4uc6pwg8nt" path="res://utilities/DecayComponent.tscn" id="2_5a71e"]
 [ext_resource type="PackedScene" uid="uid://drytd7qhc11dg" path="res://utilities/HealthComponent.tscn" id="2_gglsk"]
 

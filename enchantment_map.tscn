@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="1_0f8cq"]
 [ext_resource type="PackedScene" uid="uid://dn6r8e32ar5tt" path="res://socket.tscn" id="2_gh3tp"]
-[ext_resource type="PackedScene" uid="uid://dwbfjrap74hrn" path="res://magic_line/MagicEdge.tscn" id="3_tq3s1"]
+[ext_resource type="PackedScene" uid="uid://dwbfjrap74hrn" path="res://magic_edge.tscn" id="3_tq3s1"]
 
 [node name="EnchantmentMap" type="Node2D"]
 script = ExtResource("1_0f8cq")
