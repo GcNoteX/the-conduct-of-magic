@@ -172,6 +172,10 @@ func kill_edge() -> void:
 	emit_signal("destroyed", self)
 
 
+func get_end_of_line() -> Vector2:
+	return magic_line.get_point_position(1)
+
+
 func update_collision_shape():
 	var a = magic_line.get_point_position(0)
 	var b = magic_line.get_point_position(1)

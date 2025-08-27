@@ -25,6 +25,8 @@ var selected_magic_edge: MagicEdge = null:
 	set(i):
 		#print("Magic Edge Selected:", i)
 		selected_magic_edge = i
+		if selected_magic_edge: # Only works when not setting it back to null
+			selected_magic_edge.stop_decay()
 
 func _ready() -> void:
 	if !enchantment_map:
@@ -33,19 +35,12 @@ func _ready() -> void:
 	if !map_selection_manager:
 		push_error("MagicEdgeManager has no selection manager!")
 		return
-		
+	
+	map_selection_manager.variant_selected.connect(_on_selected)
 	enchantment_map.starting_socket_selected.connect(attempt_create_magic_edge)
 	enchantment_map.ending_socket_selected.connect(attempt_lock_magic_edge)
 
 func _physics_process(_delta: float) -> void:
-	#var selected_entity = map_selection_manager.determine_selected()
-
-	#if Input.is_action_just_pressed("left_click"):
-		#chaining_counter = 0
-	#if Input.is_action_just_released("left_click"):
-		#print("Chain Length: ", chaining_counter)
-		#chaining_counter = 0
-		
 	if Input.is_action_just_released("left_click") and selected_magic_edge:
 		release_selected_edge()
 	if selected_magic_edge and !selected_magic_edge.is_locked:
@@ -104,3 +99,10 @@ func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 func release_selected_edge() -> void:
 	selected_magic_edge.start_decay()
 	selected_magic_edge = null
+
+func _on_selected(v: Variant) -> void:
+	if v is MagicEdge:
+		if v.is_locked:
+			return
+		cursor.position = v.get_end_of_line()
+		selected_magic_edge = v

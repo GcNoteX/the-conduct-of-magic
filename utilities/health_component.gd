@@ -16,7 +16,7 @@ signal health_depleted
 	set(h):
 		if h < 0:
 			health = 0
-			print("Health Component depleted")
+			#print("Health Component depleted")
 			emit_signal("health_updated")
 			emit_signal("health_depleted")
 		else:

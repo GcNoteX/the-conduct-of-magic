@@ -10,6 +10,8 @@ This class should just monitor and return the highest priority element.
 For logical functionality of tasks where overlapping elements may determine the code branch.
 """
 
+signal variant_selected(v: Variant)
+
 @export var map: EnchantmentMap
 @export var selector: EnchantmentCursor
 
@@ -81,3 +83,5 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("right_click"):
 		if selected is MagicEdge:
 			selected.kill_edge()
+	if event.is_action_pressed("left_click"):
+		emit_signal("variant_selected", determine_selected())

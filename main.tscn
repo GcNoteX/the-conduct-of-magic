@@ -30,3 +30,4 @@ selector = NodePath("../EnchantmentCursor")
 [node name="EnchantmentMap" parent="." instance=ExtResource("4_1bvp3")]
 
 [node name="EnchantmentCursor" parent="." instance=ExtResource("5_lquwl")]
+sensitivity = 0.5
