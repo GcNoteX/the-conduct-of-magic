@@ -1,0 +1,101 @@
+[gd_scene load_steps=8 format=3 uid="uid://ctr82gdg4xmmb"]
+
+[ext_resource type="PackedScene" uid="uid://ovqsolmtq3ns" path="res://utilities/Debugger.tscn" id="1_jn4p2"]
+[ext_resource type="Script" uid="uid://xeo7o5u8o5o2" path="res://enchantment_reader.gd" id="2_ybq6y"]
+[ext_resource type="Script" uid="uid://dt40h0hdvc6sk" path="res://magic_edge_manager.gd" id="3_11ixh"]
+[ext_resource type="Script" uid="uid://cky02k3imtwjl" path="res://map_selection_manager.gd" id="4_w078t"]
+[ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://enchantment_cursor.tscn" id="5_20t1u"]
+[ext_resource type="PackedScene" uid="uid://dvuvding13ynd" path="res://enchantment_map.tscn" id="6_ybq6y"]
+[ext_resource type="PackedScene" uid="uid://dn6r8e32ar5tt" path="res://socket.tscn" id="7_11ixh"]
+
+[node name="Main" type="Node"]
+
+[node name="Debugger" parent="." node_paths=PackedStringArray("nodes") instance=ExtResource("1_jn4p2")]
+debug_all = false
+deep_search = false
+nodes = []
+
+[node name="EnchantmentReader" type="Node" parent="." node_paths=PackedStringArray("map")]
+script = ExtResource("2_ybq6y")
+map = NodePath("../EnchantmentMap")
+metadata/_custom_type_script = "uid://xeo7o5u8o5o2"
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+
+[node name="MagicEdgeManager" type="Node2D" parent="." node_paths=PackedStringArray("enchantment_map", "map_selection_manager", "cursor")]
+script = ExtResource("3_11ixh")
+enchantment_map = NodePath("../EnchantmentMap")
+map_selection_manager = NodePath("../MapSelectionManager")
+cursor = NodePath("../EnchantmentCursor")
+metadata/_custom_type_script = "uid://dt40h0hdvc6sk"
+
+[node name="MapSelectionManager" type="Node2D" parent="." node_paths=PackedStringArray("map", "selector")]
+script = ExtResource("4_w078t")
+map = NodePath("../EnchantmentMap")
+selector = NodePath("../EnchantmentCursor")
+metadata/_custom_type_script = "uid://cky02k3imtwjl"
+
+[node name="EnchantmentCursor" parent="." instance=ExtResource("5_20t1u")]
+
+[node name="EnchantmentMap" parent="." instance=ExtResource("6_ybq6y")]
+
+[node name="Socket" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(581, 295)
+max_capacity = 7
+
+[node name="Socket2" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(581, 181)
+max_capacity = 7
+
+[node name="Socket3" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(581, 74)
+max_capacity = 7
+
+[node name="Socket4" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(581, 527)
+max_capacity = 7
+
+[node name="Socket5" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(581, 420)
+max_capacity = 7
+
+[node name="Socket6" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(768, 295)
+max_capacity = 7
+
+[node name="Socket7" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(768, 181)
+max_capacity = 7
+
+[node name="Socket8" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(768, 74)
+max_capacity = 7
+
+[node name="Socket9" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(768, 527)
+max_capacity = 7
+
+[node name="Socket10" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(768, 420)
+max_capacity = 7
+
+[node name="Socket11" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(941, 295)
+max_capacity = 7
+
+[node name="Socket12" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(941, 181)
+max_capacity = 7
+
+[node name="Socket13" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(941, 74)
+max_capacity = 7
+
+[node name="Socket14" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(941, 527)
+max_capacity = 7
+
+[node name="Socket15" parent="EnchantmentMap" instance=ExtResource("7_11ixh")]
+position = Vector2(941, 420)
+max_capacity = 7

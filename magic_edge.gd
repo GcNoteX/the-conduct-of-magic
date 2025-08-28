@@ -226,3 +226,8 @@ func _on_area_entered(_area: Area2D) -> void:
 
 func _on_area_exited(_area: Area2D) -> void:
 	is_hovered_over = false
+
+func get_vector_from_line() -> Vector2:
+	var v1 = starting_socket.position
+	var v2 = ending_socket.position
+	return (v2 - v1).normalized()

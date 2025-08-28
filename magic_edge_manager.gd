@@ -17,6 +17,8 @@ extends Node2D
 @export var map_selection_manager: MapSelectionManager
 @export var cursor: EnchantmentCursor
 
+@export var debug_chaining: bool = false
+
 var chaining_counter: int = 0:
 	set(i):
 		chaining_counter = i
@@ -60,12 +62,7 @@ func attempt_create_magic_edge(starting_socket: Socket) -> bool:
 		enchantment_map.call_deferred("add_magic_edge_to_map", edge)
 		await enchantment_map.magic_edge_added
 		selected_magic_edge = edge
-		
-		#print("Updated selected edge to ", selected_magic_edge)
 		return true
-	#else: # Covers for when player hits a socket that then bnecomes full
-		#print("Chain Length: ", chaining_counter)
-		#chaining_counter = 0
 	return false
 
 
@@ -80,8 +77,9 @@ func attempt_lock_magic_edge(ending_socket: Socket) -> bool:
 			selected_magic_edge = null
 			
 			if !can_continue:
-				print("Chain Length: ", chaining_counter) # Covers for failed connections
-				print("Reseting Chain")
+				if debug_chaining: 
+					print("Chain Length: ", chaining_counter) # Covers for failed connections
+					print("Reseting Chain")
 				chaining_counter = 0
 			# Continue line if the cursor is not on the ending socket and the ending socket has space
 			if can_continue and map_selection_manager.determine_selected() != ending_socket: # Second boolean part is to ensure it doesnt double up with the Socket code to emit when used as start.

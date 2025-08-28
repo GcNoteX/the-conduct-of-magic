@@ -29,6 +29,8 @@ var cur_capacity: int = 0:
 		cur_capacity = c
 		call_deferred("update_capacity_label")
 
+var connected_edges: Array[MagicEdge] = []
+
 @export_category("Debug Settings")
 @export var is_debug: bool = false
 
@@ -39,11 +41,13 @@ func _physics_process(_delta: float) -> void:
 	if Input.is_action_just_pressed("left_click") and is_hovered_over:
 		clicked_on = true
 
-func add_connection(_magic_edge: MagicEdge) -> void:
+func add_connection(magic_edge: MagicEdge) -> void:
 	cur_capacity += 1
+	connected_edges.append(magic_edge)
 
-func remove_connection(_magic_edge: MagicEdge) -> void:
+func remove_connection(magic_edge: MagicEdge) -> void:
 	cur_capacity -= 1
+	connected_edges.erase(magic_edge)
 
 func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
 	# Has capacity, and not connecting to itself

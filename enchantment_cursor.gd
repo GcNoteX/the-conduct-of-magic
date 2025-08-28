@@ -9,6 +9,8 @@ extends Area2D
 
 @export var sensitivity: float = 1.0
 
+var is_captured: bool = true
+
 func _ready() -> void:
 	# Capture mouse and hide system cursor
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
@@ -19,7 +21,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		# Optional: Clamp within screen bounds
 		var screen_size = get_viewport_rect().size
 		position = position.clamp(Vector2.ZERO, screen_size)
-		
+	
+	if event.is_action_pressed("editor_toggle_enchant_mouse"):
+		if is_captured:
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
+			is_captured = !is_captured
+		else:
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+			self.position = get_global_mouse_position()
+			is_captured = !is_captured
+			
 ## Get the location of the cursor
 func get_location() -> Vector2:
 	#return get_global_mouse_position()\

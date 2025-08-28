@@ -1,0 +1,39 @@
+[gd_scene load_steps=3 format=3 uid="uid://bvn72heokt76u"]
+
+[ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="1_yu341"]
+[ext_resource type="PackedScene" uid="uid://dn6r8e32ar5tt" path="res://socket.tscn" id="2_pgei4"]
+
+[node name="EnchantmentMap" type="Node2D"]
+script = ExtResource("1_yu341")
+
+[node name="Socket" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(458, 444)
+max_capacity = 3
+
+[node name="Socket6" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(540, 550)
+max_capacity = 3
+
+[node name="Socket2" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(598, 444)
+max_capacity = 3
+
+[node name="Socket3" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(686, 550)
+max_capacity = 3
+
+[node name="Socket4" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(773, 609)
+max_capacity = 3
+
+[node name="Socket8" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(287, 609)
+max_capacity = 3
+
+[node name="Socket5" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(365, 550)
+max_capacity = 3
+
+[node name="Socket7" parent="." instance=ExtResource("2_pgei4")]
+position = Vector2(540, 150)
+max_capacity = 20
