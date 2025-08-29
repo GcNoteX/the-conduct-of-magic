@@ -3,7 +3,7 @@ extends Node
 
 @export var map: EnchantmentMap
 
-var enchantments: Array[String] = []
+var enchantments: Array[Enchantment] = []
 
 func _ready() -> void:
 	map.updated.connect(evaluate_enchantment)
@@ -15,64 +15,69 @@ func evaluate_enchantment() -> void:
 	
 	for socket in map.sockets:
 		if len(socket.connected_edges) == 1:
-			var edge = socket.connected_edges[0]
-			var other: Socket
-			var dir = Vector2.ZERO
-			
-			if edge.starting_socket == socket: # I want to always start from the socket
-				other = edge.ending_socket
-			else:
-				other = edge.starting_socket
-			
-			print(other.position, socket.position)
-			dir = ((other.position - socket.position) * Vector2(1, -1)).normalized()
-			
-			#var dir = (other.position - socket.position).normalized()
-			
-			
-			
-			enchantments.append(categorize_vector(dir))
-			
-			#if edge.starting_socket == socket: # Outgoing edge
-				#enchantments.append(categorize_vector(edge.get_vector_from_line()))
-			#else:
-				#enchantments.append(categorize_vector(-1 * edge.get_vector_from_line()))
+			var e = evaluate_tier1(socket)
+			enchantments.append(e)
+	
+	print("=======")
 	for enchantment in enchantments:
 		print(enchantment)
 	print("=======")
 
-
-func categorize_vector(vec: Vector2) -> String:
-	if vec == Vector2.ZERO:
-		return "Center"
+func evaluate_tier1(s: Socket) -> Enchantment:
+	print("Evaluating tier 1")
+	var edge = s.connected_edges[0]
+	var other: Socket
+	var dir = Vector2.ZERO
 	
-	var angle := vec.angle() # radians, from +X axis, CCW
+	if edge.starting_socket == s: # I want to always start from the socket
+		other = edge.ending_socket
+	else:
+		other = edge.starting_socket
+	
+	dir = ((other.position - s.position) * Vector2(1, -1)).normalized()
+	#enchantments.append(_categorize_vector(dir))
+	
+	var angle := dir.angle() # radians, from +X axis, CCW
 	var deg := rad_to_deg(angle)
 	
 	# Normalize to 0–360
 	if deg < 0:
 		deg += 360.0
 	
-	var dir: String = angle_to_direction(deg)
-	print(vec , " -> ", dir, " degree:", deg, "radians:", rad_to_deg(angle))
-	return dir
-	
-func angle_to_direction(deg: float) -> String:
-	# 8 sectors, 45° each
+	 #8 sectors, 45° each
 	if deg >= 337.5 or deg < 22.5:
-		return "E"
+		return Loudness.new()
 	elif deg < 67.5:
-		return "NE"
+		return Lightness.new()
 	elif deg < 112.5:
-		return "N"
+		return Sharpness.new()
 	elif deg < 157.5:
-		return "NW"
+		return Brittleness.new()
 	elif deg < 202.5:
-		return "W"
+		return Softness.new()
 	elif deg < 247.5:
-		return "SW"
+		return Heaviness.new()
 	elif deg < 292.5:
-		return "S"
+		return Dullness.new()
 	elif deg < 337.5:
-		return "SE"
-	return "Unkno````wn"
+		return Toughness.new()
+	return UnknownEnchantment.new()
+	#print(vec , " -> ", dir, " degree:", deg, "radians:", rad_to_deg(angle))
+	
+func evaluate_tier2(s: Socket) -> void:
+	print("Evaluating tier 2")
+
+func evaluate_tier3(s: Socket) -> void:
+	print("Evaluating tier 3")
+
+func evaluate_tier4(s: Socket) -> void:
+	print("Evaluating tier 4")
+
+func evaluate_tier5(s: Socket) -> void:
+	print("Evaluating tier 5")
+
+func evaluate_tier6(s: Socket) -> void:
+	print("Evaluating tier 6")
+
+func evaluate_tier7(s: Socket) -> void:
+	print("Evaluating tier 7")
