@@ -1,0 +1,2 @@
+class_name TierDebugger
+extends Node2D

@@ -1,0 +1,24 @@
+## Tier 1
+Sharpness
+Bluntness
+Lightness
+Heaviness
+Roughness
+Smoothness
+Brittleness
+Toughness
+
+## Tier 2
+# Obtuse and Acute angles
+Loudness
+Silentness
+Reflectiveness
+Dullness
+EnhanceSmell
+SuppressSmell
+EnhanceTaste
+SuppressTaste
+# Colinear
+Fire/Water/Wind/Earth Conductivity - Enhances damage/effect of it
+# Right Angled
+Fire/Water/Wind/Earth Resistance - Suppress damage/effect of it

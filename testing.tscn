@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://ctr82gdg4xmmb"]
+[gd_scene load_steps=8 format=3 uid="uid://cucpk2scslbt6"]
 
 [ext_resource type="PackedScene" uid="uid://ovqsolmtq3ns" path="res://utilities/Debugger.tscn" id="1_jn4p2"]
 [ext_resource type="Script" uid="uid://xeo7o5u8o5o2" path="res://enchantment_reader.gd" id="2_ybq6y"]

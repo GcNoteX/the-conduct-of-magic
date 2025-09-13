@@ -17,6 +17,7 @@ var is_hovered_over = false:
 			emit_signal("hovered_over", self)
 		else:
 			emit_signal("unhovered_over", self)
+var debugger: Node2D
 
 @export var max_capacity: int = 0: ## Number of magic edges that can be connected to this socket
 	set(c):
@@ -55,10 +56,19 @@ func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
 	#print("Does not connect to self check:", !(e.starting_socket == self))
 	return cur_capacity < max_capacity and !(e.starting_socket == self)
 
+func plug_debugger(d: TierDebugger) -> void:
+	if debugger:
+		remove_child(debugger)
+	debugger = d
+	add_child(debugger)
+
+func clear_debugger() -> void:
+	if debugger:
+		remove_child(debugger)
+	debugger = null
 
 func enable_debug() -> void:
 	is_debug = true
-
 
 func update_capacity_label() -> void:
 	cap_labal.text = str(cur_capacity) + '/' + str(max_capacity)

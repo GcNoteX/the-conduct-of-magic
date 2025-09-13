@@ -44,9 +44,10 @@ func _on_end_socket_selected(s: Socket) -> void:
 
 func _on_edge_destroyed(e: MagicEdge) -> void:
 	magic_edges.erase(e)
+	emit_signal("updated")
 
 func _on_edge_locked(_e: MagicEdge) -> void:
-	print("Map Updated")
+	#print("Map Updated")
 	emit_signal("updated")
 
 ## Checks if the edge goes between the same sockets as any other edge.

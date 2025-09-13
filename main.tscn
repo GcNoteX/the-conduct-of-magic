@@ -16,7 +16,7 @@ nodes = []
 
 [node name="EnchantmentReader" type="Node" parent="." node_paths=PackedStringArray("map")]
 script = ExtResource("2_7mycd")
-map = NodePath("../EnchantmentMap3")
+map = NodePath("../EnchantmentMap2")
 metadata/_custom_type_script = "uid://xeo7o5u8o5o2"
 
 [node name="Camera2D" type="Camera2D" parent="."]
@@ -24,17 +24,17 @@ anchor_mode = 0
 
 [node name="MagicEdgeManager" type="Node2D" parent="." node_paths=PackedStringArray("enchantment_map", "map_selection_manager", "cursor")]
 script = ExtResource("3_h2yge")
-enchantment_map = NodePath("../EnchantmentMap3")
+enchantment_map = NodePath("../EnchantmentMap2")
 map_selection_manager = NodePath("../MapSelectionManager")
 cursor = NodePath("../EnchantmentCursor")
 metadata/_custom_type_script = "uid://dt40h0hdvc6sk"
 
 [node name="MapSelectionManager" type="Node2D" parent="." node_paths=PackedStringArray("map", "selector")]
 script = ExtResource("4_7mycd")
-map = NodePath("../EnchantmentMap3")
+map = NodePath("../EnchantmentMap2")
 selector = NodePath("../EnchantmentCursor")
 metadata/_custom_type_script = "uid://cky02k3imtwjl"
 
 [node name="EnchantmentCursor" parent="." instance=ExtResource("5_lquwl")]
 
-[node name="EnchantmentMap3" parent="." instance=ExtResource("6_7mycd")]
+[node name="EnchantmentMap2" parent="." instance=ExtResource("6_7mycd")]
