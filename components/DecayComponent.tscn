@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://b6r4uc6pwg8nt"]
 
-[ext_resource type="Script" uid="uid://dhpmx0lvl12on" path="res://utilities/decay_component.gd" id="1_rvq8p"]
+[ext_resource type="Script" uid="uid://dhpmx0lvl12on" path="res://components/decay_component.gd" id="1_rvq8p"]
 
 [node name="DecayComponent" type="Node2D"]
 script = ExtResource("1_rvq8p")

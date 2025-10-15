@@ -17,7 +17,8 @@ extends Node2D
 @onready var timer: Timer = $Timer
 
 func _ready() -> void:
-	assert(health_component, "Decay Component needs to target a health component")
+	if !Engine.is_editor_hint():
+		assert(health_component, "Decay Component needs to target a health component")
 	timer.wait_time = decay_tick_rate
 
 

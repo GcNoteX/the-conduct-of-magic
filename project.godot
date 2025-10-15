@@ -13,7 +13,7 @@ config_version=5
 config/name="The Conduct of Magic"
 run/main_scene="uid://b6k4n067ypio4"
 config/features=PackedStringArray("4.4", "GL Compatibility")
-config/icon="res://icon.svg"
+config/icon="res://placeholder_assets/icon.svg"
 
 [autoload]
 
@@ -50,6 +50,7 @@ editor_toggle_enchant_mouse={
 
 [layer_names]
 
+2d_physics/layer_1="EnchantmentMapComp"
 2d_physics/layer_2="Cursor"
 
 [rendering]

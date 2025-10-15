@@ -5,8 +5,8 @@ extends Area2D
 
 """
 An Edge is a line between two points
-A MagicEdge has to start from a Socket and end at a Socket when finalized.
-While connecting the sockets, the data of what happens in between to the line should be tracked.
+A MagicEdge has to start from a MagicEdgeConnectableComponent and end at a MagicEdgeConnectableComponent when finalized.
+While connecting the MagicEdgeConnectableComponents, the data of what happens in between to the line should be tracked.
 """
 
 signal hovered_over(e: MagicEdge)
@@ -19,48 +19,9 @@ signal locked(e: MagicEdge)
 @onready var magic_edge_collision_shape: CollisionShape2D = $LineCollisionShape
 @onready var magic_line: Line2D = $MagicLine
 
-# The socket the edge goes between
-@export var starting_socket: Socket:
-		set(s):
-			if s == null:
-				if starting_socket and Engine.is_editor_hint():
-					starting_socket.remove_connection(self)
-					starting_socket = null
-				if ending_socket:
-					ending_socket = null
-				magic_line.clear_points()
-				_reset_collision_shape()
-				return
-			if !s.can_connect_edge():
-
-				push_error("Socket is at max capacity, unable to connect start")
-				return
-			starting_socket = s
-			starting_socket.add_connection(self)
-			if is_instance_valid(magic_line) and is_instance_valid(starting_socket) and Engine.is_editor_hint():
-				magic_line.clear_points()
-				magic_line.add_point(starting_socket.position)
-		
-@export var ending_socket: Socket:
-		set(s):
-			if s == null and ending_socket and Engine.is_editor_hint(): # For editor use, clearing connection
-				ending_socket.remove_connection(self)
-				ending_socket = null
-				is_locked = false
-				magic_line.remove_point(1)
-				_reset_collision_shape()
-				return
-			if !starting_socket:
-				if Engine.is_editor_hint(): push_error("Cannot add an Ending Socket before Starting Socket")
-				return
-			if !s.can_connect_edge():
-				if Engine.is_editor_hint(): push_error("Socket is at max capacity, unable to connect end")
-				print("Socket is at max capacity, unable to connect")
-				return
-			ending_socket = s
-			ending_socket.add_connection(self)
-			if is_instance_valid(magic_line) and is_instance_valid(ending_socket) and Engine.is_editor_hint():
-				lock_line()
+# The MagicEdgeConnectableComponent the edge goes between
+@export var start: MagicEdgeConnectableComponent = null
+@export var end: MagicEdgeConnectableComponent = null
 
 @export var line_highlighted: bool:
 	set(l):
@@ -69,25 +30,15 @@ signal locked(e: MagicEdge)
 			modulate = Color(1, 1, 0, 1)
 		else:
 			modulate = Color(1, 1, 1, 1)
+
 @export var kill: bool:
 	set(i):
 		kill_edge()
-		
+
 # States of the line
-var is_hovered_over = false:
-	set(h):
-		is_hovered_over = h
-		if is_hovered_over:
-			emit_signal("hovered_over", self)
-		else:
-			emit_signal("unhovered_over", self)
-			
-var is_locked: bool = false: ## The edge has both sockets selected, it cannot be modified, only destroyed.
-	set(i):
-		is_locked = i
-		if is_locked:
-			print("Locked")
-			emit_signal("locked", self)
+var is_hovered_over = false
+
+var is_locked: bool = false ## The edge has both MagicEdgeConnectableComponents selected, it cannot be modified, only destroyed.
 
 const SHAPE_PADDING: int = 1
 
@@ -97,37 +48,37 @@ const SHAPE_PADDING: int = 1
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
-		if starting_socket:
-			magic_line.add_point(starting_socket.position)
-		if ending_socket:
-			magic_line.add_point(ending_socket.position)
-		if starting_socket and ending_socket:
+		if start:
+			magic_line.add_point(start.position)
+		if end:
+			magic_line.add_point(end.position)
+		if start and end:
 			update_collision_shape()
 		return
-	assert(starting_socket, "ERROR: MagicEdge placed in scene without a starting socket, suggest using start_magic_edge()")
-	magic_line.add_point(starting_socket.position)
-	if ending_socket: # A line is not created with an ending socket unless it is instantiated as such
+	assert(start, "ERROR: MagicEdge placed in scene without a starting MagicEdgeConnectableComponent, suggest using start_magic_edge()")
+	magic_line.add_point(start.position)
+	if end: # A line is not created with an ending MagicEdgeConnectableComponent unless it is instantiated as such
 		lock_line()
-	if magic_edge_collision_shape and starting_socket and ending_socket:
+	if magic_edge_collision_shape and start and end:
 		update_collision_shape()
 
-## Creates a magic edge only with the starting socket. Use lock_line() to lock it to another socket, stretch_magic_edge() to move it.
-static func start_magic_edge(start: Socket, is_debug = false) -> MagicEdge:
-	assert(start != null, "ERROR: MagicEdge created without a starting socket")
+## Creates a magic edge only with the starting MagicEdgeConnectableComponent. Use lock_line() to lock it to another MagicEdgeConnectableComponent, stretch_magic_edge() to move it.
+static func start_magic_edge(start: MagicEdgeConnectableComponent, is_debug = false) -> MagicEdge:
+	assert(start != null, "ERROR: MagicEdge created without a starting MagicEdgeConnectableComponent")
 	var ins: MagicEdge = preload(SceneReferences.magic_edge).instantiate()
-	ins.starting_socket = start
+	ins.start = start
 	if is_debug: 
-		print("Creating magic edge from:", ins.starting_socket.position, ins.ending_socket.position)
+		print("Creating magic edge from:", ins.start.position, ins.end.position)
 	return ins
 
 
-## Creates a magic edge between two sockets
-static func create_magic_edge(start: Socket, end: Socket, is_debug = false) -> MagicEdge:
-	assert(start != null, "ERROR: MagicEdge created without a starting socket")
+## Creates a magic edge between two MagicEdgeConnectableComponents
+static func create_magic_edge(start: MagicEdgeConnectableComponent, end: MagicEdgeConnectableComponent, is_debug = false) -> MagicEdge:
+	assert(start != null, "ERROR: MagicEdge created without a starting MagicEdgeConnectableComponent")
 	var ins: MagicEdge = preload(SceneReferences.magic_edge).instantiate()
-	ins.starting_socket = start
-	ins.ending_socket = end
-	if is_debug: print("Creating magic edge from:", ins.starting_socket.position, ins.ending_socket.position)
+	ins.start = start
+	ins.end = end
+	if is_debug: print("Creating magic edge from:", ins.start.position, ins.end.position)
 	return ins
 
 
@@ -146,12 +97,12 @@ func stretch_magic_edge(v: Vector2) -> void:
 		call_deferred("update_collision_shape")
 
 ## Finalize the edge, should not be edited anymore
-## Boolean return to determine if the socket can continue to be used or if limit is reached
+## Boolean return to determine if the MagicEdgeConnectableComponent can continue to be used or if limit is reached
 func lock_line() -> bool:
-	assert(ending_socket != null, "ERROR: Attempting to lock MagicEdge without a valid ending Socket")
-	stretch_magic_edge(ending_socket.position)
+	assert(end != null, "ERROR: Attempting to lock MagicEdge without a valid ending MagicEdgeConnectableComponent")
+	stretch_magic_edge(end.position)
 	is_locked = true
-	if !ending_socket.can_connect_edge():
+	if !end.can_connect_edge():
 		return false
 	
 	if Engine.is_editor_hint():
@@ -172,10 +123,10 @@ func start_decay() -> void:
 
 ## Kills the edge safely, guranteed kill
 func kill_edge() -> void:
-	if starting_socket:
-		starting_socket.remove_connection(self)
-	if ending_socket:
-		ending_socket.remove_connection(self)
+	if start:
+		start.remove_connection(self)
+	if end:
+		end.remove_connection(self)
 	queue_free()
 	emit_signal("destroyed", self)
 
@@ -202,7 +153,6 @@ func _reset_collision_shape() -> void:
 	magic_edge_collision_shape.rotation = 0.0
 	magic_edge_collision_shape.shape = CapsuleShape2D.new()
 
-
 func highlight() -> void:
 	line_highlighted = true
 
@@ -228,6 +178,6 @@ func _on_area_exited(_area: Area2D) -> void:
 	is_hovered_over = false
 
 func get_vector_from_line() -> Vector2:
-	var v1 = starting_socket.position
-	var v2 = ending_socket.position
+	var v1 = start.position
+	var v2 = end.position
 	return (v2 - v1).normalized()

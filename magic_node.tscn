@@ -1,0 +1,30 @@
+[gd_scene load_steps=7 format=3 uid="uid://18q6ykut8s83"]
+
+[ext_resource type="Script" uid="uid://dpw4wuie057gj" path="res://magic_node.gd" id="1_tjibe"]
+[ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="1_vs4el"]
+[ext_resource type="PackedScene" uid="uid://2gjrer57ae4j" path="res://components/magic_edge_connectable_component.tscn" id="3_pw1qt"]
+[ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://components/enchantment_cursor_detection_component.tscn" id="4_kmmj3"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_kmmj3"]
+radius = 31.0161
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8ufat"]
+
+[node name="MagicNode" type="Node2D"]
+script = ExtResource("1_tjibe")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_vs4el")
+
+[node name="MagicEdgeConnectableComponent" parent="." instance=ExtResource("3_pw1qt")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MagicEdgeConnectableComponent"]
+shape = SubResource("CircleShape2D_kmmj3")
+
+[node name="EnchantmentCursorDetectionComponent" parent="." instance=ExtResource("4_kmmj3")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentCursorDetectionComponent"]
+shape = SubResource("CircleShape2D_8ufat")
+
+[connection signal="exited_selecting" from="EnchantmentCursorDetectionComponent" to="." method="_on_enchantment_cursor_detection_component_exited_selecting"]
+[connection signal="hovered_over" from="EnchantmentCursorDetectionComponent" to="." method="_on_enchantment_cursor_detection_component_hovered_over"]

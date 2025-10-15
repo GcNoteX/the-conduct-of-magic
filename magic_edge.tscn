@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://dwbfjrap74hrn"]
+[gd_scene load_steps=6 format=3 uid="uid://dwbfjrap74hrn"]
 
 [ext_resource type="Script" uid="uid://bes7iyggiu43d" path="res://magic_edge.gd" id="1_5a71e"]
-[ext_resource type="PackedScene" uid="uid://b6r4uc6pwg8nt" path="res://utilities/DecayComponent.tscn" id="2_5a71e"]
-[ext_resource type="PackedScene" uid="uid://drytd7qhc11dg" path="res://utilities/HealthComponent.tscn" id="2_gglsk"]
+[ext_resource type="PackedScene" uid="uid://b6r4uc6pwg8nt" path="res://components/DecayComponent.tscn" id="2_5a71e"]
+[ext_resource type="PackedScene" uid="uid://drytd7qhc11dg" path="res://components/HealthComponent.tscn" id="2_gglsk"]
+[ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://components/enchantment_cursor_detection_component.tscn" id="4_0ooki"]
 
 [sub_resource type="CapsuleShape2D" id="CapsuleShape2D_5a71e"]
 radius = 7.0
@@ -25,6 +26,8 @@ width = 5.0
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
 rotation = -1.5708
 shape = SubResource("CapsuleShape2D_5a71e")
+
+[node name="EnchantmentCursorDetectionComponent" parent="." instance=ExtResource("4_0ooki")]
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
 [connection signal="area_exited" from="." to="." method="_on_area_exited"]

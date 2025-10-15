@@ -2,8 +2,8 @@ class_name EnchantmentMap
 extends Node2D
 
 """
-EnchantmentMap is mainly a container that ensures accurate signals, any functionality
-to do operations on the map is on other nodes,
+EnchantmentMap is mainly a container that ensures accurate signals, 
+any functionality to do operations on the map is on other nodes,
 the EnchantmentMap will emit signals to work with the nodes within it.
 """
 

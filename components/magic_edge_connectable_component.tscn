@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://2gjrer57ae4j"]
+
+[ext_resource type="Script" uid="uid://bw7pdkjlgpy1x" path="res://components/magic_edge_connectable_component.gd" id="1_21mm7"]
+
+[node name="MagicEdgeConnectableComponent" type="Area2D"]
+collision_mask = 3
+script = ExtResource("1_21mm7")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]
+[connection signal="mouse_entered" from="." to="." method="_on_mouse_entered"]
