@@ -23,32 +23,26 @@ position = Vector2(434, 139)
 max_capacity = 3
 
 [node name="Socket5" parent="." instance=ExtResource("2_pgei4")]
-visible = false
 position = Vector2(434, 210)
 max_capacity = 3
 
 [node name="Socket6" parent="." instance=ExtResource("2_pgei4")]
-visible = false
 position = Vector2(343, 304)
 max_capacity = 3
 
 [node name="Socket7" parent="." instance=ExtResource("2_pgei4")]
-visible = false
 position = Vector2(258, 304)
 max_capacity = 3
 
 [node name="Socket8" parent="." instance=ExtResource("2_pgei4")]
-visible = false
 position = Vector2(167, 222)
 max_capacity = 3
 
 [node name="Socket9" parent="." instance=ExtResource("2_pgei4")]
-visible = false
 position = Vector2(167, 139)
 max_capacity = 3
 
 [node name="Socket10" parent="." instance=ExtResource("2_pgei4")]
-visible = false
 position = Vector2(1006, 187)
 max_capacity = 3
 
