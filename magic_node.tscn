@@ -17,6 +17,8 @@ script = ExtResource("1_tjibe")
 texture = ExtResource("1_vs4el")
 
 [node name="MagicEdgeConnectableComponent" parent="." instance=ExtResource("3_pw1qt")]
+is_unlimited_capacity = null
+max_capacity = null
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MagicEdgeConnectableComponent"]
 shape = SubResource("CircleShape2D_kmmj3")

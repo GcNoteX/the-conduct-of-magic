@@ -5,8 +5,8 @@ extends Area2D
 
 """
 An Edge is a line between two points
-A MagicEdge has to start from a MagicEdgeConnectableComponent and end at a MagicEdgeConnectableComponent when finalized.
-While connecting the MagicEdgeConnectableComponents, the data of what happens in between to the line should be tracked.
+A MagicEdge has to start from a MagicLineConnectableComponent and end at a MagicLineConnectableComponent when finalized.
+While connecting the MagicLineConnectableComponents, the data of what happens in between to the line should be tracked.
 """
 
 signal hovered_over(e: MagicEdge)
@@ -19,9 +19,9 @@ signal locked(e: MagicEdge)
 @onready var magic_edge_collision_shape: CollisionShape2D = $LineCollisionShape
 @onready var magic_line: Line2D = $MagicLine
 
-# The MagicEdgeConnectableComponent the edge goes between
-@export var start: MagicEdgeConnectableComponent = null
-@export var end: MagicEdgeConnectableComponent = null
+# The MagicLineConnectableComponent the edge goes between
+@export var start: MagicLineConnectableComponent = null
+@export var end: MagicLineConnectableComponent = null
 
 @export var line_highlighted: bool:
 	set(l):
@@ -38,7 +38,7 @@ signal locked(e: MagicEdge)
 # States of the line
 var is_hovered_over = false
 
-var is_locked: bool = false ## The edge has both MagicEdgeConnectableComponents selected, it cannot be modified, only destroyed.
+var is_locked: bool = false ## The edge has both MagicLineConnectableComponents selected, it cannot be modified, only destroyed.
 
 const SHAPE_PADDING: int = 1
 
@@ -55,16 +55,16 @@ func _ready() -> void:
 		if start and end:
 			update_collision_shape()
 		return
-	assert(start, "ERROR: MagicEdge placed in scene without a starting MagicEdgeConnectableComponent, suggest using start_magic_edge()")
+	assert(start, "ERROR: MagicEdge placed in scene without a starting MagicLineConnectableComponent, suggest using start_magic_edge()")
 	magic_line.add_point(start.position)
-	if end: # A line is not created with an ending MagicEdgeConnectableComponent unless it is instantiated as such
+	if end: # A line is not created with an ending MagicLineConnectableComponent unless it is instantiated as such
 		lock_line()
 	if magic_edge_collision_shape and start and end:
 		update_collision_shape()
 
-## Creates a magic edge only with the starting MagicEdgeConnectableComponent. Use lock_line() to lock it to another MagicEdgeConnectableComponent, stretch_magic_edge() to move it.
-static func start_magic_edge(start: MagicEdgeConnectableComponent, is_debug = false) -> MagicEdge:
-	assert(start != null, "ERROR: MagicEdge created without a starting MagicEdgeConnectableComponent")
+## Creates a magic edge only with the starting MagicLineConnectableComponent. Use lock_line() to lock it to another MagicLineConnectableComponent, stretch_magic_edge() to move it.
+static func start_magic_edge(start: MagicLineConnectableComponent, is_debug = false) -> MagicEdge:
+	assert(start != null, "ERROR: MagicEdge created without a starting MagicLineConnectableComponent")
 	var ins: MagicEdge = preload(SceneReferences.magic_edge).instantiate()
 	ins.start = start
 	if is_debug: 
@@ -72,9 +72,9 @@ static func start_magic_edge(start: MagicEdgeConnectableComponent, is_debug = fa
 	return ins
 
 
-## Creates a magic edge between two MagicEdgeConnectableComponents
-static func create_magic_edge(start: MagicEdgeConnectableComponent, end: MagicEdgeConnectableComponent, is_debug = false) -> MagicEdge:
-	assert(start != null, "ERROR: MagicEdge created without a starting MagicEdgeConnectableComponent")
+## Creates a magic edge between two MagicLineConnectableComponents
+static func create_magic_edge(start: MagicLineConnectableComponent, end: MagicLineConnectableComponent, is_debug = false) -> MagicEdge:
+	assert(start != null, "ERROR: MagicEdge created without a starting MagicLineConnectableComponent")
 	var ins: MagicEdge = preload(SceneReferences.magic_edge).instantiate()
 	ins.start = start
 	ins.end = end
@@ -97,9 +97,9 @@ func stretch_magic_edge(v: Vector2) -> void:
 		call_deferred("update_collision_shape")
 
 ## Finalize the edge, should not be edited anymore
-## Boolean return to determine if the MagicEdgeConnectableComponent can continue to be used or if limit is reached
+## Boolean return to determine if the MagicLineConnectableComponent can continue to be used or if limit is reached
 func lock_line() -> bool:
-	assert(end != null, "ERROR: Attempting to lock MagicEdge without a valid ending MagicEdgeConnectableComponent")
+	assert(end != null, "ERROR: Attempting to lock MagicEdge without a valid ending MagicLineConnectableComponent")
 	stretch_magic_edge(end.position)
 	is_locked = true
 	if !end.can_connect_edge():

@@ -1,6 +1,11 @@
 class_name EnchantmentCursor
 extends Area2D
 
+"""
+- Controlled by the players mouse
+- Can create MagicLines through dragging from MagicNode
+"""
+
 # The cursor used within the enchantment game
 # CAUTION: Cursor hitbox should at least cover MagicEdge, else
 # Buggy behaviour will occur in which the game will think you 
@@ -33,5 +38,4 @@ func _unhandled_input(event: InputEvent) -> void:
 			
 ## Get the location of the cursor
 func get_location() -> Vector2:
-	#return get_global_mouse_position()\
 	return self.position

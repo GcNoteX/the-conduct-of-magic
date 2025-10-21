@@ -1,10 +1,10 @@
-class_name MagicEdgeConnectableComponent
+class_name MagicLineConnectableComponent
 extends Area2D
 
 """
-- Allows an object to have MagicEdges connected to it.
-- It defines the number of MagicEdges that can be connected to it.
-- It defines the position a MagicEdge would be connected to an object.
+- Allows an object to have MagicLines connected to it.
+- It defines the number of MagicLines that can be connected to it.
+- It defines the position a MagicLine would be connected to an object.
 """
 
 @export var is_unlimited_capacity: bool = true
@@ -14,20 +14,20 @@ extends Area2D
 			return
 		max_capacity = c
 
-var connected_edges: Array[MagicEdge] = []
+var connected_edges: Array[MagicLine] = []
 
-func can_connect_edge(e: MagicEdge = MagicEdge.new()) -> bool:
+func can_connect_edge(e: MagicLine = MagicLine.new()) -> bool:
 	# Has capacity, and not connecting to itself
 	return (is_unlimited_capacity or connected_edges.size() < max_capacity) and !(e.start == self)
 
-func add_edge(e: MagicEdge) -> void:
+func add_edge(e: MagicLine) -> void:
 	connected_edges.append(e)
 
-func remove_edge(e: MagicEdge) -> void:
+func remove_edge(e: MagicLine) -> void:
 	connected_edges.erase(e)
 
 func _on_area_entered(area: Area2D) -> void:
-	if area is MagicEdge:
+	if area is MagicLine:
 		# If edge started from this component, ignore it
 		if area.start == self:
 			return
