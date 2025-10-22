@@ -3,39 +3,31 @@ extends Area2D
 
 """
 - Controlled by the players mouse
-- Can create MagicLines through dragging from MagicNode
+- Can create MagicLines from MagicLineConnectableComponent
+- Controls MagicLines that it creates
 """
 
-# The cursor used within the enchantment game
-# CAUTION: Cursor hitbox should at least cover MagicEdge, else
-# Buggy behaviour will occur in which the game will think you 
-# want to do chain linking since the cursor is not on
-# the socket when the edge locks.
+var magic_line: PackedScene = preload("res://magic_line.tscn")
 
-@export var sensitivity: float = 1.0
+var controlled_line: MagicLine = null
 
-var is_captured: bool = true
+func _process(_delta: float) -> void:
+	position = get_global_mouse_position()
 
-func _ready() -> void:
-	# Capture mouse and hide system cursor
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+func _physics_process(_delta: float) -> void:
+	if controlled_line and controlled_line.initialized:
+		controlled_line.stretch_line(position)
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		position = position + (event.relative) * sensitivity
-		# Optional: Clamp within screen bounds
-		var screen_size = get_viewport_rect().size
-		position = position.clamp(Vector2.ZERO, screen_size)
-	
-	if event.is_action_pressed("editor_toggle_enchant_mouse"):
-		if is_captured:
-			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-			is_captured = !is_captured
-		else:
-			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-			self.position = get_global_mouse_position()
-			is_captured = !is_captured
-			
-## Get the location of the cursor
-func get_location() -> Vector2:
-	return self.position
+func _on_area_exited(area: Area2D) -> void:
+	if !controlled_line and area is MagicLineConnectableComponent and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+		if area.can_connect_edge():
+			# Create a MagicLine
+			#print("Creating MagicLine")
+			var m: MagicLine = magic_line.instantiate()
+			get_tree().current_scene.call_deferred("add_child", m) # WARNING: This is temporary until EnchantmentMap is built back in
+			area.add_edge(m)
+			m.locked.connect(_on_MagicLine_locked)
+			controlled_line = m
+
+func _on_MagicLine_locked() -> void:
+	controlled_line = null

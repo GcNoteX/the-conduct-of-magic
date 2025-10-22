@@ -2,20 +2,17 @@ class_name MagicNode
 extends Node2D
 
 """
-- Allows the creation of MagicLines from it
-- Allows the acceptance of MagicLines from it
+- Kills MagicLines that cannot connect to it
+- Adds MagicLines to the MagicLineConnectableComponent if one is detected
 """
 
 @onready var edge_connector: MagicLineConnectableComponent = $MagicLineConnectableComponent
 @onready var cursor_detector: EnchantmentCursorDetectionComponent = $EnchantmentCursorDetectionComponent
 
-var hovered_over = false
 
-func _on_enchantment_cursor_detection_component_hovered_over(s: EnchantmentCursorDetectionComponent) -> void:
-	print("Magic node hovered over")
-	hovered_over = true
+func _on_magic_line_connectable_component_connectable_line_detected(l: MagicLine) -> void:
+	edge_connector.add_edge(l)
 
 
-func _on_enchantment_cursor_detection_component_exited_selecting(s: EnchantmentCursorDetectionComponent) -> void:
-	print("Magic node unhovered over")
-	hovered_over = false
+func _on_magic_line_connectable_component_unconnectable_line_detected(l: MagicLine) -> void:
+	l.kill_magic_line()

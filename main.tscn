@@ -14,4 +14,10 @@ position = Vector2(371, 302)
 [node name="MagicNode2" parent="." instance=ExtResource("2_0xm2m")]
 position = Vector2(755, 306)
 
+[node name="MagicNode3" parent="." instance=ExtResource("2_0xm2m")]
+position = Vector2(736, 487)
+
+[node name="MagicNode4" parent="." instance=ExtResource("2_0xm2m")]
+position = Vector2(390, 474)
+
 [node name="EnchantmentCursor" parent="." instance=ExtResource("5_lquwl")]
