@@ -1,8 +1,44 @@
-[gd_scene load_steps=3 format=3 uid="uid://i4yl2fcq2sv0"]
+[gd_scene load_steps=9 format=3 uid="uid://i4yl2fcq2sv0"]
 
 [ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://enchantment_node.gd" id="1_8h6rx"]
-[ext_resource type="Script" uid="uid://d035ytq6cyi6r" path="res://enchantments/material_condition.gd" id="2_q6lac"]
+[ext_resource type="PackedScene" uid="uid://2gjrer57ae4j" path="res://components/magic_line_connectable_component.tscn" id="2_7f72b"]
+[ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_ho12n"]
+[ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://components/enchantment_cursor_detection_component.tscn" id="3_7f72b"]
+[ext_resource type="PackedScene" uid="uid://dpv4r65ly4cj3" path="res://components/material_component.tscn" id="5_ucxg0"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_7f72b"]
+radius = 64.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ho12n"]
+radius = 32.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ucxg0"]
+size = Vector2(36, 38)
 
 [node name="EnchantmentNode" type="Node2D"]
 script = ExtResource("1_8h6rx")
-material_requirements = Array[ExtResource("2_q6lac")]([null])
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+self_modulate = Color(1, 0.701961, 0.462745, 1)
+scale = Vector2(2.03125, 2.03125)
+texture = ExtResource("2_ho12n")
+
+[node name="MagicLineConnectableComponent" parent="." instance=ExtResource("2_7f72b")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MagicLineConnectableComponent"]
+shape = SubResource("CircleShape2D_7f72b")
+
+[node name="EnchantmentCursorDetectionComponent" parent="." instance=ExtResource("3_7f72b")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentCursorDetectionComponent"]
+shape = SubResource("CircleShape2D_ho12n")
+
+[node name="MaterialComponent" parent="." instance=ExtResource("5_ucxg0")]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MaterialComponent"]
+position = Vector2(26, -25)
+shape = SubResource("RectangleShape2D_ucxg0")
+debug_color = Color(0.754558, 0.456416, 0, 0.42)
+
+[connection signal="connectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_connectable_line_detected"]
+[connection signal="unconnectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_unconnectable_line_detected"]

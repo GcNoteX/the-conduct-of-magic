@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dpv4r65ly4cj3"]
+
+[ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://components/material_component.gd" id="1_ym4bt"]
+
+[node name="MaterialComponent" type="Area2D"]
+script = ExtResource("1_ym4bt")

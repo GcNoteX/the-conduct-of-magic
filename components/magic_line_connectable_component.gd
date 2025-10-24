@@ -1,3 +1,4 @@
+@tool
 class_name MagicLineConnectableComponent
 extends Area2D
 
@@ -18,9 +19,15 @@ signal magicline_collided_with_self(l: MagicLine)
 			return
 		max_capacity = c
 
-var connected_lines: Array[MagicLine] = []
+@export var connected_lines: Array[MagicLine] = []
+
+func _ready() -> void:
+	connected_lines = []
 
 func can_connect_edge(e: MagicLine = MagicLine.new()) -> bool:
+	# If the end is already selected, allow regardless - This is to allow prebuilds to work.
+	if e.end:
+		return true
 	# Check if component already has a line from the MagicLine's source to itself
 	# Check if there is a Magicline from the component to the MagicLine's source
 	for line in connected_lines:
@@ -31,9 +38,7 @@ func can_connect_edge(e: MagicLine = MagicLine.new()) -> bool:
 	return is_unlimited_capacity or connected_lines.size() < max_capacity
 
 func add_edge(e: MagicLine) -> void:
-	if e.start == null:
-		e.start = self
-	else:
+	if e.start and e.end == null:
 		e.lock_line(self)
 	connected_lines.append(e)
 

@@ -3,7 +3,7 @@ extends Area2D
 
 """
 - Allows the detection EnchantmentCursor type objects
-- Used on objects that want to react to the cursor
+- Used on objects that want to react to the cursor 
 """
 
 signal hovered_over(s: EnchantmentCursorDetectionComponent)

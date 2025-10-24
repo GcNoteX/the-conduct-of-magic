@@ -1,53 +1,20 @@
-class_name EnchantmentNode
+@tool
 extends Node2D
+class_name EnchantmentNode
 
-var is_activated
-var embedded_material: EnchantmentMaterial = null
+"""
+- Kills MagicLines that cannot connect to it
+- Adds MagicLines to the MagicLineConnectableComponent if one is detected
+- Can insert EnchantmentMaterial into to activate
+"""
 
-## The tier the EnchantMaterial has to be or greater to be embedded into EnchantmentNode
-@export var tier_requirement: int = 1
-## The requirements an EnchantmentMaterial has to fulfill to be allowed to be embedded into EnchantmentNode, 
-## checks the material_attributes attribute
-@export var material_requirements: Array[MaterialCondition]
+@onready var edge_connector: MagicLineConnectableComponent = $MagicLineConnectableComponent
+@onready var cursor_detector: EnchantmentCursorDetectionComponent = $EnchantmentCursorDetectionComponent
 
 
-func can_embbed_material(m: EnchantmentMaterial) -> bool:
-	"""
-	You can only embed a material if it meets
-	- The tier requirement
-	- All the required material_requirements
-	- At least 1 material_requirement
-	"""
-	if embedded_material.tier < tier_requirement:
-		return false
-	
-	var is_valid = false
-	for requirement in material_requirements:
-		if requirement.is_material_valid(m):
-			is_valid = true
-		else:
-			if requirement.required:
-				return false
-	return is_valid
+func _on_magic_line_connectable_component_connectable_line_detected(l: MagicLine) -> void:
+	edge_connector.add_edge(l)
 
-func embbed_material(m: EnchantmentMaterial) -> void:
-	embedded_material = m
 
-func remove_material() -> void:
-	embedded_material = null
-
-func can_node_be_activated() -> bool:
-	"""
-	A node can be activated if:
-		- All embedded material conditions are true
-	"""
-	for condition in embedded_material.activation_conditions:
-		if not condition.is_fulfilled():
-			return false
-	return true
-
-func activate_node() -> void:
-	is_activated = true
-
-func deactivate_node() -> void:
-	is_activated = false
+func _on_magic_line_connectable_component_unconnectable_line_detected(l: MagicLine) -> void:
+	l.kill_magic_line()

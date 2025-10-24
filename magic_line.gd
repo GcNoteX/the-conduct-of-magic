@@ -1,3 +1,4 @@
+@tool
 class_name MagicLine
 extends Area2D
 
@@ -20,13 +21,21 @@ signal locked
 var initialized = false
 
 func _ready() -> void:
-	assert(start, "A MagicLine cannot exist without a start!")
+	if !Engine.is_editor_hint():
+		assert(start, "A MagicLine cannot exist without a start!")
 	
 	collision_shape.shape = collision_shape.shape.duplicate() # Collision shapes in instances share shape resource when they shouldnt
 	
 	# Start the line at the start position
-	_change_visual_start_point(start.global_position)
-	visual_shape.add_point(start.global_position)
+	start.add_edge(self)
+	global_position = start.global_position
+	_change_visual_start_point(start.position)
+	if end: # An end point visually needs to be set ahead of time
+		visual_shape.add_point(end.position)
+		end.add_edge(self)
+		lock_line(end)
+	else: # Set end to start if it dose not exist yet
+		visual_shape.add_point(start.position)
 	
 	collision_shape.shape.size.x = width
 	visual_shape.width = width
@@ -40,12 +49,12 @@ func stretch_line(v: Vector2) -> void:
 ## Locks the MagicLine to an ending MagicLineConnectableComponent
 func lock_line(m: MagicLineConnectableComponent) -> void:
 	end = m
-	stretch_line(m.global_position)
+	stretch_line(m.global_position - global_position)
 	emit_signal("locked")
 
 ## Destroy the MagicLine and update related components
 func kill_magic_line() -> void:
-	pass
+	print("Line Killed")
 	if start:
 		start.remove_edge(self)
 	if end:
