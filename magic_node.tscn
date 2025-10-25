@@ -6,7 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://components/enchantment_cursor_detection_component.tscn" id="4_kmmj3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_kmmj3"]
-radius = 32.0
+radius = 10.198
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8ufat"]
 

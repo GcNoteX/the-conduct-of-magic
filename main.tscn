@@ -1,13 +1,15 @@
 [gd_scene load_steps=4 format=3 uid="uid://b6k4n067ypio4"]
 
 [ext_resource type="PackedScene" uid="uid://18q6ykut8s83" path="res://magic_node.tscn" id="2_0xm2m"]
-[ext_resource type="PackedScene" uid="uid://i4yl2fcq2sv0" path="res://enchantment_node.tscn" id="3_h2yge"]
+[ext_resource type="PackedScene" uid="uid://dg3q2btlpwe3s" path="res://enchantments/enchantments/e1.tscn" id="3_h2yge"]
 [ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://enchantment_cursor.tscn" id="5_lquwl"]
 
 [node name="Main" type="Node"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
+
+[node name="EnchantmentCursor" parent="." instance=ExtResource("5_lquwl")]
 
 [node name="MagicNode" parent="." instance=ExtResource("2_0xm2m")]
 position = Vector2(323, 261)
@@ -21,7 +23,5 @@ position = Vector2(736, 487)
 [node name="MagicNode4" parent="." instance=ExtResource("2_0xm2m")]
 position = Vector2(390, 474)
 
-[node name="EnchantmentCursor" parent="." instance=ExtResource("5_lquwl")]
-
-[node name="EnchantmentNode" parent="." instance=ExtResource("3_h2yge")]
-position = Vector2(545, 219)
+[node name="E1" parent="." instance=ExtResource("3_h2yge")]
+position = Vector2(40, -80)

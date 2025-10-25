@@ -1,9 +1,9 @@
 @tool
-class_name MagicLine
+class_name EnchantmentLine
 extends Area2D
 
 """
-- A straight line that goes between two MagicLineConnectableComponents
+- A special line that goes between EnchantmentNodes
 """
 
 signal locked
@@ -12,10 +12,10 @@ signal locked
 @onready var collision_shape: CollisionShape2D = $LineCollisionShape
 
 
-# The MagicLineConnectableComponent the MagicLine goes between
+# The EnchantmentLineConnectableComponent the MagicLine goes between
 # INFO: Storing starting and ending points in MagicLine helps with traversal and makes identifying the state of the MagicLine for further features easier.
-@export var start: MagicLineConnectableComponent = null
-@export var end: MagicLineConnectableComponent = null
+@export var start: EnchantmentLineConnectableComponent = null
+@export var end: EnchantmentLineConnectableComponent = null
 @export var width = 15 # The width of the MagicLine 
 
 var initialized = false
@@ -40,8 +40,7 @@ func _ready() -> void:
 			visual_shape.add_point(visual_shape.get_point_position(0))
 		elif visual_shape.get_point_count() == 2:
 			visual_shape.set_point_position(1, visual_shape.get_point_position(0))
-	#print("after")
-	#print("MagicLine Start", start, " END", end)
+
 	collision_shape.shape.size.x = width
 	visual_shape.width = width
 	initialized = true
@@ -51,14 +50,15 @@ func stretch_line(v: Vector2) -> void:
 	_change_visual_end_point(v)
 	_update_collision_shape()
 
-## Locks the MagicLine to an ending MagicLineConnectableComponent
-func lock_line(m: MagicLineConnectableComponent) -> void:
+## Locks the MagicLine to an ending EnchantmentLineConnectableComponent
+func lock_line(m: EnchantmentLineConnectableComponent) -> void:
 	end = m
 	stretch_line(m.global_position - global_position)
 	emit_signal("locked")
 
 ## Destroy the MagicLine and update related components
 func kill_magic_line() -> void:
+	print("Line Killed")
 	if start:
 		start.remove_edge(self)
 	if end:

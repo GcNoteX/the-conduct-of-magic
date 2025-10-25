@@ -1,41 +1,6 @@
-[gd_scene load_steps=4 format=3 uid="uid://b3i6b20dalqkc"]
+[gd_scene load_steps=2 format=3 uid="uid://b3i6b20dalqkc"]
 
 [ext_resource type="Script" uid="uid://ldewurgrwwj3" path="res://enchantments/enchantment.gd" id="1_7me4k"]
-[ext_resource type="PackedScene" uid="uid://i4yl2fcq2sv0" path="res://enchantment_node.tscn" id="2_2k6xx"]
-[ext_resource type="PackedScene" uid="uid://cq43qfwuu7nfu" path="res://magic_line.tscn" id="3_sc1eq"]
 
 [node name="Enchantment" type="Node2D"]
 script = ExtResource("1_7me4k")
-
-[node name="EnchantmentNode" parent="." instance=ExtResource("2_2k6xx")]
-position = Vector2(299, 158)
-
-[node name="MagicLineConnectableComponent" parent="EnchantmentNode" index="1" node_paths=PackedStringArray("connected_lines")]
-connected_lines = [NodePath("../../MagicLine"), NodePath("../../MagicLine2")]
-
-[node name="EnchantmentNode2" parent="." instance=ExtResource("2_2k6xx")]
-position = Vector2(666, 238)
-
-[node name="MagicLineConnectableComponent" parent="EnchantmentNode2" index="1" node_paths=PackedStringArray("connected_lines")]
-connected_lines = [NodePath("../../MagicLine")]
-
-[node name="EnchantmentNode3" parent="." instance=ExtResource("2_2k6xx")]
-position = Vector2(395, 481)
-
-[node name="MagicLineConnectableComponent" parent="EnchantmentNode3" index="1" node_paths=PackedStringArray("connected_lines")]
-connected_lines = [NodePath("../../MagicLine2")]
-
-[node name="MagicLine" parent="." node_paths=PackedStringArray("start", "end") instance=ExtResource("3_sc1eq")]
-position = Vector2(299, 158)
-start = NodePath("../EnchantmentNode/MagicLineConnectableComponent")
-end = NodePath("../EnchantmentNode2/MagicLineConnectableComponent")
-
-[node name="MagicLine2" parent="." node_paths=PackedStringArray("start", "end") instance=ExtResource("3_sc1eq")]
-position = Vector2(299, 158)
-start = NodePath("../EnchantmentNode/MagicLineConnectableComponent")
-end = NodePath("../EnchantmentNode3/MagicLineConnectableComponent")
-width = 13
-
-[editable path="EnchantmentNode"]
-[editable path="EnchantmentNode2"]
-[editable path="EnchantmentNode3"]
