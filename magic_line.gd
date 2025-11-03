@@ -85,3 +85,20 @@ func _update_collision_shape() -> void:
 	collision_shape.position = pos
 	collision_shape.shape.size.y = length
 	collision_shape.rotation = angle
+
+
+func _on_area_entered(area: Area2D) -> void:
+	"""
+	When an MagicLine Overlaps with:
+		EnchantmentLine of Enchantment -> Nothing
+		EnchantmentNode of Enchantment -> Invalid except owner (This is on Coder to not happen)
+		MagicLine of Enchantment -> Destroy MagicLine
+		
+		EnchantmentLine of Other Enchantment -> Invalid
+		EnchantmentNode of Other Enchantment -> Invalid
+		MagicLine of Other Enchantment -> Okay
+		MagicNode of Item Map -> Invalid
+	"""
+	if area is EnchantmentLine:
+		kill_magic_line()
+		pass

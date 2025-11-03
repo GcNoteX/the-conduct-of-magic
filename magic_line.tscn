@@ -15,3 +15,5 @@ points = PackedVector2Array(0, 0)
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_qsp6q")
 debug_color = Color(0.991767, 0, 0.261199, 0.42)
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

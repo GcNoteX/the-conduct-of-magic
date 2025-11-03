@@ -6,8 +6,11 @@ extends Node2D
 """
 
 var enodes: Array[EnchantmentNode]
+var elines: Array[EnchantmentLine]
 
 func _ready() -> void:
 	for child in get_children():
 		if child is EnchantmentNode:
 			enodes.append(child)
+		elif child is EnchantmentLine:
+			elines.append(child)

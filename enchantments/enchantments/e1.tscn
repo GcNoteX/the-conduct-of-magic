@@ -13,7 +13,7 @@ size = Vector2(15, 361.432)
 position = Vector2(537, 239)
 
 [node name="EnchantmentLineConnectableComponent" parent="EnchantmentNode" index="4" node_paths=PackedStringArray("connected_lines")]
-connected_lines = [NodePath("../../EnchantmentLine")]
+connected_lines = [NodePath("../../EnchantmentLine"), NodePath("../../EnchantmentLine2")]
 
 [node name="EnchantmentNode2" parent="." index="1" instance=ExtResource("2_dmmpm")]
 position = Vector2(245, 452)
@@ -24,8 +24,11 @@ connected_lines = [NodePath("../../EnchantmentLine")]
 [node name="EnchantmentNode3" parent="." index="2" instance=ExtResource("2_dmmpm")]
 position = Vector2(861, 490)
 
+[node name="EnchantmentLineConnectableComponent" parent="EnchantmentNode3" index="4" node_paths=PackedStringArray("connected_lines")]
+connected_lines = [NodePath("../../EnchantmentLine2")]
+
 [node name="EnchantmentLine" parent="." index="3" node_paths=PackedStringArray("start", "end") instance=ExtResource("3_8np31")]
-position = Vector2(509, 262)
+position = Vector2(535, 287)
 start = NodePath("../EnchantmentNode/EnchantmentLineConnectableComponent")
 end = NodePath("../EnchantmentNode2/EnchantmentLineConnectableComponent")
 
@@ -37,6 +40,11 @@ width = 15.0
 position = Vector2(-146, 106.5)
 rotation = -2.20102
 shape = SubResource("RectangleShape2D_8np31")
+
+[node name="EnchantmentLine2" parent="." index="4" node_paths=PackedStringArray("start", "end") instance=ExtResource("3_8np31")]
+position = Vector2(535, 287)
+start = NodePath("../EnchantmentNode/EnchantmentLineConnectableComponent")
+end = NodePath("../EnchantmentNode3/EnchantmentLineConnectableComponent")
 
 [editable path="EnchantmentNode"]
 [editable path="EnchantmentNode2"]

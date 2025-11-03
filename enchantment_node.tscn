@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://i4yl2fcq2sv0"]
+[gd_scene load_steps=12 format=3 uid="uid://i4yl2fcq2sv0"]
 
 [ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://enchantment_node.gd" id="1_8h6rx"]
 [ext_resource type="PackedScene" uid="uid://2gjrer57ae4j" path="res://components/magic_line_connectable_component.tscn" id="2_7f72b"]
@@ -17,6 +17,9 @@ radius = 32.0
 size = Vector2(36, 38)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_r22ex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_60117"]
+radius = 63.7887
 
 [node name="EnchantmentNode" type="Node2D"]
 script = ExtResource("1_8h6rx")
@@ -48,8 +51,14 @@ position = Vector2(-2, 48)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentLineConnectableComponent"]
 shape = SubResource("RectangleShape2D_r22ex")
-debug_color = Color(0.957554, 0.690381, 0.232036, 0.42)
+debug_color = Color(0.810354, 0.767377, 7.70092e-07, 0.42)
 
-[connection signal="connectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_connectable_line_detected"]
-[connection signal="unconnectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_unconnectable_line_detected"]
-[connection signal="connectable_line_detected" from="EnchantmentLineConnectableComponent" to="." method="_on_enchantment_line_connectable_component_connectable_line_detected"]
+[node name="FullBody" type="Area2D" parent="."]
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FullBody"]
+shape = SubResource("CircleShape2D_60117")
+debug_color = Color(0, 0.6, 0.701961, 0.0627451)
+
+[connection signal="connectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_connectable_magic_line_detected"]
+[connection signal="unconnectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_unconnectable_line_detected"]

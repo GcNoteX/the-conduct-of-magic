@@ -1,4 +1,3 @@
-@tool
 extends Node2D
 class_name EnchantmentNode
 
@@ -15,11 +14,8 @@ class_name EnchantmentNode
 @onready var material_component: MaterialComponent = $MaterialComponent
 
 
-func _on_magic_line_connectable_component_connectable_line_detected(l: MagicLine) -> void:
+func _on_connectable_magic_line_detected(l: MagicLine) -> void:
 	m_line_connector.add_edge(l)
 
-func _on_magic_line_connectable_component_unconnectable_line_detected(l: MagicLine) -> void:
+func _on_unconnectable_line_detected(l: MagicLine) -> void:
 	l.kill_magic_line()
-
-func _on_enchantment_line_connectable_component_connectable_line_detected(l: EnchantmentLine) -> void:
-	e_line_connector.add_edge(l)

@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://bl31wi5ugns5h"]
+
+[ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://enchantment_cursor.tscn" id="1_wvwjg"]
+[ext_resource type="PackedScene" uid="uid://doqltkhfycyla" path="res://enchantments/enchantments/e2.tscn" id="2_d7kya"]
+[ext_resource type="PackedScene" uid="uid://dg3q2btlpwe3s" path="res://enchantments/enchantments/e1.tscn" id="2_i2ton"]
+[ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantables/item1.tscn" id="3_d7kya"]
+
+[node name="PlayMap" type="Node"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+anchor_mode = 0
+
+[node name="E1" parent="." instance=ExtResource("2_i2ton")]
+position = Vector2(-202, -243)
+
+[node name="E2" parent="." instance=ExtResource("2_d7kya")]
+position = Vector2(31, 451)
+
+[node name="Item1" parent="." instance=ExtResource("3_d7kya")]
+
+[node name="EnchantmentCursor" parent="." instance=ExtResource("1_wvwjg")]

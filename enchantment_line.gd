@@ -21,6 +21,7 @@ signal locked
 var initialized = false
 
 func _ready() -> void:
+	# Setup the Line's Shape
 	if !Engine.is_editor_hint():
 		assert(start, "A MagicLine cannot exist without a start!")
 
@@ -85,3 +86,16 @@ func _update_collision_shape() -> void:
 	collision_shape.position = pos
 	collision_shape.shape.size.y = length
 	collision_shape.rotation = angle
+
+
+func _on_area_entered(_area: Area2D) -> void:
+	"""
+	EnchantmentLine's are created by the Coder, only moved around as an Enchantment
+	When an EnchantmentLine Overlaps with:
+		EnchantmentLine of Enchantment -> Nothing
+		EnchantmentNode of Enchantment -> Invalid except owner (This is on Coder to not happen)
+		
+		EnchantmentLine of Other Enchantment -> Invalid
+		EnchantmentNode of Other Enchantment -> Invalid
+	"""
+	pass
