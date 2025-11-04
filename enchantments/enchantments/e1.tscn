@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://bqr5hvfao8bql" path="res://enchantment_line.tscn" id="3_8np31"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_8np31"]
-size = Vector2(15, 361.432)
+size = Vector2(15, 361.4319)
 
 [node name="E1" instance=ExtResource("1_vptwt")]
 
@@ -38,7 +38,7 @@ width = 15.0
 
 [node name="LineCollisionShape" parent="EnchantmentLine" index="1"]
 position = Vector2(-146, 106.5)
-rotation = -2.20102
+rotation = -2.2010167
 shape = SubResource("RectangleShape2D_8np31")
 
 [node name="EnchantmentLine2" parent="." index="4" node_paths=PackedStringArray("start", "end") instance=ExtResource("3_8np31")]

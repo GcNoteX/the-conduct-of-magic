@@ -1,5 +1,5 @@
+extends MapNode
 class_name MagicNode
-extends Node2D
 
 """
 - Kills MagicLines that cannot connect to it
@@ -11,6 +11,22 @@ extends Node2D
 
 var is_activated: bool = false ## Whether a MagicNode is responsive to cursor
 var enchantment_bound: Enchantment = null ## The enchantment this MagicNode has been bounded to
+
+func _ready() -> void:
+	update_connections()
+
+func update_connections() -> void:
+	connections.clear()
+	for line in magic_lines_connector.connected_lines:
+		if line.start == self:
+			#print("Adding ", line.end)
+			connections.append(line.end.owner)
+		else:
+			#print("Adding ", line.start)
+			connections.append(line.start.owner)
+
+func get_bounded_identity() -> Variant:
+	return enchantment_bound
 
 func activate_node(e: Enchantment) -> void:
 	"""
@@ -31,25 +47,21 @@ func deactivate_node() -> void:
 func _on_magic_line_connectable_component_connectable_line_detected(l: MagicLine) -> void:
 	# If this function is called, it is identified that the line is unique to this node and there is capacity to take it
 	var partner = l.start.owner # MagicLineConnectable owner is Guranteed to be useful
-	## NOTE: With an abstract class, this can be halved - a map node abstract class with a bounded enchantment
-	if is_activated:
-		if partner is EnchantmentNode:
-			if partner.owner == enchantment_bound: # Only same enchantment can continue connecting
-				magic_lines_connector.add_edge(l)
-			else: # Different enchantment's cannot be connected, so destroy line
-				l.kill_magic_line()
-		elif partner is MagicNode:
-			if partner.enchantment_bound == enchantment_bound: # Only same enchantment can continue connecting
-				magic_lines_connector.add_edge(l)
-			else: # Different enchantment's cannot be connected, so destroy line
-				l.kill_magic_line()
-
+	if partner in connections or partner == self: # The latter case only matters when there is more than one connectable component for lines
+		l.kill_magic_line()
+		return
+	
+	if partner is MapNode:
+		if partner.get_bounded_identity() == get_bounded_identity() or get_bounded_identity() == null:
+			if !is_activated:
+				activate_node(partner.get_bounded_identity())
+			magic_lines_connector.add_edge(l)
+			update_connections()
+		else:
+			l.kill_magic_line()
 	else:
-		if partner is MagicNode:
-			activate_node(partner.enchantment_bound)
-		elif partner is EnchantmentNode:
-			activate_node(partner.owner)
 		magic_lines_connector.add_edge(l)
+		update_connections()
 
 
 func _on_magic_line_connectable_component_unconnectable_line_detected(l: MagicLine) -> void:
