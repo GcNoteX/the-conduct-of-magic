@@ -1,9 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://cq43qfwuu7nfu"]
+[gd_scene load_steps=4 format=3 uid="uid://cq43qfwuu7nfu"]
 
 [ext_resource type="Script" uid="uid://df4s27th4fhin" path="res://magic_line.gd" id="1_qsp6q"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_qsp6q"]
 size = Vector2(0, 0)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tw4r6"]
 
 [node name="MagicLine" type="Area2D"]
 script = ExtResource("1_qsp6q")
@@ -11,9 +13,15 @@ width = 5
 
 [node name="Line2D" type="Line2D" parent="."]
 points = PackedVector2Array(0, 0)
+default_color = Color(3.272891e-06, 0.84903836, 0.9067024, 1)
 
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_qsp6q")
 debug_color = Color(0.991767, 0, 0.261199, 0.42)
 
+[node name="LineConnectingShape" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_tw4r6")
+debug_color = Color(0.57100135, 0, 0.01736105, 0.41960785)
+
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_shape_entered" from="." to="." method="_on_area_shape_entered"]

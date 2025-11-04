@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bl31wi5ugns5h"]
+[gd_scene load_steps=5 format=3 uid="uid://bl31wi5ugns5h"]
 
 [ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://enchantment_cursor.tscn" id="1_wvwjg"]
+[ext_resource type="PackedScene" uid="uid://doqltkhfycyla" path="res://enchantments/enchantments/e2.tscn" id="2_d7kya"]
 [ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantables/item1.tscn" id="3_d7kya"]
 [ext_resource type="PackedScene" uid="uid://dmkhtm7i08t4e" path="res://enchantments/enchantments/e3.tscn" id="3_wvwjg"]
 
@@ -11,7 +12,11 @@ anchor_mode = 0
 
 [node name="Item1" parent="." instance=ExtResource("3_d7kya")]
 
-[node name="EnchantmentCursor" parent="." instance=ExtResource("1_wvwjg")]
-
 [node name="E3" parent="." instance=ExtResource("3_wvwjg")]
 position = Vector2(-14, 86)
+
+[node name="EnchantmentCursor" parent="." instance=ExtResource("1_wvwjg")]
+top_level = true
+
+[node name="E1" parent="." instance=ExtResource("2_d7kya")]
+position = Vector2(-84, 458)

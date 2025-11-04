@@ -29,6 +29,11 @@ self_modulate = Color(1, 0.701961, 0.462745, 1)
 scale = Vector2(2.03125, 2.03125)
 texture = ExtResource("2_ho12n")
 
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+self_modulate = Color(0.94939977, 0.7478145, 0, 1)
+scale = Vector2(0.7912495, 0.7912495)
+texture = ExtResource("2_ho12n")
+
 [node name="MagicLineConnectableComponent" parent="." instance=ExtResource("2_7f72b")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MagicLineConnectableComponent"]
@@ -47,7 +52,6 @@ shape = SubResource("RectangleShape2D_ucxg0")
 debug_color = Color(0.754558, 0.456416, 0, 0.42)
 
 [node name="EnchantmentLineConnectableComponent" parent="." instance=ExtResource("6_60117")]
-position = Vector2(-2, 48)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentLineConnectableComponent"]
 shape = SubResource("RectangleShape2D_r22ex")

@@ -19,6 +19,11 @@ script = ExtResource("1_tjibe")
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_vs4el")
 
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+self_modulate = Color(0.18431373, 1, 1, 1)
+scale = Vector2(0.32, 0.32)
+texture = ExtResource("1_vs4el")
+
 [node name="MagicLineConnectableComponent" parent="." instance=ExtResource("3_pw1qt")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MagicLineConnectableComponent"]

@@ -41,6 +41,7 @@ func add_edge(e: MagicLine) -> void:
 	if e.start and e.end == null and e.start != self:
 		e.lock_line(self)
 	connected_lines.append(e)
+	
 
 func remove_edge(e: MagicLine) -> void:
 	connected_lines.erase(e)
