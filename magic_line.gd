@@ -6,6 +6,7 @@ extends Area2D
 """
 
 signal locked
+signal destroyed(l: MagicLine)
 
 @onready var visual_shape: Line2D = $Line2D
 @onready var collision_shape: CollisionShape2D = $LineCollisionShape
@@ -62,15 +63,10 @@ func lock_line(m: MagicLineConnectableComponent) -> void:
 	stretch_line(m.global_position - global_position)
 	emit_signal("locked")
 	is_locked = true
-	print("Locking Line")
 
 ## Destroy the MagicLine and update related components
 func kill_magic_line() -> void:
-	#print("Kill Line", self)
-	if start:
-		start.remove_edge(self)
-	if end:
-		end.remove_edge(self)
+	emit_signal("destroyed")
 	queue_free()
 
 ## Abstracts away the line2d updating first point (the start)

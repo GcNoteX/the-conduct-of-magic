@@ -68,3 +68,8 @@ func _on_magic_line_connectable_component_unconnectable_line_detected(l: MagicLi
 	l.kill_magic_line()
 
 # TODO: When all lines are disconnected from node, deactive it
+
+
+func _on_magic_line_connectable_component_line_destroyed(l: MagicLine) -> void:
+	magic_lines_connector.remove_edge(l)
+	update_connections()

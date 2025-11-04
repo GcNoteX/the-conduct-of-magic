@@ -44,4 +44,5 @@ shape = SubResource("CircleShape2D_thycq")
 debug_color = Color(0, 0.6, 0.701961, 0.0627451)
 
 [connection signal="connectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_connectable_line_detected"]
+[connection signal="line_destroyed" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_line_destroyed"]
 [connection signal="unconnectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_unconnectable_line_detected"]

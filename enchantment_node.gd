@@ -55,3 +55,8 @@ func _on_connectable_magic_line_detected(l: MagicLine) -> void:
 
 func _on_unconnectable_line_detected(l: MagicLine) -> void:
 	l.kill_magic_line()
+
+
+func _on_magic_line_connectable_component_line_destroyed(l: MagicLine) -> void:
+	m_line_connector.remove_edge(l)
+	update_connections()

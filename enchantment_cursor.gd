@@ -20,7 +20,6 @@ var controlled_line: MagicLine = null
 
 var selection_manager: MapPriorityQueue = MapPriorityQueue.new()
 
-
 func _process(_delta: float) -> void:
 	position = get_global_mouse_position()
 
@@ -33,6 +32,11 @@ func _physics_process(_delta: float) -> void:
 		if controlled_line:
 			controlled_line.kill_magic_line()
 		controlled_line = null
+		
+	if Input.is_action_just_pressed("right_click"):
+		var o = selection_manager.peek()
+		if o is MagicLine:
+			o.kill_magic_line()
 
 func _on_area_exited(area: Area2D) -> void:
 	if !controlled_line and area is MagicLineConnectableComponent and Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
@@ -49,9 +53,9 @@ func _on_area_exited(area: Area2D) -> void:
 					controlled_line = m
 	
 	if area is EnchantmentLine or area is MagicLine:
-		selection_manager.push(area)
+		selection_manager.remove(area)
 	elif area is MagicLineConnectableComponent:
-		selection_manager.push(area.owner)
+		selection_manager.remove(area.owner)
 
 func _create_magic_line(connector: MagicLineConnectableComponent) -> MagicLine:
 	# Create a MagicLine
@@ -67,6 +71,7 @@ func _on_MagicLine_locked() -> void:
 
 
 func _on_area_entered(area: Area2D) -> void:
+	#print("Entered: ", area)
 	if area is EnchantmentLine or area is MagicLine:
 		selection_manager.push(area)
 	elif area is MagicLineConnectableComponent:
