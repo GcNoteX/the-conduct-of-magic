@@ -1,5 +1,5 @@
 class_name MagicLine
-extends Area2D
+extends MapLine
 
 """
 - A straight line that goes between two MagicLineConnectableComponents
@@ -7,17 +7,12 @@ extends Area2D
 
 signal locked
 signal destroyed(l: MagicLine)
+signal spawned
 
 @onready var visual_shape: Line2D = $Line2D
 @onready var collision_shape: CollisionShape2D = $LineCollisionShape
 @onready var line_connecting_shape: CollisionShape2D = $LineConnectingShape
 
-
-# The MagicLineConnectableComponent the MagicLine goes between
-# INFO: Storing starting and ending points in MagicLine helps with traversal and makes identifying the state of the MagicLine for further features easier.
-@export var start: MagicLineConnectableComponent = null
-@export var end: MagicLineConnectableComponent = null
-@export var width = 15 # The width of the MagicLine 
 
 var initialized = false
 var is_locked = false
@@ -26,6 +21,10 @@ var is_locked = false
 var collision_offset: int = 50
 
 func _ready() -> void:
+	self.locked.connect(EnchantmentUpdateManager._on_MagicLine_locked)
+	self.destroyed.connect(EnchantmentUpdateManager._on_MagicLine_destroyed)
+	self.spawned.connect(EnchantmentUpdateManager._on_MagicLine_spawned)
+	
 	if !Engine.is_editor_hint():
 		assert(start, "A MagicLine cannot exist without a start!")
 
@@ -33,7 +32,6 @@ func _ready() -> void:
 	line_connecting_shape.shape = line_connecting_shape.shape.duplicate()
 
 	# Start the line at the start position
-	start.add_edge(self)
 	global_position = start.global_position
 
 	if end: # An end point visually needs to be set ahead of time
@@ -51,22 +49,23 @@ func _ready() -> void:
 	line_connecting_shape.shape.size.x = width
 	visual_shape.width = width
 	initialized = true
-
+	emit_signal("spawned")
+	
 ## Stretch the MagicLine to a new destination 
 func stretch_line(v: Vector2) -> void:
 	_change_visual_end_point(v)
 	_update_collision_shape()
 
 ## Locks the MagicLine to an ending MagicLineConnectableComponent
-func lock_line(m: MagicLineConnectableComponent) -> void:
+func lock_line(m: LineConnector) -> void:
 	end = m
 	stretch_line(m.global_position - global_position)
-	emit_signal("locked")
 	is_locked = true
+	emit_signal("locked")
 
 ## Destroy the MagicLine and update related components
 func kill_magic_line() -> void:
-	emit_signal("destroyed")
+	emit_signal("destroyed", self)
 	queue_free()
 
 ## Abstracts away the line2d updating first point (the start)

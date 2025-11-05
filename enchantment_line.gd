@@ -1,6 +1,6 @@
 @tool
 class_name EnchantmentLine
-extends Area2D
+extends MapLine
 
 """
 - A special line that goes between EnchantmentNodes
@@ -12,12 +12,6 @@ signal locked
 @onready var collision_shape: CollisionShape2D = $LineCollisionShape
 @onready var line_connecting_shape: CollisionShape2D = $LineConnectingShape
 
-
-# The EnchantmentLineConnectableComponent the MagicLine goes between
-# INFO: Storing starting and ending points in MagicLine helps with traversal and makes identifying the state of the MagicLine for further features easier.
-@export var start: EnchantmentLineConnectableComponent = null
-@export var end: EnchantmentLineConnectableComponent = null
-@export var width = 15 # The width of the MagicLine 
 
 var initialized = false
 
@@ -59,7 +53,7 @@ func stretch_line(v: Vector2) -> void:
 	_update_collision_shape()
 
 ## Locks the MagicLine to an ending EnchantmentLineConnectableComponent
-func lock_line(m: EnchantmentLineConnectableComponent) -> void:
+func lock_line(m: LineConnector) -> void:
 	end = m
 	stretch_line(m.global_position - global_position)
 	emit_signal("locked")

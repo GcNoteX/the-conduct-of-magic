@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://b3i6b20dalqkc"]
-
-[ext_resource type="Script" uid="uid://ldewurgrwwj3" path="res://enchantments/enchantment.gd" id="1_7me4k"]
-
-[node name="Enchantment" type="Node2D"]
-script = ExtResource("1_7me4k")

@@ -4,11 +4,11 @@
 An abstract class to compile define all Node-Type objects within a PlayMap
 """
 
-var connections: Array[MapNode] = []
+var connections: Array[MapNode] = [] ## The number of connected nodes
 
 func _ready() -> void:
-	call_deferred("update_connections")
+	call_deferred("_update_connections")
 
-@abstract func update_connections() -> void
+@abstract func _update_connections() -> void
 
 @abstract func get_bounded_identity() -> Variant

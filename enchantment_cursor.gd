@@ -58,10 +58,11 @@ func _on_area_exited(area: Area2D) -> void:
 		selection_manager.remove(area.owner)
 
 func _create_magic_line(connector: MagicLineConnectableComponent) -> MagicLine:
-	# Create a MagicLine
+	# Create a MagicLine at a Valid location
 	var m: MagicLine = magic_line.instantiate()
 	# Setup the edge
-	m.start = connector
+	connector.force_add_edge(m)
+	
 	get_tree().current_scene.call_deferred("add_child", m) # WARNING: This is temporary until EnchantmentMap is built back in
 	m.locked.connect(_on_MagicLine_locked)
 	return m

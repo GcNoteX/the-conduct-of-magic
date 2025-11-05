@@ -1,25 +1,22 @@
-[gd_scene load_steps=12 format=3 uid="uid://i4yl2fcq2sv0"]
+[gd_scene load_steps=11 format=3 uid="uid://i4yl2fcq2sv0"]
 
 [ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://enchantment_node.gd" id="1_8h6rx"]
 [ext_resource type="PackedScene" uid="uid://2gjrer57ae4j" path="res://components/magic_line_connectable_component.tscn" id="2_7f72b"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_ho12n"]
-[ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://components/enchantment_cursor_detection_component.tscn" id="3_7f72b"]
-[ext_resource type="PackedScene" uid="uid://dpv4r65ly4cj3" path="res://components/material_component.tscn" id="5_ucxg0"]
+[ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://components/material_holder.gd" id="5_ucxg0"]
 [ext_resource type="PackedScene" uid="uid://b06pq4cpc85tb" path="res://components/enchantment_line_connectable_component.tscn" id="6_60117"]
+[ext_resource type="Script" uid="uid://bp8wi3h2a3fes" path="res://components/material_dropper.gd" id="6_r22ex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7f72b"]
 radius = 25.0
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_ho12n"]
-radius = 32.0
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_ucxg0"]
-size = Vector2(36, 38)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_r22ex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_60117"]
 radius = 63.7887
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_rk8bf"]
+radius = 63.07139
 
 [node name="EnchantmentNode" type="Node2D"]
 script = ExtResource("1_8h6rx")
@@ -39,18 +36,6 @@ texture = ExtResource("2_ho12n")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MagicLineConnectableComponent"]
 shape = SubResource("CircleShape2D_7f72b")
 
-[node name="EnchantmentCursorDetectionComponent" parent="." instance=ExtResource("3_7f72b")]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentCursorDetectionComponent"]
-shape = SubResource("CircleShape2D_ho12n")
-
-[node name="MaterialComponent" parent="." instance=ExtResource("5_ucxg0")]
-position = Vector2(25, -27)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MaterialComponent"]
-shape = SubResource("RectangleShape2D_ucxg0")
-debug_color = Color(0.754558, 0.456416, 0, 0.42)
-
 [node name="EnchantmentLineConnectableComponent" parent="." instance=ExtResource("6_60117")]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentLineConnectableComponent"]
@@ -64,6 +49,21 @@ collision_mask = 0
 shape = SubResource("CircleShape2D_60117")
 debug_color = Color(0, 0.6, 0.701961, 0.0627451)
 
+[node name="MaterialHolder" type="Node" parent="."]
+script = ExtResource("5_ucxg0")
+metadata/_custom_type_script = "uid://dewbiy3a2acnp"
+
+[node name="MaterialDropper" type="Area2D" parent="." node_paths=PackedStringArray("holder")]
+script = ExtResource("6_r22ex")
+holder = NodePath("../MaterialHolder")
+metadata/_custom_type_script = "uid://bp8wi3h2a3fes"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MaterialDropper"]
+shape = SubResource("CircleShape2D_rk8bf")
+
 [connection signal="connectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_connectable_magic_line_detected"]
+[connection signal="connector_updated_independently" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_connector_updated_independently"]
 [connection signal="line_destroyed" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_line_destroyed"]
 [connection signal="unconnectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_unconnectable_line_detected"]
+[connection signal="material_embedded" from="MaterialHolder" to="." method="_on_material_holder_material_embedded"]
+[connection signal="material_removed" from="MaterialHolder" to="." method="_on_material_holder_material_removed"]

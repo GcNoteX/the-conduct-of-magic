@@ -1,20 +1,22 @@
-extends Area2D
-class_name MaterialComponent
+@tool
+extends Node
+class_name MaterialHolder
 
 """
-- Takes in a valid EnchantmentMaterial.
-- Interfaces the state of an EnchantmentMaterial.
-- Provides actions to insert, remove, activate and deactivate the EnchantmentMaterial.
-- Provides an area to insert an EnchantmentMaterial.
+- Holds valid EnchantmentMaterial.
+- Provides actions to insert, remove the EnchantmentMaterial.
 """
 
-var is_activated
-var embedded_material: EnchantmentMaterial = null
+signal material_embedded
+signal material_removed
+
+var sealed = false ## An attribute to dictate whether the embedded_material can be removed and returned, or just removed.
+@export var embedded_material: EnchantmentMaterial = null
 
 ## The tier the EnchantMaterial has to be or greater to be embedded into EnchantmentNode
 @export var tier_requirement: int = 1
 ## The requirements an EnchantmentMaterial has to fulfill to be allowed to be embedded into EnchantmentNode, 
-## checks the material_attributes attribute
+## checks the material_attributes attribute of EnchantmentMaterial
 @export var material_requirements: Array[MaterialCondition]
 
 
@@ -39,22 +41,22 @@ func can_embbed_material(m: EnchantmentMaterial) -> bool:
 
 func embbed_material(m: EnchantmentMaterial) -> void:
 	embedded_material = m
+	emit_signal("material_embedded")
 
-func remove_material() -> void:
+func remove_material() -> EnchantmentMaterial:
+	var m = embedded_material
 	embedded_material = null
+	emit_signal("material_removed")
+	return m
 
-func can_material_be_activated() -> bool: # NOTE: What should be inserted as a parameter to check
+func can_material_be_activated(ctx: MaterialActivationContext) -> bool: # NOTE: What should be inserted as a parameter to check
 	"""
-	A node can be activated if:
+	A material component can be activated if:
 		- All embedded material conditions are true
 	"""
+	if !embedded_material:
+		return false
 	for condition in embedded_material.activation_conditions:
-		if not condition.is_fulfilled():
+		if not condition.is_fulfilled(ctx):
 			return false
 	return true
-
-func activate_material() -> void:
-	is_activated = true
-
-func deactivate_material() -> void:
-	is_activated = false

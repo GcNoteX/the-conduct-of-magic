@@ -12,6 +12,7 @@ signal line_destroyed(l: MagicLine)
 signal connectable_line_detected(l: MagicLine)
 signal unconnectable_line_detected(l: MagicLine)
 signal magicline_collided_with_self(l: MagicLine)
+signal connector_updated_independently() # This signal is for when the connectable is forced to change and skips its owner.
 
 @export var is_unlimited_capacity: bool = true
 @export var max_capacity: int = 0: ## Number of magic edges that can be connected to this socket
@@ -39,11 +40,18 @@ func can_connect_edge(e: MagicLine = MagicLine.new()) -> bool:
 	return is_unlimited_capacity or connected_lines.size() < max_capacity
 
 func add_edge(e: MagicLine) -> void:
-	if e.start and e.end == null and e.start != self:
-		e.lock_line(self)
 	connected_lines.append(e)
-	e.destroyed.connect(_on_MagicLine_destroyed.bind(e))
+	e.destroyed.connect(_on_MagicLine_destroyed)
 	
+	if !e.start:
+		e.start = self
+	elif e.start and e.end == null and e.start != self:
+		e.lock_line(self)
+
+func force_add_edge(e: MagicLine) -> void:
+	add_edge(e)
+	emit_signal("connector_updated_independently")
+
 
 func remove_edge(e: MagicLine) -> void:
 	connected_lines.erase(e)
@@ -56,10 +64,10 @@ func _on_area_entered(area: Area2D) -> void:
 			return
 		# If edge is not from this component, try to connect it.
 		if can_connect_edge(area):
+			print("Emitting Connectable Line Detected")
 			emit_signal("connectable_line_detected", area)
 		else:
 			emit_signal("unconnectable_line_detected", area)
 
 func _on_MagicLine_destroyed(l: MagicLine) -> void:
-	#remove_edge(l)
 	emit_signal("line_destroyed", l)

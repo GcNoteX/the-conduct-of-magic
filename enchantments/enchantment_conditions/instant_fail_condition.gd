@@ -1,8 +1,7 @@
-class_name LineLengthCondition
+class_name InstantFailCondition
 extends EnchantmentCondition
 
 
 func is_fulfilled(ctx: MaterialActivationContext) -> bool:
 	#TODO: Would need references to a map and stuff to actually make work.
-	push_warning("Line Length Condition not implemented, passing as true")
-	return true
+	return false

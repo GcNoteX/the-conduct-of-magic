@@ -1,22 +1,24 @@
 [gd_scene load_steps=5 format=3 uid="uid://bl31wi5ugns5h"]
 
 [ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://enchantment_cursor.tscn" id="1_wvwjg"]
-[ext_resource type="PackedScene" uid="uid://doqltkhfycyla" path="res://enchantments/enchantments/e2.tscn" id="2_d7kya"]
+[ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="2_u2jdw"]
 [ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantables/item1.tscn" id="3_d7kya"]
-[ext_resource type="PackedScene" uid="uid://dmkhtm7i08t4e" path="res://enchantments/enchantments/e3.tscn" id="3_wvwjg"]
+[ext_resource type="PackedScene" uid="uid://dma3s717a2gbn" path="res://enchantments/enchantments/e1.tscn" id="3_i2ton"]
 
 [node name="PlayMap" type="Node"]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
 
-[node name="Item1" parent="." instance=ExtResource("3_d7kya")]
+[node name="EnchantmentMap" type="Node2D" parent="."]
+script = ExtResource("2_u2jdw")
 
-[node name="E3" parent="." instance=ExtResource("3_wvwjg")]
-position = Vector2(-14, 86)
+[node name="Item1" parent="EnchantmentMap" instance=ExtResource("3_d7kya")]
+
+[node name="E1" parent="EnchantmentMap" node_paths=PackedStringArray("enodes", "elines") instance=ExtResource("3_i2ton")]
+position = Vector2(445, 298)
+enodes = [NodePath("EnchantmentNode"), NodePath("EnchantmentNode2"), NodePath("EnchantmentNode3")]
+elines = [NodePath("EnchantmentLine"), NodePath("EnchantmentLine2")]
 
 [node name="EnchantmentCursor" parent="." instance=ExtResource("1_wvwjg")]
 top_level = true
-
-[node name="E1" parent="." instance=ExtResource("2_d7kya")]
-position = Vector2(-84, 458)
