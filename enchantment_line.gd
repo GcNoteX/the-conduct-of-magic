@@ -58,15 +58,6 @@ func lock_line(m: LineConnector) -> void:
 	stretch_line(m.global_position - global_position)
 	emit_signal("locked")
 
-## Destroy the MagicLine and update related components
-func kill_magic_line() -> void:
-	print("Line Killed")
-	if start:
-		start.remove_edge(self)
-	if end:
-		end.remove_edge(self)
-	queue_free()
-
 ## Abstracts away the line2d updating first point (the start)
 func _change_visual_start_point(v: Vector2) -> void:
 	visual_shape.set_point_position(0, v)

@@ -9,10 +9,7 @@ class_name EnchantmentNode
 - Can connect to EnchantmentLine's unlimitedly
 """
 
-#signal updated
-
-@onready var m_line_connector: MagicLineConnectableComponent = $MagicLineConnectableComponent
-@onready var e_line_connector: EnchantmentLineConnectableComponent = $EnchantmentLineConnectableComponent
+@onready var line_connector: LineConnector = $LineConnector
 @onready var material_component: MaterialHolder = $MaterialHolder
 
 var is_activated: bool = false
@@ -22,47 +19,29 @@ func get_bounded_identity() -> Variant:
 	return owner
 
 
-func _update_connections() -> void:
-	connections.clear()
-	for line in m_line_connector.connected_lines:
-		if line.start.owner == self:
-			#print("Adding ", line.end)
-			if line.end:
-				connections.append(line.end.owner)
-		else:
-			#print("Adding ", line.start)
-			connections.append(line.start.owner)
-
-	for line in e_line_connector.connected_lines:
-		if line.start.owner == self:
-			#print("Adding ", line.end)
-			connections.append(line.end.owner)
-		else:
-			#print("Adding ", line.start)
-			connections.append(line.start.owner)
-
-
-func add_connection(l: MagicLine) -> void:
-	print("Added Connection to node")
-	m_line_connector.add_edge(l)
-	_update_connections()
-
-
-func _on_connectable_magic_line_detected(l: MagicLine) -> void:
-	# If this function is called, it is identified that the line is unique to the connectable component and there is capacity to take itt
-	print("Connectable Magic Line Detected")
-	var partner = l.start.owner # MagicLineConnectable owner is Guranteed to be useful
-	if partner in connections or partner == self:
+func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
+	if !passes_base_conditions(l):
+		l.kill_line()
+		return
+	
+	var partner = l.start.owner as MapNode # MagicLineConnectable owner is Guranteed to be useful
+	
+	## Condition1: EnchantmentNode does not allow more than 1 connection to a partner
+	if partner in mapnode_connections or partner == self:
 		l.kill_magic_line()
 		return
 	
-	if partner is MapNode:
-		if partner.get_bounded_identity() == get_bounded_identity():
-			add_connection(l)
-		else:
-			l.kill_magic_line()
-	else:
+	## Condition2: EnchantmentNode does not allow a line from a different Enchantment to connect
+	if partner.get_bounded_identity() == get_bounded_identity():
 		add_connection(l)
+	else:
+		l.kill_magic_line()
+	
+	add_connection(l)
+
+func _on_line_connector_invalid_line_type_detected(l: MapLine) -> void:
+	# Destroys invalid 
+	l.kill_line()
 
 
 ## Updates the state of the EnchantmentNode based on whether it can be activated.
@@ -91,13 +70,11 @@ func _deactivate_node() -> void:
 
 
 func _on_unconnectable_line_detected(l: MagicLine) -> void:
-	l.kill_magic_line()
+	l.kill_line()
 
-
-func _on_magic_line_connectable_component_line_destroyed(l: MagicLine) -> void:
-	m_line_connector.remove_edge(l)
-	_update_connections()
-
+"""
+Handling Material
+"""
 
 func _on_material_holder_material_embedded() -> void:
 	update_activation()
@@ -107,5 +84,21 @@ func _on_material_holder_material_removed() -> void:
 	update_activation()
 
 
-func _on_magic_line_connectable_component_connector_updated_independently() -> void:
-	_update_connections()
+"""
+Handling Cursors
+"""
+
+func handle_drag_out(c: EnchantmentCursor) -> void:
+	if c is DrawCursor:
+		# Ignore if node is not activated
+		if !is_activated:
+			return
+		if !c.controlled_line and has_capacity():
+			# Create a new MagicLine
+			var l: MagicLine = preload(SceneReferences.magic_line).instantiate()
+			# Draw the line from this node and add it to this node
+			EnchantmentMapManager.call_deferred("add_to_enchantment_map", l)
+			
+			# Attach it to the DrawCursor
+			l.locked.connect(c._on_MagicLine_locked)
+			c.controlled_line = l

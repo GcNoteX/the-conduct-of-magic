@@ -1,25 +1,25 @@
-[gd_scene load_steps=11 format=3 uid="uid://i4yl2fcq2sv0"]
+[gd_scene load_steps=9 format=3 uid="uid://i4yl2fcq2sv0"]
 
 [ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://enchantment_node.gd" id="1_8h6rx"]
-[ext_resource type="PackedScene" uid="uid://2gjrer57ae4j" path="res://components/magic_line_connectable_component.tscn" id="2_7f72b"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_ho12n"]
+[ext_resource type="Script" uid="uid://rratomhyup48" path="res://components/line_connector.gd" id="3_ucxg0"]
 [ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://components/material_holder.gd" id="5_ucxg0"]
-[ext_resource type="PackedScene" uid="uid://b06pq4cpc85tb" path="res://components/enchantment_line_connectable_component.tscn" id="6_60117"]
 [ext_resource type="Script" uid="uid://bp8wi3h2a3fes" path="res://components/material_dropper.gd" id="6_r22ex"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_ucxg0"]
+radius = 63.007935
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7f72b"]
 radius = 25.0
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_r22ex"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_60117"]
-radius = 63.7887
-
 [sub_resource type="CircleShape2D" id="CircleShape2D_rk8bf"]
 radius = 63.07139
 
-[node name="EnchantmentNode" type="Node2D"]
+[node name="EnchantmentNode" type="Area2D"]
 script = ExtResource("1_8h6rx")
+
+[node name="FullBody" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_ucxg0")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 self_modulate = Color(1, 0.701961, 0.462745, 1)
@@ -31,23 +31,13 @@ self_modulate = Color(0.94939977, 0.7478145, 0, 1)
 scale = Vector2(0.7912495, 0.7912495)
 texture = ExtResource("2_ho12n")
 
-[node name="MagicLineConnectableComponent" parent="." instance=ExtResource("2_7f72b")]
+[node name="LineConnector" type="Area2D" parent="."]
+script = ExtResource("3_ucxg0")
+types = 6
+metadata/_custom_type_script = "uid://rratomhyup48"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MagicLineConnectableComponent"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LineConnector"]
 shape = SubResource("CircleShape2D_7f72b")
-
-[node name="EnchantmentLineConnectableComponent" parent="." instance=ExtResource("6_60117")]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentLineConnectableComponent"]
-shape = SubResource("RectangleShape2D_r22ex")
-debug_color = Color(0.810354, 0.767377, 7.70092e-07, 0.42)
-
-[node name="FullBody" type="Area2D" parent="."]
-collision_mask = 0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FullBody"]
-shape = SubResource("CircleShape2D_60117")
-debug_color = Color(0, 0.6, 0.701961, 0.0627451)
 
 [node name="MaterialHolder" type="Node" parent="."]
 script = ExtResource("5_ucxg0")
@@ -61,9 +51,7 @@ metadata/_custom_type_script = "uid://bp8wi3h2a3fes"
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MaterialDropper"]
 shape = SubResource("CircleShape2D_rk8bf")
 
-[connection signal="connectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_connectable_magic_line_detected"]
-[connection signal="connector_updated_independently" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_connector_updated_independently"]
-[connection signal="line_destroyed" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_line_destroyed"]
-[connection signal="unconnectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_unconnectable_line_detected"]
+[connection signal="allowed_line_type_detected" from="LineConnector" to="." method="_on_line_connector_allowed_line_type_detected"]
+[connection signal="invalid_line_type_detected" from="LineConnector" to="." method="_on_line_connector_invalid_line_type_detected"]
 [connection signal="material_embedded" from="MaterialHolder" to="." method="_on_material_holder_material_embedded"]
 [connection signal="material_removed" from="MaterialHolder" to="." method="_on_material_holder_material_removed"]

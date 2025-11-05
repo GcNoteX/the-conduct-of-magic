@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://bl31wi5ugns5h"]
 
-[ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://enchantment_cursor.tscn" id="1_wvwjg"]
+[ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://draw_cursor.tscn" id="1_wvwjg"]
 [ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="2_u2jdw"]
 [ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantables/item1.tscn" id="3_d7kya"]
 [ext_resource type="PackedScene" uid="uid://dma3s717a2gbn" path="res://enchantments/enchantments/e1.tscn" id="3_i2ton"]

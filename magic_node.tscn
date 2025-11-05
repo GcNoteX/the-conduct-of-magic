@@ -2,19 +2,22 @@
 
 [ext_resource type="Script" uid="uid://dpw4wuie057gj" path="res://magic_node.gd" id="1_tjibe"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="1_vs4el"]
-[ext_resource type="PackedScene" uid="uid://2gjrer57ae4j" path="res://components/magic_line_connectable_component.tscn" id="3_pw1qt"]
+[ext_resource type="Script" uid="uid://rratomhyup48" path="res://components/line_connector.gd" id="3_kmmj3"]
 [ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://components/enchantment_cursor_detection_component.tscn" id="4_kmmj3"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_thycq"]
+radius = 32.06244
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_kmmj3"]
 radius = 10.198
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8ufat"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_thycq"]
-radius = 32.0156
-
-[node name="MagicNode" type="Node2D"]
+[node name="MagicNode" type="Area2D"]
 script = ExtResource("1_tjibe")
+
+[node name="FullBody" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_thycq")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("1_vs4el")
@@ -24,9 +27,11 @@ self_modulate = Color(0.18431373, 1, 1, 1)
 scale = Vector2(0.32, 0.32)
 texture = ExtResource("1_vs4el")
 
-[node name="MagicLineConnectableComponent" parent="." instance=ExtResource("3_pw1qt")]
+[node name="LineConnector" type="Area2D" parent="."]
+script = ExtResource("3_kmmj3")
+metadata/_custom_type_script = "uid://rratomhyup48"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="MagicLineConnectableComponent"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="LineConnector"]
 shape = SubResource("CircleShape2D_kmmj3")
 debug_color = Color(0.275169, 0.632041, 0.00243753, 0.42)
 
@@ -36,13 +41,5 @@ debug_color = Color(0.275169, 0.632041, 0.00243753, 0.42)
 shape = SubResource("CircleShape2D_8ufat")
 debug_color = Color(0.6171, 0.535833, 1.92523e-07, 0.42)
 
-[node name="FullBody" type="Area2D" parent="."]
-collision_mask = 0
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="FullBody"]
-shape = SubResource("CircleShape2D_thycq")
-debug_color = Color(0, 0.6, 0.701961, 0.0627451)
-
-[connection signal="connectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_connectable_line_detected"]
-[connection signal="line_destroyed" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_line_destroyed"]
-[connection signal="unconnectable_line_detected" from="MagicLineConnectableComponent" to="." method="_on_magic_line_connectable_component_unconnectable_line_detected"]
+[connection signal="allowed_line_type_detected" from="LineConnector" to="." method="_on_line_connector_allowed_line_type_detected"]
+[connection signal="invalid_line_type_detected" from="LineConnector" to="." method="_on_line_connector_invalid_line_type_detected"]

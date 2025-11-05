@@ -20,6 +20,7 @@ config/icon="res://placeholder_assets/icon.svg"
 UtilityFunctions="*res://globals/UtilityFunctions.gd"
 SceneReferences="*res://globals/SceneReferences.gd"
 EnchantmentUpdateManager="*res://globals/enchantment_update_manager.gd"
+EnchantmentMapManager="*res://globals/enchantment_map_manager.gd"
 
 [display]
 
