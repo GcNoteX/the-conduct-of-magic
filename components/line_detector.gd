@@ -1,6 +1,6 @@
 @tool
 extends Area2D
-class_name LineConnector
+class_name LineDetector
 
 """
 - Detects lines of allowed and invalid types coming from the map
@@ -44,12 +44,10 @@ func is_valid_line(line: MapLine) -> bool:
 
 func _on_area_entered(area: Area2D) -> void:
 	if area is MapLine:
-		# If line is already connected to this component, ignore it
-		if area.start == self or area.end == self:
-			return
 		# If line is not from this component, try to connect it.
 		if is_valid_line(area):
-			print("Valid line detected")
+			#print("Valid line detected")
 			emit_signal("allowed_line_type_detected", area)
 		else:
+			#print("Invalid line detected")
 			emit_signal("invalid_line_type_detected", area)

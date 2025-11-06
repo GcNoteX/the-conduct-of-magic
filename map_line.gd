@@ -2,6 +2,7 @@
 
 """
 An abstract class to compile define all Line-Type objects within a PlayMap
+Line-Type objects have only one start and end, and can only connect(a very specific term) to MapNode objects
 """
 
 signal spawned(l: MapLine)
@@ -14,8 +15,8 @@ signal destroyed(l: MapLine)
 
 
 # INFO: Storing starting and ending points in MapLine helps with traversal and makes identifying the state of the MagicLine for further features easier.
-@export var start: LineConnector = null
-@export var end: LineConnector = null
+@export var start: MapNode = null
+@export var end: MapNode = null
 @export var width = 15 # The width of the MapLine 
 ## If the collision box is the entire line, spawn points for lines overlap and kill each other. This is a naive solution to that.
 @export var collision_length_offset: int = 100
@@ -47,20 +48,23 @@ func _initialize_line() -> void:
 	
 	# Start the line at the start position
 	global_position = start.global_position
-	# Draw the visual shape and connect to line connector parents
 	visual_shape.clear_points()
-	_change_visual_start_point(start.position)
-	start.force_connection(self)
+	
+	# Always start at origin
+	_change_visual_start_point(Vector2.ZERO)
+	
+	start.add_connection(self)
 	if end:
 		# Manually lock it
-		stretch_line(end.global_position - global_position)
+		stretch_line(end.global_position - start.global_position)
 		is_locked = true
-		end.force_connection(self)
+		end.add_connection(self)
 	
 	initialized = true
 	emit_signal("spawned", self)
 
 func kill_line() -> void:
+	print("Killing line")
 	emit_signal("destroyed", self)
 	queue_free()
 
@@ -69,10 +73,10 @@ func stretch_line(v: Vector2) -> void:
 	_change_visual_end_point(v)
 	_update_collision_shape()
 
-## Locks the MagicLine to an ending LineConnector
-func lock_line(m: LineConnector) -> void:
+## Locks the MagicLine to an ending MapNode
+func lock_line(m: MapNode) -> void:
 	end = m
-	stretch_line(m.global_position - global_position)
+	stretch_line(m.global_position - start.global_position)
 	is_locked = true
 	emit_signal("locked", self)
 

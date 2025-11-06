@@ -1,5 +1,4 @@
 @abstract class_name MapNode extends Area2D
-
 """
 An abstract class to compile define all Node-Type objects within a PlayMap
 """
@@ -34,12 +33,13 @@ func add_connection(l: MapLine) -> void:
 		return
 
 	mapline_connections.append(l)
+	#print(l, ' added to ', self)
 	l.destroyed.connect(remove_connection)
 	emit_signal("mapline_added", l)
 
 	# --- handle start ---
 	if l.start != null:
-		var start_owner := l.start.owner as MapNode
+		var start_owner := l.start
 		if start_owner != self: # Finding the node that is not itself
 			var is_new := not mapnode_connections.has(start_owner)
 			mapnode_connections[start_owner] = mapnode_connections.get(start_owner, 0) + 1
@@ -50,7 +50,7 @@ func add_connection(l: MapLine) -> void:
 
 	# --- handle end ---
 	if l.end != null:
-		var end_owner := l.end.owner as MapNode
+		var end_owner := l.end
 		if end_owner != self: # Finding the node that is not itself
 			var is_new := not mapnode_connections.has(end_owner)
 			mapnode_connections[end_owner] = mapnode_connections.get(end_owner, 0) + 1
@@ -66,11 +66,12 @@ func remove_connection(l: MapLine) -> void:
 		return
 
 	mapline_connections.erase(l)
+	#print(l, ' removed from ', self)
 	emit_signal("mapline_removed", l)
 
 	# --- handle start ---
 	if l.start != null:
-		var start_owner := l.start.owner as MapNode
+		var start_owner := l.start
 		if start_owner != self and mapnode_connections.has(start_owner):
 			mapnode_connections[start_owner] -= 1
 			if mapnode_connections[start_owner] <= 0:
@@ -79,7 +80,7 @@ func remove_connection(l: MapLine) -> void:
 
 	# --- handle end ---
 	if l.end != null:
-		var end_owner := l.end.owner as MapNode
+		var end_owner := l.end
 		if end_owner != self and mapnode_connections.has(end_owner):
 			mapnode_connections[end_owner] -= 1
 			if mapnode_connections[end_owner] <= 0:
@@ -108,7 +109,11 @@ func is_duplicate_line(l: MapLine) -> bool:
 
 	# Prevent Exact duplicate mapnode_connections (ignore direction)
 	for line in mapline_connections:
-		if (l.start == line.start and l.end == line.end) or (l.start == line.end and l.end == line.start):
+		var a_start = l.start
+		var a_end = l.end
+		var b_start = line.start
+		var b_end = line.end
+		if (a_start == b_start and a_end == b_end) or (a_start == b_end and a_end == b_start):
 			return true
 	
 	return false

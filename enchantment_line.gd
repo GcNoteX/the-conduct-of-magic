@@ -27,10 +27,10 @@ func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int,
 		var local_shape_node = shape_owner_get_owner(local_shape_owner)
 		if UtilityFunctions._is_same_source(self, area): ## Use smaller collision shapes only for same source MapNode
 			if local_shape_node == collision_shape and other_shape_node == area.collision_shape: # Their colliding boxes hit
-				var node: MapNode = area.start.owner
-				if node.get_bounded_identity() == self.start.owner.get_bounded_identity():
+				var node: MapNode = area.start
+				if node.get_bounded_identity() == self.start.get_bounded_identity():
 					area.kill_line()
 		else:
-			var node: MapNode = area.start.owner
-			if node.get_bounded_identity() == self.start.owner.get_bounded_identity():
+			var node: MapNode = area.start
+			if node.get_bounded_identity() == self.start.get_bounded_identity():
 				area.kill_line()

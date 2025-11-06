@@ -23,27 +23,40 @@ script = ExtResource("1_8np31")
 enodes = [NodePath("EnchantmentNode"), NodePath("EnchantmentNode2"), NodePath("EnchantmentNode3")]
 elines = [NodePath("EnchantmentLine"), NodePath("EnchantmentLine2")]
 
-[node name="EnchantmentNode" parent="." instance=ExtResource("2_dmmpm")]
+[node name="EnchantmentNode" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dmmpm")]
 position = Vector2(-192, 142)
+mapnode_connections = {
+NodePath("../EnchantmentNode2"): 1
+}
+mapline_connections = [NodePath("../EnchantmentLine")]
 
 [node name="MaterialHolder" parent="EnchantmentNode" index="4"]
 embedded_material = ExtResource("3_b56uu")
 
-[node name="EnchantmentNode2" parent="." instance=ExtResource("2_dmmpm")]
+[node name="EnchantmentNode2" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dmmpm")]
+mapnode_connections = {
+NodePath("../EnchantmentNode"): 1,
+NodePath("../EnchantmentNode3"): 1
+}
+mapline_connections = [NodePath("../EnchantmentLine"), NodePath("../EnchantmentLine2")]
 
 [node name="MaterialHolder" parent="EnchantmentNode2" index="4"]
 embedded_material = ExtResource("3_oq3co")
 
-[node name="EnchantmentNode3" parent="." instance=ExtResource("2_dmmpm")]
+[node name="EnchantmentNode3" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dmmpm")]
 position = Vector2(198, -114)
+mapnode_connections = {
+NodePath("../EnchantmentNode2"): 1
+}
+mapline_connections = [NodePath("../EnchantmentLine2")]
 
 [node name="MaterialHolder" parent="EnchantmentNode3" index="4"]
 embedded_material = ExtResource("3_oq3co")
 
 [node name="EnchantmentLine" parent="." node_paths=PackedStringArray("start", "end") instance=ExtResource("3_8np31")]
 position = Vector2(-192, 142)
-start = NodePath("../EnchantmentNode/LineConnector")
-end = NodePath("../EnchantmentNode2/LineConnector")
+start = NodePath("../EnchantmentNode")
+end = NodePath("../EnchantmentNode2")
 collision_length_offset = 100
 collision_width_offset = 13
 
@@ -62,8 +75,8 @@ rotation = 0.9339952
 shape = SubResource("RectangleShape2D_6p2ay")
 
 [node name="EnchantmentLine2" parent="." node_paths=PackedStringArray("start", "end") instance=ExtResource("3_8np31")]
-start = NodePath("../EnchantmentNode2/LineConnector")
-end = NodePath("../EnchantmentNode3/LineConnector")
+start = NodePath("../EnchantmentNode2")
+end = NodePath("../EnchantmentNode3")
 collision_length_offset = 100
 collision_width_offset = 13
 

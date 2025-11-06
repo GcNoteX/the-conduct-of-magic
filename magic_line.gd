@@ -28,11 +28,11 @@ func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int,
 		if UtilityFunctions._is_same_source(self, area):
 			if local_shape_node == collision_shape and other_shape_node == area.collision_shape:
 				if !area.is_locked:
-					var node: MapNode = area.start.owner
-					if node.get_bounded_identity() == self.start.owner.get_bounded_identity():
+					var node: MapNode = area.start
+					if node.get_bounded_identity() == self.start.get_bounded_identity():
 						area.kill_line()
 		else:
 			if !area.is_locked:
-				var node: MapNode = area.start.owner
-				if node.get_bounded_identity() == self.start.owner.get_bounded_identity():
+				var node: MapNode = area.start
+				if node.get_bounded_identity() == self.start.get_bounded_identity():
 					area.kill_line()

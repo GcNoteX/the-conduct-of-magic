@@ -46,7 +46,7 @@ func _on_area_exited(area: Area2D) -> void:
 	if area is EnchantmentLine or area is MagicLine:
 		selection_manager.remove(area)
 	elif area is MapNode:
-		selection_manager.remove(area.owner)
+		selection_manager.remove(area)
 
 func _on_MagicLine_locked(_l: MapLine) -> void:
 	controlled_line = null
@@ -57,4 +57,4 @@ func _on_area_entered(area: Area2D) -> void:
 	if area is EnchantmentLine or area is MagicLine:
 		selection_manager.push(area)
 	elif area is MapNode:
-		selection_manager.push(area.owner)
+		selection_manager.push(area)
