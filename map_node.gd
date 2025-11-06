@@ -9,8 +9,8 @@ signal mapnode_removed(m: MapNode) ## If an inheriting class wants to perform ex
 signal mapline_added(l: MapLine) ## If an inheriting class wants to perform extra operations after
 signal mapline_removed(l: MapLine) ## If an inheriting class wants to perform extra operations after
 
-var mapnode_connections: Dictionary[MapNode, int] = {} ## The number of connected nodes
-var mapline_connections: Array[MapLine] = [] ## The number of connected lines
+@export var mapnode_connections: Dictionary[MapNode, int] = {} ## The number of connected nodes
+@export var mapline_connections: Array[MapLine] = [] ## The number of connected lines
 
 @export var is_unlimited_capacity: bool = true
 @export var max_capacity: int = 0:
@@ -19,10 +19,11 @@ var mapline_connections: Array[MapLine] = [] ## The number of connected lines
 			return
 		max_capacity = c
 
-func _ready() -> void:
-	call_deferred("_update_connections")
-
 @abstract func get_bounded_identity() -> Variant
+
+func _ready() -> void:
+	mapnode_connections.clear()
+	mapline_connections.clear()
 
 """
 Connection Functions
@@ -33,13 +34,13 @@ func add_connection(l: MapLine) -> void:
 		return
 
 	mapline_connections.append(l)
-	l.line_destroyed.connect(remove_connection)
+	l.destroyed.connect(remove_connection)
 	emit_signal("mapline_added", l)
 
 	# --- handle start ---
 	if l.start != null:
 		var start_owner := l.start.owner as MapNode
-		if start_owner != self:
+		if start_owner != self: # Finding the node that is not itself
 			var is_new := not mapnode_connections.has(start_owner)
 			mapnode_connections[start_owner] = mapnode_connections.get(start_owner, 0) + 1
 			if is_new:
@@ -50,7 +51,7 @@ func add_connection(l: MapLine) -> void:
 	# --- handle end ---
 	if l.end != null:
 		var end_owner := l.end.owner as MapNode
-		if end_owner != self:
+		if end_owner != self: # Finding the node that is not itself
 			var is_new := not mapnode_connections.has(end_owner)
 			mapnode_connections[end_owner] = mapnode_connections.get(end_owner, 0) + 1
 			if is_new:
@@ -95,25 +96,29 @@ func _clear_connections() -> void:
 Conditions Functions
 """
 func passes_base_conditions(l: MapLine) -> bool:
-	return !is_duplicate_line(l) and has_capacity()
+	var is_duplicate = is_duplicate_line(l)
+	var has_cap = has_capacity()
+	#print("Is Duplicate: ", is_duplicate, ". Has Capacity: ", has_cap)
+	return !is_duplicate and has_cap
 
 func is_duplicate_line(l: MapLine) -> bool:
 	# If the end is already selected, allow regardless (for prebuilds)
 	if l.end:
-		return true
+		return false
 
 	# Prevent Exact duplicate mapnode_connections (ignore direction)
 	for line in mapline_connections:
 		if (l.start == line.start and l.end == line.end) or (l.start == line.end and l.end == line.start):
-			return false
+			return true
 	
-	return has_capacity()
+	return false
 
 func has_capacity() -> bool:
+	#if is_unlimited_capacity or mapline_connections.size() < max_capacity: print("Has capacity")
 	return is_unlimited_capacity or mapline_connections.size() < max_capacity
 
 """
 Cursor Functions
 """
-func handle_drag_out(c: EnchantmentCursor) -> void:
+func handle_drag_out(_c: EnchantmentCursor) -> void:
 	pass

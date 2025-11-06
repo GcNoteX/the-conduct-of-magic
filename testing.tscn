@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://bbdu2wxatkmr8"]
-
-[ext_resource type="Script" uid="uid://rratomhyup48" path="res://components/line_connector.gd" id="1_qrja6"]
-
-[node name="Area2D" type="Area2D"]
-script = ExtResource("1_qrja6")

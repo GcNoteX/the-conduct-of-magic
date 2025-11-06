@@ -1,0 +1,101 @@
+[gd_scene load_steps=10 format=3 uid="uid://cr5uq6ockjvli"]
+
+[ext_resource type="Script" uid="uid://ldewurgrwwj3" path="res://enchantments/enchantment.gd" id="1_ltbjf"]
+[ext_resource type="PackedScene" uid="uid://i4yl2fcq2sv0" path="res://enchantment_node.tscn" id="2_dlsgk"]
+[ext_resource type="Resource" uid="uid://dwxijt4t8ckn2" path="res://enchantments/enchantment_materials/yellow_stone.tres" id="3_e3vpl"]
+[ext_resource type="Resource" uid="uid://edjx4fwr6cr8" path="res://enchantments/enchantment_materials/blue_stone.tres" id="4_hymt6"]
+[ext_resource type="PackedScene" uid="uid://bqr5hvfao8bql" path="res://enchantment_line.tscn" id="5_8shds"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ltbjf"]
+size = Vector2(2, 138.80536)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dlsgk"]
+size = Vector2(15, 238.80536)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e3vpl"]
+size = Vector2(2, 185.44876)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hymt6"]
+size = Vector2(15, 285.44876)
+
+[node name="E2" type="Node2D" node_paths=PackedStringArray("enodes", "elines")]
+script = ExtResource("1_ltbjf")
+enodes = [NodePath("EnchantmentNode"), NodePath("EnchantmentNode2"), NodePath("EnchantmentNode3")]
+elines = [NodePath("EnchantmentLine"), NodePath("EnchantmentLine2")]
+
+[node name="EnchantmentNode" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dlsgk")]
+position = Vector2(-192, 142)
+mapnode_connections = {
+NodePath("../EnchantmentNode2"): 1
+}
+mapline_connections = [NodePath("../EnchantmentLine")]
+
+[node name="MaterialHolder" parent="EnchantmentNode" index="4"]
+embedded_material = ExtResource("3_e3vpl")
+
+[node name="EnchantmentNode2" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dlsgk")]
+mapnode_connections = {
+NodePath("../EnchantmentNode"): 1,
+NodePath("../EnchantmentNode3"): 1
+}
+mapline_connections = [NodePath("../EnchantmentLine"), NodePath("../EnchantmentLine2")]
+
+[node name="MaterialHolder" parent="EnchantmentNode2" index="4"]
+embedded_material = ExtResource("4_hymt6")
+
+[node name="EnchantmentNode3" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dlsgk")]
+position = Vector2(259, 120)
+mapnode_connections = {
+NodePath("../EnchantmentNode2"): 1
+}
+mapline_connections = [NodePath("../EnchantmentLine2")]
+
+[node name="MaterialHolder" parent="EnchantmentNode3" index="4"]
+embedded_material = ExtResource("4_hymt6")
+
+[node name="EnchantmentLine" parent="." node_paths=PackedStringArray("start", "end") instance=ExtResource("5_8shds")]
+position = Vector2(-192, 142)
+start = NodePath("../EnchantmentNode/LineConnector")
+end = NodePath("../EnchantmentNode2/LineConnector")
+collision_length_offset = 100
+collision_width_offset = 13
+
+[node name="Line2D" parent="EnchantmentLine" index="0"]
+points = PackedVector2Array(0, 0, 192, -142)
+width = 15.0
+
+[node name="LineCollisionShape" parent="EnchantmentLine" index="1"]
+position = Vector2(96, -71)
+rotation = 0.9339952
+shape = SubResource("RectangleShape2D_ltbjf")
+
+[node name="LineConnectingShape" parent="EnchantmentLine" index="2"]
+position = Vector2(96, -71)
+rotation = 0.9339952
+shape = SubResource("RectangleShape2D_dlsgk")
+
+[node name="EnchantmentLine2" parent="." node_paths=PackedStringArray("start", "end") instance=ExtResource("5_8shds")]
+start = NodePath("../EnchantmentNode2/LineConnector")
+end = NodePath("../EnchantmentNode3/LineConnector")
+collision_length_offset = 100
+collision_width_offset = 13
+
+[node name="Line2D" parent="EnchantmentLine2" index="0"]
+points = PackedVector2Array(0, 0, 259, 120)
+width = 15.0
+
+[node name="LineCollisionShape" parent="EnchantmentLine2" index="1"]
+position = Vector2(129.5, 60)
+rotation = -4.278513
+shape = SubResource("RectangleShape2D_e3vpl")
+
+[node name="LineConnectingShape" parent="EnchantmentLine2" index="2"]
+position = Vector2(129.5, 60)
+rotation = -4.278513
+shape = SubResource("RectangleShape2D_hymt6")
+
+[editable path="EnchantmentNode"]
+[editable path="EnchantmentNode2"]
+[editable path="EnchantmentNode3"]
+[editable path="EnchantmentLine"]
+[editable path="EnchantmentLine2"]

@@ -30,13 +30,13 @@ func _physics_process(_delta: float) -> void:
 	# Letting go of a line destroys it
 	if Input.is_action_just_released("left_click"):
 		if controlled_line:
-			controlled_line.kill_magic_line()
+			controlled_line.kill_line()
 		controlled_line = null
 		
 	if Input.is_action_just_pressed("right_click"):
 		var o = selection_manager.peek()
 		if o is MagicLine:
-			o.kill_magic_line()
+			o.kill_line()
 
 func _on_area_exited(area: Area2D) -> void:
 	if !controlled_line and area is MapNode:
@@ -45,10 +45,10 @@ func _on_area_exited(area: Area2D) -> void:
 	
 	if area is EnchantmentLine or area is MagicLine:
 		selection_manager.remove(area)
-	elif area is MagicLineConnectableComponent:
+	elif area is MapNode:
 		selection_manager.remove(area.owner)
 
-func _on_MagicLine_locked() -> void:
+func _on_MagicLine_locked(_l: MapLine) -> void:
 	controlled_line = null
 
 
@@ -56,5 +56,5 @@ func _on_area_entered(area: Area2D) -> void:
 	#print("Entered: ", area)
 	if area is EnchantmentLine or area is MagicLine:
 		selection_manager.push(area)
-	elif area is MagicLineConnectableComponent:
+	elif area is MapNode:
 		selection_manager.push(area.owner)

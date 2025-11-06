@@ -10,6 +10,7 @@ size = Vector2(0, 0)
 [node name="MagicLine" type="Area2D"]
 script = ExtResource("1_qsp6q")
 width = 5
+collision_width_offset = 0
 
 [node name="Line2D" type="Line2D" parent="."]
 points = PackedVector2Array(0, 0)

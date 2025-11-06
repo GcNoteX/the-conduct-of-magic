@@ -53,5 +53,6 @@ shape = SubResource("CircleShape2D_rk8bf")
 
 [connection signal="allowed_line_type_detected" from="LineConnector" to="." method="_on_line_connector_allowed_line_type_detected"]
 [connection signal="invalid_line_type_detected" from="LineConnector" to="." method="_on_line_connector_invalid_line_type_detected"]
+[connection signal="line_forcing_connection" from="LineConnector" to="." method="_on_line_connector_line_forcing_connection"]
 [connection signal="material_embedded" from="MaterialHolder" to="." method="_on_material_holder_material_embedded"]
 [connection signal="material_removed" from="MaterialHolder" to="." method="_on_material_holder_material_removed"]

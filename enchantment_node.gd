@@ -28,22 +28,26 @@ func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 	
 	## Condition1: EnchantmentNode does not allow more than 1 connection to a partner
 	if partner in mapnode_connections or partner == self:
-		l.kill_magic_line()
+		l.kill_line()
 		return
 	
 	## Condition2: EnchantmentNode does not allow a line from a different Enchantment to connect
-	if partner.get_bounded_identity() == get_bounded_identity():
-		add_connection(l)
-	else:
-		l.kill_magic_line()
+	if partner.get_bounded_identity() != get_bounded_identity():
+		l.kill_line()
 	
 	add_connection(l)
+	l.lock_line(line_connector)
 
 func _on_line_connector_invalid_line_type_detected(l: MapLine) -> void:
 	# Destroys invalid 
 	l.kill_line()
 
+func _on_line_connector_line_forcing_connection(l: MapLine) -> void:
+	add_connection(l)
 
+"""
+Handling Activation
+"""
 ## Updates the state of the EnchantmentNode based on whether it can be activated.
 ## Returns whether the node can be activated.
 func update_activation() -> bool:
@@ -69,9 +73,6 @@ func _deactivate_node() -> void:
 	self.modulate =Color(1, 1, 1, 1.0)
 
 
-func _on_unconnectable_line_detected(l: MagicLine) -> void:
-	l.kill_line()
-
 """
 Handling Material
 """
@@ -96,9 +97,9 @@ func handle_drag_out(c: EnchantmentCursor) -> void:
 		if !c.controlled_line and has_capacity():
 			# Create a new MagicLine
 			var l: MagicLine = preload(SceneReferences.magic_line).instantiate()
-			# Draw the line from this node and add it to this node
+			l.start = line_connector
+			# Draw the line from this node
 			EnchantmentMapManager.call_deferred("add_to_enchantment_map", l)
-			
 			# Attach it to the DrawCursor
 			l.locked.connect(c._on_MagicLine_locked)
 			c.controlled_line = l

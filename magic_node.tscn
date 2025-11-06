@@ -29,6 +29,7 @@ texture = ExtResource("1_vs4el")
 
 [node name="LineConnector" type="Area2D" parent="."]
 script = ExtResource("3_kmmj3")
+types = 2
 metadata/_custom_type_script = "uid://rratomhyup48"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LineConnector"]
@@ -43,3 +44,4 @@ debug_color = Color(0.6171, 0.535833, 1.92523e-07, 0.42)
 
 [connection signal="allowed_line_type_detected" from="LineConnector" to="." method="_on_line_connector_allowed_line_type_detected"]
 [connection signal="invalid_line_type_detected" from="LineConnector" to="." method="_on_line_connector_invalid_line_type_detected"]
+[connection signal="line_forcing_connection" from="LineConnector" to="." method="_on_line_connector_line_forcing_connection"]

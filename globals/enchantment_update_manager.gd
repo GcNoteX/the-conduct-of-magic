@@ -19,20 +19,20 @@ func _on_EnchantmentNode_updated() -> void:
 		return
 	update_all()
 	
-func _on_MagicLine_locked() -> void:
+func _on_MapLine_locked(_l: MapLine) -> void:
 	if Engine.is_editor_hint():
 		return
-	print("Call Locked")
+	#print("Call Locked")
 	update_all()
 
-func _on_MagicLine_destroyed(_l: MagicLine) -> void:
+func _on_MapLine_destroyed(_l: MapLine) -> void:
 	if Engine.is_editor_hint():
 		return
-	print("Call Destroyed")
+	#print("Call Destroyed")
 	update_all()
 
-func _on_MagicLine_spawned() -> void:
+func _on_MapLine_spawned(_l: MapLine) -> void:
 	if Engine.is_editor_hint():
 		return
-	print("Call Spawn")
+	#print("Call Spawn")
 	update_all()
