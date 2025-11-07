@@ -8,7 +8,16 @@ extends MapLine
 
 func _ready() -> void:
 	_initialize_line()
+	bounded_identity = owner
 
+func update_bounded_identity() -> void:
+	return
+
+#func update_connected_identities() -> void:
+	#push_warning("Attempted to change bounded identity of ", self , ". Ignoring.")
+#
+#func can_change_bounded_identities(_source: EnchantmentMapElement) -> bool:
+	#return false
 
 func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
 	"""
@@ -27,10 +36,15 @@ func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int,
 		var local_shape_node = shape_owner_get_owner(local_shape_owner)
 		if UtilityFunctions._is_same_source(self, area): ## Use smaller collision shapes only for same source MapNode
 			if local_shape_node == collision_shape and other_shape_node == area.collision_shape: # Their colliding boxes hit
-				var node: MapNode = area.start
-				if node.get_bounded_identity() == self.start.get_bounded_identity():
+				
+				## Condition1: If both MagicLine are bound to Enchantment's, they cannot be the same
+				if bounded_identity is Enchantment and \
+						area.bounded_identity is Enchantment and \
+						bounded_identity == area.bounded_identity:
 					area.kill_line()
 		else:
-			var node: MapNode = area.start
-			if node.get_bounded_identity() == self.start.get_bounded_identity():
+			## Condition1: If both MagicLine are bound to Enchantment's, they cannot be the same
+			if bounded_identity is Enchantment and \
+					area.bounded_identity is Enchantment and \
+					bounded_identity == area.bounded_identity:
 				area.kill_line()

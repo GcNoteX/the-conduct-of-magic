@@ -13,7 +13,7 @@ radius = 10.198
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8ufat"]
 
-[node name="MagicNode" type="Area2D"]
+[node name="MagicNode" type="Area2D" groups=["mapnode"]]
 script = ExtResource("1_tjibe")
 
 [node name="FullBody" type="CollisionShape2D" parent="."]

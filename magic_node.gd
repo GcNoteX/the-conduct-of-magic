@@ -10,24 +10,51 @@ class_name MagicNode
 @onready var line_detector: LineDetector = $LineDetector
 @onready var cursor_detector: EnchantmentCursorDetectionComponent = $EnchantmentCursorDetectionComponent
 
-var enchantment_bound: Enchantment = null ## The enchantment this MagicNode has been bounded to
-
-func get_bounded_identity() -> Variant:
-	return enchantment_bound
-
 """
 Handling Activation
 """
 
+func _ready() -> void:
+	_initialize_node()
+	#connections_updated.connect(_on_connections_updated)
 
-func deactivate_node() -> void:
-	"""
-		- Destroy all lines connected to it
-		- Perform visual deactivation
-	"""
-	for line in mapline_connections:
-		line.kill_line()
+func update_bounded_identity() -> void:
+	# Collect all reachable nodes via DFS
+	var connected_nodes = UtilityFunctions.dfs_collect_nodes(
+		mapnode_connections.keys(),
+		func(node):
+			return node.mapnode_connections
+	) as Array[MapNode]
+	
+	# Gather all identities
+	var identities := {}
+	#print(self, " connected to ", connected_nodes)
+	for node in connected_nodes:
+		# Only gather identities from those that are able to give it, but also are permanent (i.e. are source's of identities)
+		if node and node.can_share_identity and !node.can_change_identity and node.bounded_identity:
+			identities[node.bounded_identity] = true
+	
+	var keys := identities.keys()
+	#print(self, " valid identities ", keys)
+	if keys.has(null):
+		keys.erase(null)
+	
+	#print(self, " valid identities", identities)
+	# Warn if multiple different identities are detected
+	if keys.size() > 1:
+		push_error(
+			"%s has mismatched connected identities %s"
+			% [self, str(keys)]
+		)
+		bounded_identity = keys[0]  # stable fallback
+	elif keys.size() == 1:
+		bounded_identity = keys[0]
+	else:
+		bounded_identity = null
 
+
+func _on_connections_updated() -> void:
+	update_bounded_identity()
 
 func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 	if l in mapline_connections: # Sometimes the detector will detect the same line again, these are ignored by this node
@@ -45,18 +72,18 @@ func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 		l.kill_line()
 		return
 	#print("Pass Condition 1")
-	## Condition2: MagicNode does not allow a line from a different Enchantment to connect
-	if partner.get_bounded_identity() != get_bounded_identity():
+	## Condition2: If both identities are bound to an Enchantment, they cannot be different
+	if bounded_identity is Enchantment and \
+		l.bounded_identity is Enchantment and \
+		l.bounded_identity != bounded_identity:
+		
 		l.kill_line()
 		return
 		
 	#print("Pass Condition 2")
-	add_connection(l)
+	add_line_connection(l)
 	l.lock_line(self)
-	# Activate the Node if possible
-	if partner.get_bounded_identity() is Enchantment:
-		enchantment_bound = partner.get_bounded_identity()
-	
+
 
 func _on_line_connector_invalid_line_type_detected(l: MapLine) -> void:
 	# Destroys invalid 
@@ -72,6 +99,7 @@ func handle_drag_out(c: EnchantmentCursor) -> void:
 			# Create a new MagicLine
 			var l: MagicLine = preload(SceneReferences.magic_line).instantiate()
 			l.start = self
+			#print("Magic Line Created: ", l)
 			# Draw the line from this node
 			EnchantmentMapManager.call_deferred("add_to_enchantment_map", l)
 			# Attach it to the DrawCursor

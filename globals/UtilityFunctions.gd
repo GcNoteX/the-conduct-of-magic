@@ -21,3 +21,29 @@ func _is_same_source(a: MapLine, b: MapLine) -> bool:
 		same = same or a.end == b.end
 
 	return same
+
+func dfs_collect_nodes(start_nodes: Array, get_neighbors_func: Callable) -> Array:
+	"""
+	Generic DFS utility.
+	Traverses connected graph-like structures starting from `start_nodes`.
+
+	- start_nodes: Array of starting nodes.
+	- get_neighbors_func: Callable(node) -> Array of connected nodes.
+
+	Returns all visited nodes (unique).
+	"""
+	var visited: = {}
+	var stack: = start_nodes.duplicate()
+
+	while stack.size() > 0:
+		var node = stack.pop_back()
+		if node == null or visited.has(node):
+			continue
+
+		visited[node] = true
+		var neighbors = get_neighbors_func.call(node)
+		for neighbor in neighbors:
+			if neighbor != null and not visited.has(neighbor):
+				stack.push_back(neighbor)
+
+	return visited.keys()

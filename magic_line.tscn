@@ -7,10 +7,10 @@ size = Vector2(0, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tw4r6"]
 
-[node name="MagicLine" type="Area2D"]
+[node name="MagicLine" type="Area2D" groups=["mapline"]]
 script = ExtResource("1_qsp6q")
-width = 5
-collision_width_offset = 0
+width = 9
+collision_width_offset = 6
 
 [node name="Line2D" type="Line2D" parent="."]
 points = PackedVector2Array(0, 0)

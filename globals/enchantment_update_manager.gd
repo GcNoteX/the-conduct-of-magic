@@ -6,8 +6,10 @@ func update_all() -> void:
 		return
 
 	for e in get_tree().get_nodes_in_group("enchantment"):
-		#print("Updating ", e)
-		e.update_enchantment()
+		if e.has_method("update_enchantment"):
+			e.update_enchantment()
+		else:
+			push_warning("[EnchantmentUpdateManager]", e, " does not have method update_enchantment()!")
 
 func update_enchantment(e: Enchantment) -> void:
 	if Engine.is_editor_hint():

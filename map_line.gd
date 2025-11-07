@@ -1,4 +1,4 @@
-@abstract class_name MapLine extends Area2D
+@abstract class_name MapLine extends EnchantmentMapElement
 
 """
 An abstract class to compile define all Line-Type objects within a PlayMap
@@ -8,6 +8,7 @@ Line-Type objects have only one start and end, and can only connect(a very speci
 signal spawned(l: MapLine)
 signal locked(l: MapLine)
 signal destroyed(l: MapLine)
+signal connected(l: MapLine)
 
 @onready var visual_shape: Line2D = $Line2D
 @onready var collision_shape: CollisionShape2D = $LineCollisionShape
@@ -25,17 +26,25 @@ signal destroyed(l: MapLine)
 var initialized = false
 var is_locked = false
 
+func _ready() -> void:
+	_initialize_line()
+	push_warning("Abstract class MapLine _ready() called by ", self)
+	
 func _initialize_line() -> void:
-	self.locked.connect(EnchantmentUpdateManager._on_MapLine_locked)
-	self.destroyed.connect(EnchantmentUpdateManager._on_MapLine_destroyed)
 	self.spawned.connect(EnchantmentUpdateManager._on_MapLine_spawned)
+	#self.spawned.connect(_on_spawned)
+	
+	self.locked.connect(EnchantmentUpdateManager._on_MapLine_locked)
+	#self.locked.connect(_on_locked)
+	
+	self.destroyed.connect(EnchantmentUpdateManager._on_MapLine_destroyed)
+	#self.destroyed.connect(_on_destroyed)
 	
 	if !Engine.is_editor_hint():
 		assert(start, "A MagicLine cannot exist without a start!")
 	else:
 		if !start:
 			push_warning("[REMINDER] Set start position for ", self)
-		
 
 	# Collision shapes in instances share shape resource when they shouldnt
 	collision_shape.shape = collision_shape.shape.duplicate() 
@@ -53,18 +62,29 @@ func _initialize_line() -> void:
 	# Always start at origin
 	_change_visual_start_point(Vector2.ZERO)
 	
-	start.add_connection(self)
+	#update_bounded_identity() # This needs an early update
+	start.add_line_connection(self)
 	if end:
 		# Manually lock it
 		stretch_line(end.global_position - start.global_position)
 		is_locked = true
-		end.add_connection(self)
+		end.add_line_connection(self)
 	
 	initialized = true
 	emit_signal("spawned", self)
 
+func _on_spawned(_l: MapLine) -> void:
+	#update_bounded_identity()
+	pass
+
+func _on_destroyed(_l: MapLine) -> void:
+	update_bounded_identity()
+
+func _on_locked(_l: MapLine) -> void:
+	update_bounded_identity()
+
 func kill_line() -> void:
-	print("Killing line")
+	#print("Killing line")
 	emit_signal("destroyed", self)
 	queue_free()
 
@@ -79,6 +99,7 @@ func lock_line(m: MapNode) -> void:
 	stretch_line(m.global_position - start.global_position)
 	is_locked = true
 	emit_signal("locked", self)
+	emit_signal("connected", end)
 
 ## Abstracts away the Line2d updating first point (the start)
 func _change_visual_start_point(v: Vector2) -> void:

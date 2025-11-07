@@ -21,6 +21,7 @@ UtilityFunctions="*res://globals/UtilityFunctions.gd"
 SceneReferences="*res://globals/SceneReferences.gd"
 EnchantmentUpdateManager="*res://globals/enchantment_update_manager.gd"
 EnchantmentMapManager="*res://globals/enchantment_map_manager.gd"
+ConnectionsUpdateManager="*res://globals/connections_update_manager.gd"
 
 [display]
 
@@ -29,6 +30,8 @@ window/stretch/mode="viewport"
 [global_group]
 
 enchantment=""
+mapline=""
+mapnode=""
 
 [input]
 

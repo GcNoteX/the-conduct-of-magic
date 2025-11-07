@@ -1,4 +1,4 @@
-@abstract class_name MapNode extends Area2D
+@abstract class_name MapNode extends EnchantmentMapElement
 """
 An abstract class to compile define all Node-Type objects within a PlayMap
 """
@@ -7,6 +7,8 @@ signal mapnode_added(m: MapNode) ## If an inheriting class wants to perform extr
 signal mapnode_removed(m: MapNode) ## If an inheriting class wants to perform extra operations after
 signal mapline_added(l: MapLine) ## If an inheriting class wants to perform extra operations after
 signal mapline_removed(l: MapLine) ## If an inheriting class wants to perform extra operations after
+signal connections_updated()
+
 
 @export var mapnode_connections: Dictionary[MapNode, int] = {} ## The number of connected nodes
 @export var mapline_connections: Array[MapLine] = [] ## The number of connected lines
@@ -18,75 +20,85 @@ signal mapline_removed(l: MapLine) ## If an inheriting class wants to perform ex
 			return
 		max_capacity = c
 
-@abstract func get_bounded_identity() -> Variant
 
 func _ready() -> void:
+	_initialize_node()
+	push_warning("Abstract class MapNode _ready() called by ", self)
+
+func _initialize_node() -> void:
 	mapnode_connections.clear()
 	mapline_connections.clear()
+	self.connections_updated.connect(ConnectionsUpdateManager._on_MapNode_connections_updated)
 
 """
 Connection Functions
 """
-func add_connection(l: MapLine) -> void:
+
+
+
+func add_line_connection(l: MapLine) -> void:
 	if mapline_connections.has(l):
 		push_error("Attempting to add the same line more than once!")
 		return
 
 	mapline_connections.append(l)
-	#print(l, ' added to ', self)
-	l.destroyed.connect(remove_connection)
+	l.destroyed.connect(remove_line_connection)
 	emit_signal("mapline_added", l)
 
-	# --- handle start ---
-	if l.start != null:
-		var start_owner := l.start
-		if start_owner != self: # Finding the node that is not itself
-			var is_new := not mapnode_connections.has(start_owner)
-			mapnode_connections[start_owner] = mapnode_connections.get(start_owner, 0) + 1
-			if is_new:
-				emit_signal("mapnode_added", start_owner)
+	# handle start and end nodes
+	if l.start:
+		_add_node_from_line(l.start)
+	if l.end:
+		_add_node_from_line(l.end)
 	else:
-		push_warning("Attempted to add MapLine with no start")
+		l.connected.connect(_add_node_from_line_aux)
+	
+	emit_signal("connections_updated")
 
-	# --- handle end ---
-	if l.end != null:
-		var end_owner := l.end
-		if end_owner != self: # Finding the node that is not itself
-			var is_new := not mapnode_connections.has(end_owner)
-			mapnode_connections[end_owner] = mapnode_connections.get(end_owner, 0) + 1
-			if is_new:
-				emit_signal("mapnode_added", end_owner)
-	else:
-		pass # optional warning here if needed
-
-
-func remove_connection(l: MapLine) -> void:
+func remove_line_connection(l: MapLine) -> void:
 	if not mapline_connections.has(l):
-		push_warning("Attempted to remove line that is not connected")
+		push_warning("Attempted to remove line %s that is not connected" % str(l))
 		return
 
 	mapline_connections.erase(l)
-	#print(l, ' removed from ', self)
 	emit_signal("mapline_removed", l)
 
-	# --- handle start ---
-	if l.start != null:
-		var start_owner := l.start
-		if start_owner != self and mapnode_connections.has(start_owner):
-			mapnode_connections[start_owner] -= 1
-			if mapnode_connections[start_owner] <= 0:
-				mapnode_connections.erase(start_owner)
-				emit_signal("mapnode_removed", start_owner)
+	# handle start and end nodes
+	_remove_node_from_line(l.start)
+	_remove_node_from_line(l.end)
+	
+	emit_signal("connections_updated")
 
-	# --- handle end ---
-	if l.end != null:
-		var end_owner := l.end
-		if end_owner != self and mapnode_connections.has(end_owner):
-			mapnode_connections[end_owner] -= 1
-			if mapnode_connections[end_owner] <= 0:
-				mapnode_connections.erase(end_owner)
-				emit_signal("mapnode_removed", end_owner)
+func _add_node_from_line(node: MapNode) -> void:
+	if node == null:
+		push_warning("Attempted to add MapLine with null node")
+		return
 
+	if node == self:
+		return  # avoid self-connection
+
+	var is_new := not mapnode_connections.has(node)
+	mapnode_connections[node] = mapnode_connections.get(node, 0) + 1
+
+	if is_new:
+		emit_signal("mapnode_added", node)
+
+func _add_node_from_line_aux(node: MapNode) -> void:
+	_add_node_from_line(node)
+	emit_signal("connections_updated")
+
+func _remove_node_from_line(node: MapNode) -> void:
+	if node == null or node == self:
+		return
+
+	if not mapnode_connections.has(node):
+		push_warning("Attempted to removed connection to", node, " which is not connected")
+		return
+
+	mapnode_connections[node] -= 1
+	if mapnode_connections[node] <= 0:
+		mapnode_connections.erase(node)
+		emit_signal("mapnode_removed", node)
 
 func _clear_connections() -> void:
 	mapnode_connections.clear()

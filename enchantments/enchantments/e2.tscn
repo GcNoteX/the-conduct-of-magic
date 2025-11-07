@@ -30,6 +30,7 @@ NodePath("../EnchantmentNode2"): 1,
 NodePath("../EnchantmentNode3"): 1
 }
 mapline_connections = [NodePath("../EnchantmentLine"), NodePath("../EnchantmentLine2")]
+can_change_identity = false
 
 [node name="MaterialHolder" parent="EnchantmentNode" index="4"]
 embedded_material = ExtResource("3_e3vpl")
@@ -39,6 +40,7 @@ mapnode_connections = {
 NodePath("../EnchantmentNode"): 1
 }
 mapline_connections = [NodePath("../EnchantmentLine")]
+can_change_identity = false
 
 [node name="MaterialHolder" parent="EnchantmentNode2" index="4"]
 embedded_material = ExtResource("4_hymt6")
@@ -49,6 +51,7 @@ mapnode_connections = {
 NodePath("../EnchantmentNode"): 1
 }
 mapline_connections = [NodePath("../EnchantmentLine2")]
+can_change_identity = false
 
 [node name="MaterialHolder" parent="EnchantmentNode3" index="4"]
 embedded_material = ExtResource("4_hymt6")
@@ -57,12 +60,9 @@ embedded_material = ExtResource("4_hymt6")
 position = Vector2(-192, 142)
 start = NodePath("../EnchantmentNode")
 end = NodePath("../EnchantmentNode2")
-collision_length_offset = 100
-collision_width_offset = 13
 
 [node name="Line2D" parent="EnchantmentLine" index="0"]
 points = PackedVector2Array(0, 0, 192, -142)
-width = 15.0
 
 [node name="LineCollisionShape" parent="EnchantmentLine" index="1"]
 position = Vector2(96, -71)
@@ -78,12 +78,9 @@ shape = SubResource("RectangleShape2D_dlsgk")
 position = Vector2(-192, 142)
 start = NodePath("../EnchantmentNode")
 end = NodePath("../EnchantmentNode3")
-collision_length_offset = 100
-collision_width_offset = 13
 
 [node name="Line2D" parent="EnchantmentLine2" index="0"]
 points = PackedVector2Array(0, 0, 451, -22)
-width = 15.0
 
 [node name="LineCollisionShape" parent="EnchantmentLine2" index="1"]
 position = Vector2(225.5, -11)

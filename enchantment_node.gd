@@ -14,9 +14,12 @@ class_name EnchantmentNode
 
 var is_activated: bool = false
 
+func _ready() -> void:
+	_initialize_node()
+	bounded_identity = owner
 
-func get_bounded_identity() -> Variant:
-	return owner
+func update_bounded_identity() -> void:
+	return
 
 
 func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
@@ -36,13 +39,14 @@ func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 		l.kill_line()
 		return
 	
-	## Condition2: EnchantmentNode does not allow a line from a different Enchantment to connect
-	if partner.get_bounded_identity() != get_bounded_identity():
+	## Condition2: EnchantmentNode does not allow a line from a different Enchantment
+	if l.bounded_identity is Enchantment and \
+		l.bounded_identity != bounded_identity:
 		#print("Failed Condition2")
 		l.kill_line()
 		return
 	
-	add_connection(l)
+	add_line_connection(l)
 	l.lock_line(self)
 
 func _on_line_connector_invalid_line_type_detected(l: MapLine) -> void:

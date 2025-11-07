@@ -3,17 +3,17 @@
 [ext_resource type="Script" uid="uid://btc2qphff7an1" path="res://enchantment_line.gd" id="1_u4ynd"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u4ynd"]
-size = Vector2(0, 0)
+size = Vector2(2, 0)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_0hdqt"]
+size = Vector2(15, 20)
 
-[node name="EnchantmentLine" type="Area2D"]
+[node name="EnchantmentLine" type="Area2D" groups=["mapline"]]
 script = ExtResource("1_u4ynd")
-collision_length_offset = null
-collision_width_offset = null
 
 [node name="Line2D" type="Line2D" parent="."]
 points = PackedVector2Array(0, 0)
+width = 15.0
 default_color = Color(1, 0.6666667, 0.27058825, 1)
 
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
