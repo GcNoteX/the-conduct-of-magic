@@ -1,3 +1,3 @@
 extends Node
 
-const magic_line: String = "res://magic_line.tscn"
+const magic_line: String = "res://map_lines/magic_line.tscn"
