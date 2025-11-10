@@ -20,15 +20,10 @@ func _ready() -> void:
 
 func update_bounded_identity() -> void:
 	# Collect all reachable nodes via DFS
-	var connected_nodes = UtilityFunctions.dfs_collect_nodes(
-		mapnode_connections.keys(),
-		func(node):
-			return node.mapnode_connections
-	) as Array[MapNode]
+	var connected_nodes := gather_connections(self)
 	
 	# Gather all identities
 	var identities := {}
-	#print(self, " connected to ", connected_nodes)
 	for node in connected_nodes:
 		# Only gather identities from those that are able to give it, but also are permanent (i.e. are source's of identities)
 		if node and node.can_share_identity and !node.can_change_identity and node.bounded_identity:

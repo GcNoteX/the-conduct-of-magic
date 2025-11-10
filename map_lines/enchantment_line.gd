@@ -8,7 +8,8 @@ extends MapLine
 
 func _ready() -> void:
 	_initialize_line()
-	bounded_identity = owner
+	bounded_identity = get_parent()
+	assert(bounded_identity is Enchantment, " EchantmentLine must have Enchantment as a parent")
 
 func update_bounded_identity() -> void:
 	return

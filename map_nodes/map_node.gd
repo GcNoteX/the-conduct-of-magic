@@ -31,10 +31,42 @@ func _initialize_node() -> void:
 	self.connections_updated.connect(ConnectionsUpdateManager._on_MapNode_connections_updated)
 
 """
-Connection Functions
+Utilities
 """
 
+static func gather_connections(source: MapNode) -> Array[MapNode]:
+	var raw_nodes := UtilityFunctions.dfs_collect_nodes(
+		source.mapnode_connections.keys(),
+		func(node):
+			return node.mapnode_connections
+	)
+	# The failing type hints at run time block it without this
+	var connected_nodes: Array[MapNode] = []
+	for n in raw_nodes:
+		if n is MapNode:
+			connected_nodes.append(n)
 
+	return connected_nodes
+
+static func gather_lines(nodes: Array[MapNode]) -> Array[MapLine]:
+	var lines: Array[MapLine] = []
+	var seen := {} # acts like a Set for uniqueness
+	#print("Gathering lines from ", nodes)
+	for node in nodes:
+		#print("For ", node)
+		for line in node.mapline_connections:
+			#print("Has line ", line)
+			if line == null:
+				continue
+			if not seen.has(line):
+				seen[line] = true
+				lines.append(line)
+
+	return lines
+
+"""
+Connection Functions
+"""
 
 func add_line_connection(l: MapLine) -> void:
 	if mapline_connections.has(l):
@@ -108,12 +140,15 @@ func _clear_connections() -> void:
 """
 Conditions Functions
 """
+## Con1: MapLine does not share the same start and end as another line (i.e. Duplicate)
+## Con2: MapNode has capacity to connect more lines
 func passes_base_conditions(l: MapLine) -> bool:
 	var is_duplicate = is_duplicate_line(l)
 	var has_cap = has_capacity()
 	#print("Is Duplicate: ", is_duplicate, ". Has Capacity: ", has_cap)
 	return !is_duplicate and has_cap
 
+## If two lines share the same start and end
 func is_duplicate_line(l: MapLine) -> bool:
 	# If the end is already selected, allow regardless (for prebuilds)
 	if l.end:
@@ -127,7 +162,6 @@ func is_duplicate_line(l: MapLine) -> bool:
 		var b_end = line.end
 		if (a_start == b_start and a_end == b_end) or (a_start == b_end and a_end == b_start):
 			return true
-	
 	return false
 
 func has_capacity() -> bool:

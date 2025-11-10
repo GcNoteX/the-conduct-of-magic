@@ -64,6 +64,15 @@ func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int,
 							bounded_identity == area.bounded_identity:
 						#print("I killed line here")
 						area.kill_line()
+					## Condition2: If both lines are null, they cannot be connected
+					elif bounded_identity == null and \
+						area.bounded_identity == null:
+						var connections := MapNode.gather_connections(start)
+						var lines := MapNode.gather_lines(connections)
+						if area in lines:
+							area.kill_line()
+						else:
+							print(area, " not in ", lines, " from ", connections)
 		else:
 			if !area.is_locked:
 				## Condition1: If both MagicLine are bound to Enchantment's, they cannot be the same
@@ -72,3 +81,12 @@ func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int,
 						bounded_identity == area.bounded_identity:
 					#print(self, " killed line here!")
 					area.kill_line()
+				## Condition2: If both lines are null, they cannot be connected
+				elif bounded_identity == null and \
+					area.bounded_identity == null:
+					var connections := MapNode.gather_connections(start)
+					var lines := MapNode.gather_lines(connections)
+					if area in lines:
+						area.kill_line()
+					else:
+						print(area, " not in ", lines, " from ", connections)

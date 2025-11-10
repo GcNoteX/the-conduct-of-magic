@@ -22,7 +22,8 @@ func _is_same_source(a: MapLine, b: MapLine) -> bool:
 
 	return same
 
-func dfs_collect_nodes(start_nodes: Array, get_neighbors_func: Callable) -> Array:
+func dfs_collect_nodes(start_nodes: Array, get_neighbors_func: Callable)\
+ 	-> Array[Variant]:
 	"""
 	Generic DFS utility.
 	Traverses connected graph-like structures starting from `start_nodes`.
