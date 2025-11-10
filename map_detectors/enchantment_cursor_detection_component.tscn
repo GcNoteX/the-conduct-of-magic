@@ -3,7 +3,8 @@
 [ext_resource type="Script" uid="uid://blb1lgh6lkuji" path="res://map_detectors/enchantment_cursor_detection_component.gd" id="1_wlqvn"]
 
 [node name="EnchantmentCursorDetectionComponent" type="Area2D"]
-collision_mask = 3
+collision_layer = 0
+collision_mask = 2
 script = ExtResource("1_wlqvn")
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]

@@ -7,8 +7,8 @@ func get_line_length(line: Line2D) -> float:
 		length += points[i].distance_to(points[i + 1])
 	return length
 
-## Checks the identities of the owner's behind each map line 
-func _is_same_source(a: MapLine, b: MapLine) -> bool:
+## Checks if lines are adjcent in any manner
+func _are_adjacent_lines(a: MapLine, b: MapLine) -> bool:
 	var same = false
 
 	if a.start and b.start:

@@ -60,22 +60,15 @@ func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 		l.kill_line()
 		return
 	#print("Passed base conditions")
-	var partner = l.start
-	
-	## Condition1: MagicNode does not allow more than 1 connection to a partner
-	if partner in mapnode_connections or partner == self: # The latter case only matters when there is more than one connectable component for lines
-		l.kill_line()
-		return
-	#print("Pass Condition 1")
-	## Condition2: If both identities are bound to an Enchantment, they cannot be different
+
+	## Condition1: If both identities are bound to an Enchantment, they cannot be different
 	if bounded_identity is Enchantment and \
 		l.bounded_identity is Enchantment and \
 		l.bounded_identity != bounded_identity:
 		
 		l.kill_line()
 		return
-		
-	#print("Pass Condition 2")
+	
 	add_line_connection(l)
 	l.lock_line(self)
 

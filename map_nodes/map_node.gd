@@ -140,20 +140,19 @@ func _clear_connections() -> void:
 """
 Conditions Functions
 """
+## Conditions for a line that is trying to connect to the node
 ## Con1: MapLine does not share the same start and end as another line (i.e. Duplicate)
 ## Con2: MapNode has capacity to connect more lines
+## 
 func passes_base_conditions(l: MapLine) -> bool:
 	var is_duplicate = is_duplicate_line(l)
 	var has_cap = has_capacity()
+	var is_self = l.start == self
 	#print("Is Duplicate: ", is_duplicate, ". Has Capacity: ", has_cap)
-	return !is_duplicate and has_cap
+	return !is_duplicate and has_cap and !is_self
 
 ## If two lines share the same start and end
 func is_duplicate_line(l: MapLine) -> bool:
-	# If the end is already selected, allow regardless (for prebuilds)
-	if l.end:
-		return false
-
 	# Prevent Exact duplicate mapnode_connections (ignore direction)
 	for line in mapline_connections:
 		var a_start = l.start

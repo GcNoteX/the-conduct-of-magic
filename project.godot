@@ -22,6 +22,7 @@ SceneReferences="*res://globals/SceneReferences.gd"
 EnchantmentUpdateManager="*res://globals/enchantment_update_manager.gd"
 EnchantmentMapManager="*res://globals/enchantment_map_manager.gd"
 ConnectionsUpdateManager="*res://globals/connections_update_manager.gd"
+OverlapsUpdateManager="*res://globals/overlaps_update_manager.gd"
 
 [display]
 

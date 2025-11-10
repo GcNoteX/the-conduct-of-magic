@@ -31,15 +31,12 @@ func _ready() -> void:
 	push_warning("Abstract class MapLine _ready() called by ", self)
 	
 func _initialize_line() -> void:
+	# EnchantmentUpdateManager Triggerrs to updates
 	self.spawned.connect(EnchantmentUpdateManager._on_MapLine_spawned)
-	#self.spawned.connect(_on_spawned)
-	
 	self.locked.connect(EnchantmentUpdateManager._on_MapLine_locked)
-	#self.locked.connect(_on_locked)
-	
 	self.destroyed.connect(EnchantmentUpdateManager._on_MapLine_destroyed)
-	#self.destroyed.connect(_on_destroyed)
 	
+	# For building maps in the editor 
 	if !Engine.is_editor_hint():
 		assert(start, "A MagicLine cannot exist without a start!")
 	else:
@@ -50,31 +47,24 @@ func _initialize_line() -> void:
 	collision_shape.shape = collision_shape.shape.duplicate() 
 	line_connecting_shape.shape = line_connecting_shape.shape.duplicate()
 	
+	# Start the line at the start position
+	global_position = start.global_position
+	# Initialize the line's visual shape
+	visual_shape.clear_points()
+	_change_visual_start_point(Vector2.ZERO) # Always start at origin
+	start.add_line_connection(self) # Update 
+	if end:
+		lock_line(end)
+	
 	# Set the sizes of the line
 	collision_shape.shape.size.x = max(width - collision_width_offset, 0.5)
 	line_connecting_shape.shape.size.x = width
 	visual_shape.width = width
 	
-	# Start the line at the start position
-	global_position = start.global_position
-	visual_shape.clear_points()
-	
-	# Always start at origin
-	_change_visual_start_point(Vector2.ZERO)
-	
-	#update_bounded_identity() # This needs an early update
-	start.add_line_connection(self)
-	if end:
-		# Manually lock it
-		stretch_line(end.global_position - start.global_position)
-		is_locked = true
-		end.add_line_connection(self)
-	
 	initialized = true
 	emit_signal("spawned", self)
 
 func _on_spawned(_l: MapLine) -> void:
-	#update_bounded_identity()
 	pass
 
 func _on_destroyed(_l: MapLine) -> void:
@@ -135,3 +125,38 @@ func _update_collision_shape() -> void:
 	line_connecting_shape.position = pos
 	line_connecting_shape.shape.size.y = length
 	line_connecting_shape.rotation = angle
+
+static func maplines_share_identity(l1: MapLine, l2: MapLine) -> bool:
+	# --- Case 1: Both are unbound (null) ---
+	if l1.bounded_identity == null and l2.bounded_identity == null:
+		var connected_nodes := MapNode.gather_connections(l1.start)
+		var connected_lines := MapNode.gather_lines(connected_nodes)
+		return l2 in connected_lines
+
+	# --- Case 2: Both have a bounded identity and it's the same ---
+	elif l1.bounded_identity != null and l1.bounded_identity == l2.bounded_identity:
+		return true
+
+	# --- Otherwise, not shared ---
+	return false
+
+"""
+Overlap Handling
+"""
+
+## Re-check all current overlaps manually
+func validate_current_overlaps() -> void:
+	var overlaps := get_overlapping_areas()
+	for area in overlaps:
+		# Skip invalid or freed references
+		if not is_instance_valid(area):
+			continue
+
+		# Only check relevant types (e.g., MagicLine)
+		if area is MapLine:
+			_handle_overlap_validation(area)
+
+func _handle_overlap_validation(area: MapLine) -> void:
+	# Same logic you used in _on_area_shape_entered
+	#print(self, " overlap with ", area)
+	pass

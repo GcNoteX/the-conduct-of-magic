@@ -19,10 +19,8 @@ func _ready() -> void:
 	bounded_identity = get_parent()
 	assert(bounded_identity is Enchantment, " EchantmentNode must have Enchantment as a parent")
 
-
 func update_bounded_identity() -> void:
-	return
-
+	bounded_identity = get_parent()
 
 func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 	if l in mapline_connections: # Sometimes the detector will detect the same line again, these are ignored by this node
@@ -33,15 +31,7 @@ func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 		l.kill_line()
 		return
 	
-	var partner = l.start
-	
-	## Condition1: EnchantmentNode does not allow more than 1 connection to a partner
-	if partner in mapnode_connections or partner == self:
-		#print("Failed Condition1")
-		l.kill_line()
-		return
-	
-	## Condition2: EnchantmentNode does not allow a line from a different Enchantment
+	## Condition1: EnchantmentNode does not allow a line from a different Enchantment
 	if l.bounded_identity is Enchantment and \
 		l.bounded_identity != bounded_identity:
 		#print("Failed Condition2")

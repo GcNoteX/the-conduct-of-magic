@@ -23,6 +23,8 @@ func update_all() -> void:
 			push_warning(
 				"%s in group 'mapline' lacks method 'update_bounded_identity'" % str(line)
 			)
+	
+	OverlapsUpdateManager.revalidate_all_overlaps()
 
 func _on_MapNode_connections_updated() -> void:
 	update_all()

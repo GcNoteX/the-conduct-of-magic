@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c5ldll52gn23y"]
+
+[ext_resource type="Script" uid="uid://rratomhyup48" path="res://map_detectors/line_detector.gd" id="1_7oadp"]
+
+[node name="LineDetector" type="Area2D"]
+collision_layer = 0
+script = ExtResource("1_7oadp")

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dpw4wuie057gj" path="res://map_nodes/magic_node.gd" id="1_tjibe"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="1_vs4el"]
-[ext_resource type="Script" uid="uid://rratomhyup48" path="res://map_detectors/line_detector.gd" id="3_kmmj3"]
+[ext_resource type="PackedScene" uid="uid://c5ldll52gn23y" path="res://map_detectors/line_detector.tscn" id="3_1fvh5"]
 [ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://map_detectors/enchantment_cursor_detection_component.tscn" id="4_kmmj3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_thycq"]
@@ -15,10 +15,6 @@ radius = 10.198
 
 [node name="MagicNode" type="Area2D" groups=["mapnode"]]
 script = ExtResource("1_tjibe")
-is_unlimited_capacity = null
-max_capacity = null
-can_share_identity = null
-can_change_identity = null
 
 [node name="FullBody" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_thycq")
@@ -31,10 +27,8 @@ self_modulate = Color(0.18431373, 1, 1, 1)
 scale = Vector2(0.32, 0.32)
 texture = ExtResource("1_vs4el")
 
-[node name="LineDetector" type="Area2D" parent="."]
-script = ExtResource("3_kmmj3")
+[node name="LineDetector" parent="." instance=ExtResource("3_1fvh5")]
 types = 2
-metadata/_custom_type_script = "uid://rratomhyup48"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LineDetector"]
 shape = SubResource("CircleShape2D_kmmj3")
@@ -48,4 +42,3 @@ debug_color = Color(0.6171, 0.535833, 1.92523e-07, 0.42)
 
 [connection signal="allowed_line_type_detected" from="LineDetector" to="." method="_on_line_connector_allowed_line_type_detected"]
 [connection signal="invalid_line_type_detected" from="LineDetector" to="." method="_on_line_connector_invalid_line_type_detected"]
-[connection signal="line_forcing_connection" from="LineDetector" to="." method="_on_line_connector_line_forcing_connection"]
