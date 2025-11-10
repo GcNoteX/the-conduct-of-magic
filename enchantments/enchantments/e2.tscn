@@ -1,10 +1,10 @@
 [gd_scene load_steps=10 format=3 uid="uid://cr5uq6ockjvli"]
 
 [ext_resource type="Script" uid="uid://ldewurgrwwj3" path="res://enchantments/enchantment.gd" id="1_ltbjf"]
-[ext_resource type="PackedScene" uid="uid://i4yl2fcq2sv0" path="res://enchantment_node.tscn" id="2_dlsgk"]
+[ext_resource type="PackedScene" uid="uid://i4yl2fcq2sv0" path="res://map_nodes/enchantment_node.tscn" id="2_dlsgk"]
 [ext_resource type="Resource" uid="uid://dwxijt4t8ckn2" path="res://enchantments/enchantment_materials/yellow_stone.tres" id="3_e3vpl"]
 [ext_resource type="Resource" uid="uid://edjx4fwr6cr8" path="res://enchantments/enchantment_materials/blue_stone.tres" id="4_hymt6"]
-[ext_resource type="PackedScene" uid="uid://bqr5hvfao8bql" path="res://enchantment_line.tscn" id="5_8shds"]
+[ext_resource type="PackedScene" uid="uid://bqr5hvfao8bql" path="res://map_lines/enchantment_line.tscn" id="5_8shds"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ltbjf"]
 size = Vector2(2, 138.80536)
@@ -30,7 +30,6 @@ NodePath("../EnchantmentNode2"): 1,
 NodePath("../EnchantmentNode3"): 1
 }
 mapline_connections = [NodePath("../EnchantmentLine"), NodePath("../EnchantmentLine2")]
-can_change_identity = false
 
 [node name="MaterialHolder" parent="EnchantmentNode" index="4"]
 embedded_material = ExtResource("3_e3vpl")
@@ -40,7 +39,6 @@ mapnode_connections = {
 NodePath("../EnchantmentNode"): 1
 }
 mapline_connections = [NodePath("../EnchantmentLine")]
-can_change_identity = false
 
 [node name="MaterialHolder" parent="EnchantmentNode2" index="4"]
 embedded_material = ExtResource("4_hymt6")
@@ -51,7 +49,6 @@ mapnode_connections = {
 NodePath("../EnchantmentNode"): 1
 }
 mapline_connections = [NodePath("../EnchantmentLine2")]
-can_change_identity = false
 
 [node name="MaterialHolder" parent="EnchantmentNode3" index="4"]
 embedded_material = ExtResource("4_hymt6")

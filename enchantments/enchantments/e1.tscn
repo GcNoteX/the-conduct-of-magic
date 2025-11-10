@@ -1,8 +1,8 @@
 [gd_scene load_steps=10 format=3 uid="uid://dma3s717a2gbn"]
 
 [ext_resource type="Script" uid="uid://ldewurgrwwj3" path="res://enchantments/enchantment.gd" id="1_8np31"]
-[ext_resource type="PackedScene" uid="uid://i4yl2fcq2sv0" path="res://enchantment_node.tscn" id="2_dmmpm"]
-[ext_resource type="PackedScene" uid="uid://bqr5hvfao8bql" path="res://enchantment_line.tscn" id="3_8np31"]
+[ext_resource type="PackedScene" uid="uid://i4yl2fcq2sv0" path="res://map_nodes/enchantment_node.tscn" id="2_dmmpm"]
+[ext_resource type="PackedScene" uid="uid://bqr5hvfao8bql" path="res://map_lines/enchantment_line.tscn" id="3_8np31"]
 [ext_resource type="Resource" uid="uid://dwxijt4t8ckn2" path="res://enchantments/enchantment_materials/yellow_stone.tres" id="3_b56uu"]
 [ext_resource type="Resource" uid="uid://edjx4fwr6cr8" path="res://enchantments/enchantment_materials/blue_stone.tres" id="3_oq3co"]
 

@@ -1,9 +1,9 @@
 [gd_scene load_steps=8 format=3 uid="uid://18q6ykut8s83"]
 
-[ext_resource type="Script" uid="uid://dpw4wuie057gj" path="res://magic_node.gd" id="1_tjibe"]
+[ext_resource type="Script" uid="uid://dpw4wuie057gj" path="res://map_nodes/magic_node.gd" id="1_tjibe"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="1_vs4el"]
-[ext_resource type="Script" uid="uid://rratomhyup48" path="res://components/line_detector.gd" id="3_kmmj3"]
-[ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://components/enchantment_cursor_detection_component.tscn" id="4_kmmj3"]
+[ext_resource type="Script" uid="uid://rratomhyup48" path="res://map_detectors/line_detector.gd" id="3_kmmj3"]
+[ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://map_detectors/enchantment_cursor_detection_component.tscn" id="4_kmmj3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_thycq"]
 radius = 32.06244
@@ -15,6 +15,10 @@ radius = 10.198
 
 [node name="MagicNode" type="Area2D" groups=["mapnode"]]
 script = ExtResource("1_tjibe")
+is_unlimited_capacity = null
+max_capacity = null
+can_share_identity = null
+can_change_identity = null
 
 [node name="FullBody" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_thycq")

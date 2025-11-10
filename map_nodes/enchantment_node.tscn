@@ -1,8 +1,8 @@
 [gd_scene load_steps=9 format=3 uid="uid://i4yl2fcq2sv0"]
 
-[ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://enchantment_node.gd" id="1_8h6rx"]
+[ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://map_nodes/enchantment_node.gd" id="1_8h6rx"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_ho12n"]
-[ext_resource type="Script" uid="uid://rratomhyup48" path="res://components/line_detector.gd" id="3_ucxg0"]
+[ext_resource type="Script" uid="uid://rratomhyup48" path="res://map_detectors/line_detector.gd" id="3_ucxg0"]
 [ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://components/material_holder.gd" id="5_ucxg0"]
 [ext_resource type="Script" uid="uid://bp8wi3h2a3fes" path="res://components/material_dropper.gd" id="6_r22ex"]
 

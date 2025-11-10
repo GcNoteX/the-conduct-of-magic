@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://yn0ar2af2542"]
 
-[ext_resource type="Script" uid="uid://blb1lgh6lkuji" path="res://components/enchantment_cursor_detection_component.gd" id="1_wlqvn"]
+[ext_resource type="Script" uid="uid://blb1lgh6lkuji" path="res://map_detectors/enchantment_cursor_detection_component.gd" id="1_wlqvn"]
 
 [node name="EnchantmentCursorDetectionComponent" type="Area2D"]
 collision_mask = 3

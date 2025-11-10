@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://bqr5hvfao8bql"]
 
-[ext_resource type="Script" uid="uid://btc2qphff7an1" path="res://enchantment_line.gd" id="1_u4ynd"]
+[ext_resource type="Script" uid="uid://btc2qphff7an1" path="res://map_lines/enchantment_line.gd" id="1_u4ynd"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_u4ynd"]
 size = Vector2(2, 0)
