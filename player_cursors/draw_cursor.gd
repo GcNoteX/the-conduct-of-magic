@@ -21,7 +21,7 @@ var controlled_line: MagicLine = null
 var selection_manager: MapPriorityQueue = MapPriorityQueue.new()
 
 func _process(_delta: float) -> void:
-	position = get_global_mouse_position()
+	global_position = get_global_mouse_position()
 
 func _physics_process(_delta: float) -> void:
 	if controlled_line and controlled_line.initialized:

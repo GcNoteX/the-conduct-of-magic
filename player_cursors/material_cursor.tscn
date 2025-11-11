@@ -1,6 +1,21 @@
-[gd_scene load_steps=2 format=3 uid="uid://cw4cqcq7aeu2c"]
+[gd_scene load_steps=4 format=3 uid="uid://cw4cqcq7aeu2c"]
 
 [ext_resource type="Script" uid="uid://bmu1155vh7j1q" path="res://player_cursors/material_cursor.gd" id="1_bw5iv"]
+[ext_resource type="Texture2D" uid="uid://demlxksncxsip" path="res://placeholder_assets/grab_hand.png" id="2_rqbch"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8g6g4"]
 
 [node name="MaterialCursor" type="Area2D"]
+collision_layer = 2
+collision_mask = 5
 script = ExtResource("1_bw5iv")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_8g6g4")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("2_rqbch")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

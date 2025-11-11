@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3 uid="uid://crvr06vbqbkxq"]
+
+[ext_resource type="Script" uid="uid://cfk6qcc37lkro" path="res://map_item/item_box.gd" id="1_01x1x"]
+[ext_resource type="Texture2D" uid="uid://crj211y8xs3ei" path="res://placeholder_assets/construction_icon.png" id="2_bb58p"]
+[ext_resource type="Resource" uid="uid://dh646e83nxwig" path="res://enchantments/enchantment_materials/red_stone.tres" id="2_mfrbp"]
+[ext_resource type="Script" uid="uid://b8n2oa87lf1ai" path="res://map_item/item_box_area.gd" id="4_x54si"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mfrbp"]
+size = Vector2(28, 28)
+
+[node name="ItemBox" type="PanelContainer"]
+offset_right = 28.0
+offset_bottom = 27.5
+script = ExtResource("1_01x1x")
+item = ExtResource("2_mfrbp")
+quantity = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="AspectRatioContainer" type="AspectRatioContainer" parent="."]
+layout_mode = 2
+
+[node name="TextureRect" type="TextureRect" parent="AspectRatioContainer"]
+layout_mode = 2
+texture = ExtResource("2_bb58p")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Label" type="Label" parent="AspectRatioContainer"]
+texture_filter = 1
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+theme_override_colors/font_color = Color(1, 0.33333334, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "x1"
+horizontal_alignment = 2
+vertical_alignment = 2
+
+[node name="Area2D" type="Area2D" parent="AspectRatioContainer"]
+collision_layer = 4
+collision_mask = 2
+script = ExtResource("4_x54si")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AspectRatioContainer/Area2D"]
+position = Vector2(14, 14)
+shape = SubResource("RectangleShape2D_mfrbp")
