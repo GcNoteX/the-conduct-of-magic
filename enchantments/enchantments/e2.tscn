@@ -34,21 +34,13 @@ mapline_connections = [NodePath("../EnchantmentLine"), NodePath("../EnchantmentL
 [node name="MaterialHolder" parent="EnchantmentNode" index="4"]
 embedded_material = ExtResource("3_e3vpl")
 
-[node name="EnchantmentNode2" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dlsgk")]
-mapnode_connections = {
-NodePath("../EnchantmentNode"): 1
-}
-mapline_connections = [NodePath("../EnchantmentLine")]
+[node name="EnchantmentNode2" parent="." instance=ExtResource("2_dlsgk")]
 
 [node name="MaterialHolder" parent="EnchantmentNode2" index="4"]
 embedded_material = ExtResource("4_hymt6")
 
-[node name="EnchantmentNode3" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dlsgk")]
+[node name="EnchantmentNode3" parent="." instance=ExtResource("2_dlsgk")]
 position = Vector2(259, 120)
-mapnode_connections = {
-NodePath("../EnchantmentNode"): 1
-}
-mapline_connections = [NodePath("../EnchantmentLine2")]
 
 [node name="MaterialHolder" parent="EnchantmentNode3" index="4"]
 embedded_material = ExtResource("4_hymt6")

@@ -1,6 +1,8 @@
 class_name EnchantmentMaterial
 extends Resource
 
+@export var material_id: String
+@export var material_sprite: Texture2D
 
 ## The tier of the material, used to evaluate its usage aswell (e.g. Whether it can be inserted in an EnchantmentNode)
 @export var tier: int = 1

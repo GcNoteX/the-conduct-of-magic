@@ -92,9 +92,6 @@ Handling Cursors
 
 func handle_drag_out(c: EnchantmentCursor) -> void:
 	if c is DrawCursor:
-		# Ignore if node is not activated
-		if !is_activated:
-			return
 		if !c.controlled_line and has_capacity():
 			# Create a new MagicLine
 			var l: MagicLine = preload(SceneReferences.magic_line).instantiate()

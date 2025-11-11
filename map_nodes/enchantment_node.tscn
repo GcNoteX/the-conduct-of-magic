@@ -3,8 +3,8 @@
 [ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://map_nodes/enchantment_node.gd" id="1_8h6rx"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_ho12n"]
 [ext_resource type="PackedScene" uid="uid://c5ldll52gn23y" path="res://map_detectors/line_detector.tscn" id="3_a1tx1"]
-[ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://components/material_holder.gd" id="5_ucxg0"]
-[ext_resource type="Script" uid="uid://bp8wi3h2a3fes" path="res://components/material_dropper.gd" id="6_r22ex"]
+[ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://enchantments/material_holder.gd" id="5_ucxg0"]
+[ext_resource type="Script" uid="uid://bp8wi3h2a3fes" path="res://enchantments/material_dropper.gd" id="6_r22ex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ucxg0"]
 radius = 63.007935

@@ -35,20 +35,15 @@ embedded_material = ExtResource("3_b56uu")
 
 [node name="EnchantmentNode2" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dmmpm")]
 mapnode_connections = {
-NodePath("../EnchantmentNode"): 1,
 NodePath("../EnchantmentNode3"): 1
 }
-mapline_connections = [NodePath("../EnchantmentLine"), NodePath("../EnchantmentLine2")]
+mapline_connections = [NodePath("../EnchantmentLine2")]
 
 [node name="MaterialHolder" parent="EnchantmentNode2" index="4"]
 embedded_material = ExtResource("3_oq3co")
 
-[node name="EnchantmentNode3" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dmmpm")]
+[node name="EnchantmentNode3" parent="." instance=ExtResource("2_dmmpm")]
 position = Vector2(198, -114)
-mapnode_connections = {
-NodePath("../EnchantmentNode2"): 1
-}
-mapline_connections = [NodePath("../EnchantmentLine2")]
 
 [node name="MaterialHolder" parent="EnchantmentNode3" index="4"]
 embedded_material = ExtResource("3_oq3co")
@@ -57,12 +52,9 @@ embedded_material = ExtResource("3_oq3co")
 position = Vector2(-192, 142)
 start = NodePath("../EnchantmentNode")
 end = NodePath("../EnchantmentNode2")
-collision_length_offset = 100
-collision_width_offset = 13
 
 [node name="Line2D" parent="EnchantmentLine" index="0"]
 points = PackedVector2Array(0, 0, 192, -142)
-width = 15.0
 
 [node name="LineCollisionShape" parent="EnchantmentLine" index="1"]
 position = Vector2(96, -71)
@@ -77,12 +69,9 @@ shape = SubResource("RectangleShape2D_6p2ay")
 [node name="EnchantmentLine2" parent="." node_paths=PackedStringArray("start", "end") instance=ExtResource("3_8np31")]
 start = NodePath("../EnchantmentNode2")
 end = NodePath("../EnchantmentNode3")
-collision_length_offset = 100
-collision_width_offset = 13
 
 [node name="Line2D" parent="EnchantmentLine2" index="0"]
 points = PackedVector2Array(0, 0, 198, -114)
-width = 15.0
 
 [node name="LineCollisionShape" parent="EnchantmentLine2" index="1"]
 position = Vector2(99, -57)

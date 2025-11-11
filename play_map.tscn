@@ -1,35 +1,22 @@
-[gd_scene load_steps=15 format=3 uid="uid://bl31wi5ugns5h"]
+[gd_scene load_steps=10 format=3 uid="uid://bl31wi5ugns5h"]
 
 [ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://player_cursors/draw_cursor.tscn" id="1_wvwjg"]
 [ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="2_u2jdw"]
 [ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantables/item1.tscn" id="3_d7kya"]
 [ext_resource type="PackedScene" uid="uid://dma3s717a2gbn" path="res://enchantments/enchantments/e1.tscn" id="3_i2ton"]
-[ext_resource type="PackedScene" uid="uid://cr5uq6ockjvli" path="res://enchantments/enchantments/e2.tscn" id="4_d7kya"]
 [ext_resource type="PackedScene" uid="uid://cq43qfwuu7nfu" path="res://map_lines/magic_line.tscn" id="5_u2jdw"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_u2jdw"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_d7kya"]
 size = Vector2(2, 138.80536)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u2jdw"]
+size = Vector2(15, 238.80536)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_c3ttq"]
-size = Vector2(15, 238.80536)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2hmcn"]
 size = Vector2(2, 128.47319)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_nn7c1"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2hmcn"]
 size = Vector2(15, 228.47319)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_6l0k2"]
-size = Vector2(2, 138.80536)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_y3ajy"]
-size = Vector2(15, 238.80536)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_puqhv"]
-size = Vector2(2, 351.53625)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_cipcm"]
-size = Vector2(15, 451.53625)
 
 [node name="PlayMap" type="Node"]
 
@@ -47,59 +34,25 @@ mapnode_connections = {
 NodePath("../EnchantmentNode2"): 1
 }
 
-[node name="EnchantmentNode2" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections", "mapline_connections")]
+[node name="EnchantmentNode2" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections")]
 mapnode_connections = {
 NodePath("../EnchantmentNode3"): 1
 }
-mapline_connections = [NodePath("../EnchantmentLine2")]
-
-[node name="EnchantmentNode3" parent="EnchantmentMap/E1" index="2" node_paths=PackedStringArray("mapnode_connections", "mapline_connections")]
-mapnode_connections = {}
-mapline_connections = []
 
 [node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine" index="1"]
-shape = SubResource("RectangleShape2D_u2jdw")
+shape = SubResource("RectangleShape2D_d7kya")
 
 [node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine" index="2"]
-shape = SubResource("RectangleShape2D_c3ttq")
+shape = SubResource("RectangleShape2D_u2jdw")
 
 [node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="1"]
-shape = SubResource("RectangleShape2D_2hmcn")
+shape = SubResource("RectangleShape2D_c3ttq")
 
 [node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="2"]
-shape = SubResource("RectangleShape2D_nn7c1")
+shape = SubResource("RectangleShape2D_2hmcn")
 
 [node name="Item1" parent="EnchantmentMap" instance=ExtResource("3_d7kya")]
 position = Vector2(133, -48)
-
-[node name="E2" parent="EnchantmentMap" instance=ExtResource("4_d7kya")]
-position = Vector2(333, 40)
-
-[node name="EnchantmentNode" parent="EnchantmentMap/E2" index="0" node_paths=PackedStringArray("mapnode_connections")]
-mapnode_connections = {
-NodePath("../EnchantmentNode2"): 1,
-NodePath("../EnchantmentNode3"): 1
-}
-
-[node name="EnchantmentNode2" parent="EnchantmentMap/E2" index="1" node_paths=PackedStringArray("mapnode_connections", "mapline_connections")]
-mapnode_connections = {}
-mapline_connections = []
-
-[node name="EnchantmentNode3" parent="EnchantmentMap/E2" index="2" node_paths=PackedStringArray("mapnode_connections", "mapline_connections")]
-mapnode_connections = {}
-mapline_connections = []
-
-[node name="LineCollisionShape" parent="EnchantmentMap/E2/EnchantmentLine" index="1"]
-shape = SubResource("RectangleShape2D_6l0k2")
-
-[node name="LineConnectingShape" parent="EnchantmentMap/E2/EnchantmentLine" index="2"]
-shape = SubResource("RectangleShape2D_y3ajy")
-
-[node name="LineCollisionShape" parent="EnchantmentMap/E2/EnchantmentLine2" index="1"]
-shape = SubResource("RectangleShape2D_puqhv")
-
-[node name="LineConnectingShape" parent="EnchantmentMap/E2/EnchantmentLine2" index="2"]
-shape = SubResource("RectangleShape2D_cipcm")
 
 [node name="MagicLine" parent="EnchantmentMap" node_paths=PackedStringArray("start", "end") instance=ExtResource("5_u2jdw")]
 start = NodePath("../Item1/MagicNode")
@@ -119,9 +72,3 @@ top_level = true
 [editable path="EnchantmentMap/E1/EnchantmentLine"]
 [editable path="EnchantmentMap/E1/EnchantmentLine2"]
 [editable path="EnchantmentMap/Item1"]
-[editable path="EnchantmentMap/E2"]
-[editable path="EnchantmentMap/E2/EnchantmentNode"]
-[editable path="EnchantmentMap/E2/EnchantmentNode2"]
-[editable path="EnchantmentMap/E2/EnchantmentNode3"]
-[editable path="EnchantmentMap/E2/EnchantmentLine"]
-[editable path="EnchantmentMap/E2/EnchantmentLine2"]

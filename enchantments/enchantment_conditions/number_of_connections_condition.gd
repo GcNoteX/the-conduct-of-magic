@@ -5,5 +5,5 @@ extends EnchantmentCondition
 @export var number_of_lines: int = 0 
 
 func is_fulfilled(ctx: MaterialActivationContext) -> bool:
-	#print("[NumberOfConnectionsConditon] Connections: ", ctx.start_node.mapnode_connections.size())
-	return ctx.start_node.mapnode_connections.size() >= number_of_lines
+	#print("[NumberOfConnectionsConditon] Connections: ", ctx.source_node.mapnode_connections.size())
+	return ctx.source_node.mapnode_connections.size() >= number_of_lines

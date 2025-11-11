@@ -1,0 +1,2 @@
+extends EnchantmentCursor
+class_name MaterialCursor

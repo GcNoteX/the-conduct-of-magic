@@ -25,6 +25,7 @@ func update_all() -> void:
 			)
 	
 	OverlapsUpdateManager.revalidate_all_overlaps()
+	EnchantmentUpdateManager.update_all()
 
 func _on_MapNode_connections_updated() -> void:
 	update_all()

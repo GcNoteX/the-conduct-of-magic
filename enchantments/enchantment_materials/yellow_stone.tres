@@ -6,6 +6,7 @@
 
 [sub_resource type="Resource" id="Resource_c573b"]
 script = ExtResource("2_5x48a")
+number_of_lines = 3
 metadata/_custom_type_script = "uid://bo4c3r6ga2sr0"
 
 [resource]

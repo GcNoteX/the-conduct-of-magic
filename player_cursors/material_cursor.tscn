@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cw4cqcq7aeu2c"]
+
+[ext_resource type="Script" uid="uid://bmu1155vh7j1q" path="res://player_cursors/material_cursor.gd" id="1_bw5iv"]
+
+[node name="MaterialCursor" type="Area2D"]
+script = ExtResource("1_bw5iv")

@@ -32,9 +32,9 @@ func _ready() -> void:
 	
 func _initialize_line() -> void:
 	# EnchantmentUpdateManager Triggerrs to updates
-	self.spawned.connect(EnchantmentUpdateManager._on_MapLine_spawned)
-	self.locked.connect(EnchantmentUpdateManager._on_MapLine_locked)
-	self.destroyed.connect(EnchantmentUpdateManager._on_MapLine_destroyed)
+	#self.spawned.connect(EnchantmentUpdateManager._on_MapLine_spawned)
+	#self.locked.connect(EnchantmentUpdateManager._on_MapLine_locked)
+	#self.destroyed.connect(EnchantmentUpdateManager._on_MapLine_destroyed)
 	
 	# For building maps in the editor 
 	if !Engine.is_editor_hint():
@@ -156,7 +156,7 @@ func validate_current_overlaps() -> void:
 		if area is MapLine:
 			_handle_overlap_validation(area)
 
-func _handle_overlap_validation(area: MapLine) -> void:
+func _handle_overlap_validation(_area: MapLine) -> void:
 	# Same logic you used in _on_area_shape_entered
 	#print(self, " overlap with ", area)
 	pass

@@ -29,8 +29,7 @@ func _ready() -> void:
 		elif child is EnchantmentLine:
 			elines.append(child)
 
-	# Ensure children are fully ready before running update
-	call_deferred("_initialize_enchantment")
+	_initialize_enchantment()
 	# prepare tween but don’t run yet
 	tween = create_tween()
 	tween.stop()  # we’ll restart it manually
@@ -43,6 +42,7 @@ func update_enchantment() -> void:
 	"""
 	Attempt to activate the enchantment
 	"""
+	print("Updating Enchantment")
 	if Engine.is_editor_hint(): # I do not want to make material tool scripts for now, enchantment updating checks materials, so I will disable this
 		return
 
@@ -52,18 +52,20 @@ func update_enchantment() -> void:
 		if res: # True means update caused enode to activate
 			activated_nodes += 1
 
-	if activated_nodes >= enodes.size():
+	if activated_nodes >= enodes.size() and !is_activated:
 		activate_enchantment()
-	elif activated_nodes < enodes.size() and !is_activated:
+	elif activated_nodes < enodes.size() and is_activated:
 		deactivate_enchantment()
 
 
 func activate_enchantment() -> void:
+	print("Activating Enchantment")
 	is_activated = true
 	emit_signal("activated")
 	_start_glow_animation()
 
 func deactivate_enchantment() -> void:
+	print("Deactivating Enchantment")
 	is_activated = false
 	emit_signal("deactivated")
 	_stop_glow_animation()
