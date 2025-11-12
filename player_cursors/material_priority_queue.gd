@@ -7,7 +7,7 @@ extends RefCounted
 # Example: if you used `class_name MagicNode` in magic_node.gd, MagicNode is usable here.
 var PRIORITY_ORDER = [
 	ItemBox,
-	EnchantmentNode,
+	MaterialDropper,
 ]
 
 # _queues is an Array of Arrays. _queues[i] corresponds to PRIORITY_ORDER[i].
@@ -26,6 +26,7 @@ func push(item: Object) -> void:
 	for i in PRIORITY_ORDER.size():
 		var t = PRIORITY_ORDER[i]
 		if typeof(item) == typeof(t):
+			#print("Added ", item)
 			_queues[i].append(item)
 			return
 	# fallback: put into last queue

@@ -17,8 +17,9 @@ config/icon="res://placeholder_assets/icon.svg"
 
 [autoload]
 
-UtilityFunctions="*res://globals/UtilityFunctions.gd"
 SceneReferences="*res://globals/SceneReferences.gd"
+PlayerManager="*res://globals/player_manager.gd"
+UtilityFunctions="*res://globals/UtilityFunctions.gd"
 EnchantmentUpdateManager="*res://globals/enchantment_update_manager.gd"
 EnchantmentMapManager="*res://globals/enchantment_map_manager.gd"
 ConnectionsUpdateManager="*res://globals/connections_update_manager.gd"

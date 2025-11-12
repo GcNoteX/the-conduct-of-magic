@@ -5,6 +5,7 @@ class_name MaterialHolder
 """
 - Holds valid EnchantmentMaterial.
 - Provides actions to insert, remove the EnchantmentMaterial.
+- Can check if material conditions are fulfilled
 """
 
 signal material_embedded
@@ -27,17 +28,25 @@ func can_embbed_material(m: EnchantmentMaterial) -> bool:
 	- All the required material_requirements
 	- At least 1 material_requirement
 	"""
+	# Tier check
 	if embedded_material.tier < tier_requirement:
 		return false
-	
-	var is_valid = false
+
+	# No requirements = automatically valid
+	if material_requirements.is_empty():
+		return true
+
+	var has_valid := false
+
 	for requirement in material_requirements:
 		if requirement.is_material_valid(m):
-			is_valid = true
-		else:
-			if requirement.required:
-				return false
-	return is_valid
+			has_valid = true
+		elif requirement.required:
+			# If a required one fails, whole thing fails immediately
+			return false
+
+	# Only return true if at least one valid match found
+	return has_valid
 
 func embbed_material(m: EnchantmentMaterial) -> void:
 	embedded_material = m

@@ -2,7 +2,8 @@ extends Control
 class_name ItemBox
 
 """
-Represents an item and its quantity
+- Represents an item and its quantity
+- Can produce item's onto the EnchantmentMap
 """
 
 signal emptied()
@@ -34,6 +35,7 @@ func take_material() -> MapItem:
 	quantity -= 1
 	_update_box()
 	print(map_item, " created")
+	EnchantmentMapManager.add_to_enchantment_map(map_item)
 	return map_item
 
 func _update_box() -> void:
