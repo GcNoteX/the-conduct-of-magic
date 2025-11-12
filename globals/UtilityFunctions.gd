@@ -1,3 +1,4 @@
+@tool
 extends Node
 
 func get_line_length(line: Line2D) -> float:
@@ -53,3 +54,15 @@ func create_map_item(m: EnchantmentMaterial) -> MapItem:
 	var ins = preload(SceneReferences.map_item).instantiate( ) as MapItem
 	ins.e_material = m
 	return ins
+
+func clamp_sprite_size(sprite: Sprite2D, max_size: Vector2) -> void:
+	if not sprite.texture:
+		return
+
+	var tex_size = sprite.texture.get_size()
+	var scale_x = min(1.0, max_size.x / tex_size.x)
+	var scale_y = min(1.0, max_size.y / tex_size.y)
+	
+	# Uniform scaling (preserve aspect ratio)
+	var scale_factor = min(scale_x, scale_y)
+	sprite.scale = Vector2.ONE * scale_factor

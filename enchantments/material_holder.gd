@@ -58,6 +58,9 @@ func remove_material() -> EnchantmentMaterial:
 	emit_signal("material_removed")
 	return m
 
+func get_embedded_material() -> EnchantmentMaterial:
+	return embedded_material
+
 func can_material_be_activated(ctx: MaterialActivationContext) -> bool: # NOTE: What should be inserted as a parameter to check
 	"""
 	A material component can be activated if:

@@ -1,13 +1,14 @@
-[gd_scene load_steps=9 format=3 uid="uid://i4yl2fcq2sv0"]
+[gd_scene load_steps=10 format=3 uid="uid://i4yl2fcq2sv0"]
 
 [ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://map_nodes/enchantment_node.gd" id="1_8h6rx"]
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_ho12n"]
 [ext_resource type="PackedScene" uid="uid://c5ldll52gn23y" path="res://map_detectors/line_detector.tscn" id="3_a1tx1"]
+[ext_resource type="Script" uid="uid://b1giyxiyv6fla" path="res://animation_components/circulat_rotation.gd" id="3_lw3sv"]
 [ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://enchantments/material_holder.gd" id="5_ucxg0"]
 [ext_resource type="Script" uid="uid://bp8wi3h2a3fes" path="res://enchantments/material_dropper.gd" id="6_r22ex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ucxg0"]
-radius = 63.007935
+radius = 64.0
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7f72b"]
 radius = 25.0
@@ -31,6 +32,15 @@ texture = ExtResource("2_ho12n")
 self_modulate = Color(0.94939977, 0.7478145, 0, 1)
 scale = Vector2(0.7912495, 0.7912495)
 texture = ExtResource("2_ho12n")
+
+[node name="MaterialHeld" type="Sprite2D" parent="."]
+
+[node name="CircularMotionAnim" type="Node" parent="MaterialHeld" node_paths=PackedStringArray("sprite")]
+script = ExtResource("3_lw3sv")
+radius = 32.0
+speed = 0.2
+sprite = NodePath("..")
+metadata/_custom_type_script = "uid://b1giyxiyv6fla"
 
 [node name="LineDetector" parent="." instance=ExtResource("3_a1tx1")]
 types = 6

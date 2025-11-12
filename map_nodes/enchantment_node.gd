@@ -11,14 +11,23 @@ class_name EnchantmentNode
 
 @onready var line_detector: LineDetector = $LineDetector
 @onready var material_component: MaterialHolder = $MaterialHolder
+@onready var material_held: Sprite2D = $MaterialHeld
+@onready var material_holder: MaterialHolder = $MaterialHolder
+
+"""Animations"""
+@onready var circular_motion_anim: CircularMotionAnim = $MaterialHeld/CircularMotionAnim
 
 var is_activated: bool = false
+
+const material_display_size: Vector2 = Vector2(64, 64)
 
 func _ready() -> void:
 	_initialize_node()
 	bounded_identity = get_parent()
 	assert(bounded_identity is Enchantment, " EchantmentNode must have Enchantment as a parent")
-
+	
+	update_material_sprite()
+	
 func update_bounded_identity() -> void:
 	bounded_identity = get_parent()
 
@@ -74,18 +83,29 @@ func _deactivate_node() -> void:
 	self.modulate =Color(1, 1, 1, 1.0)
 
 
+
 """
 Handling Material
 """
 
 func _on_material_holder_material_embedded() -> void:
 	update_activation()
+	update_material_sprite()
 
 
 func _on_material_holder_material_removed() -> void:
 	update_activation()
+	update_material_sprite()
 
-
+func update_material_sprite() -> void:
+	var m = material_holder.get_embedded_material()
+	if m == null:
+		material_held.texture = null
+		circular_motion_anim.set_sprite(material_held)
+		return
+	material_held.texture = m.material_sprite
+	UtilityFunctions.clamp_sprite_size(material_held, material_display_size)
+	circular_motion_anim.set_sprite(material_held)
 """
 Handling Cursors
 """

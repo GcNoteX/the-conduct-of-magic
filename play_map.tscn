@@ -1,22 +1,24 @@
-[gd_scene load_steps=11 format=3 uid="uid://bl31wi5ugns5h"]
+[gd_scene load_steps=13 format=3 uid="uid://bl31wi5ugns5h"]
 
 [ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="2_u2jdw"]
+[ext_resource type="Texture2D" uid="uid://bhwnh1km0su5" path="res://placeholder_assets/lighting.png" id="3_2hmcn"]
 [ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantables/item1.tscn" id="3_d7kya"]
 [ext_resource type="PackedScene" uid="uid://dma3s717a2gbn" path="res://enchantments/enchantments/e1.tscn" id="3_i2ton"]
+[ext_resource type="Texture2D" uid="uid://c3sod6mr1pqw1" path="res://placeholder_assets/icon.svg" id="4_nn7c1"]
 [ext_resource type="PackedScene" uid="uid://cw4cqcq7aeu2c" path="res://player_cursors/material_cursor.tscn" id="5_c3ttq"]
 [ext_resource type="PackedScene" uid="uid://cq43qfwuu7nfu" path="res://map_lines/magic_line.tscn" id="5_u2jdw"]
 [ext_resource type="PackedScene" uid="uid://dt2a4gmtbpdbw" path="res://map_item/test_grid.tscn" id="6_u2jdw"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_u2jdw"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2hmcn"]
 size = Vector2(2, 138.80536)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_c3ttq"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_nn7c1"]
 size = Vector2(15, 238.80536)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_2hmcn"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6l0k2"]
 size = Vector2(2, 128.47319)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_nn7c1"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y3ajy"]
 size = Vector2(15, 228.47319)
 
 [node name="PlayMap" type="Node"]
@@ -36,22 +38,42 @@ mapnode_connections = {
 NodePath("../EnchantmentNode2"): 1
 }
 
+[node name="MaterialHeld" parent="EnchantmentMap/E1/EnchantmentNode" index="3"]
+texture = ExtResource("3_2hmcn")
+
+[node name="CircularMotionAnim" parent="EnchantmentMap/E1/EnchantmentNode/MaterialHeld" index="0"]
+center_position = Vector2(-11.981816, 2.2448087)
+
 [node name="EnchantmentNode2" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections")]
 mapnode_connections = {
 NodePath("../EnchantmentNode3"): 1
 }
 
+[node name="MaterialHeld" parent="EnchantmentMap/E1/EnchantmentNode2" index="3"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_nn7c1")
+
+[node name="CircularMotionAnim" parent="EnchantmentMap/E1/EnchantmentNode2/MaterialHeld" index="0"]
+center_position = Vector2(-11.981816, 2.2448087)
+
+[node name="MaterialHeld" parent="EnchantmentMap/E1/EnchantmentNode3" index="3"]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("4_nn7c1")
+
+[node name="CircularMotionAnim" parent="EnchantmentMap/E1/EnchantmentNode3/MaterialHeld" index="0"]
+center_position = Vector2(-11.981816, 2.2448087)
+
 [node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine" index="1"]
-shape = SubResource("RectangleShape2D_u2jdw")
-
-[node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine" index="2"]
-shape = SubResource("RectangleShape2D_c3ttq")
-
-[node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="1"]
 shape = SubResource("RectangleShape2D_2hmcn")
 
-[node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="2"]
+[node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine" index="2"]
 shape = SubResource("RectangleShape2D_nn7c1")
+
+[node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="1"]
+shape = SubResource("RectangleShape2D_6l0k2")
+
+[node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="2"]
+shape = SubResource("RectangleShape2D_y3ajy")
 
 [node name="Item1" parent="EnchantmentMap" instance=ExtResource("3_d7kya")]
 position = Vector2(133, -48)
