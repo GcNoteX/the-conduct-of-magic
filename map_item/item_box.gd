@@ -1,4 +1,4 @@
-extends Control
+extends AspectRatioContainer
 class_name ItemBox
 
 """
@@ -11,14 +11,18 @@ signal emptied()
 @export var item: EnchantmentMaterial
 @export var quantity: int
 
-@onready var label: Label = $AspectRatioContainer/Label
-@onready var texture_rect: TextureRect = $AspectRatioContainer/TextureRect
-@onready var collision_shape_2d: CollisionShape2D = $AspectRatioContainer/Area2D/CollisionShape2D
+@onready var box_body: PanelContainer = %BoxBody
+@onready var item_icon: TextureRect = %ItemIcon
+@onready var quantity_label: Label = %QuantityLabel
+@onready var physical_area: ItemBoxArea = %PhysicalArea
+@onready var physical_hitbox: CollisionShape2D = %PhysicalHitbox
 
 func _ready() -> void:
 	fill(item, quantity)
-	var shape = collision_shape_2d.shape as RectangleShape2D
-	shape.size = self.size * scale
+	if physical_hitbox and physical_hitbox.shape:
+		# Duplicate so we don't modify a shared resource
+		physical_hitbox.shape = physical_hitbox.shape.duplicate()
+		_on_box_body_resized()
 
 func fill(i: EnchantmentMaterial, q: int) -> void:
 	item = i
@@ -26,7 +30,7 @@ func fill(i: EnchantmentMaterial, q: int) -> void:
 	quantity = q
 	
 	_update_box()
-	texture_rect.texture = item.material_sprite
+	item_icon.texture = item.material_sprite
 
 func take_material() -> MapItem:
 	if quantity <= 0:
@@ -35,7 +39,6 @@ func take_material() -> MapItem:
 	quantity -= 1
 	_update_box()
 	print(map_item, " created")
-	EnchantmentMapManager.add_to_enchantment_map(map_item)
 	return map_item
 
 func _update_box() -> void:
@@ -45,8 +48,22 @@ func _update_box() -> void:
 		emit_signal("emptied")
 
 func _update_label() -> void:
-	label.text = "x" + str(quantity)
+	quantity_label.text = "x" + str(quantity)
 
 func disable_box() -> void:
 	pass
 	
+
+func _on_box_body_resized() -> void:
+	if physical_area and physical_hitbox and physical_hitbox.shape:
+		# Get the global rectangle of the panel container
+		var global_rect = box_body.get_global_rect()
+
+		# Set the collision shape size to match the panel
+		physical_hitbox.shape.size = global_rect.size
+
+		# Center the Area2D on the panel
+		physical_area.global_position = global_rect.position + global_rect.size / 2
+
+		#print("Physical hitbox updated to ", physical_hitbox.shape.size)
+		#print("Physical area centered at ", physical_area.global_position)

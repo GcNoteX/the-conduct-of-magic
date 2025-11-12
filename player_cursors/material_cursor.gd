@@ -23,8 +23,11 @@ func _physics_process(_delta: float) -> void:
 		var obj = selection_manager.peek()
 		#print("SM: ", selection_manager._queues)
 		if obj and obj.has_method("take_material"):
-			var m = obj.take_material()
-			if m is MapItem or m == null:
+			var m = obj.take_material() as MapItem
+			if m is MapItem:
+				EnchantmentMapManager.add_to_enchantment_map(m, global_position)
+				controlled_item = m
+			elif m == null:
 				controlled_item = m
 			else:
 				push_warning("take_material() should return a MapItem or null!")

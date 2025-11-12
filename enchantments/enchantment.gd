@@ -42,7 +42,7 @@ func update_enchantment() -> void:
 	"""
 	Attempt to activate the enchantment
 	"""
-	print("Updating Enchantment")
+	#print("Updating Enchantment")
 	if Engine.is_editor_hint(): # I do not want to make material tool scripts for now, enchantment updating checks materials, so I will disable this
 		return
 
@@ -59,13 +59,13 @@ func update_enchantment() -> void:
 
 
 func activate_enchantment() -> void:
-	print("Activating Enchantment")
+	#print("Activating Enchantment")
 	is_activated = true
 	emit_signal("activated")
 	_start_glow_animation()
 
 func deactivate_enchantment() -> void:
-	print("Deactivating Enchantment")
+	#print("Deactivating Enchantment")
 	is_activated = false
 	emit_signal("deactivated")
 	_stop_glow_animation()
