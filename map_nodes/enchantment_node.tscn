@@ -48,8 +48,9 @@ types = 6
 [node name="CollisionShape2D" type="CollisionShape2D" parent="LineDetector"]
 shape = SubResource("CircleShape2D_7f72b")
 
-[node name="MaterialHolder" type="Node" parent="."]
+[node name="MaterialHolder" type="Node" parent="." node_paths=PackedStringArray("material_holder_owner")]
 script = ExtResource("5_ucxg0")
+material_holder_owner = NodePath("..")
 metadata/_custom_type_script = "uid://dewbiy3a2acnp"
 
 [node name="MaterialDropper" type="Area2D" parent="." node_paths=PackedStringArray("holder")]

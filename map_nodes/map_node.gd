@@ -28,7 +28,7 @@ func _ready() -> void:
 func _initialize_node() -> void:
 	mapnode_connections.clear()
 	mapline_connections.clear()
-	self.connections_updated.connect(ConnectionsUpdateManager._on_MapNode_connections_updated)
+	self.connections_updated.connect(EmapUpdateManager._on_MapNode_connections_updated)
 
 """
 Utilities

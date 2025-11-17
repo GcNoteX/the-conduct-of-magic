@@ -9,6 +9,8 @@ class_name EnchantmentNode
 - Can connect to EnchantmentLine's unlimitedly
 """
 
+signal embedded_material_changed(m: MapNode)
+
 @onready var line_detector: LineDetector = $LineDetector
 @onready var material_component: MaterialHolder = $MaterialHolder
 @onready var material_held: Sprite2D = $MaterialHeld
@@ -25,6 +27,7 @@ func _ready() -> void:
 	_initialize_node()
 	bounded_identity = get_parent()
 	assert(bounded_identity is Enchantment, " EchantmentNode must have Enchantment as a parent")
+	embedded_material_changed.connect(EmapUpdateManager._on_vertex_material_changed)
 	
 	update_material_sprite()
 	
@@ -54,6 +57,9 @@ func _on_line_connector_invalid_line_type_detected(l: MapLine) -> void:
 	# Destroys invalid 
 	l.kill_line()
 
+func update() -> void:
+	update_activation()
+	update_material_sprite()
 
 """
 Handling Activation
@@ -64,7 +70,8 @@ func update_activation() -> bool:
 	var ctx = MaterialActivationContext.new(self)
 	if material_component.can_material_be_activated(ctx):
 		#print("Material activated! Activating node:")
-		_activate_node()
+		if !is_activated:
+			_activate_node()
 		return true
 	else:
 		#print("Material not activated.")
@@ -87,15 +94,13 @@ func _deactivate_node() -> void:
 """
 Handling Material
 """
-
 func _on_material_holder_material_embedded() -> void:
-	update_activation()
-	update_material_sprite()
+	emit_signal("embedded_material_changed", self)
 
 
 func _on_material_holder_material_removed() -> void:
-	update_activation()
-	update_material_sprite()
+	emit_signal("embedded_material_changed", self)
+
 
 func update_material_sprite() -> void:
 	var m = material_holder.get_embedded_material()
@@ -117,7 +122,7 @@ func handle_drag_out(c: EnchantmentCursor) -> void:
 			var l: MagicLine = preload(SceneReferences.magic_line).instantiate()
 			l.start = self
 			# Draw the line from this node
-			EnchantmentMapManager.call_deferred("add_to_enchantment_map", l)
+			EmapUpdateManager.call_deferred("add_to_enchantment_map", l, global_position)
 			# Attach it to the DrawCursor
 			l.locked.connect(c._on_MagicLine_locked)
 			c.controlled_line = l

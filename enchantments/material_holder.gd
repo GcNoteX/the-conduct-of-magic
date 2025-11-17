@@ -11,6 +11,8 @@ class_name MaterialHolder
 signal material_embedded
 signal material_removed
 
+@export var material_holder_owner: MapNode
+
 var sealed = false ## An attribute to dictate whether the embedded_material can be removed and returned, or just removed.
 @export var embedded_material: EnchantmentMaterial = null
 
@@ -20,6 +22,10 @@ var sealed = false ## An attribute to dictate whether the embedded_material can 
 ## checks the material_attributes attribute of EnchantmentMaterial
 @export var material_requirements: Array[MaterialCondition]
 
+
+
+func _ready() -> void:
+	assert(material_holder_owner, " Material Holder needs an owner! ")
 
 func can_embbed_material(m: EnchantmentMaterial) -> bool:
 	"""

@@ -9,7 +9,9 @@ var controlled_item: MapItem = null
 var selection_manager: MaterialPriorityQueue = MaterialPriorityQueue.new()
 
 func _ready() -> void:
-	unhandled_MapItem_released.connect(EnchantmentMapManager._on_unhandled_MapItem)
+	unhandled_MapItem_released.connect(EmapUpdateManager.handle_unhandled_map_item)
+	if !enabled:
+		disable_cursor()
 
 func _process(_delta: float) -> void:
 	global_position = get_global_mouse_position()
@@ -25,7 +27,7 @@ func _physics_process(_delta: float) -> void:
 		if obj and obj.has_method("take_material"):
 			var m = obj.take_material() as MapItem
 			if m is MapItem:
-				EnchantmentMapManager.add_to_enchantment_map(m, global_position)
+				EmapUpdateManager.add_to_enchantment_map(m, global_position)
 				controlled_item = m
 			elif m == null:
 				controlled_item = m
@@ -46,7 +48,7 @@ func _physics_process(_delta: float) -> void:
 		elif res == false and controlled_item: # i.e. the MapItem was not used for something
 			emit_signal("unhandled_MapItem_released", controlled_item)
 		controlled_item = null
-		
+
 
 func _on_area_entered(area: Area2D) -> void:
 	if area is ItemBoxArea:

@@ -20,12 +20,16 @@ var controlled_line: MagicLine = null
 
 var selection_manager: MapPriorityQueue = MapPriorityQueue.new()
 
+func _ready() -> void:
+	if !enabled:
+		disable_cursor()
+
 func _process(_delta: float) -> void:
 	global_position = get_global_mouse_position()
 
 func _physics_process(_delta: float) -> void:
 	if controlled_line and controlled_line.initialized:
-		controlled_line.stretch_line(position - controlled_line.position)
+		controlled_line.stretch_line(global_position - controlled_line.global_position)
 	
 	# Letting go of a line destroys it
 	if Input.is_action_just_released("left_click"):

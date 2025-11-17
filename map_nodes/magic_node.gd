@@ -89,7 +89,7 @@ func handle_drag_out(c: EnchantmentCursor) -> void:
 			l.start = self
 			#print("Magic Line Created: ", l)
 			# Draw the line from this node
-			EnchantmentMapManager.call_deferred("add_to_enchantment_map", l)
+			EmapUpdateManager.call_deferred("add_to_enchantment_map", l, global_position)
 			# Attach it to the DrawCursor
 			l.locked.connect(c._on_MagicLine_locked)
 			c.controlled_line = l

@@ -48,8 +48,8 @@ func update_enchantment() -> void:
 
 	var activated_nodes = 0
 	for node in enodes:
-		var res = node.update_activation()
-		if res: # True means update caused enode to activate
+		node.update()
+		if node.is_activated: # True means update caused enode to activate
 			activated_nodes += 1
 
 	if activated_nodes >= enodes.size() and !is_activated:
