@@ -1,12 +1,13 @@
 @abstract class_name EnchantmentCursor extends Area2D
 
+
 @export var enabled: bool = true
 
 func enable_cursor() -> void:
 	if enabled:
 		push_warning("Cursor already enabled!")
-		return
-
+		#return
+	#print("Enabling", self)
 	enabled = true
 	visible = true
 	monitoring = true
@@ -17,8 +18,8 @@ func enable_cursor() -> void:
 func disable_cursor() -> void:
 	if not enabled:
 		push_warning("Cursor already disabled!")
-		return
-
+		#return
+	#print("Disabling", self)
 	enabled = false
 	visible = false
 	monitoring = false

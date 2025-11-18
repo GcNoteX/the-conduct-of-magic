@@ -48,7 +48,14 @@ func _physics_process(_delta: float) -> void:
 		elif res == false and controlled_item: # i.e. the MapItem was not used for something
 			emit_signal("unhandled_MapItem_released", controlled_item)
 		controlled_item = null
-
+	
+	if Input.is_action_just_pressed("right_click"):
+		var o = selection_manager.peek()
+		if o is MaterialDropper:
+			# Pop the material
+			var m = o.remove_material()
+			# Pass back to player
+			PlayerManager.add_material(m)
 
 func _on_area_entered(area: Area2D) -> void:
 	if area is ItemBoxArea:
