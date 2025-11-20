@@ -90,9 +90,9 @@ start = NodePath("../Item1/MagicNode4")
 end = NodePath("../E1/EnchantmentNode2")
 
 [node name="MaterialCursor" parent="." instance=ExtResource("5_c3ttq")]
+enabled = false
 
 [node name="DrawCursor" parent="." instance=ExtResource("8_nn7c1")]
-enabled = false
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
