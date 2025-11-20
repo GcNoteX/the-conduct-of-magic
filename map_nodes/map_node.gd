@@ -89,7 +89,9 @@ func add_line_connection(l: MapLine) -> void:
 
 func remove_line_connection(l: MapLine) -> void:
 	if not mapline_connections.has(l):
-		push_warning("Attempted to remove line %s that is not connected" % str(l))
+		## WARNING: Sometimes this is called because delete line is called multiple times
+		## since collision is detected by specific area and not just area entered
+		push_warning("Attempted to remove line %s from %s that is not connected" % [str(l), str(self)])
 		return
 
 	mapline_connections.erase(l)
