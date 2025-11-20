@@ -9,6 +9,9 @@ extends Node
 # Internal player instance (do not access directly outside this class)
 var _player: Player = null
 
+func _ready() -> void:
+	if Mocker.is_mocking:
+		_player = Mocker.player
 
 # ────────────────────────────────────────────────
 # 🧍 PLAYER MANAGEMENT
@@ -47,8 +50,8 @@ func add_material(material: EnchantmentMaterial, amount: int = 1) -> void:
 		_player.material_inventory[material] = 0
 
 	_player.material_inventory[material] += amount
-	print("Added %d × %s" % [amount, str(material)])
-
+	#print("Added %d × %s" % [amount, str(material.material_id)])
+	#print(get_inventory())
 
 ## Removes a given amount of material from the player's inventory.
 ## If the amount exceeds what is owned, it will clamp to 0 and issue a warning.

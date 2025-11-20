@@ -38,7 +38,7 @@ func take_material() -> MapItem:
 	var map_item := UtilityFunctions.create_map_item(item)
 	quantity -= 1
 	_update_box()
-	print(map_item, " created")
+	#print(map_item, " created")
 	return map_item
 
 func _update_box() -> void:

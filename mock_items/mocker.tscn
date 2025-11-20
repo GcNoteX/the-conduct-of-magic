@@ -1,0 +1,20 @@
+[gd_scene load_steps=7 format=3 uid="uid://b7yfk3aukrwuc"]
+
+[ext_resource type="Script" uid="uid://b8bg2lc37ba4p" path="res://mock_items/mocker.gd" id="1_6gjsj"]
+[ext_resource type="Script" uid="uid://xed2d81iu1my" path="res://enchantments/enchantment_material.gd" id="2_3i25t"]
+[ext_resource type="Resource" uid="uid://edjx4fwr6cr8" path="res://enchantments/enchantment_materials/blue_stone.tres" id="3_3t2bm"]
+[ext_resource type="Resource" uid="uid://dh646e83nxwig" path="res://enchantments/enchantment_materials/red_stone.tres" id="4_5baoj"]
+[ext_resource type="Script" uid="uid://bwfg4bqcl7m8v" path="res://player.gd" id="5_7to0r"]
+
+[sub_resource type="Resource" id="Resource_2dprn"]
+script = ExtResource("5_7to0r")
+material_inventory = Dictionary[ExtResource("2_3i25t"), int]({
+ExtResource("3_3t2bm"): 3,
+ExtResource("4_5baoj"): 3
+})
+metadata/_custom_type_script = "uid://bwfg4bqcl7m8v"
+
+[node name="Mocker" type="Node"]
+script = ExtResource("1_6gjsj")
+is_mocking = true
+player = SubResource("Resource_2dprn")

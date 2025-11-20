@@ -1,7 +1,7 @@
-extends RefCounted
+extends Resource
 class_name Player
 
-var material_inventory: Dictionary[EnchantmentMaterial, int] = {}
+@export var material_inventory: Dictionary[EnchantmentMaterial, int] = {}
 
 func add_material(mat: EnchantmentMaterial, amount: int = 1) -> void:
 	if mat == null:

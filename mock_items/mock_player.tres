@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="Player" load_steps=5 format=3 uid="uid://q2wfvew1eol2"]
+
+[ext_resource type="Script" uid="uid://xed2d81iu1my" path="res://enchantments/enchantment_material.gd" id="1_h8ibo"]
+[ext_resource type="Script" uid="uid://bwfg4bqcl7m8v" path="res://player.gd" id="1_o85vp"]
+[ext_resource type="Resource" uid="uid://edjx4fwr6cr8" path="res://enchantments/enchantment_materials/blue_stone.tres" id="2_vwhma"]
+[ext_resource type="Resource" uid="uid://dh646e83nxwig" path="res://enchantments/enchantment_materials/red_stone.tres" id="3_lam14"]
+
+[resource]
+script = ExtResource("1_o85vp")
+material_inventory = Dictionary[ExtResource("1_h8ibo"), int]({
+ExtResource("2_vwhma"): 3,
+ExtResource("3_lam14"): 3
+})
+metadata/_custom_type_script = "uid://bwfg4bqcl7m8v"

@@ -16,9 +16,9 @@ func insert_material(m: EnchantmentMaterial) -> bool:
 	
 	if holder.can_embbed_material(m):
 		holder.embbed_material(m)
-		print("Holder took material")
+		#print("Holder took material")
 		return true
-	print("Holder did not take material")
+	#print("Holder did not take material")
 	return false 
 
 func remove_material() -> EnchantmentMaterial:

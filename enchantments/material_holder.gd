@@ -35,7 +35,7 @@ func can_embbed_material(m: EnchantmentMaterial) -> bool:
 	- At least 1 material_requirement
 	"""
 	# Tier check
-	if embedded_material.tier < tier_requirement:
+	if m.tier < tier_requirement:
 		return false
 
 	# No requirements = automatically valid

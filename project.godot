@@ -18,6 +18,7 @@ config/icon="res://placeholder_assets/icon.svg"
 [autoload]
 
 SceneReferences="*res://globals/SceneReferences.gd"
+Mocker="*res://mock_items/mocker.tscn"
 PlayerManager="*res://globals/player_manager.gd"
 UtilityFunctions="*res://globals/UtilityFunctions.gd"
 EmapUpdateManager="*res://globals/emap_update_manager.gd"

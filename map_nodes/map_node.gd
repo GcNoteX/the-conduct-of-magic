@@ -151,19 +151,23 @@ func passes_base_conditions(l: MapLine) -> bool:
 	var has_cap = has_capacity()
 	var is_self = l.start == self
 	#print("Is Duplicate: ", is_duplicate, ". Has Capacity: ", has_cap)
+	#print("Connections: ", mapline_connections)
 	return !is_duplicate and has_cap and !is_self
 
 ## If two lines share the same start and end
 func is_duplicate_line(l: MapLine) -> bool:
-	# Prevent Exact duplicate mapnode_connections (ignore direction)
+	var l_start = l.start
+
+	if l_start == null:
+		return false  # prevent errors when the line has no start yet
+
 	for line in mapline_connections:
-		var a_start = l.start
-		var a_end = l.end
-		var b_start = line.start
-		var b_end = line.end
-		if (a_start == b_start and a_end == b_end) or (a_start == b_end and a_end == b_start):
+		# If any existing line touches the same start node
+		if line.start == l_start or line.end == l_start:
 			return true
+
 	return false
+
 
 func has_capacity() -> bool:
 	#if is_unlimited_capacity or mapline_connections.size() < max_capacity: print("Has capacity")
