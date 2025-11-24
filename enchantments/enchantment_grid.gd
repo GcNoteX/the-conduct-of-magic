@@ -94,11 +94,11 @@ func disable_detection():
 	_disable_area(self)
 
 	for n in enodes:
-		print("disabling", n)
+		#print("disabling", n)
 		n.disable_detection()
 
 	for l in elines:
-		print("disabling", l)
+		#print("disabling", l)
 		_disable_area(l)
 
 
@@ -106,11 +106,11 @@ func enable_detection():
 	_enable_area(self)
 
 	for n in enodes:
-		print("Enabling" , n)
+		#print("Enabling" , n)
 		n.enable_detection()
 
 	for l in elines:
-		print("Enabling", l)
+		#print("Enabling", l)
 		_enable_area(l)
 
 
