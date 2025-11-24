@@ -61,9 +61,9 @@ func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 		return
 	#print("Passed base conditions")
 
-	## Condition1: If both identities are bound to an Enchantment, they cannot be different
-	if bounded_identity is Enchantment and \
-		l.bounded_identity is Enchantment and \
+	## Condition1: If both identities are bound to an EnchantmentGrid, they cannot be different
+	if bounded_identity is EnchantmentGrid and \
+		l.bounded_identity is EnchantmentGrid and \
 		l.bounded_identity != bounded_identity:
 		
 		l.kill_line()

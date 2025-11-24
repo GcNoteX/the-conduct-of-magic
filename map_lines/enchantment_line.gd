@@ -9,20 +9,20 @@ extends MapLine
 func _ready() -> void:
 	_initialize_line()
 	bounded_identity = get_parent()
-	assert(bounded_identity is Enchantment, " EchantmentLine must have Enchantment as a parent")
+	assert(bounded_identity is EnchantmentGrid, " EchantmentLine must have EnchantmentGrid as a parent")
 
 func update_bounded_identity() -> void:
 	bounded_identity = get_parent()
 
 func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
 	"""
-	EnchantmentLine's are created by the Coder, only moved around as an Enchantment
+	EnchantmentLine's are created by the Coder, only moved around as an EnchantmentGrid
 	When an EnchantmentLine Overlaps with:
-		EnchantmentLine of Enchantment -> Nothing
-		EnchantmentNode of Enchantment -> Invalid except owner (This is on Coder to not happen)
+		EnchantmentLine of EnchantmentGrid -> Nothing
+		EnchantmentNode of EnchantmentGrid -> Invalid except owner (This is on Coder to not happen)
 		
-		EnchantmentLine of Other Enchantment -> Invalid
-		EnchantmentNode of Other Enchantment -> Invalid
+		EnchantmentLine of Other EnchantmentGrid -> Invalid
+		EnchantmentNode of Other EnchantmentGrid -> Invalid
 	"""
 	if area is MagicLine:
 		if area.end: # Lines that have both a start (implicit) and end are not touched

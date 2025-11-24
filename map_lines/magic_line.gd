@@ -40,13 +40,13 @@ func update_bounded_identity() -> void:
 func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int) -> void:
 	"""
 	When an MagicLine Overlaps with:
-		EnchantmentLine of Enchantment -> Nothing
-		EnchantmentNode of Enchantment -> Invalid except owner (This is on Coder to not happen)
-		MagicLine of Enchantment -> Destroy MagicLine
+		EnchantmentLine of EnchantmentGrid -> Nothing
+		EnchantmentNode of EnchantmentGrid -> Invalid except owner (This is on Coder to not happen)
+		MagicLine of EnchantmentGrid -> Destroy MagicLine
 		
-		EnchantmentLine of Other Enchantment -> Invalid
-		EnchantmentNode of Other Enchantment -> Invalid
-		MagicLine of Other Enchantment -> Okay
+		EnchantmentLine of Other EnchantmentGrid -> Invalid
+		EnchantmentNode of Other EnchantmentGrid -> Invalid
+		MagicLine of Other EnchantmentGrid -> Okay
 		MagicNode of Item Map -> Invalid
 	"""
 	if area is MagicLine:

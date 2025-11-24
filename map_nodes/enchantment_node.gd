@@ -26,7 +26,7 @@ const material_display_size: Vector2 = Vector2(64, 64)
 func _ready() -> void:
 	_initialize_node()
 	bounded_identity = get_parent()
-	assert(bounded_identity is Enchantment, " EchantmentNode must have Enchantment as a parent")
+	assert(bounded_identity is EnchantmentGrid, " EchantmentNode must have EnchantmentGrid as a parent")
 	embedded_material_changed.connect(EmapUpdateManager._on_vertex_material_changed)
 	
 	update_material_sprite()
@@ -43,8 +43,8 @@ func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
 		l.kill_line()
 		return
 	
-	## Condition1: EnchantmentNode does not allow a line from a different Enchantment
-	if l.bounded_identity is Enchantment and \
+	## Condition1: EnchantmentNode does not allow a line from a different EnchantmentGrid
+	if l.bounded_identity is EnchantmentGrid and \
 		l.bounded_identity != bounded_identity:
 		#print("Failed Condition2")
 		l.kill_line()
