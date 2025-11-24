@@ -18,14 +18,17 @@ The cursor needs to know what map entity it is hovering over and what component 
 var magic_line: PackedScene = preload(SceneReferences.magic_line)
 var controlled_line: MagicLine = null
 
-var selection_manager: MapPriorityQueue = MapPriorityQueue.new()
+#var selection_manager: MapPriorityQueue = MapPriorityQueue.new()
 
 func _ready() -> void:
+	selection_manager.set_priority_order([
+		MagicNode,
+		EnchantmentNode,
+		MagicLine,
+		EnchantmentLine,
+	])
 	if !enabled:
 		disable_cursor()
-
-func _process(_delta: float) -> void:
-	global_position = get_global_mouse_position()
 
 func _physics_process(_delta: float) -> void:
 	if controlled_line and controlled_line.initialized:

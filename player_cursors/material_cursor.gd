@@ -6,15 +6,16 @@ signal unhandled_MapItem_released(i: MapItem)
 var magic_line: PackedScene = preload(SceneReferences.magic_line)
 var controlled_item: MapItem = null
 
-var selection_manager: MaterialPriorityQueue = MaterialPriorityQueue.new()
+#var selection_manager: MaterialPriorityQueue = MaterialPriorityQueue.new()
 
 func _ready() -> void:
+	selection_manager.set_priority_order([
+		ItemBox,
+		MaterialDropper,
+	])
 	unhandled_MapItem_released.connect(EmapUpdateManager.handle_unhandled_map_item)
 	if !enabled:
 		disable_cursor()
-
-func _process(_delta: float) -> void:
-	global_position = get_global_mouse_position()
 
 func _physics_process(_delta: float) -> void:
 	if controlled_item:

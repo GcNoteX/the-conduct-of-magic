@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3 uid="uid://c0gu4rlb2x3e7"]
+
+[ext_resource type="PackedScene" uid="uid://dprf6vqlwia05" path="res://map_item/enchantment_box.tscn" id="1_v2ewn"]
+[ext_resource type="Resource" uid="uid://dasuitd031xql" path="res://enchantments/enchantments/e1.tres" id="2_pokpe"]
+[ext_resource type="Resource" uid="uid://b8ek7xqi5k7j0" path="res://enchantments/enchantments/e2.tres" id="3_s3qlw"]
+
+[node name="TestEgrid" type="GridContainer"]
+offset_right = 187.0
+offset_bottom = 183.0
+columns = 2
+
+[node name="EnchantmentBox" parent="." instance=ExtResource("1_v2ewn")]
+layout_mode = 2
+enchantment = ExtResource("2_pokpe")
+
+[node name="EnchantmentBox2" parent="." instance=ExtResource("1_v2ewn")]
+layout_mode = 2
+enchantment = ExtResource("3_s3qlw")
+
+[editable path="EnchantmentBox"]

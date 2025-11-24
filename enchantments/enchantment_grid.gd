@@ -1,6 +1,6 @@
 @tool
 class_name EnchantmentGrid
-extends Node2D
+extends Area2D
 
 """
 - The grid of an Enchantment in the form of a Map
@@ -8,8 +8,6 @@ extends Node2D
 
 signal activated
 signal deactivated
-
-@export var enchant_name: String = "NULL"
 
 @export var enodes: Array[EnchantmentNode] = []
 @export var elines: Array[EnchantmentLine] = []
