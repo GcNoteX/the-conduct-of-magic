@@ -146,6 +146,8 @@ Overlap Handling
 
 ## Re-check all current overlaps manually
 func validate_current_overlaps() -> void:
+	if !monitoring:
+		return
 	var overlaps := get_overlapping_areas()
 	for area in overlaps:
 		# Skip invalid or freed references

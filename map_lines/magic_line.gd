@@ -62,7 +62,9 @@ func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int,
 			# This specific collision just has better feeling to it.
 			if local_shape_node == collision_shape and other_shape_node == area.collision_shape:
 				if MagicLine.maplines_share_identity(self, area):
+					#print(self, " kill ", area)
 					area.kill_line()
 		else:
 			if MagicLine.maplines_share_identity(self, area):
+				#print(self, " kill ", area)
 				area.kill_line()

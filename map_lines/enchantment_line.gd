@@ -34,7 +34,9 @@ func _on_area_shape_entered(_area_rid: RID, area: Area2D, area_shape_index: int,
 		if UtilityFunctions._are_adjacent_lines(self, area): ## Use smaller collision shapes only for same source MapNode
 			if local_shape_node == collision_shape and other_shape_node == area.collision_shape: # Their colliding boxes hit
 				if MagicLine.maplines_share_identity(self, area):
+					#print(self, " kill ", area)
 					area.kill_line()
 		else:
 			if MagicLine.maplines_share_identity(self, area):
+				#print(self, " kill ", area)
 				area.kill_line()

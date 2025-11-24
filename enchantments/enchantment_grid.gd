@@ -86,3 +86,48 @@ func _stop_glow_animation() -> void:
 	if tween:
 		tween.kill()
 	modulate = Color(1, 1, 1)  # reset to normal brightness
+
+"""
+Area control
+"""
+func disable_detection():
+	_disable_area(self)
+
+	for n in enodes:
+		print("disabling", n)
+		n.disable_detection()
+
+	for l in elines:
+		print("disabling", l)
+		_disable_area(l)
+
+
+func enable_detection():
+	_enable_area(self)
+
+	for n in enodes:
+		print("Enabling" , n)
+		n.enable_detection()
+
+	for l in elines:
+		print("Enabling", l)
+		_enable_area(l)
+
+
+# --- INTERNAL HELPERS ---
+
+func _disable_area(a: Area2D) -> void:
+	a.monitoring = false
+	a.monitorable = false
+	for shape in a.get_children():
+		if shape is CollisionShape2D:
+			shape.disabled = true
+
+
+
+func _enable_area(a: Area2D) -> void:
+	a.monitoring = true
+	a.monitorable = true
+	for shape in a.get_children():
+		if shape is CollisionShape2D:
+			shape.disabled = false

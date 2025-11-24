@@ -93,3 +93,23 @@ func handle_drag_out(c: EnchantmentCursor) -> void:
 			# Attach it to the DrawCursor
 			l.locked.connect(c._on_MagicLine_locked)
 			c.controlled_line = l
+
+"""
+Detection Handling
+"""
+
+func enable_detection() -> void:
+	monitorable = true
+	monitoring = true
+	line_detector.monitorable = true
+	line_detector.monitoring = true
+	cursor_detector.monitorable = true
+	cursor_detector.monitoring = true
+
+func disable_detection() -> void:
+	monitorable = false
+	monitoring = false
+	line_detector.monitorable = false
+	line_detector.monitoring = false
+	cursor_detector.monitorable = false
+	cursor_detector.monitoring = false

@@ -178,3 +178,12 @@ Cursor Functions
 """
 func handle_drag_out(_c: EnchantmentCursor) -> void:
 	pass
+
+
+"""
+Detection Handling
+"""
+
+@abstract func disable_detection() -> void
+
+@abstract func enable_detection() -> void

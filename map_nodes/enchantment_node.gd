@@ -12,9 +12,9 @@ class_name EnchantmentNode
 signal embedded_material_changed(m: MapNode)
 
 @onready var line_detector: LineDetector = $LineDetector
-@onready var material_component: MaterialHolder = $MaterialHolder
 @onready var material_held: Sprite2D = $MaterialHeld
 @onready var material_holder: MaterialHolder = $MaterialHolder
+@onready var material_dropper: MaterialDropper = $MaterialDropper
 
 """Animations"""
 @onready var circular_motion_anim: CircularMotionAnim = $MaterialHeld/CircularMotionAnim
@@ -68,7 +68,7 @@ Handling Activation
 ## Returns whether the node can be activated.
 func update_activation() -> bool:
 	var ctx = MaterialActivationContext.new(self)
-	if material_component.can_material_be_activated(ctx):
+	if material_holder.can_material_be_activated(ctx):
 		#print("Material activated! Activating node:")
 		if !is_activated:
 			_activate_node()
@@ -126,3 +126,23 @@ func handle_drag_out(c: EnchantmentCursor) -> void:
 			# Attach it to the DrawCursor
 			l.locked.connect(c._on_MagicLine_locked)
 			c.controlled_line = l
+
+"""
+Detectiong Handling
+"""
+
+func enable_detection() -> void:
+	monitorable = true
+	monitoring = true
+	line_detector.monitorable = true
+	line_detector.monitoring = true
+	material_dropper.monitorable = true
+	material_dropper.monitoring = true
+
+func disable_detection() -> void:
+	monitorable = false
+	monitoring = false
+	line_detector.monitorable = false
+	line_detector.monitoring = false
+	material_dropper.monitorable = false
+	material_dropper.monitoring = false

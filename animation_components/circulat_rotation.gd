@@ -16,7 +16,7 @@ func _ready() -> void:
 		set_process(false)
 		return
 	if !sprite or !sprite.texture:
-		push_warning(str(self) + " does not have a sprite/sprite texture to animate")
+		#push_warning(str(self) + " does not have a sprite/sprite texture to animate")
 		set_process(false)
 		return
 

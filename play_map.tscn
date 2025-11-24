@@ -11,16 +11,16 @@
 [ext_resource type="PackedScene" uid="uid://m7ga8fw8mglx" path="res://player_cursors/enchantment_layout_cursor.tscn" id="9_6l0k2"]
 [ext_resource type="PackedScene" uid="uid://c0gu4rlb2x3e7" path="res://map_item/test_egrid.tscn" id="9_nn7c1"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_y3ajy"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6l0k2"]
 size = Vector2(2, 138.80536)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_puqhv"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_y3ajy"]
 size = Vector2(15, 238.80536)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_cipcm"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_puqhv"]
 size = Vector2(2, 128.47319)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_i6vwt"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cipcm"]
 size = Vector2(15, 228.47319)
 
 [node name="PlayMap" type="Node"]
@@ -33,10 +33,8 @@ anchor_mode = 0
 position = Vector2(339, 284)
 script = ExtResource("2_u2jdw")
 
-[node name="E1" parent="EnchantmentMap" node_paths=PackedStringArray("enodes", "elines") instance=ExtResource("3_i2ton")]
+[node name="E1" parent="EnchantmentMap" instance=ExtResource("3_i2ton")]
 position = Vector2(582, 302)
-enodes = [NodePath("EnchantmentNode"), NodePath("EnchantmentNode2"), NodePath("EnchantmentNode3")]
-elines = [NodePath("EnchantmentLine"), NodePath("EnchantmentLine2")]
 
 [node name="EnchantmentNode" parent="EnchantmentMap/E1" index="0" node_paths=PackedStringArray("mapnode_connections")]
 mapnode_connections = {
@@ -58,16 +56,16 @@ center_position = Vector2(-11.981816, 2.2448087)
 center_position = Vector2(-11.981816, 2.2448087)
 
 [node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine" index="1"]
-shape = SubResource("RectangleShape2D_y3ajy")
+shape = SubResource("RectangleShape2D_6l0k2")
 
 [node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine" index="2"]
-shape = SubResource("RectangleShape2D_puqhv")
+shape = SubResource("RectangleShape2D_y3ajy")
 
 [node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="1"]
-shape = SubResource("RectangleShape2D_cipcm")
+shape = SubResource("RectangleShape2D_puqhv")
 
 [node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="2"]
-shape = SubResource("RectangleShape2D_i6vwt")
+shape = SubResource("RectangleShape2D_cipcm")
 
 [node name="Item1" parent="EnchantmentMap" instance=ExtResource("3_d7kya")]
 position = Vector2(133, -48)

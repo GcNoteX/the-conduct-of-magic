@@ -24,9 +24,11 @@ size = Vector2(15, 228.47319)
 radius = 92.0
 height = 625.611
 
-[node name="E1" type="Area2D"]
+[node name="E1" type="Area2D" node_paths=PackedStringArray("enodes", "elines")]
 collision_mask = 0
 script = ExtResource("1_8np31")
+enodes = [NodePath("EnchantmentNode"), NodePath("EnchantmentNode2"), NodePath("EnchantmentNode3")]
+elines = [NodePath("EnchantmentLine"), NodePath("EnchantmentLine2")]
 
 [node name="EnchantmentNode" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dmmpm")]
 position = Vector2(-192, 142)
