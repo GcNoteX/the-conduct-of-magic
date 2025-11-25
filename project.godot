@@ -79,6 +79,8 @@ cursor_toggle_emap_layout={
 
 2d_physics/layer_1="EnchantmentMapComp"
 2d_physics/layer_2="Cursor"
+2d_physics/layer_3="EnchantmentGrid"
+2d_physics/layer_4="PhysicalUIElements"
 
 [rendering]
 

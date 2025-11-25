@@ -12,6 +12,9 @@ columns = 2
 [node name="ItemBox" parent="." instance=ExtResource("1_neb30")]
 layout_mode = 2
 
+[node name="PhysicalArea" parent="ItemBox" index="1"]
+collision_layer = 8
+
 [node name="ItemBox2" parent="." instance=ExtResource("1_neb30")]
 layout_mode = 2
 item = ExtResource("2_41nwb")

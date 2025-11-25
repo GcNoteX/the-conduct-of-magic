@@ -7,7 +7,7 @@
 
 [node name="EnchantmentLayoutCursor" type="Area2D"]
 collision_layer = 2
-collision_mask = 5
+collision_mask = 12
 script = ExtResource("1_ip4lv")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

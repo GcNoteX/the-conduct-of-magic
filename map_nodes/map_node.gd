@@ -30,6 +30,11 @@ func _initialize_node() -> void:
 	mapline_connections.clear()
 	self.connections_updated.connect(EmapUpdateManager._on_MapNode_connections_updated)
 
+func kill_node() -> void:
+	for line in mapline_connections:
+		line.kill_line()
+	queue_free()
+
 """
 Utilities
 """

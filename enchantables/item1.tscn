@@ -14,4 +14,4 @@ position = Vector2(755, 306)
 position = Vector2(736, 487)
 
 [node name="MagicNode4" parent="." instance=ExtResource("1_od5fa")]
-position = Vector2(390, 474)
+position = Vector2(437, 659)

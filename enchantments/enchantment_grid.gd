@@ -13,6 +13,7 @@ signal deactivated
 @export var elines: Array[EnchantmentLine] = []
 
 var is_activated: bool = false
+var overlaps: Array[Area2D]
 
 @onready var tween: Tween = null
 
@@ -31,7 +32,15 @@ func _ready() -> void:
 	# prepare tween but don’t run yet
 	tween = create_tween()
 	tween.stop()  # we’ll restart it manually
-
+	
+	# Setup mask and layers
+	collision_layer = 1 << 2
+	collision_mask = (1 << 2) | (1 << 0)
+	
+	# Setup self signals so do not have to do it via scene
+	area_entered.connect(_on_area_entered)
+	area_exited.connect(_on_area_exited)
+	
 func _initialize_enchantment() -> void:
 	deactivate_enchantment() # Resetting ensures safe state
 	update_enchantment()
@@ -55,6 +64,12 @@ func update_enchantment() -> void:
 	elif activated_nodes < enodes.size() and is_activated:
 		deactivate_enchantment()
 
+func kill_enchantment() -> void:
+	for line in elines:
+		line.kill_line()
+	for node in enodes:
+		node.kill_node()
+	queue_free()
 
 func activate_enchantment() -> void:
 	#print("Activating EnchantmentGrid")
@@ -68,6 +83,9 @@ func deactivate_enchantment() -> void:
 	emit_signal("deactivated")
 	_stop_glow_animation()
 
+"""
+Animations
+"""
 # --- ✨ Glow Animation ---
 func _start_glow_animation() -> void:
 	if tween and tween.is_running():
@@ -91,7 +109,7 @@ func _stop_glow_animation() -> void:
 Area control
 """
 func disable_detection():
-	_disable_area(self)
+	#_disable_area(self)
 
 	for n in enodes:
 		#print("disabling", n)
@@ -101,9 +119,8 @@ func disable_detection():
 		#print("disabling", l)
 		_disable_area(l)
 
-
 func enable_detection():
-	_enable_area(self)
+	#_enable_area(self)
 
 	for n in enodes:
 		#print("Enabling" , n)
@@ -113,9 +130,6 @@ func enable_detection():
 		#print("Enabling", l)
 		_enable_area(l)
 
-
-# --- INTERNAL HELPERS ---
-
 func _disable_area(a: Area2D) -> void:
 	a.monitoring = false
 	a.monitorable = false
@@ -123,11 +137,21 @@ func _disable_area(a: Area2D) -> void:
 		if shape is CollisionShape2D:
 			shape.disabled = true
 
-
-
 func _enable_area(a: Area2D) -> void:
 	a.monitoring = true
 	a.monitorable = true
 	for shape in a.get_children():
 		if shape is CollisionShape2D:
 			shape.disabled = false
+
+func _on_area_entered(a: Area2D) -> void:
+	if self.is_ancestor_of(a):
+		return
+	overlaps.append(a)
+	#print(a)
+
+func _on_area_exited(a: Area2D) -> void:
+	if self.is_ancestor_of(a):
+		return
+	overlaps.erase(a)
+	#print(a)
