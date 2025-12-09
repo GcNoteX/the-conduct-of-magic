@@ -2,13 +2,14 @@
 
 [ext_resource type="Script" uid="uid://btc2qphff7an1" path="res://map_lines/enchantment_line.gd" id="1_u4ynd"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_u4ynd"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_26vxk"]
 size = Vector2(2, 0)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_0hdqt"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hok3i"]
 size = Vector2(15, 20)
 
 [node name="EnchantmentLine" type="Area2D" groups=["mapline"]]
+texture_filter = 1
 script = ExtResource("1_u4ynd")
 
 [node name="Line2D" type="Line2D" parent="."]
@@ -17,11 +18,11 @@ width = 15.0
 default_color = Color(1, 0.6666667, 0.27058825, 1)
 
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_u4ynd")
+shape = SubResource("RectangleShape2D_26vxk")
 debug_color = Color(0.71656, 0.481906, 0.0153196, 0.42)
 
 [node name="LineConnectingShape" type="CollisionShape2D" parent="."]
-shape = SubResource("RectangleShape2D_0hdqt")
+shape = SubResource("RectangleShape2D_hok3i")
 debug_color = Color(0.57100135, 0, 0.01736105, 0.41960785)
 
 [connection signal="area_entered" from="." to="." method="_on_area_entered"]

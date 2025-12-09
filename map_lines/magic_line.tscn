@@ -8,6 +8,7 @@ size = Vector2(0, 0)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tw4r6"]
 
 [node name="MagicLine" type="Area2D" groups=["mapline"]]
+texture_filter = 1
 script = ExtResource("1_qsp6q")
 width = 9
 collision_width_offset = 6

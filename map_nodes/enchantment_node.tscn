@@ -54,6 +54,7 @@ material_holder_owner = NodePath("..")
 metadata/_custom_type_script = "uid://dewbiy3a2acnp"
 
 [node name="MaterialDropper" type="Area2D" parent="." node_paths=PackedStringArray("holder")]
+texture_filter = 1
 script = ExtResource("6_r22ex")
 holder = NodePath("../MaterialHolder")
 metadata/_custom_type_script = "uid://bp8wi3h2a3fes"

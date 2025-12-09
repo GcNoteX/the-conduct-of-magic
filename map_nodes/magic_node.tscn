@@ -35,6 +35,7 @@ shape = SubResource("CircleShape2D_kmmj3")
 debug_color = Color(0.275169, 0.632041, 0.00243753, 0.42)
 
 [node name="EnchantmentCursorDetectionComponent" parent="." instance=ExtResource("4_kmmj3")]
+texture_filter = 1
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentCursorDetectionComponent"]
 shape = SubResource("CircleShape2D_8ufat")
