@@ -8,6 +8,7 @@ size = Vector2(0, 0)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_tw4r6"]
 
 [node name="MagicLine" type="Area2D" groups=["mapline"]]
+modulate = Color(1.8247963, 1.8247963, 1.8247963, 1)
 texture_filter = 1
 script = ExtResource("1_qsp6q")
 width = 9
@@ -16,6 +17,9 @@ collision_width_offset = 6
 [node name="Line2D" type="Line2D" parent="."]
 points = PackedVector2Array(0, 0)
 default_color = Color(3.272891e-06, 0.84903836, 0.9067024, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
 
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_qsp6q")

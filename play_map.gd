@@ -4,6 +4,8 @@ extends Node
 @onready var draw_cursor := $DrawCursor
 @onready var enchantment_layout_cursor := $EnchantmentLayoutCursor
 
+func _ready() -> void:
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
 
 func _unhandled_input(event: InputEvent) -> void:
 

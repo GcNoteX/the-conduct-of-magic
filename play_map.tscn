@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://bl31wi5ugns5h"]
+[gd_scene load_steps=16 format=3 uid="uid://bl31wi5ugns5h"]
 
 [ext_resource type="Script" uid="uid://cyxb7ftkj3gqp" path="res://play_map.gd" id="1_6l0k2"]
 [ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="2_u2jdw"]
@@ -10,6 +10,10 @@
 [ext_resource type="PackedScene" uid="uid://c8kwe0m5jf6jl" path="res://player_cursors/draw_cursor.tscn" id="8_nn7c1"]
 [ext_resource type="PackedScene" uid="uid://m7ga8fw8mglx" path="res://player_cursors/enchantment_layout_cursor.tscn" id="9_6l0k2"]
 [ext_resource type="PackedScene" uid="uid://c0gu4rlb2x3e7" path="res://map_item/test_egrid.tscn" id="9_nn7c1"]
+
+[sub_resource type="Environment" id="Environment_6l0k2"]
+background_mode = 3
+glow_blend_mode = 1
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6l0k2"]
 size = Vector2(2, 138.80536)
@@ -26,6 +30,9 @@ size = Vector2(15, 228.47319)
 [node name="PlayMap" type="Node"]
 script = ExtResource("1_6l0k2")
 
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_6l0k2")
+
 [node name="Camera2D" type="Camera2D" parent="."]
 anchor_mode = 0
 
@@ -35,9 +42,8 @@ script = ExtResource("2_u2jdw")
 
 [node name="E1" parent="EnchantmentMap" instance=ExtResource("3_i2ton")]
 position = Vector2(582, 302)
-collision_mask = 5
 
-[node name="EnchantmentNode" parent="EnchantmentMap/E1" index="0" node_paths=PackedStringArray("mapnode_connections")]
+[node name="EnchantmentNode" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections")]
 mapnode_connections = {
 NodePath("../EnchantmentNode2"): 1
 }
@@ -45,7 +51,7 @@ NodePath("../EnchantmentNode2"): 1
 [node name="CircularMotionAnim" parent="EnchantmentMap/E1/EnchantmentNode/MaterialHeld" index="0"]
 center_position = Vector2(-11.981816, 2.2448087)
 
-[node name="EnchantmentNode2" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections")]
+[node name="EnchantmentNode2" parent="EnchantmentMap/E1" index="2" node_paths=PackedStringArray("mapnode_connections")]
 mapnode_connections = {
 NodePath("../EnchantmentNode3"): 1
 }
@@ -56,11 +62,17 @@ center_position = Vector2(-11.981816, 2.2448087)
 [node name="CircularMotionAnim" parent="EnchantmentMap/E1/EnchantmentNode3/MaterialHeld" index="0"]
 center_position = Vector2(-11.981816, 2.2448087)
 
+[node name="Line2D" parent="EnchantmentMap/E1/EnchantmentLine" index="0"]
+width = 15.0
+
 [node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine" index="1"]
 shape = SubResource("RectangleShape2D_6l0k2")
 
 [node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine" index="2"]
 shape = SubResource("RectangleShape2D_y3ajy")
+
+[node name="Line2D" parent="EnchantmentMap/E1/EnchantmentLine2" index="0"]
+width = 15.0
 
 [node name="LineCollisionShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="1"]
 shape = SubResource("RectangleShape2D_puqhv")

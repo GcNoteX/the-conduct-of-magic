@@ -1,31 +1,29 @@
-[gd_scene load_steps=8 format=3 uid="uid://18q6ykut8s83"]
+[gd_scene load_steps=9 format=3 uid="uid://18q6ykut8s83"]
 
 [ext_resource type="Script" uid="uid://dpw4wuie057gj" path="res://map_nodes/magic_node.gd" id="1_tjibe"]
-[ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="1_vs4el"]
 [ext_resource type="PackedScene" uid="uid://c5ldll52gn23y" path="res://map_detectors/line_detector.tscn" id="3_1fvh5"]
+[ext_resource type="Texture2D" uid="uid://bymivv3shj02g" path="res://map_nodes/MapNodes.png" id="4_1fvh5"]
 [ext_resource type="PackedScene" uid="uid://yn0ar2af2542" path="res://map_detectors/enchantment_cursor_detection_component.tscn" id="4_kmmj3"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_thycq"]
-radius = 32.06244
+radius = 14.035668
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_kmmj3"]
 radius = 10.198
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_8ufat"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_cbuwv"]
+atlas = ExtResource("4_1fvh5")
+region = Rect2(36, 3, 24, 25)
+
 [node name="MagicNode" type="Area2D" groups=["mapnode"]]
+texture_filter = 1
+scale = Vector2(2, 2)
 script = ExtResource("1_tjibe")
 
 [node name="FullBody" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_thycq")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("1_vs4el")
-
-[node name="Sprite2D2" type="Sprite2D" parent="."]
-self_modulate = Color(0.18431373, 1, 1, 1)
-scale = Vector2(0.32, 0.32)
-texture = ExtResource("1_vs4el")
 
 [node name="LineDetector" parent="." instance=ExtResource("3_1fvh5")]
 types = 2
@@ -40,6 +38,9 @@ texture_filter = 1
 [node name="CollisionShape2D" type="CollisionShape2D" parent="EnchantmentCursorDetectionComponent"]
 shape = SubResource("CircleShape2D_8ufat")
 debug_color = Color(0.6171, 0.535833, 1.92523e-07, 0.42)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("AtlasTexture_cbuwv")
 
 [connection signal="allowed_line_type_detected" from="LineDetector" to="." method="_on_line_connector_allowed_line_type_detected"]
 [connection signal="invalid_line_type_detected" from="LineDetector" to="." method="_on_line_connector_invalid_line_type_detected"]

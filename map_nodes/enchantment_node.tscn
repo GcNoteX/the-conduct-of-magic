@@ -1,37 +1,33 @@
-[gd_scene load_steps=10 format=3 uid="uid://i4yl2fcq2sv0"]
+[gd_scene load_steps=11 format=3 uid="uid://i4yl2fcq2sv0"]
 
 [ext_resource type="Script" uid="uid://2q7kikuxvbfe" path="res://map_nodes/enchantment_node.gd" id="1_8h6rx"]
-[ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="2_ho12n"]
+[ext_resource type="Texture2D" uid="uid://bymivv3shj02g" path="res://map_nodes/MapNodes.png" id="2_lw3sv"]
 [ext_resource type="PackedScene" uid="uid://c5ldll52gn23y" path="res://map_detectors/line_detector.tscn" id="3_a1tx1"]
 [ext_resource type="Script" uid="uid://b1giyxiyv6fla" path="res://animation_components/circulat_rotation.gd" id="3_lw3sv"]
 [ext_resource type="Script" uid="uid://dewbiy3a2acnp" path="res://enchantments/material_holder.gd" id="5_ucxg0"]
 [ext_resource type="Script" uid="uid://bp8wi3h2a3fes" path="res://enchantments/material_dropper.gd" id="6_r22ex"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ucxg0"]
-radius = 64.0
+radius = 15.033297
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_7f72b"]
-radius = 25.0
+radius = 11.045361
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_rk8bf"]
-radius = 63.07139
+radius = 11.0
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nqn0d"]
+atlas = ExtResource("2_lw3sv")
+region = Rect2(1, 0, 31, 31)
 
 [node name="EnchantmentNode" type="Area2D" groups=["mapnode"]]
+texture_filter = 1
+scale = Vector2(2, 2)
 script = ExtResource("1_8h6rx")
 can_change_identity = false
 
 [node name="FullBody" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_ucxg0")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-self_modulate = Color(1, 0.701961, 0.462745, 1)
-scale = Vector2(2.03125, 2.03125)
-texture = ExtResource("2_ho12n")
-
-[node name="Sprite2D2" type="Sprite2D" parent="."]
-self_modulate = Color(0.94939977, 0.7478145, 0, 1)
-scale = Vector2(0.7912495, 0.7912495)
-texture = ExtResource("2_ho12n")
 
 [node name="MaterialHeld" type="Sprite2D" parent="."]
 
@@ -61,6 +57,10 @@ metadata/_custom_type_script = "uid://bp8wi3h2a3fes"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="MaterialDropper"]
 shape = SubResource("CircleShape2D_rk8bf")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+self_modulate = Color(1, 0.701961, 0.462745, 1)
+texture = SubResource("AtlasTexture_nqn0d")
 
 [connection signal="allowed_line_type_detected" from="LineDetector" to="." method="_on_line_connector_allowed_line_type_detected"]
 [connection signal="invalid_line_type_detected" from="LineDetector" to="." method="_on_line_connector_invalid_line_type_detected"]

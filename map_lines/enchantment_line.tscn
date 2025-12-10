@@ -9,13 +9,16 @@ size = Vector2(2, 0)
 size = Vector2(15, 20)
 
 [node name="EnchantmentLine" type="Area2D" groups=["mapline"]]
-texture_filter = 1
+modulate = Color(1.353256, 1.353256, 1.353256, 1)
 script = ExtResource("1_u4ynd")
 
 [node name="Line2D" type="Line2D" parent="."]
 points = PackedVector2Array(0, 0)
-width = 15.0
 default_color = Color(1, 0.6666667, 0.27058825, 1)
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+antialiased = true
 
 [node name="LineCollisionShape" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_26vxk")
