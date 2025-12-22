@@ -98,6 +98,8 @@ cursor_toggle_emap_layout={
 2d_physics/layer_2="Cursor"
 2d_physics/layer_3="EnchantmentGrid"
 2d_physics/layer_4="PhysicalUIElements"
+2d_physics/layer_5="WorkspaceZone"
+2d_physics/layer_6="WorkSpaceObject"
 
 [rendering]
 

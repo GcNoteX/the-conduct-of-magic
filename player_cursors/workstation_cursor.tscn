@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://bksy2k7c5750w"]
+
+[ext_resource type="Script" uid="uid://d3si3il73tb7h" path="res://player_cursors/workstation_cursor.gd" id="1_3551y"]
+[ext_resource type="Texture2D" uid="uid://demlxksncxsip" path="res://placeholder_assets/grab_hand.png" id="2_3551y"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_oug3p"]
+
+[node name="WorkstationCursor" type="Area2D"]
+modulate = Color(0.41777796, 0.28023157, 0.27933893, 1)
+texture_filter = 2
+collision_layer = 0
+collision_mask = 32
+script = ExtResource("1_3551y")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_oug3p")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.6751563, 0.6751563)
+texture = ExtResource("2_3551y")
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]
+[connection signal="area_exited" from="." to="." method="_on_area_exited"]

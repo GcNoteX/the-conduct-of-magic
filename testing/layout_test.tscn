@@ -1,6 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://jaduwtx0tgok"]
+[gd_scene load_steps=10 format=3 uid="uid://jaduwtx0tgok"]
 
-[ext_resource type="Script" uid="uid://bhg8gqif84uca" path="res://testing/channel_bench_border.gd" id="1_vosci"]
+[ext_resource type="Script" uid="uid://c7inhtqfjqf2w" path="res://testing/layout_test.gd" id="1_6hf48"]
+[ext_resource type="PackedScene" uid="uid://6saganuf8wrf" path="res://testing/workspace_object.tscn" id="2_xlt1a"]
+[ext_resource type="PackedScene" uid="uid://bksy2k7c5750w" path="res://player_cursors/workstation_cursor.tscn" id="3_kcwhr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_octlk"]
 bg_color = Color(0.87629807, 0.467498, 0.403464, 1)
@@ -14,10 +16,14 @@ bg_color = Color(0.40671432, 0.34440225, 0.29672298, 1)
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m84a4"]
 bg_color = Color(0.79223746, 0.7266033, 0.75265586, 1)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_octlk"]
-size = Vector2(2, 1087)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kcwhr"]
+size = Vector2(634.25635, 1063.6836)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_6hf48"]
+size = Vector2(1276, 1101)
 
 [node name="Control" type="Node"]
+script = ExtResource("1_6hf48")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
@@ -72,10 +78,29 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_m84a4")
 
 [node name="Node2D" type="Node2D" parent="."]
 
-[node name="ChannelBenchBorder" type="Area2D" parent="Node2D"]
-script = ExtResource("1_vosci")
+[node name="WorkstationCursor" parent="Node2D" instance=ExtResource("3_kcwhr")]
+position = Vector2(349, 636)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/ChannelBenchBorder"]
-position = Vector2(640, 533.5)
-scale = Vector2(1, 1.0032583)
-shape = SubResource("RectangleShape2D_octlk")
+[node name="WorkspaceObject" parent="Node2D" instance=ExtResource("2_xlt1a")]
+position = Vector2(254, 573)
+rotation = 3.1415927
+
+[node name="Channel" type="Area2D" parent="Node2D" groups=["channel"]]
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/Channel"]
+position = Vector2(319.9076, 544.8344)
+scale = Vector2(1.0056112, 1.0263097)
+shape = SubResource("RectangleShape2D_kcwhr")
+
+[node name="WorkStation" type="Area2D" parent="Node2D" groups=["workstation"]]
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/WorkStation"]
+position = Vector2(1280, 540.5)
+shape = SubResource("RectangleShape2D_6hf48")
+
+[connection signal="area_entered" from="Node2D/Channel" to="." method="_on_channel_area_entered"]
+[connection signal="area_entered" from="Node2D/WorkStation" to="." method="_on_work_station_area_entered"]

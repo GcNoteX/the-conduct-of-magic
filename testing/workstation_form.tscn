@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://cctllva4y3vmu"]
+
+[ext_resource type="Texture2D" uid="uid://sd63taunfng8" path="res://placeholder_assets/health.png" id="1_typp8"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_5xcck"]
+radius = 31.018696
+
+[node name="WorkstationForm" type="Area2D"]
+collision_layer = 32
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_typp8")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2(0.971714, 1)
+shape = SubResource("CircleShape2D_5xcck")

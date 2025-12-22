@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ItemInstance" load_steps=4 format=3 uid="uid://d3qbvo3dyo8b1"]
+
+[ext_resource type="Script" uid="uid://bob4q50ljh5bk" path="res://testing/item_instance.gd" id="1_n08on"]
+[ext_resource type="PackedScene" uid="uid://bokbovvmgpi6t" path="res://testing/channel_form.tscn" id="1_qaqst"]
+[ext_resource type="PackedScene" uid="uid://cctllva4y3vmu" path="res://testing/workstation_form.tscn" id="3_vahtl"]
+
+[resource]
+script = ExtResource("1_n08on")
+channel_form = ExtResource("1_qaqst")
+workstation_form = ExtResource("3_vahtl")
+metadata/_custom_type_script = "uid://bob4q50ljh5bk"
