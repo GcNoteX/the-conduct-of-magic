@@ -37,11 +37,10 @@ environment = SubResource("Environment_6l0k2")
 anchor_mode = 0
 
 [node name="EnchantmentMap" type="Node2D" parent="."]
-position = Vector2(339, 284)
 script = ExtResource("2_u2jdw")
 
 [node name="E1" parent="EnchantmentMap" instance=ExtResource("3_i2ton")]
-position = Vector2(582, 302)
+position = Vector2(1308, 410)
 
 [node name="EnchantmentNode" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections")]
 mapnode_connections = {
@@ -81,7 +80,7 @@ shape = SubResource("RectangleShape2D_puqhv")
 shape = SubResource("RectangleShape2D_cipcm")
 
 [node name="Item1" parent="EnchantmentMap" instance=ExtResource("3_d7kya")]
-position = Vector2(133, -48)
+position = Vector2(1229, 429)
 
 [node name="MagicLine" parent="EnchantmentMap" node_paths=PackedStringArray("start", "end") instance=ExtResource("5_u2jdw")]
 start = NodePath("../Item1/MagicNode")
@@ -112,12 +111,10 @@ offset_right = 192.0
 offset_bottom = 675.0
 
 [node name="MaterialCursor" parent="." instance=ExtResource("5_c3ttq")]
-enabled = false
 
 [node name="EnchantmentLayoutCursor" parent="." instance=ExtResource("9_6l0k2")]
 
 [node name="DrawCursor" parent="." instance=ExtResource("8_nn7c1")]
-enabled = false
 
 [editable path="EnchantmentMap/E1"]
 [editable path="EnchantmentMap/E1/EnchantmentNode"]

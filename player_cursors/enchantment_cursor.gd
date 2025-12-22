@@ -9,8 +9,8 @@ func _process(_delta: float) -> void:
 	global_position = get_global_mouse_position()
 
 func enable_cursor() -> void:
-	if enabled:
-		push_warning("Cursor already enabled!")
+	#if enabled:
+		#push_warning("Cursor already enabled!")
 		#return
 	#print("Enabling", self)
 	enabled = true
@@ -21,8 +21,8 @@ func enable_cursor() -> void:
 
 
 func disable_cursor() -> void:
-	if not enabled:
-		push_warning("Cursor already disabled!")
+	#if not enabled:
+		#push_warning("Cursor already disabled!")
 		#return
 	#print("Disabling", self)
 	enabled = false

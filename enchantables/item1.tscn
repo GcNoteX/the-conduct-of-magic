@@ -5,13 +5,13 @@
 [node name="Item1" type="Node2D"]
 
 [node name="MagicNode" parent="." instance=ExtResource("1_od5fa")]
-position = Vector2(323, 261)
+position = Vector2(-227, -126)
 
 [node name="MagicNode2" parent="." instance=ExtResource("1_od5fa")]
-position = Vector2(755, 306)
+position = Vector2(110, -176)
 
 [node name="MagicNode3" parent="." instance=ExtResource("1_od5fa")]
-position = Vector2(736, 487)
+position = Vector2(131, 156)
 
 [node name="MagicNode4" parent="." instance=ExtResource("1_od5fa")]
-position = Vector2(437, 659)
+position = Vector2(-201, 215)

@@ -11,7 +11,7 @@ metadata/_custom_type_script = "uid://ciwwc44rc76de"
 
 [resource]
 script = ExtResource("3_ipdwk")
-material_id = "red_stone"
+material_id = &"red_stone"
 material_sprite = ExtResource("3_6d5m1")
 material_attributes = Array[int]([0, 2])
 activation_conditions = Array[ExtResource("1_dsjdc")]([SubResource("Resource_6d5m1")])
