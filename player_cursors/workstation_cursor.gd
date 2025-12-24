@@ -28,9 +28,11 @@ func _physics_process(_delta: float) -> void:
 
 func _on_area_entered(area: Area2D) -> void:
 	if area.get_parent() is WorkspaceObject:
+		print(area, " entered")
 		selection_manager.push(area.get_parent())
 
 
 func _on_area_exited(area: Area2D) -> void:
 	if area.get_parent() is WorkspaceObject:
+		print(area, " exited")
 		selection_manager.remove(area.get_parent())

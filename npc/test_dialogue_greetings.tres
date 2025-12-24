@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="DialogueLines" load_steps=2 format=3 uid="uid://bc5suwpetpihx"]
+
+[ext_resource type="Script" uid="uid://tptbti2qd3u5" path="res://npc/dialogue_lines.gd" id="1_d7aip"]
+
+[resource]
+script = ExtResource("1_d7aip")
+lines = Array[String](["Good Moring", "How are you today!"])
+metadata/_custom_type_script = "uid://tptbti2qd3u5"

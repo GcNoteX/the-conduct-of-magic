@@ -1,0 +1,16 @@
+[gd_resource type="BehaviorTree" load_steps=5 format=3 uid="uid://cxsgqs5kr5tvs"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_7dm0k"]
+
+[sub_resource type="BBNode" id="BBNode_6fha2"]
+saved_value = null
+
+[sub_resource type="BTCallMethod" id="BTCallMethod_h2bmg"]
+node = SubResource("BBNode_6fha2")
+
+[sub_resource type="BTDynamicSelector" id="BTDynamicSelector_6fha2"]
+children = [SubResource("BTCallMethod_h2bmg")]
+
+[resource]
+blackboard_plan = SubResource("BlackboardPlan_7dm0k")
+root_task = SubResource("BTDynamicSelector_6fha2")
