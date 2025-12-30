@@ -8,7 +8,7 @@ class_name ItemBox
 
 signal emptied()
 
-@export var item: EnchantmentMaterial
+@export var item: EnchantmentMaterialDefinition
 @export var quantity: int
 
 @onready var box_body: PanelContainer = %BoxBody
@@ -24,7 +24,7 @@ func _ready() -> void:
 		physical_hitbox.shape = physical_hitbox.shape.duplicate()
 		_on_box_body_resized()
 
-func fill(i: EnchantmentMaterial, q: int) -> void:
+func fill(i: EnchantmentMaterialDefinition, q: int) -> void:
 	item = i
 	assert(q >= 0, " You cannot fill a box with negative quantity")
 	quantity = q

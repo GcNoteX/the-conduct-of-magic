@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://6saganuf8wrf"]
+
+[ext_resource type="Script" uid="uid://cldipgcr80rmn" path="res://workplace/scripts/workspace_object.gd" id="1_i1b8k"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_bsuik"]
+radius = 0.01
+
+[node name="WorkspaceObject" type="Area2D"]
+collision_layer = 32
+collision_mask = 16
+script = ExtResource("1_i1b8k")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_bsuik")
+debug_color = Color(0.98668724, 0, 0.32584393, 0.41960785)
+
+[connection signal="area_entered" from="." to="." method="_on_area_entered"]

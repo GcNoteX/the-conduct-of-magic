@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cfk6qcc37lkro" path="res://map_item/item_box.gd" id="1_01x1x"]
 [ext_resource type="Texture2D" uid="uid://crj211y8xs3ei" path="res://placeholder_assets/construction_icon.png" id="2_bb58p"]
-[ext_resource type="Resource" uid="uid://dh646e83nxwig" path="res://enchantments/enchantment_materials/red_stone.tres" id="2_mfrbp"]
+[ext_resource type="Resource" uid="uid://dh646e83nxwig" path="res://items/enchantment_materials/red_stone/red_stone.tres" id="2_mfrbp"]
 [ext_resource type="Script" uid="uid://b8n2oa87lf1ai" path="res://map_item/item_box_area.gd" id="4_x54si"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mfrbp"]

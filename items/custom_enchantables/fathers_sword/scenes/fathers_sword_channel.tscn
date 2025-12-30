@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://d0juvsxkn7lif"]
+
+[ext_resource type="Script" uid="uid://cal3rmycnkrwh" path="res://workplace/scripts/channel_form.gd" id="1_opqq2"]
+
+[node name="FathersSwordChannel" type="Area2D"]
+script = ExtResource("1_opqq2")
+metadata/_custom_type_script = "uid://cal3rmycnkrwh"

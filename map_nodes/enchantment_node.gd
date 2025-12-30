@@ -5,7 +5,7 @@ class_name EnchantmentNode
 """
 - Kills MagicLines that cannot connect to it
 - Adds MagicLines to the MagicLineConnectableComponent if one is detected
-- Can insert EnchantmentMaterial into to activate
+- Can insert EnchantmentMaterialDefinition into to activate
 - Can connect to EnchantmentLine's unlimitedly
 """
 

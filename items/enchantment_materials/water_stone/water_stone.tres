@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" load_steps=3 format=3 uid="uid://bl5bba42eukkp"]
+
+[ext_resource type="Script" uid="uid://buedytf1h1hyg" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_woo3m"]
+[ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="2_o6csc"]
+
+[resource]
+script = ExtResource("2_o6csc")
+metadata/_custom_type_script = "uid://dnrj7bcgrqnhu"

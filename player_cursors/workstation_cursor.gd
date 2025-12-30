@@ -16,23 +16,28 @@ func _physics_process(_delta: float) -> void:
 		controlled_object.move(global_position - _prev_pos)
 
 	if Input.is_action_just_pressed("left_click"):
-		# Attempt to grab a MapItem
-		var obj = selection_manager.peek()
+		var obj = selection_manager.peek() as WorkspaceObject
 		controlled_object = obj
+		if obj and !obj.is_connected("form_changed", teleport_to_object):
+			obj.form_changed.connect(teleport_to_object)
 	
 	if Input.is_action_just_released("left_click"):
-		# Attempt to drop a MapItem
 		controlled_object = null
 	
 	_prev_pos = global_position
 
+func teleport_to_object(obj: Node2D) -> void:
+	global_position = obj.global_position
+	_prev_pos = global_position
+
+
 func _on_area_entered(area: Area2D) -> void:
 	if area.get_parent() is WorkspaceObject:
-		print(area, " entered")
+		#print(area, " entered")
 		selection_manager.push(area.get_parent())
 
 
 func _on_area_exited(area: Area2D) -> void:
 	if area.get_parent() is WorkspaceObject:
-		print(area, " exited")
+		#print(area, " exited")
 		selection_manager.remove(area.get_parent())

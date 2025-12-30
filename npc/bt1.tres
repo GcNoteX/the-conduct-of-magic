@@ -3,7 +3,7 @@
 [sub_resource type="BlackboardPlan" id="BlackboardPlan_7dm0k"]
 
 [sub_resource type="BBNode" id="BBNode_6fha2"]
-saved_value = null
+saved_value = NodePath("")
 
 [sub_resource type="BTCallMethod" id="BTCallMethod_h2bmg"]
 node = SubResource("BBNode_6fha2")

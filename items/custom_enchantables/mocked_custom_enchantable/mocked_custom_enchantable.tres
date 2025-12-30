@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="ItemInstance" load_steps=7 format=3 uid="uid://b04ky0sopn77c"]
+
+[ext_resource type="Script" uid="uid://kaltulv5bjap" path="res://items/data/item_instance.gd" id="1_dydbk"]
+[ext_resource type="Resource" uid="uid://bgm7slf16n0ny" path="res://items/enchantable_items_definitions/resources/e_item_def_1.tres" id="1_rkxn2"]
+[ext_resource type="Script" uid="uid://c80s3rfrljah5" path="res://enchantments/graph_state.gd" id="2_2uhtv"]
+[ext_resource type="Script" uid="uid://cxc17a8oohaam" path="res://items/data/inspectable_state.gd" id="2_m0u5p"]
+
+[sub_resource type="Resource" id="Resource_fkyfl"]
+script = ExtResource("2_2uhtv")
+metadata/_custom_type_script = "uid://c80s3rfrljah5"
+
+[sub_resource type="Resource" id="Resource_2uhtv"]
+script = ExtResource("2_m0u5p")
+metadata/_custom_type_script = "uid://cxc17a8oohaam"
+
+[resource]
+script = ExtResource("1_dydbk")
+definition = ExtResource("1_rkxn2")
+inspectable_state = SubResource("Resource_2uhtv")
+enchantment_graph_state = SubResource("Resource_fkyfl")
+metadata/_custom_type_script = "uid://kaltulv5bjap"

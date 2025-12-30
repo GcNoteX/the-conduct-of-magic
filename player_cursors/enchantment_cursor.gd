@@ -5,28 +5,30 @@
 
 var selection_manager: PriorityQueue = PriorityQueue.new()
 
-func _process(_delta: float) -> void:
-	global_position = get_global_mouse_position()
+func _input(event: InputEvent) -> void:
+	if not enabled:
+		return
+
+	if event is InputEventMouseMotion:
+		global_position += event.relative
+
 
 func enable_cursor() -> void:
-	#if enabled:
-		#push_warning("Cursor already enabled!")
-		#return
-	#print("Enabling", self)
 	enabled = true
 	visible = true
 	monitoring = true
 	monitorable = true
 	set_physics_process(true)
 
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+
 
 func disable_cursor() -> void:
-	#if not enabled:
-		#push_warning("Cursor already disabled!")
-		#return
-	#print("Disabling", self)
 	enabled = false
 	visible = false
 	monitoring = false
 	monitorable = false
 	set_physics_process(false)
+
+	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)

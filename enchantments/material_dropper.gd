@@ -9,7 +9,7 @@ class_name MaterialDropper
 @export var holder: MaterialHolder
 
 ## Return true if material inserted successfully else false
-func insert_material(m: EnchantmentMaterial) -> bool:
+func insert_material(m: EnchantmentMaterialDefinition) -> bool:
 	if !holder:
 		push_warning("MaterialDropper needs a MaterialHolder to drop into")
 		return false
@@ -21,7 +21,7 @@ func insert_material(m: EnchantmentMaterial) -> bool:
 	#print("Holder did not take material")
 	return false 
 
-func remove_material() -> EnchantmentMaterial:
+func remove_material() -> EnchantmentMaterialDefinition:
 	var m = holder.remove_material()
 	if holder.sealed:
 		return null

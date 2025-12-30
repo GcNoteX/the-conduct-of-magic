@@ -1,9 +1,9 @@
 extends Resource
 class_name Player
 
-@export var material_inventory: Dictionary[EnchantmentMaterial, int] = {}
+@export var material_inventory: Dictionary[EnchantmentMaterialDefinition, int] = {}
 
-func add_material(mat: EnchantmentMaterial, amount: int = 1) -> void:
+func add_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if mat == null:
 		push_warning("Tried to add null material to inventory.")
 		return
@@ -12,7 +12,7 @@ func add_material(mat: EnchantmentMaterial, amount: int = 1) -> void:
 	if material_inventory[mat] <= 0:
 		material_inventory.erase(mat)
 
-func remove_material(mat: EnchantmentMaterial, amount: int = 1) -> void:
+func remove_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if mat == null:
 		push_warning("Tried to remove null material from inventory.")
 		return
@@ -25,5 +25,5 @@ func remove_material(mat: EnchantmentMaterial, amount: int = 1) -> void:
 	if material_inventory[mat] <= 0:
 		material_inventory.erase(mat)
 
-func get_material_count(mat: EnchantmentMaterial) -> int:
+func get_material_count(mat: EnchantmentMaterialDefinition) -> int:
 	return material_inventory.get(mat, 0)

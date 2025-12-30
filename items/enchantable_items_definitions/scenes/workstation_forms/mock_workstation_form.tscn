@@ -1,0 +1,67 @@
+[gd_scene load_steps=10 format=3 uid="uid://cctllva4y3vmu"]
+
+[ext_resource type="Script" uid="uid://d3vybre0xaen6" path="res://workplace/scripts/workstation_form.gd" id="1_v2txn"]
+[ext_resource type="Texture2D" uid="uid://sd63taunfng8" path="res://placeholder_assets/health.png" id="2_l30ln"]
+[ext_resource type="Texture2D" uid="uid://belm3v8fqvy4e" path="res://placeholder_assets/human.png" id="3_bm0bt"]
+[ext_resource type="Script" uid="uid://dilqkl5efd6tn" path="res://items/data/inspectable_component.gd" id="4_vevn0"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1jqlb"]
+size = Vector2(78.21231, 246)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_e1slp"]
+size = Vector2(53, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_urxl2"]
+size = Vector2(21, 54)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1jqlb"]
+radius = 16.124516
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kg32r"]
+size = Vector2(74, 153)
+
+[node name="WorkstationForm" type="Area2D"]
+collision_layer = 32
+collision_mask = 0
+script = ExtResource("1_v2txn")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_l30ln")
+
+[node name="Human" type="Sprite2D" parent="."]
+position = Vector2(2, -124)
+texture = ExtResource("3_bm0bt")
+
+[node name="CompletHitbox" type="CollisionShape2D" parent="."]
+position = Vector2(-0.99999976, -96)
+scale = Vector2(0.971714, 1)
+shape = SubResource("RectangleShape2D_1jqlb")
+debug_color = Color(0.2468957, 0.51855475, 0.96341294, 0.41960785)
+
+[node name="HumanHead" type="Area2D" parent="."]
+script = ExtResource("4_vevn0")
+inspect_key = &"human_comp"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HumanHead"]
+position = Vector2(-0.5, 0)
+shape = SubResource("RectangleShape2D_e1slp")
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="HumanHead"]
+position = Vector2(-0.5, 0)
+shape = SubResource("RectangleShape2D_urxl2")
+
+[node name="Plus" type="Area2D" parent="."]
+script = ExtResource("4_vevn0")
+inspect_key = &"plus_comp"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Plus"]
+position = Vector2(0, -202)
+shape = SubResource("CircleShape2D_1jqlb")
+
+[node name="HumanBody" type="Area2D" parent="."]
+script = ExtResource("4_vevn0")
+inspect_key = &"human_body"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HumanBody"]
+position = Vector2(0, -105.5)
+shape = SubResource("RectangleShape2D_kg32r")

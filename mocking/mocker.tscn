@@ -1,0 +1,14 @@
+[gd_scene load_steps=5 format=3 uid="uid://b7yfk3aukrwuc"]
+
+[ext_resource type="Script" uid="uid://b8bg2lc37ba4p" path="res://mocking/mocker.gd" id="1_6gjsj"]
+[ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="2_3i25t"]
+[ext_resource type="Script" uid="uid://bwfg4bqcl7m8v" path="res://player.gd" id="5_7to0r"]
+
+[sub_resource type="Resource" id="Resource_2dprn"]
+script = ExtResource("5_7to0r")
+metadata/_custom_type_script = "uid://bwfg4bqcl7m8v"
+
+[node name="Mocker" type="Node"]
+script = ExtResource("1_6gjsj")
+is_mocking = true
+player = SubResource("Resource_2dprn")

@@ -41,7 +41,7 @@ func has_player() -> bool:
 
 ## Safely adds a given amount of material to the player's inventory.
 ## If no player exists, prints an error.
-func add_material(material: EnchantmentMaterial, amount: int = 1) -> void:
+func add_material(material: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if not _player:
 		push_warning("⚠️ No active player — cannot add material.")
 		return
@@ -55,7 +55,7 @@ func add_material(material: EnchantmentMaterial, amount: int = 1) -> void:
 
 ## Removes a given amount of material from the player's inventory.
 ## If the amount exceeds what is owned, it will clamp to 0 and issue a warning.
-func remove_material(material: EnchantmentMaterial, amount: int = 1) -> void:
+func remove_material(material: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if not _player:
 		push_warning("⚠️ No active player — cannot remove material.")
 		return

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="EnchantableItemDefinition" load_steps=5 format=3 uid="uid://bgm7slf16n0ny"]
+
+[ext_resource type="PackedScene" uid="uid://jcdiy5v85l3k" path="res://items/enchantable_items_definitions/scenes/channel_forms/mock_channel_form.tscn" id="1_3mb25"]
+[ext_resource type="Texture2D" uid="uid://crj211y8xs3ei" path="res://placeholder_assets/construction_icon.png" id="2_lpa83"]
+[ext_resource type="Script" uid="uid://c3xfi5q0nbvdm" path="res://items/definitions/enchantable_item_definition.gd" id="3_dyckc"]
+[ext_resource type="PackedScene" uid="uid://cctllva4y3vmu" path="res://items/enchantable_items_definitions/scenes/workstation_forms/mock_workstation_form.tscn" id="4_lpa83"]
+
+[resource]
+script = ExtResource("3_dyckc")
+id = &"item_def_1"
+inventory_sprite_normal = ExtResource("2_lpa83")
+iso_sprite_normal = ExtResource("2_lpa83")
+workstation_form = ExtResource("4_lpa83")
+channel_form = ExtResource("1_3mb25")
+metadata/_custom_type_script = "uid://c3xfi5q0nbvdm"

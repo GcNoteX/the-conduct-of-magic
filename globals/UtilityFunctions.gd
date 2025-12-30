@@ -50,7 +50,7 @@ func dfs_collect_nodes(start_nodes: Array, get_neighbors_func: Callable)\
 
 	return visited.keys()
 
-func create_map_item(m: EnchantmentMaterial) -> MapItem:
+func create_map_item(m: EnchantmentMaterialDefinition) -> MapItem:
 	var ins = preload(SceneReferences.map_item).instantiate( ) as MapItem
 	ins.e_material = m
 	return ins

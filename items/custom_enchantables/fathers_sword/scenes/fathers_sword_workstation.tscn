@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://008x7fnmcjdy"]
+
+[ext_resource type="Script" uid="uid://d3vybre0xaen6" path="res://workplace/scripts/workstation_form.gd" id="1_dgyso"]
+
+[node name="FathersSwordWorkstation" type="Area2D"]
+script = ExtResource("1_dgyso")
+metadata/_custom_type_script = "uid://d3vybre0xaen6"

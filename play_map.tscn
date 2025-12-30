@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cyxb7ftkj3gqp" path="res://play_map.gd" id="1_6l0k2"]
 [ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="2_u2jdw"]
-[ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantables/item1.tscn" id="3_d7kya"]
+[ext_resource type="PackedScene" uid="uid://bq33axqpfcxfo" path="res://enchantments/item1.tscn" id="3_d7kya"]
 [ext_resource type="PackedScene" uid="uid://dma3s717a2gbn" path="res://enchantments/enchantments/e1.tscn" id="3_i2ton"]
 [ext_resource type="PackedScene" uid="uid://cw4cqcq7aeu2c" path="res://player_cursors/material_cursor.tscn" id="5_c3ttq"]
 [ext_resource type="PackedScene" uid="uid://cq43qfwuu7nfu" path="res://map_lines/magic_line.tscn" id="5_u2jdw"]

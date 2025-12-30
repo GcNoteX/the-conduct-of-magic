@@ -1,8 +1,9 @@
-[gd_scene load_steps=10 format=3 uid="uid://jaduwtx0tgok"]
+[gd_scene load_steps=11 format=3 uid="uid://jaduwtx0tgok"]
 
 [ext_resource type="Script" uid="uid://c7inhtqfjqf2w" path="res://workplace/layout_test.gd" id="1_6hf48"]
-[ext_resource type="PackedScene" uid="uid://6saganuf8wrf" path="res://workplace/workspace_object.tscn" id="2_xlt1a"]
+[ext_resource type="PackedScene" uid="uid://6saganuf8wrf" path="res://workplace/scenes/workspace_object.tscn" id="2_xlt1a"]
 [ext_resource type="PackedScene" uid="uid://bksy2k7c5750w" path="res://player_cursors/workstation_cursor.tscn" id="3_kcwhr"]
+[ext_resource type="Resource" uid="uid://b04ky0sopn77c" path="res://items/custom_enchantables/mocked_custom_enchantable/mocked_custom_enchantable.tres" id="4_w0rqx"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_octlk"]
 bg_color = Color(0.87629807, 0.467498, 0.403464, 1)
@@ -79,11 +80,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_m84a4")
 [node name="Node2D" type="Node2D" parent="."]
 
 [node name="WorkstationCursor" parent="Node2D" instance=ExtResource("3_kcwhr")]
+top_level = true
 position = Vector2(349, 636)
 
 [node name="WorkspaceObject" parent="Node2D" instance=ExtResource("2_xlt1a")]
 position = Vector2(254, 573)
 rotation = 3.1415927
+item = ExtResource("4_w0rqx")
 
 [node name="Channel" type="Area2D" parent="Node2D" groups=["channel"]]
 collision_layer = 16
