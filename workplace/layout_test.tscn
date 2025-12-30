@@ -1,9 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://jaduwtx0tgok"]
+[gd_scene load_steps=13 format=3 uid="uid://jaduwtx0tgok"]
 
 [ext_resource type="Script" uid="uid://c7inhtqfjqf2w" path="res://workplace/layout_test.gd" id="1_6hf48"]
 [ext_resource type="PackedScene" uid="uid://6saganuf8wrf" path="res://workplace/scenes/workspace_object.tscn" id="2_xlt1a"]
 [ext_resource type="PackedScene" uid="uid://bksy2k7c5750w" path="res://player_cursors/workstation_cursor.tscn" id="3_kcwhr"]
 [ext_resource type="Resource" uid="uid://b04ky0sopn77c" path="res://items/custom_enchantables/mocked_custom_enchantable/mocked_custom_enchantable.tres" id="4_w0rqx"]
+[ext_resource type="Script" uid="uid://dkmuvu0bjubwi" path="res://workplace/scripts/workspace_object_ematerial.gd" id="5_2j1iq"]
+[ext_resource type="Resource" uid="uid://bl5bba42eukkp" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="6_llppb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_octlk"]
 bg_color = Color(0.87629807, 0.467498, 0.403464, 1)
@@ -85,8 +87,12 @@ position = Vector2(349, 636)
 
 [node name="WorkspaceObject" parent="Node2D" instance=ExtResource("2_xlt1a")]
 position = Vector2(254, 573)
-rotation = 3.1415927
 item = ExtResource("4_w0rqx")
+
+[node name="WorkspaceObject2" parent="Node2D" instance=ExtResource("2_xlt1a")]
+position = Vector2(260, 793)
+script = ExtResource("5_2j1iq")
+e_material = ExtResource("6_llppb")
 
 [node name="Channel" type="Area2D" parent="Node2D" groups=["channel"]]
 collision_layer = 16

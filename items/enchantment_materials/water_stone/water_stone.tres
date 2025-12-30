@@ -1,8 +1,13 @@
-[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" load_steps=3 format=3 uid="uid://bl5bba42eukkp"]
+[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" load_steps=5 format=3 uid="uid://bl5bba42eukkp"]
 
 [ext_resource type="Script" uid="uid://buedytf1h1hyg" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_woo3m"]
+[ext_resource type="PackedScene" uid="uid://klg0qktnokpk" path="res://items/enchantment_materials/water_stone/water_stone_cf.tscn" id="2_7j3pp"]
 [ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="2_o6csc"]
+[ext_resource type="PackedScene" uid="uid://ba0l3ry8ni2q1" path="res://items/enchantment_materials/water_stone/water_stone_wsf.tscn" id="4_8taoa"]
 
 [resource]
 script = ExtResource("2_o6csc")
+id = &"water_stone"
+workstation_form = ExtResource("4_8taoa")
+channel_form = ExtResource("2_7j3pp")
 metadata/_custom_type_script = "uid://dnrj7bcgrqnhu"

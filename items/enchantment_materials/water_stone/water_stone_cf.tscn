@@ -1,0 +1,23 @@
+[gd_scene load_steps=5 format=3 uid="uid://klg0qktnokpk"]
+
+[ext_resource type="Script" uid="uid://cal3rmycnkrwh" path="res://workplace/scripts/channel_form.gd" id="1_ebrw0"]
+[ext_resource type="Texture2D" uid="uid://eynjhepuxifl" path="res://items/enchantment_materials/water_stone/water stone.png" id="2_gd8ef"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gd8ef"]
+radius = 10.049875
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nkinw"]
+atlas = ExtResource("2_gd8ef")
+region = Rect2(7, 7, 15, 20)
+
+[node name="WaterStoneCf" type="Area2D"]
+texture_filter = 1
+scale = Vector2(5, 5)
+script = ExtResource("1_ebrw0")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+scale = Vector2(0.99999994, 0.99999994)
+shape = SubResource("CircleShape2D_gd8ef")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("AtlasTexture_nkinw")
