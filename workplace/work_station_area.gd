@@ -15,6 +15,9 @@ var _zoom_index: int = 0
 var _cursor_inside: bool = false
 var _cursor_node: Node2D = null
 
+var _is_panning: bool = false
+var _pan_last_vp_pixel: Vector2 = Vector2.ZERO
+
 
 func _ready() -> void:
 	if workstation_camera == null:
@@ -56,11 +59,27 @@ func _input(event: InputEvent) -> void:
 	if not _cursor_inside:
 		return
 
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+
+		if mb.button_index == MOUSE_BUTTON_WHEEL_UP and mb.pressed:
 			_zoom_step(1)
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+			return
+
+		if mb.button_index == MOUSE_BUTTON_WHEEL_DOWN and mb.pressed:
 			_zoom_step(-1)
+			return
+
+		if mb.button_index == MOUSE_BUTTON_MIDDLE:
+			if mb.pressed:
+				_is_panning = true
+				_pan_last_vp_pixel = _cursor_to_subviewport_pixel()
+			else:
+				_is_panning = false
+			return
+
+	if event is InputEventMouseMotion and _is_panning:
+		_pan_update()
 
 
 func _zoom_step(dir: int) -> void:
@@ -92,6 +111,27 @@ func _zoom_step(dir: int) -> void:
 func _apply_zoom() -> void:
 	var level: float = ZOOM_LEVELS[_zoom_index]
 	workstation_camera.zoom = Vector2(level, level)
+
+
+func _pan_update() -> void:
+	var vp_pixel: Vector2 = _cursor_to_subviewport_pixel()
+	if vp_pixel == Vector2.INF:
+		return
+
+	# Screen-space delta in SubViewport pixels
+	var delta_px: Vector2 = vp_pixel - _pan_last_vp_pixel
+	_pan_last_vp_pixel = vp_pixel
+
+	# Convert screen delta to world delta.
+	# With Godot 4 semantics: higher zoom => more zoomed in => fewer world units per pixel.
+	var zoom: float = workstation_camera.zoom.x
+	var delta_world: Vector2 = delta_px / zoom
+
+	# Dragging behavior: moving cursor right should move view right (feel like grabbing the surface).
+	# That means camera moves opposite to cursor delta.
+	workstation_camera.position -= delta_world
+
+	_clamp_camera_to_table()
 
 
 func _center_camera_on_table() -> void:
