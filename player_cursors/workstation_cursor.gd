@@ -16,8 +16,10 @@ func _physics_process(_delta: float) -> void:
 		controlled_object.move(global_position - _prev_pos)
 
 	if Input.is_action_just_pressed("left_click"):
+		print(selection_manager._queues)
 		var obj = selection_manager.peek() as WorkspaceObject
 		controlled_object = obj
+		print("Controlling ", controlled_object)
 		if obj and !obj.is_connected("form_changed", teleport_to_object):
 			obj.form_changed.connect(teleport_to_object)
 	
@@ -32,12 +34,16 @@ func teleport_to_object(obj: Node2D) -> void:
 
 
 func _on_area_entered(area: Area2D) -> void:
+	print(area, " entered")
+	# BUG: Currently not working due to workspace object adding the channel and
+	# workstation scene differently and not under itself.
 	if area.get_parent() is WorkspaceObject:
-		#print(area, " entered")
+		print(area, " entered")
 		selection_manager.push(area.get_parent())
 
 
 func _on_area_exited(area: Area2D) -> void:
+	print(area, " exited")
 	if area.get_parent() is WorkspaceObject:
-		#print(area, " exited")
+		print(area, " exited")
 		selection_manager.remove(area.get_parent())

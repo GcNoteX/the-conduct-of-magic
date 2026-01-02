@@ -1,19 +1,7 @@
-[gd_resource type="Resource" script_class="EnchantmentMaterial" load_steps=6 format=3 uid="uid://dwxijt4t8ckn2"]
+[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" load_steps=3 format=3 uid="uid://dwxijt4t8ckn2"]
 
 [ext_resource type="Script" uid="uid://buedytf1h1hyg" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_thkri"]
-[ext_resource type="Script" uid="uid://bo4c3r6ga2sr0" path="res://enchantments/enchantment_conditions/number_of_connections_condition.gd" id="2_5x48a"]
-[ext_resource type="Script" uid="uid://xed2d81iu1my" path="res://items/enchantment_material.gd" id="2_iqqvi"]
-[ext_resource type="Texture2D" uid="uid://bhwnh1km0su5" path="res://placeholder_assets/lighting.png" id="3_5x48a"]
-
-[sub_resource type="Resource" id="Resource_c573b"]
-script = ExtResource("2_5x48a")
-number_of_lines = 3
-metadata/_custom_type_script = "uid://bo4c3r6ga2sr0"
+[ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="2_mu20w"]
 
 [resource]
-script = ExtResource("2_iqqvi")
-material_id = &"yellow_stone"
-material_sprite = ExtResource("3_5x48a")
-material_attributes = Array[int]([2])
-activation_conditions = Array[ExtResource("1_thkri")]([SubResource("Resource_c573b")])
-metadata/_custom_type_script = "uid://xed2d81iu1my"
+script = ExtResource("2_mu20w")

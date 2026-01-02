@@ -14,4 +14,3 @@ script = ExtResource("3_ipdwk")
 material_sprite = ExtResource("3_6d5m1")
 material_attributes = Array[int]([0, 2])
 activation_conditions = Array[ExtResource("1_dsjdc")]([SubResource("Resource_6d5m1")])
-metadata/_custom_type_script = "uid://xed2d81iu1my"

@@ -1,11 +1,18 @@
-[gd_scene load_steps=13 format=3 uid="uid://jaduwtx0tgok"]
+[gd_scene load_steps=20 format=3 uid="uid://jaduwtx0tgok"]
 
 [ext_resource type="Script" uid="uid://c7inhtqfjqf2w" path="res://workplace/layout_test.gd" id="1_6hf48"]
+[ext_resource type="Script" uid="uid://c8uqncn1ou6vr" path="res://workplace/workstation_camera.gd" id="2_fbxxn"]
+[ext_resource type="Texture2D" uid="uid://c3vugjfvdvo8r" path="res://placeholder_assets/square_grid.jpg" id="2_wq60j"]
 [ext_resource type="PackedScene" uid="uid://6saganuf8wrf" path="res://workplace/scenes/workspace_object.tscn" id="2_xlt1a"]
 [ext_resource type="PackedScene" uid="uid://bksy2k7c5750w" path="res://player_cursors/workstation_cursor.tscn" id="3_kcwhr"]
+[ext_resource type="Texture2D" uid="uid://c3sod6mr1pqw1" path="res://placeholder_assets/icon.svg" id="3_wvlmk"]
+[ext_resource type="Texture2D" uid="uid://bql6rf4olblxq" path="res://placeholder_assets/square.png" id="4_3uu01"]
 [ext_resource type="Resource" uid="uid://b04ky0sopn77c" path="res://items/custom_enchantables/mocked_custom_enchantable/mocked_custom_enchantable.tres" id="4_w0rqx"]
 [ext_resource type="Script" uid="uid://dkmuvu0bjubwi" path="res://workplace/scripts/workspace_object_ematerial.gd" id="5_2j1iq"]
 [ext_resource type="Resource" uid="uid://bl5bba42eukkp" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="6_llppb"]
+[ext_resource type="Script" uid="uid://cq8ppkcpqse7s" path="res://workplace/channel_area.gd" id="7_ei1is"]
+[ext_resource type="Script" uid="uid://d0q087v2i35po" path="res://workplace/work_station_area.gd" id="7_y2715"]
+[ext_resource type="PackedScene" uid="uid://cctllva4y3vmu" path="res://items/enchantable_items_definitions/scenes/workstation_forms/mock_workstation_form.tscn" id="8_ti4ff"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_octlk"]
 bg_color = Color(0.87629807, 0.467498, 0.403464, 1)
@@ -14,7 +21,7 @@ bg_color = Color(0.87629807, 0.467498, 0.403464, 1)
 bg_color = Color(0.4806254, 0.5220148, 0.5518664, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_6jidr"]
-bg_color = Color(0.40671432, 0.34440225, 0.29672298, 1)
+bg_color = Color(0.2852712, 0.39856228, 0.18832582, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_m84a4"]
 bg_color = Color(0.79223746, 0.7266033, 0.75265586, 1)
@@ -28,7 +35,7 @@ size = Vector2(1276, 1101)
 [node name="Control" type="Node"]
 script = ExtResource("1_6hf48")
 
-[node name="Control" type="Control" parent="."]
+[node name="UIRoot" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -36,7 +43,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Iso" type="Panel" parent="Control"]
+[node name="Iso" type="Panel" parent="UIRoot"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -47,7 +54,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_octlk")
 
-[node name="Channel" type="Panel" parent="Control"]
+[node name="Channel" type="Panel" parent="UIRoot"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -58,7 +65,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_8h8on")
 
-[node name="WorkBench" type="Panel" parent="Control"]
+[node name="WorkBench" type="Panel" parent="UIRoot"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -68,7 +75,28 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_6jidr")
 
-[node name="SideBar" type="Panel" parent="Control"]
+[node name="WorkBench2" type="Panel" parent="UIRoot/WorkBench"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -640.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.5466657, 0.8108874)
+
+[node name="WorkBench3" type="Panel" parent="UIRoot/WorkBench"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -640.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.71798944, 0.5038198)
+
+[node name="SideBar" type="Panel" parent="UIRoot"]
+visible = false
 layout_mode = 1
 anchors_preset = 1
 anchor_left = 1.0
@@ -79,39 +107,102 @@ grow_horizontal = 0
 scale = Vector2(-1, 1)
 theme_override_styles/panel = SubResource("StyleBoxFlat_m84a4")
 
-[node name="Node2D" type="Node2D" parent="."]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="UIRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 641.0
+offset_right = -199.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.1842996, 1.0029335)
 
-[node name="WorkstationCursor" parent="Node2D" instance=ExtResource("3_kcwhr")]
+[node name="WorkstationViewport" type="SubViewport" parent="UIRoot/SubViewportContainer"]
+disable_3d = true
+transparent_bg = true
+handle_input_locally = false
+size = Vector2i(1080, 1080)
+render_target_update_mode = 4
+
+[node name="TextureRect" type="TextureRect" parent="UIRoot/SubViewportContainer/WorkstationViewport"]
+self_modulate = Color(1, 1, 1, 0.32941177)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_wq60j")
+
+[node name="WorkstationWorld" type="Node2D" parent="UIRoot/SubViewportContainer/WorkstationViewport"]
+
+[node name="WorkstationCamera" type="Camera2D" parent="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld"]
+position = Vector2(540, 540)
+script = ExtResource("2_fbxxn")
+
+[node name="Sprite2D" type="Sprite2D" parent="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkstationCamera"]
+texture = ExtResource("4_3uu01")
+
+[node name="WorkStationView" type="Node2D" parent="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld"]
+
+[node name="WorkstationForm" parent="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkStationView" instance=ExtResource("8_ti4ff")]
+position = Vector2(122.43526, 419.7686)
+
+[node name="Sprite2D" type="Sprite2D" parent="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkStationView"]
+position = Vector2(125.812744, 775.72437)
+texture = ExtResource("3_wvlmk")
+
+[node name="Sprite2D2" type="Sprite2D" parent="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkStationView"]
+position = Vector2(663.6834, 435.7218)
+texture = ExtResource("3_wvlmk")
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="WorkstationCursor" parent="World" groups=["cursor"] instance=ExtResource("3_kcwhr")]
+modulate = Color(0.97417814, 0.6789099, 0.6628199, 1)
 top_level = true
 position = Vector2(349, 636)
+scale = Vector2(3, 3)
+collision_layer = 2
 
-[node name="WorkspaceObject" parent="Node2D" instance=ExtResource("2_xlt1a")]
-position = Vector2(254, 573)
+[node name="WorkspaceObject" parent="World" instance=ExtResource("2_xlt1a")]
+position = Vector2(299, 718)
 item = ExtResource("4_w0rqx")
 
-[node name="WorkspaceObject2" parent="Node2D" instance=ExtResource("2_xlt1a")]
-position = Vector2(260, 793)
+[node name="WorkspaceObject2" parent="World" instance=ExtResource("2_xlt1a")]
+position = Vector2(463, 719)
 script = ExtResource("5_2j1iq")
 e_material = ExtResource("6_llppb")
 
-[node name="Channel" type="Area2D" parent="Node2D" groups=["channel"]]
+[node name="ChannelArea" type="Area2D" parent="World" node_paths=PackedStringArray("visual_root") groups=["channel"]]
 collision_layer = 16
 collision_mask = 0
+script = ExtResource("7_ei1is")
+visual_root = NodePath("ChannelView")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/Channel"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/ChannelArea"]
 position = Vector2(319.9076, 544.8344)
 scale = Vector2(1.0056112, 1.0263097)
 shape = SubResource("RectangleShape2D_kcwhr")
 debug_color = Color(0.6741337, 0.49171025, 0.35315648, 0.41960785)
 
-[node name="WorkStation" type="Area2D" parent="Node2D" groups=["workstation"]]
-collision_layer = 16
-collision_mask = 0
+[node name="ChannelView" type="Node2D" parent="World/ChannelArea"]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Node2D/WorkStation"]
+[node name="WorkStationArea" type="Area2D" parent="World" node_paths=PackedStringArray("workstation_camera", "visual_root", "subviewport_container", "subviewport") groups=["workstation"]]
+collision_layer = 16
+collision_mask = 2
+script = ExtResource("7_y2715")
+workstation_camera = NodePath("../../UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkstationCamera")
+visual_root = NodePath("../../UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkStationView")
+subviewport_container = NodePath("../../UIRoot/SubViewportContainer")
+subviewport = NodePath("../../UIRoot/SubViewportContainer/WorkstationViewport")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="World/WorkStationArea"]
+visible = false
 position = Vector2(1280, 540.5)
 shape = SubResource("RectangleShape2D_6hf48")
-debug_color = Color(0.29312563, 0.6104991, 0.44431546, 0.41960785)
+debug_color = Color(0.11377349, 0.64910424, 0, 0.41960785)
 
-[connection signal="area_entered" from="Node2D/Channel" to="." method="_on_channel_area_entered"]
-[connection signal="area_entered" from="Node2D/WorkStation" to="." method="_on_work_station_area_entered"]
+[connection signal="area_entered" from="World/ChannelArea" to="." method="_on_channel_area_entered"]
+[connection signal="area_entered" from="World/WorkStationArea" to="World/WorkStationArea" method="_on_area_entered"]
+[connection signal="area_exited" from="World/WorkStationArea" to="World/WorkStationArea" method="_on_area_exited"]

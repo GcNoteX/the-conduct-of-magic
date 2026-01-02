@@ -20,7 +20,11 @@ func _ready() -> void:
 		channel_form = item.definition.channel_form.instantiate()
 		assert(channel_form is ChannelForm, "channel_form must be a ChannelForm node")
 		channel_form.disable()
-		add_child(channel_form)
+		var channel_area := get_tree().get_first_node_in_group("channel")
+		if channel_area:
+			channel_area.visual_root.add_child(channel_form)
+			channel_form.global_position = global_position
+
 
 	# Instantiate workstation form if available
 	if item.definition.workstation_form:
@@ -32,7 +36,11 @@ func _ready() -> void:
 			workstation_form._item_state = item.inspectable_state.inspected
 
 		workstation_form.disable()
-		add_child(workstation_form)
+		var workstation_area := get_tree().get_first_node_in_group("workstation")
+		if workstation_area:
+			workstation_area.visual_root.add_child(workstation_form)
+			workstation_form.global_position = global_position
+
 
 # --- movement helper ---
 func move(v: Vector2) -> void:

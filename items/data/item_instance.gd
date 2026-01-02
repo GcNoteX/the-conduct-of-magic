@@ -1,6 +1,7 @@
 class_name ItemInstance
 extends Resource
 
+@export var id: StringName
 @export var definition: ItemDefinition
 
 # Optional runtime state (composition)
