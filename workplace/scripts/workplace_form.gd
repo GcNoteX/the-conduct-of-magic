@@ -2,6 +2,8 @@
 class_name WorkplaceForm
 extends Area2D
 
+var owner_object: WorkspaceObject = null
+
 func enable() -> void:
 	set_process(true)
 	set_physics_process(true)
