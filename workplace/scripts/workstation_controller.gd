@@ -1,4 +1,4 @@
-extends Area2D
+extends Node
 
 ## Discrete zoom levels for the workstation camera.
 ## Higher values = more zoomed in (Camera2D semantics).
@@ -66,10 +66,14 @@ func _ready() -> void:
 	if workstation_cursor == null:
 		push_error("WorkstationArea: workstation_cursor not assigned")
 		return
-
-	monitoring = true
-	monitorable = true
-
+	
+	## Get workstation area
+	var workstation_area = get_tree().get_first_node_in_group("workstation") as Area2D
+	if not workstation_area.area_entered.is_connected(_on_area_entered):
+		workstation_area.area_entered.connect(_on_area_entered)
+	if not workstation_area.area_exited.is_connected(_on_area_exited):
+		workstation_area.area_exited.connect(_on_area_exited)
+	
 	## Initial camera setup
 	_apply_zoom()
 	_center_camera_on_table()

@@ -32,9 +32,9 @@ func _ready() -> void:
 		assert(channel_form is ChannelForm, "channel_form must be a ChannelForm node")
 		channel_form.disable()
 
-		var channel_area := get_tree().get_first_node_in_group("channel")
-		if channel_area:
-			channel_area.visual_root.add_child(channel_form)
+		var channel_controller := get_tree().get_first_node_in_group("channel_controller")
+		if channel_controller:
+			channel_controller.visual_root.add_child(channel_form)
 			channel_form.global_position = global_position
 
 		channel_form.owner_object = self
