@@ -172,20 +172,19 @@ debug_color = Color(0.88235295, 0, 0.81960785, 1)
 
 [node name="World" type="Node2D" parent="."]
 
-[node name="WorkstationCursor" parent="World" node_paths=PackedStringArray("workstation_cursor_proxy") groups=["cursor"] instance=ExtResource("3_kcwhr")]
+[node name="WorkstationCursor" parent="World" groups=["cursor"] instance=ExtResource("3_kcwhr")]
 modulate = Color(0.97417814, 0.6789099, 0.6628199, 1)
 top_level = true
 position = Vector2(349, 636)
 scale = Vector2(3, 3)
 collision_layer = 2
-workstation_cursor_proxy = NodePath("../../UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkstationCursorProxy")
 
 [node name="WorkspaceObject" parent="World" instance=ExtResource("2_xlt1a")]
-position = Vector2(272, 713)
+position = Vector2(1470, 464)
 item = ExtResource("4_w0rqx")
 
 [node name="WorkspaceObject2" parent="World" instance=ExtResource("2_xlt1a")]
-position = Vector2(1118, 719)
+position = Vector2(425, 450)
 script = ExtResource("5_2j1iq")
 e_material = ExtResource("6_llppb")
 
@@ -210,8 +209,6 @@ position = Vector2(1280, 540.5)
 shape = SubResource("RectangleShape2D_6hf48")
 debug_color = Color(0.11377349, 0.64910424, 0, 0.41960785)
 
-[connection signal="area_entered" from="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkstationCursorProxy" to="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkstationCursorProxy" method="_on_area_entered"]
-[connection signal="area_exited" from="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkstationCursorProxy" to="UIRoot/SubViewportContainer/WorkstationViewport/WorkstationWorld/WorkstationCursorProxy" method="_on_area_exited"]
 [connection signal="area_entered" from="World/ChannelArea" to="." method="_on_channel_area_entered"]
 [connection signal="area_entered" from="World/WorkStationArea" to="World/WorkStationArea" method="_on_area_entered"]
 [connection signal="area_exited" from="World/WorkStationArea" to="World/WorkStationArea" method="_on_area_exited"]

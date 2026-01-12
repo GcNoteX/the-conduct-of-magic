@@ -33,14 +33,18 @@ var _zoom_index: int = 0
 
 ## Whether the main cursor is currently inside the workstation area
 var _cursor_inside: bool = false
-
+var _was_cursor_inside: bool = false
 ## Cached reference to the main cursor node
-var _cursor_node: Node2D = null
+var _cursor_node: WorkstationCursor = null
 
 ## Panning state (middle mouse drag)
 var _is_panning: bool = false
-var _pan_last_vp_pixel: Vector2 = Vector2.ZERO
+var _pan_last_screen: Vector2 = Vector2.ZERO
 
+"""
+This script handles zoom and provides a way
+to map the main and subviewport pixels to be identical
+"""
 
 func _ready() -> void:
 	## --- VALIDATION ---
@@ -58,7 +62,7 @@ func _ready() -> void:
 		return
 
 	## Cache main cursor (screen-space)
-	_cursor_node = get_tree().get_first_node_in_group(cursor_group) as Node2D
+	_cursor_node = get_tree().get_first_node_in_group(cursor_group) as WorkstationCursor
 	if _cursor_node == null:
 		push_warning("WorkstationArea: no cursor found in group '%s'" % String(cursor_group))
 
@@ -66,14 +70,17 @@ func _ready() -> void:
 	if workstation_cursor == null:
 		push_error("WorkstationArea: workstation_cursor not assigned")
 		return
-	
+
+	## Set main cursor proxy cursor to controllers proxy
+	_cursor_node.workstation_cursor_proxy = workstation_cursor
+
 	## Get workstation area
 	var workstation_area = get_tree().get_first_node_in_group("workstation") as Area2D
-	if not workstation_area.area_entered.is_connected(_on_area_entered):
-		workstation_area.area_entered.connect(_on_area_entered)
-	if not workstation_area.area_exited.is_connected(_on_area_exited):
-		workstation_area.area_exited.connect(_on_area_exited)
-	
+	if not workstation_area.area_entered.is_connected(_on_workstation_entered):
+		workstation_area.area_entered.connect(_on_workstation_entered)
+	if not workstation_area.area_exited.is_connected(_on_workstation_exited):
+		workstation_area.area_exited.connect(_on_workstation_exited)
+
 	## Initial camera setup
 	_apply_zoom()
 	_center_camera_on_table()
@@ -84,19 +91,24 @@ func _process(_delta: float) -> void:
 	## While cursor is inside the workstation area, keep the proxy cursor
 	## aligned to the cursor's position converted into workstation world.
 	if _cursor_inside and _cursor_node and workstation_cursor:
-		workstation_cursor.position = screen_to_workstation_world(
-			_cursor_node.global_position
-		)
+		var world_pos := screen_to_workstation_world(_cursor_node.global_position)
+		if world_pos != Vector2.INF:
+			workstation_cursor.position = world_pos
+
+		#if !_was_cursor_inside:
+			#print(workstation_cursor.get_overlapping_areas())
+			#workstation_cursor.refresh_hover()
+	_was_cursor_inside = _cursor_inside
 
 
 ## --- AREA DETECTION ----------------------------------------------------------
 
-func _on_area_entered(area: Area2D) -> void:
+func _on_workstation_entered(area: Area2D) -> void:
 	if area.is_in_group(cursor_group):
 		_cursor_inside = true
 
 
-func _on_area_exited(area: Area2D) -> void:
+func _on_workstation_exited(area: Area2D) -> void:
 	if area.is_in_group(cursor_group):
 		_cursor_inside = false
 
@@ -121,7 +133,8 @@ func _input(event: InputEvent) -> void:
 		if mb.button_index == MOUSE_BUTTON_MIDDLE:
 			if mb.pressed:
 				_is_panning = true
-				_pan_last_vp_pixel = _cursor_to_subviewport_pixel()
+				if _cursor_node:
+					_pan_last_screen = _cursor_node.global_position
 			else:
 				_is_panning = false
 			return
@@ -137,12 +150,14 @@ func _zoom_step(dir: int) -> void:
 	if new_index == _zoom_index:
 		return
 
-	## Capture the workstation-world point under the cursor before zoom
-	var vp_pixel: Vector2 = _cursor_to_subviewport_pixel()
-	if vp_pixel == Vector2.INF:
+	if _cursor_node == null:
 		return
 
-	var world_before: Vector2 = _subviewport_pixel_to_world(vp_pixel)
+	## Capture the workstation-world point under the cursor before zoom
+	var screen_pos := _cursor_node.global_position
+	var world_before := screen_to_workstation_world(screen_pos)
+	if world_before == Vector2.INF:
+		return
 
 	_zoom_index = new_index
 	_apply_zoom()
@@ -154,7 +169,10 @@ func _zoom_step(dir: int) -> void:
 		return
 
 	## Adjust camera so the cursor stays over the same world point
-	var world_after: Vector2 = _subviewport_pixel_to_world(vp_pixel)
+	var world_after := screen_to_workstation_world(screen_pos)
+	if world_after == Vector2.INF:
+		return
+
 	workstation_camera.position += (world_before - world_after)
 
 	_clamp_camera_to_table()
@@ -168,21 +186,23 @@ func _apply_zoom() -> void:
 ## --- PAN ---------------------------------------------------------------------
 
 func _pan_update() -> void:
-	var vp_pixel: Vector2 = _cursor_to_subviewport_pixel()
-	if vp_pixel == Vector2.INF:
+	if _cursor_node == null:
 		return
 
-	## Cursor movement in SubViewport pixel space
-	var delta_px: Vector2 = vp_pixel - _pan_last_vp_pixel
-	_pan_last_vp_pixel = vp_pixel
+	var screen_now := _cursor_node.global_position
+	var screen_prev := _pan_last_screen
+	_pan_last_screen = screen_now
 
-	## Convert pixel delta → workstation world delta
-	## Higher zoom = fewer world units per pixel
-	var zoom: float = workstation_camera.zoom.x
-	var delta_world: Vector2 = delta_px / zoom
+	var world_now := screen_to_workstation_world(screen_now)
+	var world_prev := screen_to_workstation_world(screen_prev)
+
+	if world_now == Vector2.INF or world_prev == Vector2.INF:
+		return
+
+	var world_delta := world_now - world_prev
 
 	## Move camera opposite to cursor movement (grabbing the surface)
-	workstation_camera.position -= delta_world
+	workstation_camera.position -= world_delta
 
 	_clamp_camera_to_table()
 
@@ -217,77 +237,79 @@ func _clamp_camera_to_table() -> void:
 
 
 ## --- COORDINATE CONVERSION HELPERS -------------------------------------------
-## These functions define the authoritative mapping between:
-## screen space <-> SubViewport pixel space <-> workstation world space.
+## Only TWO public functions:
+## - screen_to_workstation_world()
+## - workstation_world_to_screen()
+##
+## Everything else is private glue.
 
-func _cursor_to_subviewport_pixel() -> Vector2:
-	if _cursor_node == null:
+func _screen_to_container_local(screen_pos: Vector2) -> Vector2:
+	# Accounts for canvas/UI scaling, anchors, stretch, etc.
+	var inv := subviewport_container.get_global_transform_with_canvas().affine_inverse()
+	return inv * screen_pos
+
+
+func _container_local_to_screen(local: Vector2) -> Vector2:
+	var xform := subviewport_container.get_global_transform_with_canvas()
+	return xform * local
+
+
+func _container_local_to_vp_pixel(local: Vector2) -> Vector2:
+	# local is in displayed container pixels (0..subviewport_container.size)
+	var rect_size := subviewport_container.size
+	if rect_size.x == 0.0 or rect_size.y == 0.0:
 		return Vector2.INF
 
-	var cursor_screen: Vector2 = _cursor_node.global_position
-	var rect: Rect2 = subviewport_container.get_global_rect()
-
-	if not rect.has_point(cursor_screen):
-		return Vector2.INF
-
-	var local: Vector2 = cursor_screen - rect.position
-	var vp_size: Vector2 = Vector2(subviewport.size)
-
-	return Vector2(
-		local.x * (vp_size.x / rect.size.x),
-		local.y * (vp_size.y / rect.size.y)
-	)
-
-
-func _subviewport_pixel_to_world(vp_pixel: Vector2) -> Vector2:
-	var inv: Transform2D = workstation_camera.get_canvas_transform().affine_inverse()
-	return inv * vp_pixel
-
-
-## Convert a screen-space position into workstation-world coordinates
-func screen_to_workstation_world(screen_pos: Vector2) -> Vector2:
-	var rect: Rect2 = subviewport_container.get_global_rect()
-	var local: Vector2 = screen_pos - rect.position
-
-	var vp_size: Vector2 = Vector2(subviewport.size)
-	var vp_pixel := Vector2(
-		local.x * (vp_size.x / rect.size.x),
-		local.y * (vp_size.y / rect.size.y)
-	)
-
-	var inv: Transform2D = workstation_camera.get_canvas_transform().affine_inverse()
-	return inv * vp_pixel
-
-
-## Convert a screen-space delta into a workstation-world delta
-## Used for dragging objects inside the workstation
-func screen_delta_to_workstation_world_delta(screen_delta: Vector2) -> Vector2:
-	var rect: Rect2 = subviewport_container.get_global_rect()
-	var vp_size: Vector2 = Vector2(subviewport.size)
-
-	var px_scale := Vector2(
-		vp_size.x / rect.size.x,
-		vp_size.y / rect.size.y
-	)
-
-	var vp_delta := Vector2(
-		screen_delta.x * px_scale.x,
-		screen_delta.y * px_scale.y
-	)
-
-	return vp_delta / workstation_camera.zoom.x
-
-
-## Convert workstation-world coordinates back into screen-space
-## Used by the cursor when reacting to form changes
-func workstation_world_to_screen(world_pos: Vector2) -> Vector2:
-	var canvas_xform := workstation_camera.get_canvas_transform()
-	var vp_pixel := canvas_xform * world_pos
-
-	var rect := subviewport_container.get_global_rect()
 	var vp_size := Vector2(subviewport.size)
+	return Vector2(
+		local.x * (vp_size.x / rect_size.x),
+		local.y * (vp_size.y / rect_size.y)
+	)
+
+
+func _vp_pixel_to_container_local(vp_pixel: Vector2) -> Vector2:
+	var rect_size := subviewport_container.size
+	var vp_size := Vector2(subviewport.size)
+	if vp_size.x == 0.0 or vp_size.y == 0.0:
+		return Vector2.INF
 
 	return Vector2(
-		rect.position.x + (vp_pixel.x / vp_size.x) * rect.size.x,
-		rect.position.y + (vp_pixel.y / vp_size.y) * rect.size.y
+		(vp_pixel.x / vp_size.x) * rect_size.x,
+		(vp_pixel.y / vp_size.y) * rect_size.y
 	)
+
+
+func _vp_pixel_to_world(vp_pixel: Vector2) -> Vector2:
+	# SubViewport pixel -> workstation world (through Camera2D)
+	var inv := workstation_camera.get_canvas_transform().affine_inverse()
+	return inv * vp_pixel
+
+
+func _world_to_vp_pixel(world_pos: Vector2) -> Vector2:
+	var xform := workstation_camera.get_canvas_transform()
+	return xform * world_pos
+
+
+## Public: screen/canvas position -> workstation world
+func screen_to_workstation_world(screen_pos: Vector2) -> Vector2:
+	var local := _screen_to_container_local(screen_pos)
+
+	# Optional bounds guard: if you want INF when outside container:
+	if local.x < 0.0 or local.y < 0.0 or local.x > subviewport_container.size.x or local.y > subviewport_container.size.y:
+		return Vector2.INF
+
+	var vp_pixel := _container_local_to_vp_pixel(local)
+	if vp_pixel == Vector2.INF:
+		return Vector2.INF
+
+	return _vp_pixel_to_world(vp_pixel)
+
+
+## Public: workstation world -> screen/canvas position
+func workstation_world_to_screen(world_pos: Vector2) -> Vector2:
+	var vp_pixel := _world_to_vp_pixel(world_pos)
+	var local := _vp_pixel_to_container_local(vp_pixel)
+	if local == Vector2.INF:
+		return Vector2.INF
+
+	return _container_local_to_screen(local)

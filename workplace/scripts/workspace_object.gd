@@ -79,9 +79,11 @@ func move(v: Vector2) -> void:
 
 	## Workstation form lives in SubViewport world → converted delta
 	if active_form == workstation_form and workstation_form and _workstation_controller:
-		if _workstation_controller.has_method("screen_delta_to_workstation_world_delta"):
-			var delta_ws: Vector2 = _workstation_controller.screen_delta_to_workstation_world_delta(v)
-			workstation_form.position += delta_ws
+		if _workstation_controller.has_method("screen_to_workstation_world"):
+			var ws := _workstation_controller.screen_to_workstation_world(global_position) as Vector2
+			if ws != Vector2.INF:
+				workstation_form.position = ws
+
 
 
 ## Switches between channel/workstation forms.
@@ -95,7 +97,6 @@ func change_form(target_form: WorkplaceForm) -> void:
 	if active_form:
 		active_form.disable()
 
-	## Align the form being enabled to the probe position
 	if target_form == channel_form:
 		_align_channel_form_to_probe()
 	elif target_form == workstation_form:
@@ -131,6 +132,6 @@ func _align_workstation_form_to_probe() -> void:
 ## Probe detects entering channel/workstation zones and switches form accordingly
 func _on_area_entered(area: Area2D) -> void:
 	if area.is_in_group("channel") and channel_form:
-		change_form(channel_form)
+		call_deferred("change_form", channel_form)
 	elif area.is_in_group("workstation") and workstation_form:
-		change_form(workstation_form)
+		call_deferred("change_form", workstation_form)

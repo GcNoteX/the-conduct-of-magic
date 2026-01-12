@@ -2,8 +2,8 @@ extends EnchantmentCursor
 class_name WorkstationCursor
 
 ## Proxy cursor that exists inside the workstation SubViewport world.
-## Used only for collision / hover detection.
-@export var workstation_cursor_proxy: WorkstationCursorProxy
+## Used as an equivalent cursor on the other screenscapoe
+var workstation_cursor_proxy: WorkstationCursorProxy
 
 @onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
 
@@ -29,19 +29,19 @@ func _physics_process(_delta: float) -> void:
 	## Drag logic: cursor produces a screen-space delta,
 	## WorkspaceObject decides how to apply it based on active form
 	if controlled_object:
+		#print("Moving object to ", global_position - _prev_pos)
 		controlled_object.move(global_position - _prev_pos)
 
 	## Begin grab
 	if Input.is_action_just_pressed("left_click"):
 		var obj: WorkspaceObject = null
-
 		## Prefer workstation hover if cursor is over a workstation form
 		if workstation_cursor_proxy and workstation_cursor_proxy.hovered_object:
 			obj = workstation_cursor_proxy.hovered_object
 		else:
 			obj = selection_manager.peek() as WorkspaceObject
-
 		controlled_object = obj
+		print("Controlling ", controlled_object)
 
 		## Cursor listens to form changes to realign itself
 		if obj and not obj.is_connected("form_changed", teleport_to_object):
@@ -49,6 +49,7 @@ func _physics_process(_delta: float) -> void:
 
 	## End grab
 	if Input.is_action_just_released("left_click"):
+		#print("Ending grab")
 		controlled_object = null
 
 	_prev_pos = global_position
