@@ -4,6 +4,9 @@ extends Node
 
 var _cursor_enabled = false
 
+# BUG: Zooming can push objects outside of the workstation area due to the area being
+# outside the subviewport, causing some weird shifting behaviour.
+
 func _ready() -> void:
 	workstation_cursor.enable_cursor()
 	_cursor_enabled = true
