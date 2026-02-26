@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" load_steps=6 format=3 uid="uid://dh646e83nxwig"]
+[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" format=3 uid="uid://dh646e83nxwig"]
 
 [ext_resource type="Script" uid="uid://buedytf1h1hyg" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_dsjdc"]
 [ext_resource type="Script" uid="uid://ciwwc44rc76de" path="res://enchantments/enchantment_conditions/instant_fail_condition.gd" id="2_3tvwi"]
-[ext_resource type="Texture2D" uid="uid://sd63taunfng8" path="res://placeholder_assets/health.png" id="3_6d5m1"]
+[ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="3_atkc2"]
 [ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="3_ipdwk"]
 
 [sub_resource type="Resource" id="Resource_6d5m1"]
@@ -11,6 +11,6 @@ metadata/_custom_type_script = "uid://ciwwc44rc76de"
 
 [resource]
 script = ExtResource("3_ipdwk")
-material_sprite = ExtResource("3_6d5m1")
+enchantment_sprite_normal = ExtResource("3_atkc2")
 material_attributes = Array[int]([0, 2])
 activation_conditions = Array[ExtResource("1_dsjdc")]([SubResource("Resource_6d5m1")])

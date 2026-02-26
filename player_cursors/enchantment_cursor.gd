@@ -21,8 +21,6 @@ func enable_cursor() -> void:
 	monitorable = true
 	set_physics_process(true)
 
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
-
 
 
 func disable_cursor() -> void:
@@ -31,5 +29,3 @@ func disable_cursor() -> void:
 	monitoring = false
 	monitorable = false
 	set_physics_process(false)
-
-	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)

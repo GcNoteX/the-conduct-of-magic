@@ -103,12 +103,12 @@ func _on_material_holder_material_removed() -> void:
 
 
 func update_material_sprite() -> void:
-	var m = material_holder.get_embedded_material()
+	var m := material_holder.get_embedded_material()
 	if m == null:
 		material_held.texture = null
 		circular_motion_anim.set_sprite(material_held)
 		return
-	material_held.texture = m.material_sprite
+	material_held.texture = m.enchantment_sprite_normal
 	UtilityFunctions.clamp_sprite_size(material_held, material_display_size)
 	circular_motion_anim.set_sprite(material_held)
 """

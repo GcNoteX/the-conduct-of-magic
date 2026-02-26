@@ -30,7 +30,8 @@ func fill(i: EnchantmentMaterialDefinition, q: int) -> void:
 	quantity = q
 	
 	_update_box()
-	item_icon.texture = item.material_sprite
+	
+	item_icon.texture = item.enchantment_sprite_normal
 
 func take_material() -> MapItem:
 	if quantity <= 0:

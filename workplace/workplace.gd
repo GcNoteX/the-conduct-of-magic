@@ -17,7 +17,9 @@ func _input(_event: InputEvent) -> void:
 		if _cursor_enabled:
 			workstation_cursor.disable_cursor()
 			_cursor_enabled = false
+			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
 			workstation_cursor.enable_cursor()
 			workstation_cursor.global_position = get_viewport().get_mouse_position()
 			_cursor_enabled = true
+			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)

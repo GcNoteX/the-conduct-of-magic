@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="ItemInstance" load_steps=7 format=3 uid="uid://b04ky0sopn77c"]
+[gd_resource type="Resource" script_class="ItemInstance" format=3 uid="uid://b04ky0sopn77c"]
 
 [ext_resource type="Script" uid="uid://kaltulv5bjap" path="res://items/data/item_instance.gd" id="1_dydbk"]
 [ext_resource type="Resource" uid="uid://bgm7slf16n0ny" path="res://items/enchantable_items_definitions/resources/e_item_def_1.tres" id="1_rkxn2"]

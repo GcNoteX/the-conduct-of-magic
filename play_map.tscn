@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://bl31wi5ugns5h"]
+[gd_scene format=3 uid="uid://bl31wi5ugns5h"]
 
 [ext_resource type="Script" uid="uid://cyxb7ftkj3gqp" path="res://play_map.gd" id="1_6l0k2"]
 [ext_resource type="Script" uid="uid://dpi7wddp3csw1" path="res://enchantment_map.gd" id="2_u2jdw"]
@@ -13,7 +13,6 @@
 
 [sub_resource type="Environment" id="Environment_6l0k2"]
 background_mode = 3
-glow_blend_mode = 1
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6l0k2"]
 size = Vector2(2, 138.80536)
@@ -27,19 +26,19 @@ size = Vector2(2, 128.47319)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cipcm"]
 size = Vector2(15, 228.47319)
 
-[node name="PlayMap" type="Node"]
+[node name="PlayMap" type="Node2D" unique_id=1746701237]
 script = ExtResource("1_6l0k2")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1359994252]
 environment = SubResource("Environment_6l0k2")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=977691351]
 anchor_mode = 0
 
-[node name="EnchantmentMap" type="Node2D" parent="."]
+[node name="EnchantmentMap" type="Node2D" parent="." unique_id=1286676843]
 script = ExtResource("2_u2jdw")
 
-[node name="E1" parent="EnchantmentMap" instance=ExtResource("3_i2ton")]
+[node name="E1" parent="EnchantmentMap" unique_id=2014770013 instance=ExtResource("3_i2ton")]
 position = Vector2(1308, 410)
 
 [node name="EnchantmentNode" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections")]
@@ -79,20 +78,20 @@ shape = SubResource("RectangleShape2D_puqhv")
 [node name="LineConnectingShape" parent="EnchantmentMap/E1/EnchantmentLine2" index="2"]
 shape = SubResource("RectangleShape2D_cipcm")
 
-[node name="Item1" parent="EnchantmentMap" instance=ExtResource("3_d7kya")]
+[node name="Item1" parent="EnchantmentMap" unique_id=902828455 instance=ExtResource("3_d7kya")]
 position = Vector2(1229, 429)
 
-[node name="MagicLine" parent="EnchantmentMap" node_paths=PackedStringArray("start", "end") instance=ExtResource("5_u2jdw")]
+[node name="MagicLine" parent="EnchantmentMap" unique_id=633978245 node_paths=PackedStringArray("start", "end") instance=ExtResource("5_u2jdw")]
 start = NodePath("../Item1/MagicNode")
 end = NodePath("../Item1/MagicNode4")
 
-[node name="MagicLine2" parent="EnchantmentMap" node_paths=PackedStringArray("start", "end") instance=ExtResource("5_u2jdw")]
+[node name="MagicLine2" parent="EnchantmentMap" unique_id=1513383595 node_paths=PackedStringArray("start", "end") instance=ExtResource("5_u2jdw")]
 start = NodePath("../Item1/MagicNode4")
 end = NodePath("../E1/EnchantmentNode2")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1731901177]
 
-[node name="Control" type="Control" parent="CanvasLayer"]
+[node name="Control" type="Control" parent="CanvasLayer" unique_id=1442537538]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -100,21 +99,27 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="GridContainer" parent="CanvasLayer/Control" instance=ExtResource("6_u2jdw")]
+[node name="GridContainer" parent="CanvasLayer/Control" unique_id=1537142796 instance=ExtResource("6_u2jdw")]
 layout_mode = 0
 
-[node name="TestEgrid" parent="CanvasLayer/Control" instance=ExtResource("9_nn7c1")]
+[node name="TestEgrid" parent="CanvasLayer/Control" unique_id=1529771720 instance=ExtResource("9_nn7c1")]
 layout_mode = 0
 offset_left = 5.0
 offset_top = 492.0
 offset_right = 192.0
 offset_bottom = 675.0
 
-[node name="MaterialCursor" parent="." instance=ExtResource("5_c3ttq")]
+[node name="MaterialCursor" parent="." unique_id=705225328 instance=ExtResource("5_c3ttq")]
+z_index = 1
+enabled = false
 
-[node name="EnchantmentLayoutCursor" parent="." instance=ExtResource("9_6l0k2")]
+[node name="EnchantmentLayoutCursor" parent="." unique_id=1619239928 instance=ExtResource("9_6l0k2")]
+z_index = 1
+enabled = false
 
-[node name="DrawCursor" parent="." instance=ExtResource("8_nn7c1")]
+[node name="DrawCursor" parent="." unique_id=595042004 instance=ExtResource("8_nn7c1")]
+z_index = 1
+enabled = false
 
 [editable path="EnchantmentMap/E1"]
 [editable path="EnchantmentMap/E1/EnchantmentNode"]
