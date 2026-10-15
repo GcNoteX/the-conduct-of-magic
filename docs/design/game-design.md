@@ -276,6 +276,8 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - Lines carry **runes**. **Cutting a line consumes runes and gives runes.**
 - **Materials can be dissolved** to give you runes.
 - You keep cutting, spending runes as needed. **When you are blocked, a material is needed** to get the runes to continue. That is how you solve the board.
+- **Which line gives which runes is defined by the material inserted** in its node, and is visible when viewed. For example, lines leaving the node top left give one rune and lines leaving bottom right give another. The exact mapping is to be worked out.
+- **Runes are an inverse representation of the material.**
 - This grew from the idea of symbols and numbers on each line, where cutting a line gives you its set of symbols and the next cut must share at least one of them.
 
 **Direction:** disenchanting may play like **defusing a bomb**.
@@ -395,6 +397,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | **Requirement:** every enchantment's disenchant board must be **solvable** for any player-made layout (§7.6). |
 | 2026-10-15 | Disenchanting uses **plan, then commit to execute**. Materials can optionally influence disenchanting, and some disenchants may require materials. The system to build on is **runes**: cutting lines consumes and gives runes, materials can be dissolved for runes, and when you're blocked a material is needed (§7.6). |
 | 2026-10-15 | Countdown nodes feel like just counting numbers. The **tension and scaffolding** idea for high-level enchantments is archived for when more difficulty is needed (Appendix A.7). |
+| 2026-10-15 | The runes a line gives are **defined by the material inserted** (for example by the direction the line leaves the node), and runes are an **inverse representation of the material** (§7.6). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
