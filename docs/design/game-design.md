@@ -215,7 +215,14 @@ Both nodes and materials can carry conditions, but **materials will carry most o
 | **Look** | Organic | Technical, like a circuit board or inventory | **Arcane and organic, like honeycomb or rune circles** |
 | **Item silhouettes** | Any shape | Blocky | Rounder |
 
-**Decision: hex grid.** Discrete placement makes conditions exact ("adjacent" means a neighbouring cell, and distance is a count of steps). Shifting becomes a snap of one or a few cells. Hexes avoid the square grid's diagonal problem and look more like magic than a circuit board. Edges can still be drawn as straight lines between nodes.
+**Decision: hex grid.** Discrete placement makes conditions exact ("adjacent" means a neighbouring cell, and distance is a count of steps). Shifting becomes a snap of one or a few cells. Hexes avoid the square grid's diagonal problem and look more like magic than a circuit board. 
+**Edges**
+- **No crossing**: edges can't cross each other. This is a rule to try out.
+- **Edges you draw don't have to be straight.** They can bend around obstacles.
+- **An enchantment's own lines are fixed** and come with it when you drag it on, usually straight.
+- **Later (advanced):** variants that let you reshape a specific line inside an enchantment, for example changing the line between A and B to another shape.
+
+**Map size and shape vary per item.** Each item's map can have its own size and shape rather than a single fixed size.
 
 
 
@@ -288,7 +295,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. Do edges follow hex cell lines, or run as straight lines between nodes? Can edges cross?
+14. What decides an item's map size and shape: item type (a sword is long and thin), quality or material, or something else?
 15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 16. Can two enchantments share magic nodes, or overlap on the map?
 
@@ -321,3 +328,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Condition types will be tested by experiment. For now a node's only condition is which materials it accepts, and node types come later. Materials carry most conditions. Some nodes can **shift** along a short slider. |
 | 2026-10-15 | Both magic nodes and enchantment nodes can shift, and shifting is **free**. |
 | 2026-10-15 | The item map uses a **hex grid**. Nodes sit in cells, shifting snaps to cells, and enchantments rotate in 60° steps. |
+| 2026-10-15 | Edges **can't cross** (to be tested). Edges you draw can bend. An enchantment's own lines are fixed, with reshapeable variants as a later advanced mechanic. Map size and shape **vary per item**. |
