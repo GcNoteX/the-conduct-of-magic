@@ -167,6 +167,8 @@ When the shop closes, the player moves to enchanting:
 2. **Choose an item** you received from a customer or bought yourself.
 3. **Enchant it** (see below).
 
+**Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else.
+
 ### 7.1 The three ingredients
 Every enchanting job combines three things:
 
@@ -219,6 +221,7 @@ Both nodes and materials can carry conditions, but **materials will carry most o
 
 **Decision: hex grid.** Discrete placement makes conditions exact ("adjacent" means a neighbouring cell, and distance is a count of steps). Shifting becomes a snap of one or a few cells. Hexes avoid the square grid's diagonal problem and look more like magic than a circuit board. 
 **Edges**
+- **Snapping is free** for edges the player drew themselves.
 - **No crossing**: edges can't cross each other. This is a rule to try out.
 - **Edges you draw don't have to be straight.** They can bend around obstacles.
 - **An enchantment's own lines are fixed** and come with it when you drag it on, usually straight.
@@ -256,18 +259,26 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 ### 7.6 Existing enchantments and disenchanting
 **Items can arrive already enchanted**, and their enchantments **take up space on the map**.
 
-**Disenchanting ideas (undecided).** These are designed to reuse the existing node, material and condition systems:
+**Item durability.** Items have **durability**. Removing an enchantment whose nodes hold **activated** materials can damage it. **Scars** (removed enchantments leaving their cells as terrain) are also on the table.
 
-| # | Idea | How it works | Ties into |
-|---|---|---|---|
-| 1 | **Dissolving materials** | Insert a solvent material into an enchantment node. Like any material, it has conditions to meet (for example, cut it down to 1 edge). Once met, the node deactivates and can be lifted out | Reuses the condition system; solvents are a new stock item |
-| 2 | **Unpicking order** | Removing a material can break the conditions of its neighbours. Take them out in the wrong order and the enchantment reacts (it flares, damages the map or curses the item) | The "faulty material blows up" risk; cursed items |
-| 3 | **Salvage** | Disenchanting returns some of the materials, possibly worn or of lower quality | Material management |
-| 4 | **Scars** | A removed enchantment leaves its cells as terrain (condition cells or dead cells). An item's history shows on its map | Terrain; inspection (scars could be visible at the counter) |
-| 5 | **Protected enchantments** | Some enchantments carry a maker's or guild seal, and removing them is illegal or needs certification | Guild and law rules; inspection |
-| 6 | **Breaking down macros** | A macro enchantment can be broken into its micro enchantments, so you remove only part of it | Macro enchantments (§7.5) |
+**Direction: disenchanting as defusing a bomb.** An existing enchantment is **live**: its nodes are active and its materials hold their charge.
 
-**Proposed combination:** #1 as the core action, so disenchanting is a puzzle in the same language as enchanting. Add #4 so items carry their history, and #5 for the story and inspection hooks.
+**Proposed core rule: never pull from a live node.**
+- Taking a material out of an **active** node causes **backlash**, which costs durability.
+- To remove a material safely, first make its node **go dark** by **breaking its activation conditions**. For example, cut an edge so it no longer has its 3 connections, or put a fire cell next to a "no adjacent fire" node.
+- Once a node is dark, its material lifts out cleanly.
+- This makes disenchanting the **reverse of enchanting**: enchanting satisfies conditions, and disenchanting un-satisfies them in a safe order.
+
+**Proposed layers on top**
+| Layer | How it works | Ties into |
+|---|---|---|
+| **Foreign lines** | Edges you didn't draw (someone else's work) aren't free to snap. They need a tool or cost a little durability | Free snapping applies only to your own lines |
+| **Chain reactions** | Some materials have an **on-dark effect**. When their node goes dark, a neighbour flares or takes damage, so order matters, like cutting wires | Cursed and volatile items; harder commissions |
+| **The manual** | Books and material guides say which materials are volatile and what they do when disarmed, like the bomb manual in *Keep Talking and Nobody Explodes* | Books and printed matter (§4.2) |
+| **Scars** | Disarming badly (with backlash) leaves scar cells, while a clean defuse leaves the map intact | Rewards skill; item history visible at inspection |
+| **Salvage** | Cleanly removed materials come back, and backlash destroys them | Material management |
+
+The time limit keeps this tense without a separate countdown: careful defusing is safe but slow.
 
 ## 8. Uses of enchanted items
 
@@ -333,10 +344,10 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 
 **Shop and enchanting**
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
-11. Is there time pressure during the shop day or the enchanting day?
+11. Is there time pressure during the shop day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. How does disenchanting work? See the ideas in §7.6.
+14. How long is the enchanting day, and what does an action cost: real time, or a budget of actions or hours per action?
 15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 16. Can two enchantments share magic nodes, or overlap on the map?
 
@@ -375,3 +386,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | **Map silhouettes are fixed per item type** (no randomness, previewable in the shop). This replaces shape variants. Players choose and **seal** a magic node arrangement. A sealed arrangement persists, and unsealing costs. Higher-capacity arrangements (more nodes, finer grid) bring terrain or difficulty. |
 | 2026-10-15 | Map terrain starts as **condition cells** (for example, a node placed there must use a fire material). Inspection can check the **silhouette** (damage) and whether the item is **already sealed** (accepting means working with an unknown map, or paying to unseal). |
 | 2026-10-15 | Items can arrive **already enchanted**, and their enchantments take up map space. The disenchanting mechanic is undecided (ideas in §7.6). |
+| 2026-10-15 | The enchanting day has a **fixed time limit**; time is the main pressure. Snapping your own edges is **free**. Items have **durability**, which removing activated enchantments can damage. Disenchanting leans toward **bomb defusal** (§7.6). |
