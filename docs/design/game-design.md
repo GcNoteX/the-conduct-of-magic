@@ -57,7 +57,7 @@ A shop-management, inspection and crafting game about a young enchanter learning
 **Proposed.** Test materials and tools could be consumed on use. Each check then costs something, and the player has to choose which tests are worth running on which customer. Stronger tools, such as ones that reveal curses, would come from your own enchanting (§8).
 
 ### 4.2 Books and printed matter
-**The gameplay loop never leaves the store**, so printed matter is the player's window to the wider world.
+**There's no foraging.** Materials and knowledge come to you through the shop, so printed matter is the player's window to the wider world.
 
 **Kinds**
 | Kind | What it gives |
@@ -71,7 +71,14 @@ A shop-management, inspection and crafting game about a young enchanter learning
 
 **How you get them**
 - **Gifts or payment from customers.** This ties into relationships, because a pleased customer may bring you something.
-- **A bookstore.** The player can visit it. **Proposed:** to keep the loop inside the store, the visit could be a menu between days, or a **travelling book peddler** who comes into your shop as a special customer.
+- **A bookstore** the player can visit.
+- **A travelling book peddler** who comes into your shop.
+
+### 4.3 Contacts
+Contact adverts (and other sources) unlock **contacts**, people outside the shop you can deal with. A contact may offer one or more of these:
+- **Procurement:** access to **unique materials**, or regular materials at a **cheaper price**.
+- **Remote commissions:** you do work for them and send it off, in exchange for **rewards**.
+- **Visits:** they **come by your store** as a special customer.
 
 ## 5. Commissions
 
@@ -225,7 +232,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
-13. Where do materials come from: suppliers, customers, foraging or salvage from items?
+13. Where do materials come from besides contacts and customers: a regular supplier, salvage from items?
 
 ## 11. Decision log
 
@@ -247,5 +254,6 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Customer patience is shown through **reactions** and, for now, a **side bar**. |
 | 2026-10-15 | **Books** teach about materials and cultures and act as an inspection reference. |
 | 2026-10-15 | In the opening chapter the **uncle negotiates** (using fixed deadlines), while the player inspects commission sheets against the rules and enchants. |
-| 2026-10-15 | **The gameplay loop never leaves the store.** |
-| 2026-10-15 | Printed matter includes research papers, culture guides, news and adverts (including adverts that unlock new contacts). It comes as **gifts or payment from customers** or from a **bookstore**. |
+| 2026-10-15 | **No foraging.** Materials and knowledge come through the shop, its visitors and its contacts. |
+| 2026-10-15 | Printed matter includes research papers, culture guides, news and adverts (including adverts that unlock new contacts). It comes as **gifts or payment from customers**, from a **bookstore** or from a **book peddler**. |
+| 2026-10-15 | **Contacts** can offer unique or cheaper materials, remote commissions for rewards, or visits to the store. |
