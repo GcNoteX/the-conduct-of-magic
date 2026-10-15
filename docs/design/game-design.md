@@ -213,6 +213,10 @@ Every enchanting job combines three things:
 
 Both nodes and materials can carry conditions, but **materials will carry most of them**. For now a node's only condition is **which materials it accepts**.
 
+**How acceptance works in the current prototype.** An enchantment node sets the **tier** a material must be (that tier or higher) and which **material attributes** it accepts, which together give the range of materials that fit. Materials carry their own **activation conditions**.
+
+**Lines are unlimited.** Players can draw as many lines as they like (they still can't cross).
+
 **Later: node types.** Nodes will eventually have their own types, which conditions can reference.
 
 **Movable nodes.** Some nodes can **shift**: you drag them along a short slider to move them a little. This lets you change distances and positions to meet conditions. Both magic nodes and enchantment nodes can shift (which ones will vary), and shifting is **free**, with no cost in money or items.
@@ -375,7 +379,6 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day?
 12. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-13. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 
 ## 11. Decision log
 
@@ -426,6 +429,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Runes: start at **0**, dissolving a material gives starting runes, **4 rune types** for now, a material gives **1 rune** for now, deterministically. Dissolving happens only on commit. A plan whose material was used elsewhere shows a **red commit** (continue, or undo). **No durability for now**, since there are no mistakes (§7.6). |
 | 2026-10-15 | **Enchantments can't share magic nodes** for now, and magic nodes are 1 cell. |
 | 2026-10-15 | In the uncle's workshop, the end states are **running out of money** and **not having enough money for the next game stage**, each with different endings (§9.2.2). |
+| 2026-10-15 | Players can draw **as many lines as they like**. Node acceptance uses the prototype's **tier and attribute** requirements. A **focus** limit on dangling lines is archived for later (A.8). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -605,3 +609,6 @@ Gavin's idea, kept for when we need something more difficult. It adds another co
 **Disenchanting (the inverse)**
 - Besides runes, there is **load** to consider.
 - Lines are cut in **sequences**, and **pins** can be placed to do a kind of **semi-cut**.
+
+### A.8 Focus (for later)
+A possible future limit: **focus** is how many **incomplete lines** can be left dangling while the player does something else. It would be another limitation on the player, but not for now.
