@@ -56,8 +56,22 @@ A shop-management, inspection and crafting game about a young enchanter learning
 
 **Proposed.** Test materials and tools could be consumed on use. Each check then costs something, and the player has to choose which tests are worth running on which customer. Stronger tools, such as ones that reveal curses, would come from your own enchanting (§8).
 
-### 4.2 Books and knowledge
-Books found or bought around the world teach the player about **materials** (how each one looks, what it weighs and how it reacts to tests) and about **different cultures** (their markings, customs and goods). Knowledge is the player's reference when inspecting, much like the rulebook in Papers, Please, and it's also a way to tell the world's lore.
+### 4.2 Books and printed matter
+**The gameplay loop never leaves the store**, so printed matter is the player's window to the wider world.
+
+**Kinds**
+| Kind | What it gives |
+|---|---|
+| **Material guides** | How materials look, what they weigh and how they react to tests. An inspection reference, like the rulebook in Papers, Please |
+| **Research papers** | Enchanting knowledge, such as new enchantments or new ways to meet conditions |
+| **Culture and group guides** | Customs, markings and goods of different cultures and factions, which helps you read customers and their items |
+| **News** | What's happening in the world: rule changes, events, and story beats elsewhere |
+| **Adverts for reputable people** | Who's trusted and who's notable, which helps you judge customers and claims |
+| **Contact adverts** | **Unlock a new person to contact**, such as a supplier, a specialist or a client |
+
+**How you get them**
+- **Gifts or payment from customers.** This ties into relationships, because a pleased customer may bring you something.
+- **A bookstore.** The player can visit it. **Proposed:** to keep the loop inside the store, the visit could be a menu between days, or a **travelling book peddler** who comes into your shop as a special customer.
 
 ## 5. Commissions
 
@@ -199,7 +213,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 
 **Rules and factions**
 4. Which guilds and factions exist in the uncle's town, and which of them later lead to the University, Adventurers' Guild and Black Market?
-5. How does the player learn the rules: from the uncle, guild notices or books? How are books obtained (bought, rewards from customers, found)?
+5. How does the player learn the rules: from the uncle, guild notices or books?
 
 **Story**
 6. Is the main character's gift rare or unique, and who knows about it?
@@ -233,3 +247,5 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Customer patience is shown through **reactions** and, for now, a **side bar**. |
 | 2026-10-15 | **Books** teach about materials and cultures and act as an inspection reference. |
 | 2026-10-15 | In the opening chapter the **uncle negotiates** (using fixed deadlines), while the player inspects commission sheets against the rules and enchants. |
+| 2026-10-15 | **The gameplay loop never leaves the store.** |
+| 2026-10-15 | Printed matter includes research papers, culture guides, news and adverts (including adverts that unlock new contacts). It comes as **gifts or payment from customers** or from a **bookstore**. |
