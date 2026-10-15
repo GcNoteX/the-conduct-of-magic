@@ -286,6 +286,71 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 
 The time limit keeps this tense without a separate countdown: careful defusing is safe but slow.
 
+### 7.7 Cut-order systems (candidates to experiment with)
+Candidate systems for the calculated cut order in disenchanting, written down at Gavin's request. **None is decided.**
+
+| # | System | How it works | Mode |
+|---|---|---|---|
+| 1 | **Load and capacity** | Lines carry load. Cutting one passes its load onward, and overflow bursts. See below | Planning (all visible) |
+| 2 | **Minesweeper numbers** | Each node shows how many of its lines are **trapped**. Cutting a safe line reveals the numbers on nearby nodes, so you deduce the next safe cut. Cutting a trapped line costs durability | One pass |
+| 3 | **Countdown nodes** | Each node shows a counter, and each cut lowers the counters at both ends by 1. A node that reaches 0 while it still has lines attached sparks. You find an order that keeps counters above 0 until each node's last line (Hashi in reverse) | Planning |
+| 4 | **Pins** | Some lines are **pinned** by others and can only be cut after the lines pinning them. Pins may be hidden until inspected. The order is a dependency chain | Planning, or one pass if hidden |
+| 5 | **Polarity balance** | Lines are **+** or **−**. Every node must stay within ±1 of balanced throughout, so cuts alternate around busy nodes | Planning |
+| 6 | **Material release rules** | Each material sets its own rule (for example, "water: cut its lines clockwise", "fire: cut its longest line last"). Books teach the rules | Knowledge-based |
+
+These can combine. For example, #1 with hidden capacities that are revealed as you cut gives a one-pass version of the load system.
+
+#### 7.7.1 Load and capacity in detail
+**Pieces**
+- **Line:** has a **load** (current charge) and a **capacity** (maximum), shown as `load/capacity`, for example `4/6`.
+- **Node:** has a **ground capacity**, the most load it can absorb once it has no lines left to pass load to. This could come from the node's material.
+
+**Cutting a line**
+1. You choose **which end** to cut nearer to.
+2. The cut line's load flows to **that end's node**.
+3. If that node still has other lines, the load is **split evenly** among them.
+4. If the node has no other lines, the load **grounds** into the node.
+
+**Overflow**
+- A line pushed **above its capacity** bursts, which costs durability. *(Possibly its load cascades onward, as a chain reaction.)*
+- A node grounding **more than its ground capacity** bursts, which costs durability.
+
+**Goal:** cut every line with **no bursts**, then pull the enchantment out. The total load is conserved, so the puzzle is really **where the load ends up**.
+
+**Worked example**
+A star shape. Centre node **Q** has ground capacity 4. Outer nodes **P**, **R** and **S** each have ground capacity 2.
+
+| Line | Between | Load/capacity |
+|---|---|---|
+| a | Q–P | 4/6 |
+| b | Q–R | 2/4 |
+| c | Q–S | 2/4 |
+
+- **Bad order:** cut **a** first.
+  - Toward P: 4 grounds into P, which only holds 2, so P bursts.
+  - Toward Q: b and c each get +2 and become 4/4. Now each one either grounds 4 into an outer node (which only holds 2, so it bursts) or pushes 4 onto the other line (8/4, so it bursts). This is a dead end.
+- **Good order:**
+  1. Cut **b** toward R: 2 grounds into R, which holds 2. OK.
+  2. Cut **c** toward S: 2 grounds into S. OK.
+  3. Cut **a** toward Q: Q has no lines left, so 4 grounds into Q, which holds 4. Clean.
+- **The lesson:** drain the branches first, then the trunk into the strongest node.
+
+**Lines that take several cuts**
+- **Thick lines:** a line needs **N cuts** to sever. Each cut sheds **1/N of its load** toward the end you choose, and the line stays in place with less load. This lets you **drain a heavy line gradually** and interleave it with other cuts.
+  - In the example, if **a** were a 2-cut line, the first cut toward P sheds 2 into P (OK), leaving a at 2/6. That opens new orders.
+- **Fraying:** each partial cut also lowers the line's **capacity** by 1, so a thick line gets riskier while it's half cut.
+- **Re-fusing:** some materials **re-fuse** a cut line if load flows back into its node, so it has to be **cut again**.
+
+**Tuning knobs**
+| Knob | Options |
+|---|---|
+| **Direction** | The player chooses the end (current), or the load always flows toward the enchantment's centre |
+| **Split rule** | Split evenly (current), all to the heaviest line, or all to the lightest |
+| **Uneven splits** | Design numbers so they always divide evenly, round up (more tension), or let the remainder ground into the node |
+| **Ground capacity** | Fixed per node, set by the node's material, or affected by terrain |
+| **Burst cost** | Durability only, or durability plus a cascade of the burst load |
+| **Visibility** | All numbers shown (planning), or capacities hidden until adjacent cuts reveal them (one pass) |
+
 ## 8. Uses of enchanted items
 
 - **Commissions**: deliver them to the customer for payment and to move their story along.
@@ -395,3 +460,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | The enchanting day has a **fixed time limit**; time is the main pressure. Snapping your own edges is **free**. Items have **durability**, which removing activated enchantments can damage. Disenchanting leans toward **bomb defusal** (§7.6). |
 | 2026-10-15 | Enchanting time is in **real seconds**. Inserted materials are **used up** (no recycling). **Lines are drawn during planning**, and you commit one or more connected enchantments together. Disenchanting means **cutting all lines, then pulling the enchantment out**. |
 | 2026-10-15 | Disenchanting uses **planning**, with no waiting or quick-time mechanics. Lines are **cut in an order** found by calculation, possibly in one pass like Minesweeper. The exact system is to be experimented with. |
+| 2026-10-15 | Six cut-order candidate systems are recorded in §7.7, with the load and capacity model elaborated, including lines that take several cuts. All are to be experimented with; none is decided. |
