@@ -163,19 +163,42 @@ Rules can change over time, the way they do in Papers, Please.
 When the shop closes, the player moves to enchanting:
 1. **Review commissions** to see what's owed, to whom and by when.
 2. **Choose an item** you received from a customer or bought yourself.
-3. **Open its enchantment map.** Every item contains a set of nodes, and these nodes are its *capacity for enchantment*.
-4. **Place enchantments.** Each enchantment is itself a group of nodes that you drag onto the item's map.
-5. **Activate the enchantment.** You insert materials into its nodes. Each material carries **conditions**, such as how many connections the node needs. You meet them by connecting the enchantment's nodes to nodes already on the map, and more kinds of condition may come later.
-6. An enchantment works once every one of its nodes is activated.
+3. **Enchant it** (see below).
 
-**Existing enchantment ideas** (from `enchantments/enchantment_list.txt`)
-- *Tier 1, physical:* Sharpness, Bluntness, Lightness, Heaviness, Roughness, Smoothness, Brittleness, Toughness.
-- *Tier 2, tied to line geometry:*
-  - Obtuse and acute angles give Loudness/Silentness, Reflectiveness/Dullness and enhanced or suppressed Smell and Taste.
-  - Colinear lines give Fire, Water, Wind or Earth **Conductivity**, which enhances the effect of that element.
-  - Right angles give Fire, Water, Wind or Earth **Resistance**, which suppresses the effect of that element.
+### 7.1 The three ingredients
+Every enchanting job combines three things:
 
-*Map features and further enchanting mechanics still need writing up.*
+| Ingredient | What it is |
+|---|---|
+| **The item** | Its **item map**: the item's internal enchanting structure, made of **magic nodes**. This is the item's capacity for enchantment |
+| **Enchantments** | **Fixed-shape** graphs of **enchantment nodes** that you drag and drop onto the item map |
+| **Materials** | Inserted into enchantment nodes to activate them |
+
+**No free-form enchanting.** Enchantments have a fixed shape. Earlier ideas where the shape you drew decided the effect (angles, colinear and right-angled lines) are dropped, because they were too hard to design.
+
+### 7.2 How an enchantment comes together
+1. **Place.** Drag an enchantment onto the item map.
+2. **Connect.** Draw **edges** between the enchantment's nodes and the item's magic nodes. Other kinds of link may come later. Connecting alone does little.
+3. **Insert materials** into each enchantment node. This sets the conditions that node needs to activate.
+4. **Meet the conditions** by connecting, rearranging or changing materials.
+5. **Activate.** When **every** enchantment node is active, the enchantment activates.
+
+### 7.3 Where conditions come from
+| Source | When it applies | Example |
+|---|---|---|
+| **The enchantment node** | Decides which materials it **accepts** | "Only water-type materials" |
+| **The material's activation conditions** | Must be met for the node to activate | "With this material, the node needs **3 edges** connected" |
+| **Constraints a material adds** | Once inserted, it adds rules about its surroundings | "No **adjacent fire-type** connections" |
+
+**Proposed: a starter set of condition types**
+- **Edge count:** at least, exactly or at most N edges on this node.
+- **Adjacency by type:** must or must not connect to a node or material of a given element.
+- **Connect to a specific magic node:** for example a "core" or "hilt" node on the item.
+- **Distance or line length:** within or beyond a distance.
+- **Shared node:** two enchantment nodes connect to the same magic node.
+- **Cross-enchantment:** connects to, or stays clear of, another enchantment on the same item.
+
+Difficulty comes from combining conditions. A formal ranking of enchantments will be added when it's needed.
 
 ## 8. Uses of enchanted items
 
@@ -244,6 +267,9 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
+14. Do magic nodes have their own types or properties (such as an element, or a capacity limit) that conditions can reference?
+15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
+16. Can two enchantments share magic nodes, or overlap on the map?
 
 ## 11. Decision log
 
@@ -269,3 +295,5 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Printed matter includes research papers, culture guides, news and adverts (including adverts that unlock new contacts). It comes as **gifts or payment from customers**, from a **bookstore** or from a **book peddler**. |
 | 2026-10-15 | **Contacts** can offer unique or cheaper materials, remote commissions for rewards, or visits to the store. |
 | 2026-10-15 | Materials come from the **uncle's stock** (restocked early on), then a **catalogue** and **customers selling in the store**. The **uncle's store** is a surcharge fallback for urgent materials. |
+| 2026-10-15 | Enchanting uses three ingredients: the **item map** (magic nodes), **fixed-shape enchantments** (enchantment nodes) and **materials**. **No free-form enchanting.** The tier list and geometry-based enchantments are dropped, and difficulty rankings come later. |
+| 2026-10-15 | Conditions come from the enchantment node (which materials it accepts), the material (its activation conditions) and constraints the material adds once inserted (such as no adjacent fire). An enchantment activates when all its nodes are active. |
