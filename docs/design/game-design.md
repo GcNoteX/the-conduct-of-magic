@@ -351,6 +351,27 @@ A star shape. Centre node **Q** has ground capacity 4. Outer nodes **P**, **R** 
 | **Burst cost** | Durability only, or durability plus a cascade of the burst load |
 | **Visibility** | All numbers shown (planning), or capacities hidden until adjacent cuts reveal them (one pass) |
 
+#### 7.7.2 Solvability (requirement)
+**Requirement (Gavin):** every enchantment's disenchant board must be **solvable**, even though players will lay out the same enchantment in many different ways. Boards can't be hand-authored per layout, so the numbers have to come from rules.
+
+**Approaches to consider**
+| Approach | How it works | Notes |
+|---|---|---|
+| **A. Always completable** | Mistakes cost durability but never block you. "Solvable" means you can always finish, and skill means **losing less**. The best possible result can be computed to grade the player | Removes dead ends entirely |
+| **B. Safe by construction** | Numbers are assigned when the enchantment is **woven**, so that undoing it in **reverse weave order** is always clean. The game records the weave order. For someone else's enchantment, the order has to be deduced from inspection clues | A guaranteed solution exists, and it doubles as a story/inspection hook |
+| **C. Solver check at commit** | When an enchantment is committed, the game runs a small solver to confirm a clean cut order exists. If none does, it adjusts (for example, raises a ground capacity) or marks the weave **unstable** (harder or impossible to remove cleanly) | Boards are small (tens of lines), so a search over cut orders is cheap |
+| **D. Derive numbers from materials** | Loads, capacities and ground capacities come from the **materials and node types**, never per board. Designers balance materials, and A, B or C guarantee the result | Keeps authoring manageable |
+
+**How each candidate system copes with arbitrary layouts**
+| System | Arbitrary layouts | Notes |
+|---|---|---|
+| 1. Load and capacity | Good with A, B or C | Total ground capacity must be at least the total load |
+| 2. Minesweeper numbers | Hard | Guaranteeing a board that never forces a guess is difficult on player-made layouts |
+| 3. Countdown nodes | Good | Set counters from each node's number of lines plus slack |
+| 4. Pins | Good with B | Pins taken from the weave order can't form a cycle |
+| 5. Polarity balance | Risky | Some shapes can't stay balanced |
+| 6. Material release rules | Risky | Two materials' rules can conflict |
+
 ## 8. Uses of enchanted items
 
 - **Commissions**: deliver them to the customer for payment and to move their story along.
@@ -461,3 +482,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Enchanting time is in **real seconds**. Inserted materials are **used up** (no recycling). **Lines are drawn during planning**, and you commit one or more connected enchantments together. Disenchanting means **cutting all lines, then pulling the enchantment out**. |
 | 2026-10-15 | Disenchanting uses **planning**, with no waiting or quick-time mechanics. Lines are **cut in an order** found by calculation, possibly in one pass like Minesweeper. The exact system is to be experimented with. |
 | 2026-10-15 | Six cut-order candidate systems are recorded in §7.7, with the load and capacity model elaborated, including lines that take several cuts. All are to be experimented with; none is decided. |
+| 2026-10-15 | **Requirement:** every enchantment's disenchant board must be **solvable** for any player-made layout (§7.7.2). |
