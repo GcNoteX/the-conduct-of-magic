@@ -394,10 +394,10 @@ Candidate systems for the calculated cut order in disenchanting.
 
 | # | System | How it works | Mode |
 |---|---|---|---|
-| 1 | **Load and capacity** | Lines carry load. Cutting one passes its load onward, and overflow bursts. See below | Planning (all visible) |
+| 1 | **Load and capacity** | Lines carry load. Cutting one passes its load onward, and overflow bursts. See A.2 | Planning (all visible) |
 | 2 | **Minesweeper numbers** | Each node shows how many of its lines are **trapped**. Cutting a safe line reveals the numbers on nearby nodes, so you deduce the next safe cut. Cutting a trapped line costs durability | One pass |
-| 3 | **Countdown nodes** | Each node shows a counter, and each cut lowers the counters at both ends by 1. A node that reaches 0 while it still has lines attached sparks. You find an order that keeps counters above 0 until each node's last line (Hashi in reverse) | Planning |
-| 4 | **Pins** | Some lines are **pinned** by others and can only be cut after the lines pinning them. Pins may be hidden until inspected. The order is a dependency chain | Planning, or one pass if hidden |
+| 3 | **Countdown nodes** | Each node shows a countdown. Every cut anywhere ticks down every node that still has lines attached, and a node that reaches 0 while attached sparks. It's a deadline schedule. See A.3 | Planning |
+| 4 | **Pins** | Some lines are **pinned** by others and can only be cut after the lines pinning them. Pins may be hidden until inspected. The order is a dependency chain. See A.4 | Planning, or one pass if hidden |
 | 5 | **Polarity balance** | Lines are **+** or **−**. Every node must stay within ±1 of balanced throughout, so cuts alternate around busy nodes | Planning |
 | 6 | **Material release rules** | Each material sets its own rule (for example, "water: cut its lines clockwise", "fire: cut its longest line last"). Books teach the rules | Knowledge-based |
 
