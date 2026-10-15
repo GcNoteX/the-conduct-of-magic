@@ -50,6 +50,8 @@ A shop-management, inspection and crafting game about a young enchanter learning
 |---|---|---|
 | **Visible markings** | Zoom in and look for stamps, engravings, maker's marks, wear and damage | Forged or missing guild marks, a wrong maker, stolen goods (marks filed off), signs of a curse |
 | **Test reactions** | Use a tool on the item, or place a test material next to it on the board, and watch the visual response (colour change, glow, smoke, frost) | The true material, whether it can take an enchantment, hidden flaws, curses |
+| **Silhouette check** | Check that the item is still in its proper shape | Damage that would cut part of its map away |
+| **Seal check** | Check whether the item's node arrangement is **already sealed** | If it's sealed, you're stuck with an arrangement you can't see. Accept it and you have to work with that map whatever it turns out to be, or **pay to unseal** it |
 | **Weight** | Weigh the item or material | A cheaper core under a plated surface, a hollow item, a mislabelled material |
 
 **Not available:** the item's enchantment node map can't be seen during inspection. It's only revealed on the enchanting day. *(It may come back later, for example as an advanced inspection tool.)*
@@ -238,6 +240,8 @@ Both nodes and materials can carry conditions, but **materials will carry most o
   - a **finer grid** (smaller cells for the same map) that fits more enchantments.
 - Arrangements with more capacity come with **map terrain** or another kind of added difficulty.
 
+**Map terrain (first version): condition cells.** Some cells add a condition to whatever is placed on them. For example, an enchantment node placed on a fire cell must use a **fire material**. Other kinds of terrain will be worked out later.
+
 **Node size and shape.** By default a node takes up **one hex cell**. Later, nodes could come in **different shapes** that cover several cells.
 
 ### 7.5 Macro enchantments (later)
@@ -316,7 +320,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. What is map terrain? For example blocked cells, cells that impose conditions (such as fire cells), or cells that cost extra to route edges through.
+14. Can customer items arrive **already enchanted**? If so, do existing enchantments take up the map, and can you remove them?
 15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 16. Can two enchantments share magic nodes, or overlap on the map?
 
@@ -353,3 +357,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Item maps are **handcrafted**, with silhouettes matching the item. Random generation is used only to produce candidates for playtesting. Nodes are 1 cell by default, with multi-cell shapes later. Macro enchantments made of micro enchantments come later. |
 | 2026-10-15 | Item types have **variants** in both map shape and node arrangement. Selectable node arrangements (swap freely, or seal one) are to be tested. |
 | 2026-10-15 | **Map silhouettes are fixed per item type** (no randomness, previewable in the shop). This replaces shape variants. Players choose and **seal** a magic node arrangement. A sealed arrangement persists, and unsealing costs. Higher-capacity arrangements (more nodes, finer grid) bring terrain or difficulty. |
+| 2026-10-15 | Map terrain starts as **condition cells** (for example, a node placed there must use a fire material). Inspection can check the **silhouette** (damage) and whether the item is **already sealed** (accepting means working with an unknown map, or paying to unseal). |
