@@ -94,6 +94,23 @@ Broadly yes, and real-world practice offers ready-made mechanics:
 - **ID and certification with an effect at acceptance.** On hold because the consequence makes more narrative sense at completion. ID may still exist as evidence to inspect.
 - **Deposits and loans.** You'd lend the customer equipment while their item is being enchanted, and what they leave as a deposit would also affect the plot.
 
+### 5.6 Customer negotiation (deadlines, price, payment)
+Options ranked from simplest to most complex, with **when in the game** each could be introduced. Each layer adds onto the ones before it.
+
+| # | Mechanic | How it works | Complexity | When to introduce |
+|---|---|---|---|---|
+| 1 | **Fixed deadline** | Each commission type has a set turnaround, for example 3 days | Very low | Day 1. It's the uncle's shop rule while you learn |
+| 2 | **Customer-set deadline** | The deadline is written on the commission slip, and you take it or leave it | Low | First week. It adds a reason to reject ("I can't make that date") |
+| 3 | **Preset options** | The customer offers two or three choices, such as "2 days for 150g or 4 days for 100g" | Low to medium | Late in the uncle's-workshop chapter, once you have overlapping commissions |
+| 4 | **Calendar pick** *(Gavin's idea)* | A calendar is laid out on the counter. The customer proposes a date and you drag a marker to counter. Earlier dates pay more and later dates pay less. Each customer has a **patience window**, and pushing past it makes them leave or sour | Medium | When the player runs the counter on their own. The same calendar can double as the commission schedule on the enchanting day |
+| 5 | **Pay in materials (simple)** | The customer offers some or all of the payment as materials, and you accept or decline | Low to medium | Early to mid. It's a natural fit because customers already bring materials |
+| 6 | **Price haggling** | A back-and-forth offer meter, in the style of Potion Craft | Medium | Mid. Possibly combined with the calendar so you trade time against money |
+| 7 | **Full bartering** | Both sides put goods on the counter until the trade balances. Needs an item-valuation system | High | Late, or a macro-level special such as the Black Market |
+| 8 | **Renegotiation on return** | The customer comes back early or late. They ask for an extension, you ask for one, partial delivery, late penalties | Medium to high | Late, once relationships carry weight |
+| 9 | **Relationship and faction modifiers** | Trust and allegiance change patience, discounts and willingness to barter | Medium (a layer over the rest) | Grows alongside the relationship system |
+
+**Proposed path:** start with #1, then #2, then make **#4 (calendar pick)** the first real negotiation mechanic, with #5 alongside it. Hold #7 and #8 for later macro levels. Bartering is only overcomplicated in its full form (#7). The simple accept-or-decline version (#5) is cheap and fits the game.
+
 ## 6. Rules you inspect against
 
 What counts as acceptable work comes from several sources, which can conflict:
@@ -157,7 +174,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 
 **Commissions and inspection**
 1. Which specific test materials and tools exist, and what reaction does each one show for each material?
-2. How long does a customer give you to finish? Is it a fixed number of days per commission, or set by the customer?
+2. For the calendar pick: what limits the latest date you can choose (the customer's patience, a hard deadline, or both)? Is a customer's patience visible to the player?
 3. Can you return or refuse an item *after* accepting, for example once you discover it's cursed? What does that cost?
 
 **Rules and factions**
@@ -192,3 +209,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Progression routes: **University** (a near-perfect run with money), **Adventurers' Guild** (without money) and **Black Market** (risky, early death possible). Macro levels are for later. |
 | 2026-10-15 | Father's Sword is an example item only. |
 | 2026-10-15 | Inspection methods are **visible markings**, **test reactions** (tools or test materials on the inspection board) and **weight**. The item's node map is **not** visible during inspection. |
+| 2026-10-15 | Deadlines, price and payment are part of **customer negotiation**. Gavin's idea of a calendar pick, where you negotiate the date on a calendar, is on the table, and bartering is kept simple at first. See §5.6. |
