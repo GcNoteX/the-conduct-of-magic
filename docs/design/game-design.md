@@ -227,6 +227,13 @@ Both nodes and materials can carry conditions, but **materials will carry most o
 - Maps and their magic nodes are **designed by hand**. Fully random generation risks bad maps.
 - **Workflow:** a script may generate random candidate maps, and we playtest and keep only the good ones.
 - **Grid size** can vary between items.
+- **Variants (current idea):** each item type has several hand-made variants that differ in **map shape** and **node arrangement**, so a customer's sword won't match yours. Players should expect this.
+
+**To try: selectable node arrangements.** One item map could offer several node arrangements, and the player picks one. For example, a square map might offer:
+- a **3-node** arrangement with nodes in good spots, or
+- a **4-node** arrangement with more nodes in worse spots.
+
+The player either **swaps freely** between arrangements, or must **seal** one to fix it in place.
 
 **Node size and shape.** By default a node takes up **one hex cell**. Later, nodes could come in **different shapes** that cover several cells.
 
@@ -306,7 +313,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. Is an item's map fixed per item type (every sword the same), or are there several hand-made variants per type so customers' items differ?
+14. If arrangements must be sealed, when: before placing the first enchantment, or once the item leaves the shop? Does a sealed arrangement stay for future re-enchanting?
 15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 16. Can two enchantments share magic nodes, or overlap on the map?
 
@@ -341,3 +348,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | The item map uses a **hex grid**. Nodes sit in cells, shifting snaps to cells, and enchantments rotate in 60° steps. |
 | 2026-10-15 | Edges **can't cross** (to be tested). Edges you draw can bend. An enchantment's own lines are fixed, with reshapeable variants as a later advanced mechanic. Map size and shape **vary per item**. |
 | 2026-10-15 | Item maps are **handcrafted**, with silhouettes matching the item. Random generation is used only to produce candidates for playtesting. Nodes are 1 cell by default, with multi-cell shapes later. Macro enchantments made of micro enchantments come later. |
+| 2026-10-15 | Item types have **variants** in both map shape and node arrangement. Selectable node arrangements (swap freely, or seal one) are to be tested. |
