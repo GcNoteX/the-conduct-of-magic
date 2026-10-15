@@ -265,6 +265,8 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Inserted materials are used up.** They can never be taken back out or recycled.
 - **Lines are part of planning.** You plan enchantments, materials and lines, then **commit** one or more connected enchantments together.
 - **Disenchanting means cutting all of an enchantment's lines, then pulling the enchantment out.** How to make that a game is still open.
+- **Disenchanting also uses planning.** There are **no waiting or quick-time mechanics**, because time is already the limit.
+- **Lines must be cut in an order**, and finding that order involves some kind of calculation. It may be solved in **one pass**, working out the correct order as you go (like Minesweeper). The exact system is to be experimented with.
 
 **Direction: disenchanting as defusing a bomb.** An existing enchantment is **live**: its nodes are active and its materials hold their charge.
 
@@ -392,3 +394,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Items can arrive **already enchanted**, and their enchantments take up map space. The disenchanting mechanic is undecided (ideas in §7.6). |
 | 2026-10-15 | The enchanting day has a **fixed time limit**; time is the main pressure. Snapping your own edges is **free**. Items have **durability**, which removing activated enchantments can damage. Disenchanting leans toward **bomb defusal** (§7.6). |
 | 2026-10-15 | Enchanting time is in **real seconds**. Inserted materials are **used up** (no recycling). **Lines are drawn during planning**, and you commit one or more connected enchantments together. Disenchanting means **cutting all lines, then pulling the enchantment out**. |
+| 2026-10-15 | Disenchanting uses **planning**, with no waiting or quick-time mechanics. Lines are **cut in an order** found by calculation, possibly in one pass like Minesweeper. The exact system is to be experimented with. |
