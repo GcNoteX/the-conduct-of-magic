@@ -169,6 +169,10 @@ When the shop closes, the player moves to enchanting:
 
 **Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else.
 
+**For playtesting**, the timer just runs continuously, set to about **an hour** for now.
+
+**Done means the end of the day.** Finished items go into the player's **inventory** along with all their materials. You take things out later to give to customers. Depending on the enchantment, the **customer can evidently tell whether it works**.
+
 ### 7.1 The three ingredients
 Every enchanting job combines three things:
 
@@ -186,6 +190,11 @@ Every enchanting job combines three things:
 3. **Insert materials** into each enchantment node. This sets the conditions that node needs to activate.
 4. **Meet the conditions** by connecting, rearranging or changing materials.
 5. **Activate.** When **every** enchantment node is active, the enchantment activates.
+
+**Committing and drafts**
+- **You can't commit an enchantment that isn't activated**, because you plan the whole puzzle before committing.
+- You **can** commit an enchantment, then come back later to add another one.
+- **Drafts are saved**, so you can take a break and come back to a plan where you left it. It makes no sense for the enchanter to forget what they planned. Include this now if it's easy, otherwise eventually.
 
 ### 7.3 Where conditions come from
 | Source | When it applies | Example |
@@ -259,7 +268,7 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 ### 7.6 Existing enchantments and disenchanting
 **Items can arrive already enchanted**, and their enchantments **take up space on the map**.
 
-**Item durability.** Items have **durability**. Removing an enchantment whose nodes hold **activated** materials can damage it. **Scars** (removed enchantments leaving their cells as terrain) are also on the table.
+**No durability for now.** There is no such thing as a mistake, so items have no durability for now. (Earlier idea: removing an enchantment with activated materials damages durability, and **scars** leave removed enchantments' cells as terrain.)
 
 **Decided**
 - **Inserted materials are used up.** They can never be taken back out or recycled.
@@ -278,11 +287,21 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - You keep cutting, spending runes as needed. **When you are blocked, a material is needed** to get the runes to continue. That is how you solve the board.
 - **Which line gives which runes is defined by the material inserted** in its node, and is visible when viewed. For example, lines leaving the node top left give one rune and lines leaving bottom right give another. The exact mapping is to be worked out.
 - **Runes are an inverse representation of the material.**
+- **You start with 0 runes.** Dissolving a material gives you your starting runes, then cutting lines takes and gives runes.
+- **4 rune types** for now.
+- What a material gives is **deterministic**. A material could give any number of runes, but **1** for now.
+- **Dissolving is planned too.** Nothing is dissolved until you commit, just as with enchanting.
+- **Edge case:** if you plan a disenchant, use that material somewhere else, then come back, the **commit is highlighted red**. You can carry on if you like, or undo until that use of the material is gone.
 - This grew from the idea of symbols and numbers on each line, where cutting a line gives you its set of symbols and the next cut must share at least one of them.
 
 **Direction:** disenchanting may play like **defusing a bomb**.
 
 *Candidate ideas for disenchanting are archived in Appendix A.*
+
+### 7.7 First prototype
+- Build the **enchanting part first**: set up a player with materials and demo items for testing. The shop day comes later.
+- **Starter content:** about **5 materials** (each with the nodes that accept it, its conditions and its rune pattern), **3 or 4 enchantment shapes** and **one item map**.
+- **Enchantments can't share magic nodes** for now. Magic nodes are **1 cell**. Special nodes may come later.
 
 ## 8. Uses of enchanted items
 
@@ -313,6 +332,12 @@ Why you first rather than the uncle first:
 - **You stay the checkpoint.** Inspection is the core verb, and it stays in your hands from day 1, as in Papers, Please.
 - **Blame is clear.** If you approve a bad commission and the uncle takes it on your word, docking your pay at the end of the day follows naturally.
 - **Clean handover.** As you earn trust, the uncle stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
+
+### 9.2.2 End states in the uncle's workshop
+- The game keeps progressing day to day.
+- **Running out of money** leads to different endings.
+- **Not having enough money to progress to the next game stage** also leads to different endings.
+- Death or similar may come later, but in the uncle's workshop these money endings are the end states.
 
 ### 9.3 Progression routes
 After a few days or weeks in the uncle's shop, the player moves on. **Where they go depends on performance, money and choices:**
@@ -349,11 +374,8 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 **Shop and enchanting**
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day?
-12. Can an enchantment fail or damage an item, and can it be undone?
-13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. How long is the enchanting day, and what does an action cost: real time, or a budget of actions or hours per action?
-15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
-16. Can two enchantments share magic nodes, or overlap on the map?
+12. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
+13. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 
 ## 11. Decision log
 
@@ -398,6 +420,12 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Disenchanting uses **plan, then commit to execute**. Materials can optionally influence disenchanting, and some disenchants may require materials. The system to build on is **runes**: cutting lines consumes and gives runes, materials can be dissolved for runes, and when you're blocked a material is needed (§7.6). |
 | 2026-10-15 | Countdown nodes feel like just counting numbers. The **tension and scaffolding** idea for high-level enchantments is archived for when more difficulty is needed (Appendix A.7). |
 | 2026-10-15 | The runes a line gives are **defined by the material inserted** (for example by the direction the line leaves the node), and runes are an **inverse representation of the material** (§7.6). |
+| 2026-10-15 | **First prototype is the enchanting part**: a player set up with materials and demo items, about 5 materials, 3 or 4 enchantment shapes and one item map. The playtest timer runs continuously, set to about an hour (§7, §7.7). |
+| 2026-10-15 | **Done means the end of the day.** Finished items go to the inventory, and customers can evidently tell whether an enchantment works. |
+| 2026-10-15 | You **can't commit an unactivated enchantment**, but can commit one and come back to add another. **Drafts are saved** (now if easy, otherwise eventually). |
+| 2026-10-15 | Runes: start at **0**, dissolving a material gives starting runes, **4 rune types** for now, a material gives **1 rune** for now, deterministically. Dissolving happens only on commit. A plan whose material was used elsewhere shows a **red commit** (continue, or undo). **No durability for now**, since there are no mistakes (§7.6). |
+| 2026-10-15 | **Enchantments can't share magic nodes** for now, and magic nodes are 1 cell. |
+| 2026-10-15 | In the uncle's workshop, the end states are **running out of money** and **not having enough money for the next game stage**, each with different endings (§9.2.2). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
