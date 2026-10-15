@@ -202,7 +202,22 @@ Both nodes and materials can carry conditions, but **materials will carry most o
 
 **Later: node types.** Nodes will eventually have their own types, which conditions can reference.
 
-**Movable nodes.** Some nodes can **shift**: you drag them along a short slider to move them a little. This lets you change distances and positions to meet conditions.
+**Movable nodes.** Some nodes can **shift**: you drag them along a short slider to move them a little. This lets you change distances and positions to meet conditions. Both magic nodes and enchantment nodes can shift (which ones will vary), and shifting is **free**, with no cost in money or items.
+
+### 7.4 Map layout (under consideration)
+| | Free-form (current prototype) | Square grid | Hex grid |
+|---|---|---|---|
+| **Readability** | Hard to judge distances by eye | Clear | Clear |
+| **Adjacency** | Fuzzy; needs collision checks | 4 or 8 neighbours, with diagonals ambiguous | **6 equal neighbours, no ambiguity** |
+| **Distance conditions** | Continuous, so fiddly to meet exactly | Whole steps, but diagonals count differently | **Whole steps, the same in every direction** |
+| **Shifting nodes** | Continuous slider | Snaps to cells | Snaps to cells, in 6 directions |
+| **Rotating enchantments** | Any angle | 90° steps | 60° steps |
+| **Look** | Organic | Technical, like a circuit board or inventory | **Arcane and organic, like honeycomb or rune circles** |
+| **Item silhouettes** | Any shape | Blocky | Rounder |
+
+**Proposed: hex grid.** Discrete placement makes conditions exact ("adjacent" means a neighbouring cell, and distance is a count of steps). Shifting becomes a snap of one or a few cells. Hexes avoid the square grid's diagonal problem and look more like magic than a circuit board. Edges can still be drawn as straight lines between nodes.
+
+
 
 Difficulty comes from combining conditions. A formal ranking of enchantments will be added when it's needed.
 
@@ -273,7 +288,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. Which nodes can shift: magic nodes on the item, enchantment nodes, or both? Does shifting have a cost or limit?
+14. Free-form, square grid or hex grid for the item map (§7.4)?
 15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 16. Can two enchantments share magic nodes, or overlap on the map?
 
@@ -304,3 +319,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Enchanting uses three ingredients: the **item map** (magic nodes), **fixed-shape enchantments** (enchantment nodes) and **materials**. **No free-form enchanting.** The tier list and geometry-based enchantments are dropped, and difficulty rankings come later. |
 | 2026-10-15 | Conditions come from the enchantment node (which materials it accepts), the material (its activation conditions) and constraints the material adds once inserted (such as no adjacent fire). An enchantment activates when all its nodes are active. |
 | 2026-10-15 | Condition types will be tested by experiment. For now a node's only condition is which materials it accepts, and node types come later. Materials carry most conditions. Some nodes can **shift** along a short slider. |
+| 2026-10-15 | Both magic nodes and enchantment nodes can shift, and shifting is **free**. |
