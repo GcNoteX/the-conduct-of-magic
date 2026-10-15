@@ -261,6 +261,11 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 
 **Item durability.** Items have **durability**. Removing an enchantment whose nodes hold **activated** materials can damage it. **Scars** (removed enchantments leaving their cells as terrain) are also on the table.
 
+**Decided**
+- **Inserted materials are used up.** They can never be taken back out or recycled.
+- **Lines are part of planning.** You plan enchantments, materials and lines, then **commit** one or more connected enchantments together.
+- **Disenchanting means cutting all of an enchantment's lines, then pulling the enchantment out.** How to make that a game is still open.
+
 **Direction: disenchanting as defusing a bomb.** An existing enchantment is **live**: its nodes are active and its materials hold their charge.
 
 **Proposed core rule: never pull from a live node.**
@@ -276,7 +281,6 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 | **Chain reactions** | Some materials have an **on-dark effect**. When their node goes dark, a neighbour flares or takes damage, so order matters, like cutting wires | Cursed and volatile items; harder commissions |
 | **The manual** | Books and material guides say which materials are volatile and what they do when disarmed, like the bomb manual in *Keep Talking and Nobody Explodes* | Books and printed matter (§4.2) |
 | **Scars** | Disarming badly (with backlash) leaves scar cells, while a clean defuse leaves the map intact | Rewards skill; item history visible at inspection |
-| **Salvage** | Cleanly removed materials come back, and backlash destroys them | Material management |
 
 The time limit keeps this tense without a separate countdown: careful defusing is safe but slow.
 
@@ -387,3 +391,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Map terrain starts as **condition cells** (for example, a node placed there must use a fire material). Inspection can check the **silhouette** (damage) and whether the item is **already sealed** (accepting means working with an unknown map, or paying to unseal). |
 | 2026-10-15 | Items can arrive **already enchanted**, and their enchantments take up map space. The disenchanting mechanic is undecided (ideas in §7.6). |
 | 2026-10-15 | The enchanting day has a **fixed time limit**; time is the main pressure. Snapping your own edges is **free**. Items have **durability**, which removing activated enchantments can damage. Disenchanting leans toward **bomb defusal** (§7.6). |
+| 2026-10-15 | Enchanting time is in **real seconds**. Inserted materials are **used up** (no recycling). **Lines are drawn during planning**, and you commit one or more connected enchantments together. Disenchanting means **cutting all lines, then pulling the enchantment out**. |
