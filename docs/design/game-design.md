@@ -50,6 +50,8 @@ A shop-management, inspection and crafting game about a young enchanter learning
 |---|---|---|
 | **Visible markings** | Zoom in and look for stamps, engravings, maker's marks, wear and damage | Forged or missing guild marks, a wrong maker, stolen goods (marks filed off), signs of a curse |
 | **Test reactions** | Use a tool on the item, or place a test material next to it on the board, and watch the visual response (colour change, glow, smoke, frost) | The true material, whether it can take an enchantment, hidden flaws, curses |
+| **Silhouette check** | Check that the item is still in its proper shape | Damage that would cut part of its map away |
+| **Seal check** | Check whether the item's node arrangement is **already sealed** | If it's sealed, you're stuck with an arrangement you can't see. Accept it and you have to work with that map whatever it turns out to be, or **pay to unseal** it |
 | **Weight** | Weigh the item or material | A cheaper core under a plated surface, a hollow item, a mislabelled material |
 
 **Not available:** the item's enchantment node map can't be seen during inspection. It's only revealed on the enchanting day. *(It may come back later, for example as an advanced inspection tool.)*
@@ -163,19 +165,93 @@ Rules can change over time, the way they do in Papers, Please.
 When the shop closes, the player moves to enchanting:
 1. **Review commissions** to see what's owed, to whom and by when.
 2. **Choose an item** you received from a customer or bought yourself.
-3. **Open its enchantment map.** Every item contains a set of nodes, and these nodes are its *capacity for enchantment*.
-4. **Place enchantments.** Each enchantment is itself a group of nodes that you drag onto the item's map.
-5. **Activate the enchantment.** You insert materials into its nodes. Each material carries **conditions**, such as how many connections the node needs. You meet them by connecting the enchantment's nodes to nodes already on the map, and more kinds of condition may come later.
-6. An enchantment works once every one of its nodes is activated.
+3. **Enchant it** (see below).
 
-**Existing enchantment ideas** (from `enchantments/enchantment_list.txt`)
-- *Tier 1, physical:* Sharpness, Bluntness, Lightness, Heaviness, Roughness, Smoothness, Brittleness, Toughness.
-- *Tier 2, tied to line geometry:*
-  - Obtuse and acute angles give Loudness/Silentness, Reflectiveness/Dullness and enhanced or suppressed Smell and Taste.
-  - Colinear lines give Fire, Water, Wind or Earth **Conductivity**, which enhances the effect of that element.
-  - Right angles give Fire, Water, Wind or Earth **Resistance**, which suppresses the effect of that element.
+### 7.1 The three ingredients
+Every enchanting job combines three things:
 
-*Map features and further enchanting mechanics still need writing up.*
+| Ingredient | What it is |
+|---|---|
+| **The item** | Its **item map**: the item's internal enchanting structure, made of **magic nodes**. This is the item's capacity for enchantment |
+| **Enchantments** | **Fixed-shape** graphs of **enchantment nodes** that you drag and drop onto the item map |
+| **Materials** | Inserted into enchantment nodes to activate them |
+
+**No free-form enchanting.** Enchantments have a fixed shape. Earlier ideas where the shape you drew decided the effect (angles, colinear and right-angled lines) are dropped, because they were too hard to design.
+
+### 7.2 How an enchantment comes together
+1. **Place.** Drag an enchantment onto the item map.
+2. **Connect.** Draw **edges** between the enchantment's nodes and the item's magic nodes. Other kinds of link may come later. Connecting alone does little.
+3. **Insert materials** into each enchantment node. This sets the conditions that node needs to activate.
+4. **Meet the conditions** by connecting, rearranging or changing materials.
+5. **Activate.** When **every** enchantment node is active, the enchantment activates.
+
+### 7.3 Where conditions come from
+| Source | When it applies | Example |
+|---|---|---|
+| **The enchantment node** | Decides which materials it **accepts** | "Only water-type materials" |
+| **The material's activation conditions** | Must be met for the node to activate | "With this material, the node needs **3 edges** connected" |
+| **Constraints a material adds** | Once inserted, it adds rules about its surroundings | "No **adjacent fire-type** connections" |
+
+**Condition types to experiment with**
+- **Edge count:** at least, exactly or at most N edges on this node.
+- **Adjacency by type:** must or must not connect to a node or material of a given element.
+- **Connect to a specific magic node:** for example a "core" or "hilt" node on the item.
+- **Distance or line length:** within or beyond a distance.
+- **Shared node:** two enchantment nodes connect to the same magic node.
+- **Cross-enchantment:** connects to, or stays clear of, another enchantment on the same item.
+
+Both nodes and materials can carry conditions, but **materials will carry most of them**. For now a node's only condition is **which materials it accepts**.
+
+**Later: node types.** Nodes will eventually have their own types, which conditions can reference.
+
+**Movable nodes.** Some nodes can **shift**: you drag them along a short slider to move them a little. This lets you change distances and positions to meet conditions. Both magic nodes and enchantment nodes can shift (which ones will vary), and shifting is **free**, with no cost in money or items.
+
+### 7.4 Map layout: hex grid
+| | Free-form (current prototype) | Square grid | Hex grid |
+|---|---|---|---|
+| **Readability** | Hard to judge distances by eye | Clear | Clear |
+| **Adjacency** | Fuzzy; needs collision checks | 4 or 8 neighbours, with diagonals ambiguous | **6 equal neighbours, no ambiguity** |
+| **Distance conditions** | Continuous, so fiddly to meet exactly | Whole steps, but diagonals count differently | **Whole steps, the same in every direction** |
+| **Shifting nodes** | Continuous slider | Snaps to cells | Snaps to cells, in 6 directions |
+| **Rotating enchantments** | Any angle | 90° steps | 60° steps |
+| **Look** | Organic | Technical, like a circuit board or inventory | **Arcane and organic, like honeycomb or rune circles** |
+| **Item silhouettes** | Any shape | Blocky | Rounder |
+
+**Decision: hex grid.** Discrete placement makes conditions exact ("adjacent" means a neighbouring cell, and distance is a count of steps). Shifting becomes a snap of one or a few cells. Hexes avoid the square grid's diagonal problem and look more like magic than a circuit board. 
+**Edges**
+- **No crossing**: edges can't cross each other. This is a rule to try out.
+- **Edges you draw don't have to be straight.** They can bend around obstacles.
+- **An enchantment's own lines are fixed** and come with it when you drag it on, usually straight.
+- **Later (advanced):** variants that let you reshape a specific line inside an enchantment, for example changing the line between A and B to another shape.
+
+**Item maps are handcrafted**
+- Each item's map can have its own size and shape. Its **silhouette roughly matches the item** (a sword is long and thin, a ring is round).
+- Maps and their magic nodes are **designed by hand**. Fully random generation risks bad maps.
+- **Workflow:** a script may generate random candidate maps, and we playtest and keep only the good ones.
+- **Grid size** can vary between items.
+- **Fixed silhouettes (current decision):** each **item type has one fixed map shape**, with no randomness. This keeps things consistent so players can learn shapes, and they may be able to **preview** an item's shape in the shop.
+- **Later, maybe:** worse-quality items get worse silhouettes, for example a map with a **missing part**.
+
+**Node arrangements are the variable part.** An item's map can offer several **magic node arrangements**, and the player picks one and **seals** it.
+- **Sealed is permanent by default.** It stays the same if the item comes back, and **unsealing costs** something.
+- Arrangements trade capacity against difficulty. For example, on a square map:
+  - a **3-node** arrangement with nodes in good spots, or
+  - a **4-node** arrangement with more nodes in worse spots, or
+  - a **finer grid** (smaller cells for the same map) that fits more enchantments.
+- Arrangements with more capacity come with **map terrain** or another kind of added difficulty.
+
+**Map terrain (first version): condition cells.** Some cells add a condition to whatever is placed on them. For example, an enchantment node placed on a fire cell must use a **fire material**. Other kinds of terrain will be worked out later.
+
+**Node size and shape.** By default a node takes up **one hex cell**. Later, nodes could come in **different shapes** that cover several cells.
+
+### 7.5 Macro enchantments (later)
+Larger **macro enchantments** could be made of **micro enchantments**:
+- either arranged in a specific pattern relative to each other,
+- or simply all present somewhere on the same map.
+
+
+
+Difficulty comes from combining conditions. A formal ranking of enchantments will be added when it's needed.
 
 ## 8. Uses of enchanted items
 
@@ -244,6 +320,9 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
+14. Can customer items arrive **already enchanted**? If so, do existing enchantments take up the map, and can you remove them?
+15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
+16. Can two enchantments share magic nodes, or overlap on the map?
 
 ## 11. Decision log
 
@@ -269,3 +348,13 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Printed matter includes research papers, culture guides, news and adverts (including adverts that unlock new contacts). It comes as **gifts or payment from customers**, from a **bookstore** or from a **book peddler**. |
 | 2026-10-15 | **Contacts** can offer unique or cheaper materials, remote commissions for rewards, or visits to the store. |
 | 2026-10-15 | Materials come from the **uncle's stock** (restocked early on), then a **catalogue** and **customers selling in the store**. The **uncle's store** is a surcharge fallback for urgent materials. |
+| 2026-10-15 | Enchanting uses three ingredients: the **item map** (magic nodes), **fixed-shape enchantments** (enchantment nodes) and **materials**. **No free-form enchanting.** The tier list and geometry-based enchantments are dropped, and difficulty rankings come later. |
+| 2026-10-15 | Conditions come from the enchantment node (which materials it accepts), the material (its activation conditions) and constraints the material adds once inserted (such as no adjacent fire). An enchantment activates when all its nodes are active. |
+| 2026-10-15 | Condition types will be tested by experiment. For now a node's only condition is which materials it accepts, and node types come later. Materials carry most conditions. Some nodes can **shift** along a short slider. |
+| 2026-10-15 | Both magic nodes and enchantment nodes can shift, and shifting is **free**. |
+| 2026-10-15 | The item map uses a **hex grid**. Nodes sit in cells, shifting snaps to cells, and enchantments rotate in 60° steps. |
+| 2026-10-15 | Edges **can't cross** (to be tested). Edges you draw can bend. An enchantment's own lines are fixed, with reshapeable variants as a later advanced mechanic. Map size and shape **vary per item**. |
+| 2026-10-15 | Item maps are **handcrafted**, with silhouettes matching the item. Random generation is used only to produce candidates for playtesting. Nodes are 1 cell by default, with multi-cell shapes later. Macro enchantments made of micro enchantments come later. |
+| 2026-10-15 | Item types have **variants** in both map shape and node arrangement. Selectable node arrangements (swap freely, or seal one) are to be tested. |
+| 2026-10-15 | **Map silhouettes are fixed per item type** (no randomness, previewable in the shop). This replaces shape variants. Players choose and **seal** a magic node arrangement. A sealed arrangement persists, and unsealing costs. Higher-capacity arrangements (more nodes, finer grid) bring terrain or difficulty. |
+| 2026-10-15 | Map terrain starts as **condition cells** (for example, a node placed there must use a fire material). Inspection can check the **silhouette** (damage) and whether the item is **already sealed** (accepting means working with an unknown map, or paying to unseal). |
