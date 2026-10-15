@@ -43,7 +43,18 @@ A shop-management, inspection and crafting game about a young enchanter learning
 - **Request a commission**, which is either custom (a one-off piece made to their specification) or bulk (repeat work you already do, the way a blacksmith takes orders). See §5.
 - **Collect a commission** they placed on an earlier day.
 
-**Inspection.** On the workstation you zoom in on items and examine their parts. Some inspections may need consumable tools that you enchant yourself (see §8).
+**Inspection.** On the workstation (the inspection board) you zoom in on items and examine their parts. Some inspections need consumable tools that you enchant yourself (see §8).
+
+### 4.1 What you can inspect
+| Method | How it works | What it can reveal |
+|---|---|---|
+| **Visible markings** | Zoom in and look for stamps, engravings, maker's marks, wear and damage | Forged or missing guild marks, a wrong maker, stolen goods (marks filed off), signs of a curse |
+| **Test reactions** | Use a tool on the item, or place a test material next to it on the board, and watch the visual response (colour change, glow, smoke, frost) | The true material, whether it can take an enchantment, hidden flaws, curses |
+| **Weight** | Weigh the item or material | A cheaper core under a plated surface, a hollow item, a mislabelled material |
+
+**Not available:** the item's enchantment node map can't be seen during inspection. It's only revealed on the enchanting day. *(It may come back later, for example as an advanced inspection tool.)*
+
+**Proposed.** Test materials and tools could be consumed on use. Each check then costs something, and the player has to choose which tests are worth running on which customer. Stronger tools, such as ones that reveal curses, would come from your own enchanting (§8).
 
 ## 5. Commissions
 
@@ -145,7 +156,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 ## 10. Open questions
 
 **Commissions and inspection**
-1. What can the player inspect on a customer's item to catch a lie? For example markings, weight, colour, a reaction to a test material, or the map's node layout itself.
+1. Which specific test materials and tools exist, and what reaction does each one show for each material?
 2. How long does a customer give you to finish? Is it a fixed number of days per commission, or set by the customer?
 3. Can you return or refuse an item *after* accepting, for example once you discover it's cursed? What does that cost?
 
@@ -180,3 +191,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Theme: a gift that can help people or make you rich. The player starts in the **uncle's workshop**, and the uncle docks income for bad commissions. |
 | 2026-10-15 | Progression routes: **University** (a near-perfect run with money), **Adventurers' Guild** (without money) and **Black Market** (risky, early death possible). Macro levels are for later. |
 | 2026-10-15 | Father's Sword is an example item only. |
+| 2026-10-15 | Inspection methods are **visible markings**, **test reactions** (tools or test materials on the inspection board) and **weight**. The item's node map is **not** visible during inspection. |
