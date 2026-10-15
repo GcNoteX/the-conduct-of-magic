@@ -80,6 +80,17 @@ Contact adverts (and other sources) unlock **contacts**, people outside the shop
 - **Remote commissions:** you do work for them and send it off, in exchange for **rewards**.
 - **Visits:** they **come by your store** as a special customer.
 
+### 4.4 Material supply
+How the player gets materials changes as the game goes on:
+
+| Phase | Source | Notes |
+|---|---|---|
+| **Start** | **The uncle's stock** | Given at the start of the game, and the uncle **restocks it early on** |
+| **Later** | **Catalogue** | The player manages stock themselves and orders from a catalogue |
+| **Any time** | **Customers in the store** | Chatting with customers, or asking whether they have anything to sell besides their commission. These are random encounters |
+| **Any time** | **Contacts** | Unique or cheaper materials (§4.3) |
+| **Fallback** | **The uncle's store** | **Expedited materials at a surcharge**, for when you forgot something or run short |
+
 ## 5. Commissions
 
 ### 5.1 Lifecycle
@@ -232,7 +243,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
-13. Where do materials come from besides contacts and customers: a regular supplier, salvage from items?
+13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
 
 ## 11. Decision log
 
@@ -257,3 +268,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | **No foraging.** Materials and knowledge come through the shop, its visitors and its contacts. |
 | 2026-10-15 | Printed matter includes research papers, culture guides, news and adverts (including adverts that unlock new contacts). It comes as **gifts or payment from customers**, from a **bookstore** or from a **book peddler**. |
 | 2026-10-15 | **Contacts** can offer unique or cheaper materials, remote commissions for rewards, or visits to the store. |
+| 2026-10-15 | Materials come from the **uncle's stock** (restocked early on), then a **catalogue** and **customers selling in the store**. The **uncle's store** is a surcharge fallback for urgent materials. |
