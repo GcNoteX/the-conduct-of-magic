@@ -269,6 +269,14 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Lines must be cut in an order**, and finding that order involves some kind of calculation. It may be solved in **one pass**, working out the correct order as you go (like Minesweeper). The exact system is to be experimented with.
 
 - **Every disenchant board must be solvable**, whatever layout the player made when enchanting.
+- **Disenchanting follows the same plan, then commit to execute** flow as enchanting.
+- **Materials can optionally influence disenchanting**, and **some disenchants may require materials**.
+
+**Runes (the disenchanting system to build on)**
+- Lines carry **runes**. **Cutting a line consumes runes and gives runes.**
+- **Materials can be dissolved** to give you runes.
+- You keep cutting, spending runes as needed. **When you are blocked, a material is needed** to get the runes to continue. That is how you solve the board.
+- This grew from the idea of symbols and numbers on each line, where cutting a line gives you its set of symbols and the next cut must share at least one of them.
 
 **Direction:** disenchanting may play like **defusing a bomb**.
 
@@ -385,6 +393,8 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Disenchanting uses **planning**, with no waiting or quick-time mechanics. Lines are **cut in an order** found by calculation, possibly in one pass like Minesweeper. The exact system is to be experimented with. |
 | 2026-10-15 | Six cut-order candidate systems are archived in Appendix A, with the load and capacity model elaborated, including lines that take several cuts. All are to be experimented with; none is decided. |
 | 2026-10-15 | **Requirement:** every enchantment's disenchant board must be **solvable** for any player-made layout (§7.6). |
+| 2026-10-15 | Disenchanting uses **plan, then commit to execute**. Materials can optionally influence disenchanting, and some disenchants may require materials. The system to build on is **runes**: cutting lines consumes and gives runes, materials can be dissolved for runes, and when you're blocked a material is needed (§7.6). |
+| 2026-10-15 | Countdown nodes feel like just counting numbers. The **tension and scaffolding** idea for high-level enchantments is archived for when more difficulty is needed (Appendix A.7). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -484,6 +494,8 @@ Nodes **A (2)**, **B (3)**, **C (5)**, **D (4)**. Lines: A–B, A–C, B–C, C�
 - Cutting a line **resets** or **adds** to a neighbour's countdown, which gives you a way to buy time.
 - **Solvability:** a clean order exists exactly when the nodes can be freed in deadline order. That's cheap to check, and countdowns can be set at weave time to guarantee it.
 
+**Gavin's note:** countdown feels like just counting numbers.
+
 ### A.4 Pins in detail
 **Pieces**
 - **Pin:** where one line **holds down** another, shown as a clasp where they meet at a node.
@@ -550,3 +562,15 @@ Earlier suggestions, from before disenchanting became "cut all lines, then pull"
 
 The time limit keeps this tense without a separate countdown: careful defusing is safe but slow.
 
+### A.7 Tension and scaffolding (for later)
+Gavin's idea, kept for when we need something more difficult. It adds another constraint on top of what exists.
+
+**Enchanting**
+- Enchantments, or high-level ones, have **macro stability**. Lines pulled out of them **increase tension in that direction**.
+- Think of it as a **truss bridge** with moment forces.
+- The rule that **connected nodes are stable** still holds. So the player may need to **draw lines temporarily into empty space**, as scaffolding, to extend their actual line to a node, then remove the earlier line.
+- Alternative: instead of a connection making things fully stable, it could just **cut the load by about 50%**.
+
+**Disenchanting (the inverse)**
+- Besides runes, there is **load** to consider.
+- Lines are cut in **sequences**, and **pins** can be placed to do a kind of **semi-cut**.
