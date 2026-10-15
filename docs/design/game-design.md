@@ -190,13 +190,19 @@ Every enchanting job combines three things:
 | **The material's activation conditions** | Must be met for the node to activate | "With this material, the node needs **3 edges** connected" |
 | **Constraints a material adds** | Once inserted, it adds rules about its surroundings | "No **adjacent fire-type** connections" |
 
-**Proposed: a starter set of condition types**
+**Condition types to experiment with**
 - **Edge count:** at least, exactly or at most N edges on this node.
 - **Adjacency by type:** must or must not connect to a node or material of a given element.
 - **Connect to a specific magic node:** for example a "core" or "hilt" node on the item.
 - **Distance or line length:** within or beyond a distance.
 - **Shared node:** two enchantment nodes connect to the same magic node.
 - **Cross-enchantment:** connects to, or stays clear of, another enchantment on the same item.
+
+Both nodes and materials can carry conditions, but **materials will carry most of them**. For now a node's only condition is **which materials it accepts**.
+
+**Later: node types.** Nodes will eventually have their own types, which conditions can reference.
+
+**Movable nodes.** Some nodes can **shift**: you drag them along a short slider to move them a little. This lets you change distances and positions to meet conditions.
 
 Difficulty comes from combining conditions. A formal ranking of enchantments will be added when it's needed.
 
@@ -267,7 +273,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. Do magic nodes have their own types or properties (such as an element, or a capacity limit) that conditions can reference?
+14. Which nodes can shift: magic nodes on the item, enchantment nodes, or both? Does shifting have a cost or limit?
 15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 16. Can two enchantments share magic nodes, or overlap on the map?
 
@@ -297,3 +303,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Materials come from the **uncle's stock** (restocked early on), then a **catalogue** and **customers selling in the store**. The **uncle's store** is a surcharge fallback for urgent materials. |
 | 2026-10-15 | Enchanting uses three ingredients: the **item map** (magic nodes), **fixed-shape enchantments** (enchantment nodes) and **materials**. **No free-form enchanting.** The tier list and geometry-based enchantments are dropped, and difficulty rankings come later. |
 | 2026-10-15 | Conditions come from the enchantment node (which materials it accepts), the material (its activation conditions) and constraints the material adds once inserted (such as no adjacent fire). An enchantment activates when all its nodes are active. |
+| 2026-10-15 | Condition types will be tested by experiment. For now a node's only condition is which materials it accepts, and node types come later. Materials carry most conditions. Some nodes can **shift** along a short slider. |
