@@ -253,6 +253,22 @@ Larger **macro enchantments** could be made of **micro enchantments**:
 
 Difficulty comes from combining conditions. A formal ranking of enchantments will be added when it's needed.
 
+### 7.6 Existing enchantments and disenchanting
+**Items can arrive already enchanted**, and their enchantments **take up space on the map**.
+
+**Disenchanting ideas (undecided).** These are designed to reuse the existing node, material and condition systems:
+
+| # | Idea | How it works | Ties into |
+|---|---|---|---|
+| 1 | **Dissolving materials** | Insert a solvent material into an enchantment node. Like any material, it has conditions to meet (for example, cut it down to 1 edge). Once met, the node deactivates and can be lifted out | Reuses the condition system; solvents are a new stock item |
+| 2 | **Unpicking order** | Removing a material can break the conditions of its neighbours. Take them out in the wrong order and the enchantment reacts (it flares, damages the map or curses the item) | The "faulty material blows up" risk; cursed items |
+| 3 | **Salvage** | Disenchanting returns some of the materials, possibly worn or of lower quality | Material management |
+| 4 | **Scars** | A removed enchantment leaves its cells as terrain (condition cells or dead cells). An item's history shows on its map | Terrain; inspection (scars could be visible at the counter) |
+| 5 | **Protected enchantments** | Some enchantments carry a maker's or guild seal, and removing them is illegal or needs certification | Guild and law rules; inspection |
+| 6 | **Breaking down macros** | A macro enchantment can be broken into its micro enchantments, so you remove only part of it | Macro enchantments (§7.5) |
+
+**Proposed combination:** #1 as the core action, so disenchanting is a puzzle in the same language as enchanting. Add #4 so items carry their history, and #5 for the story and inspection hooks.
+
 ## 8. Uses of enchanted items
 
 - **Commissions**: deliver them to the customer for payment and to move their story along.
@@ -320,7 +336,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
 13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-14. Can customer items arrive **already enchanted**? If so, do existing enchantments take up the map, and can you remove them?
+14. How does disenchanting work? See the ideas in §7.6.
 15. Is drawing edges free, or limited (by a budget of edges, edges not being allowed to cross, or a cost)?
 16. Can two enchantments share magic nodes, or overlap on the map?
 
@@ -358,3 +374,4 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Item types have **variants** in both map shape and node arrangement. Selectable node arrangements (swap freely, or seal one) are to be tested. |
 | 2026-10-15 | **Map silhouettes are fixed per item type** (no randomness, previewable in the shop). This replaces shape variants. Players choose and **seal** a magic node arrangement. A sealed arrangement persists, and unsealing costs. Higher-capacity arrangements (more nodes, finer grid) bring terrain or difficulty. |
 | 2026-10-15 | Map terrain starts as **condition cells** (for example, a node placed there must use a fire material). Inspection can check the **silhouette** (damage) and whether the item is **already sealed** (accepting means working with an unknown map, or paying to unseal). |
+| 2026-10-15 | Items can arrive **already enchanted**, and their enchantments take up map space. The disenchanting mechanic is undecided (ideas in §7.6). |
