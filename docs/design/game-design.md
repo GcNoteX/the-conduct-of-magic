@@ -56,6 +56,9 @@ A shop-management, inspection and crafting game about a young enchanter learning
 
 **Proposed.** Test materials and tools could be consumed on use. Each check then costs something, and the player has to choose which tests are worth running on which customer. Stronger tools, such as ones that reveal curses, would come from your own enchanting (§8).
 
+### 4.2 Books and knowledge
+Books found or bought around the world teach the player about **materials** (how each one looks, what it weighs and how it reacts to tests) and about **different cultures** (their markings, customs and goods). Knowledge is the player's reference when inspecting, much like the rulebook in Papers, Please, and it's also a way to tell the world's lore.
+
 ## 5. Commissions
 
 ### 5.1 Lifecycle
@@ -109,6 +112,8 @@ Options ranked from simplest to most complex, with **when in the game** each cou
 | 8 | **Renegotiation on return** | The customer comes back early or late. They ask for an extension, you ask for one, partial delivery, late penalties | Medium to high | Late, once relationships carry weight |
 | 9 | **Relationship and faction modifiers** | Trust and allegiance change patience, discounts and willingness to barter | Medium (a layer over the rest) | Grows alongside the relationship system |
 
+**Patience** is shown in two ways: the customer's **reactions** (expressions, dialogue, body language) and, for now, a **patience bar** at the side. The bar may be removed later so players have to read the customer.
+
 **Proposed path:** start with #1, then #2, then make **#4 (calendar pick)** the first real negotiation mechanic, with #5 alongside it. Hold #7 and #8 for later macro levels. Bartering is only overcomplicated in its full form (#7). The simple accept-or-decline version (#5) is cheap and fits the game.
 
 ## 6. Rules you inspect against
@@ -155,6 +160,21 @@ The main character has the gift of enchanting. They start out working in their *
 ### 9.2 The uncle
 The uncle owns the shop and settles the books at the end of each day. He's the immediate feedback for bad decisions: taking bad commissions means **lower income** that day. This makes consequences felt early without needing a game over.
 
+### 9.2.1 Working the counter with the uncle (tutorial phase)
+At first the **uncle runs the business**, and the player is his apprentice.
+
+**Proposed flow:** the customer comes to **you first**.
+1. The customer arrives with a **commission sheet** already filled in.
+2. You read what they want made and **check it against the rules**. You also inspect any goods they brought.
+3. You pass the sheet to the uncle, either approved or flagged with a concern.
+4. **The uncle negotiates**, setting a **fixed deadline** (negotiation option #1) and the price, and makes the final call.
+5. At night you do the enchanting.
+
+Why you first rather than the uncle first:
+- **You stay the checkpoint.** Inspection is the core verb, and it stays in your hands from day 1, as in Papers, Please.
+- **Blame is clear.** If you approve a bad commission and the uncle takes it on your word, docking your pay at the end of the day follows naturally.
+- **Clean handover.** As you earn trust, the uncle stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
+
 ### 9.3 Progression routes
 After a few days or weeks in the uncle's shop, the player moves on. **Where they go depends on performance, money and choices:**
 
@@ -174,12 +194,12 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 
 **Commissions and inspection**
 1. Which specific test materials and tools exist, and what reaction does each one show for each material?
-2. For the calendar pick: what limits the latest date you can choose (the customer's patience, a hard deadline, or both)? Is a customer's patience visible to the player?
+2. For the calendar pick: what limits the latest date you can choose (the customer's patience, a hard deadline, or both)?
 3. Can you return or refuse an item *after* accepting, for example once you discover it's cursed? What does that cost?
 
 **Rules and factions**
 4. Which guilds and factions exist in the uncle's town, and which of them later lead to the University, Adventurers' Guild and Black Market?
-5. How does the player learn the rules? Through a rulebook, the uncle's notes or guild notices?
+5. How does the player learn the rules: from the uncle, guild notices or books? How are books obtained (bought, rewards from customers, found)?
 
 **Story**
 6. Is the main character's gift rare or unique, and who knows about it?
@@ -210,3 +230,6 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Father's Sword is an example item only. |
 | 2026-10-15 | Inspection methods are **visible markings**, **test reactions** (tools or test materials on the inspection board) and **weight**. The item's node map is **not** visible during inspection. |
 | 2026-10-15 | Deadlines, price and payment are part of **customer negotiation**. Gavin's idea of a calendar pick, where you negotiate the date on a calendar, is on the table, and bartering is kept simple at first. See §5.6. |
+| 2026-10-15 | Customer patience is shown through **reactions** and, for now, a **side bar**. |
+| 2026-10-15 | **Books** teach about materials and cultures and act as an inspection reference. |
+| 2026-10-15 | In the opening chapter the **uncle negotiates** (using fixed deadlines), while the player inspects commission sheets against the rules and enchants. |
