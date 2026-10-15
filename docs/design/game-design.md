@@ -43,7 +43,53 @@ A shop-management, inspection and crafting game about a young enchanter learning
 - **Request a commission**, which is either custom (a one-off piece made to their specification) or bulk (repeat work you already do, the way a blacksmith takes orders). See §5.
 - **Collect a commission** they placed on an earlier day.
 
-**Inspection.** On the workstation you zoom in on items and examine their parts. Some inspections may need consumable tools that you enchant yourself (see §8).
+**Inspection.** On the workstation (the inspection board) you zoom in on items and examine their parts. Some inspections need consumable tools that you enchant yourself (see §8).
+
+### 4.1 What you can inspect
+| Method | How it works | What it can reveal |
+|---|---|---|
+| **Visible markings** | Zoom in and look for stamps, engravings, maker's marks, wear and damage | Forged or missing guild marks, a wrong maker, stolen goods (marks filed off), signs of a curse |
+| **Test reactions** | Use a tool on the item, or place a test material next to it on the board, and watch the visual response (colour change, glow, smoke, frost) | The true material, whether it can take an enchantment, hidden flaws, curses |
+| **Weight** | Weigh the item or material | A cheaper core under a plated surface, a hollow item, a mislabelled material |
+
+**Not available:** the item's enchantment node map can't be seen during inspection. It's only revealed on the enchanting day. *(It may come back later, for example as an advanced inspection tool.)*
+
+**Proposed.** Test materials and tools could be consumed on use. Each check then costs something, and the player has to choose which tests are worth running on which customer. Stronger tools, such as ones that reveal curses, would come from your own enchanting (§8).
+
+### 4.2 Books and printed matter
+**There's no foraging.** Materials and knowledge come to you through the shop, so printed matter is the player's window to the wider world.
+
+**Kinds**
+| Kind | What it gives |
+|---|---|
+| **Material guides** | How materials look, what they weigh and how they react to tests. An inspection reference, like the rulebook in Papers, Please |
+| **Research papers** | Enchanting knowledge, such as new enchantments or new ways to meet conditions |
+| **Culture and group guides** | Customs, markings and goods of different cultures and factions, which helps you read customers and their items |
+| **News** | What's happening in the world: rule changes, events, and story beats elsewhere |
+| **Adverts for reputable people** | Who's trusted and who's notable, which helps you judge customers and claims |
+| **Contact adverts** | **Unlock a new person to contact**, such as a supplier, a specialist or a client |
+
+**How you get them**
+- **Gifts or payment from customers.** This ties into relationships, because a pleased customer may bring you something.
+- **A bookstore** the player can visit.
+- **A travelling book peddler** who comes into your shop.
+
+### 4.3 Contacts
+Contact adverts (and other sources) unlock **contacts**, people outside the shop you can deal with. A contact may offer one or more of these:
+- **Procurement:** access to **unique materials**, or regular materials at a **cheaper price**.
+- **Remote commissions:** you do work for them and send it off, in exchange for **rewards**.
+- **Visits:** they **come by your store** as a special customer.
+
+### 4.4 Material supply
+How the player gets materials changes as the game goes on:
+
+| Phase | Source | Notes |
+|---|---|---|
+| **Start** | **The uncle's stock** | Given at the start of the game, and the uncle **restocks it early on** |
+| **Later** | **Catalogue** | The player manages stock themselves and orders from a catalogue |
+| **Any time** | **Customers in the store** | Chatting with customers, or asking whether they have anything to sell besides their commission. These are random encounters |
+| **Any time** | **Contacts** | Unique or cheaper materials (§4.3) |
+| **Fallback** | **The uncle's store** | **Expedited materials at a surcharge**, for when you forgot something or run short |
 
 ## 5. Commissions
 
@@ -82,6 +128,25 @@ Broadly yes, and real-world practice offers ready-made mechanics:
 ### 5.5 On hold
 - **ID and certification with an effect at acceptance.** On hold because the consequence makes more narrative sense at completion. ID may still exist as evidence to inspect.
 - **Deposits and loans.** You'd lend the customer equipment while their item is being enchanted, and what they leave as a deposit would also affect the plot.
+
+### 5.6 Customer negotiation (deadlines, price, payment)
+Options ranked from simplest to most complex, with **when in the game** each could be introduced. Each layer adds onto the ones before it.
+
+| # | Mechanic | How it works | Complexity | When to introduce |
+|---|---|---|---|---|
+| 1 | **Fixed deadline** | Each commission type has a set turnaround, for example 3 days | Very low | Day 1. It's the uncle's shop rule while you learn |
+| 2 | **Customer-set deadline** | The deadline is written on the commission slip, and you take it or leave it | Low | First week. It adds a reason to reject ("I can't make that date") |
+| 3 | **Preset options** | The customer offers two or three choices, such as "2 days for 150g or 4 days for 100g" | Low to medium | Late in the uncle's-workshop chapter, once you have overlapping commissions |
+| 4 | **Calendar pick** *(Gavin's idea)* | A calendar is laid out on the counter. The customer proposes a date and you drag a marker to counter. Earlier dates pay more and later dates pay less. Each customer has a **patience window**, and pushing past it makes them leave or sour | Medium | When the player runs the counter on their own. The same calendar can double as the commission schedule on the enchanting day |
+| 5 | **Pay in materials (simple)** | The customer offers some or all of the payment as materials, and you accept or decline | Low to medium | Early to mid. It's a natural fit because customers already bring materials |
+| 6 | **Price haggling** | A back-and-forth offer meter, in the style of Potion Craft | Medium | Mid. Possibly combined with the calendar so you trade time against money |
+| 7 | **Full bartering** | Both sides put goods on the counter until the trade balances. Needs an item-valuation system | High | Late, or a macro-level special such as the Black Market |
+| 8 | **Renegotiation on return** | The customer comes back early or late. They ask for an extension, you ask for one, partial delivery, late penalties | Medium to high | Late, once relationships carry weight |
+| 9 | **Relationship and faction modifiers** | Trust and allegiance change patience, discounts and willingness to barter | Medium (a layer over the rest) | Grows alongside the relationship system |
+
+**Patience** is shown in two ways: the customer's **reactions** (expressions, dialogue, body language) and, for now, a **patience bar** at the side. The bar may be removed later so players have to read the customer.
+
+**Proposed path:** start with #1, then #2, then make **#4 (calendar pick)** the first real negotiation mechanic, with #5 alongside it. Hold #7 and #8 for later macro levels. Bartering is only overcomplicated in its full form (#7). The simple accept-or-decline version (#5) is cheap and fits the game.
 
 ## 6. Rules you inspect against
 
@@ -127,6 +192,21 @@ The main character has the gift of enchanting. They start out working in their *
 ### 9.2 The uncle
 The uncle owns the shop and settles the books at the end of each day. He's the immediate feedback for bad decisions: taking bad commissions means **lower income** that day. This makes consequences felt early without needing a game over.
 
+### 9.2.1 Working the counter with the uncle (tutorial phase)
+At first the **uncle runs the business**, and the player is his apprentice.
+
+**Proposed flow:** the customer comes to **you first**.
+1. The customer arrives with a **commission sheet** already filled in.
+2. You read what they want made and **check it against the rules**. You also inspect any goods they brought.
+3. You pass the sheet to the uncle, either approved or flagged with a concern.
+4. **The uncle negotiates**, setting a **fixed deadline** (negotiation option #1) and the price, and makes the final call.
+5. At night you do the enchanting.
+
+Why you first rather than the uncle first:
+- **You stay the checkpoint.** Inspection is the core verb, and it stays in your hands from day 1, as in Papers, Please.
+- **Blame is clear.** If you approve a bad commission and the uncle takes it on your word, docking your pay at the end of the day follows naturally.
+- **Clean handover.** As you earn trust, the uncle stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
+
 ### 9.3 Progression routes
 After a few days or weeks in the uncle's shop, the player moves on. **Where they go depends on performance, money and choices:**
 
@@ -145,13 +225,13 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 ## 10. Open questions
 
 **Commissions and inspection**
-1. What can the player inspect on a customer's item to catch a lie? For example markings, weight, colour, a reaction to a test material, or the map's node layout itself.
-2. How long does a customer give you to finish? Is it a fixed number of days per commission, or set by the customer?
+1. Which specific test materials and tools exist, and what reaction does each one show for each material?
+2. For the calendar pick: what limits the latest date you can choose (the customer's patience, a hard deadline, or both)?
 3. Can you return or refuse an item *after* accepting, for example once you discover it's cursed? What does that cost?
 
 **Rules and factions**
 4. Which guilds and factions exist in the uncle's town, and which of them later lead to the University, Adventurers' Guild and Black Market?
-5. How does the player learn the rules? Through a rulebook, the uncle's notes or guild notices?
+5. How does the player learn the rules: from the uncle, guild notices or books?
 
 **Story**
 6. Is the main character's gift rare or unique, and who knows about it?
@@ -163,7 +243,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day or the enchanting day?
 12. Can an enchantment fail or damage an item, and can it be undone?
-13. Where do materials come from: suppliers, customers, foraging or salvage from items?
+13. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
 
 ## 11. Decision log
 
@@ -180,3 +260,12 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Theme: a gift that can help people or make you rich. The player starts in the **uncle's workshop**, and the uncle docks income for bad commissions. |
 | 2026-10-15 | Progression routes: **University** (a near-perfect run with money), **Adventurers' Guild** (without money) and **Black Market** (risky, early death possible). Macro levels are for later. |
 | 2026-10-15 | Father's Sword is an example item only. |
+| 2026-10-15 | Inspection methods are **visible markings**, **test reactions** (tools or test materials on the inspection board) and **weight**. The item's node map is **not** visible during inspection. |
+| 2026-10-15 | Deadlines, price and payment are part of **customer negotiation**. Gavin's idea of a calendar pick, where you negotiate the date on a calendar, is on the table, and bartering is kept simple at first. See §5.6. |
+| 2026-10-15 | Customer patience is shown through **reactions** and, for now, a **side bar**. |
+| 2026-10-15 | **Books** teach about materials and cultures and act as an inspection reference. |
+| 2026-10-15 | In the opening chapter the **uncle negotiates** (using fixed deadlines), while the player inspects commission sheets against the rules and enchants. |
+| 2026-10-15 | **No foraging.** Materials and knowledge come through the shop, its visitors and its contacts. |
+| 2026-10-15 | Printed matter includes research papers, culture guides, news and adverts (including adverts that unlock new contacts). It comes as **gifts or payment from customers**, from a **bookstore** or from a **book peddler**. |
+| 2026-10-15 | **Contacts** can offer unique or cheaper materials, remote commissions for rewards, or visits to the store. |
+| 2026-10-15 | Materials come from the **uncle's stock** (restocked early on), then a **catalogue** and **customers selling in the store**. The **uncle's store** is a surcharge fallback for urgent materials. |
