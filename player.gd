@@ -2,6 +2,8 @@ extends Resource
 class_name Player
 
 @export var material_inventory: Dictionary[EnchantmentMaterialDefinition, int] = {}
+@export var items: Array[ItemInstance] = []
+@export var known_enchantments: Array[Enchantment] = []
 
 func add_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if mat == null:

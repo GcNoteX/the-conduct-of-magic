@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="Enchantment" format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_pattern_node.gd" id="1_3rhra"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="2_vk6ou"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="3_funj6"]
+
+[sub_resource type="Resource" id="Resource_hf5xo"]
+script = ExtResource("2_vk6ou")
+
+[sub_resource type="Resource" id="Resource_ojkj4"]
+script = ExtResource("1_3rhra")
+material_requirements = Array[ExtResource("2_vk6ou")]([SubResource("Resource_hf5xo")])
+
+[sub_resource type="Resource" id="Resource_lbbar"]
+script = ExtResource("2_vk6ou")
+attribute = 1
+
+[sub_resource type="Resource" id="Resource_sagv4"]
+script = ExtResource("1_3rhra")
+offset = Vector2i(1, 0)
+material_requirements = Array[ExtResource("2_vk6ou")]([SubResource("Resource_lbbar")])
+
+[sub_resource type="Resource" id="Resource_oegyr"]
+script = ExtResource("2_vk6ou")
+
+[sub_resource type="Resource" id="Resource_h1hv1"]
+script = ExtResource("1_3rhra")
+offset = Vector2i(2, 0)
+material_requirements = Array[ExtResource("2_vk6ou")]([SubResource("Resource_oegyr")])
+
+[resource]
+script = ExtResource("3_funj6")
+enchantment_name = "Keen"
+effect_description = "Cuts noticeably better"
+nodes = Array[ExtResource("1_3rhra")]([SubResource("Resource_ojkj4"), SubResource("Resource_sagv4"), SubResource("Resource_h1hv1")])
+lines = Array[Vector2i]([Vector2i(0, 1), Vector2i(1, 2)])

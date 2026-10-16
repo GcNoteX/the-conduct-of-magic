@@ -24,6 +24,11 @@ func new_player() -> void:
 	print("✅ New player created.")
 
 
+## Uses an existing player instance (e.g. one built from a DemoSetup).
+func set_player(p: Player) -> void:
+	_player = p
+
+
 ## Returns the current player instance.
 ## Use this for read-only operations or when player reference is needed.
 func get_player() -> Player:

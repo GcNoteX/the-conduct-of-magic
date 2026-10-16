@@ -1,0 +1,47 @@
+[gd_resource type="Resource" script_class="Enchantment" format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_pattern_node.gd" id="1_bvooa"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="2_l2cgk"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="3_quhvo"]
+
+[sub_resource type="Resource" id="Resource_6bnbu"]
+script = ExtResource("2_l2cgk")
+attribute = 4
+
+[sub_resource type="Resource" id="Resource_f06c7"]
+script = ExtResource("1_bvooa")
+material_requirements = Array[ExtResource("2_l2cgk")]([SubResource("Resource_6bnbu")])
+
+[sub_resource type="Resource" id="Resource_73lhs"]
+script = ExtResource("2_l2cgk")
+attribute = 1
+
+[sub_resource type="Resource" id="Resource_q44dm"]
+script = ExtResource("1_bvooa")
+offset = Vector2i(1, 0)
+material_requirements = Array[ExtResource("2_l2cgk")]([SubResource("Resource_73lhs")])
+
+[sub_resource type="Resource" id="Resource_0cryw"]
+script = ExtResource("2_l2cgk")
+attribute = 1
+
+[sub_resource type="Resource" id="Resource_tw5m3"]
+script = ExtResource("1_bvooa")
+offset = Vector2i(0, 1)
+material_requirements = Array[ExtResource("2_l2cgk")]([SubResource("Resource_0cryw")])
+
+[sub_resource type="Resource" id="Resource_3r0nd"]
+script = ExtResource("2_l2cgk")
+attribute = 4
+
+[sub_resource type="Resource" id="Resource_yk3og"]
+script = ExtResource("1_bvooa")
+offset = Vector2i(1, 1)
+material_requirements = Array[ExtResource("2_l2cgk")]([SubResource("Resource_3r0nd")])
+
+[resource]
+script = ExtResource("3_quhvo")
+enchantment_name = "Ward"
+effect_description = "Shrugs off rust and water"
+nodes = Array[ExtResource("1_bvooa")]([SubResource("Resource_f06c7"), SubResource("Resource_q44dm"), SubResource("Resource_tw5m3"), SubResource("Resource_yk3og")])
+lines = Array[Vector2i]([Vector2i(0, 1), Vector2i(0, 2), Vector2i(1, 3), Vector2i(2, 3), Vector2i(1, 2)])

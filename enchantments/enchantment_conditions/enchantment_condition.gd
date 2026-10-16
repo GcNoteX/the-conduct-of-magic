@@ -4,4 +4,7 @@ extends Resource
 
 
 @abstract func is_fulfilled(ctx: MaterialActivationContext) -> bool
-	#TODO: Would need references to a map and stuff to actually make work.
+
+## Player-facing description of the condition
+func describe() -> String:
+	return resource_name if resource_name != "" else "condition"

@@ -28,7 +28,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="The Conduct of Magic"
-run/main_scene="uid://b6k4n067ypio4"
+run/main_scene="res://inscribing/inscribing_table.tscn"
 config/features=PackedStringArray("4.6", "GL Compatibility")
 config/icon="res://placeholder_assets/icon.svg"
 
