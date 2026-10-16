@@ -12,6 +12,7 @@ Authored as rows of characters in odd-r offset layout, top row first:
 @export var map_name: String = ""
 @export var layout: PackedStringArray = []
 
+
 ## Axial coordinates of every cell in the silhouette (magic node cells included)
 func get_cells() -> Array[Vector2i]:
 	var out: Array[Vector2i] = []
@@ -21,6 +22,7 @@ func get_cells() -> Array[Vector2i]:
 			if line[col] == "#" or line[col] == "M":
 				out.append(Hex.offset_to_axial(col, row))
 	return out
+
 
 ## Axial coordinates of every magic node
 func get_magic_nodes() -> Array[Vector2i]:

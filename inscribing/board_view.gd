@@ -53,10 +53,11 @@ var held_material: EnchantmentMaterialDefinition = null:
 ## Asked before inserting a material: returns "" or why the player can't
 var can_use_material: Callable = func(_m): return ""
 
-var _centre := Vector2.ZERO ## Unit-space centre of the map, drawn at this node's origin
+var _centre := Vector2.ZERO  ## Unit-space centre of the map, drawn at this node's origin
 var _mouse_unit := Vector2.ZERO
 var _hover_key := ""
 var _drag_from := ""
+
 
 #
 # ── Coordinates ──────────────────────────────────
@@ -67,6 +68,7 @@ func unit_size() -> Vector2:
 	var r := _unit_rect()
 	return r.size
 
+
 func _unit_rect() -> Rect2:
 	var cells := board.get_cells()
 	var rect := Rect2(Hex.to_pixel(cells[0], 1.0), Vector2.ZERO)
@@ -74,18 +76,23 @@ func _unit_rect() -> Rect2:
 		rect = rect.expand(Hex.to_pixel(c, 1.0))
 	return rect.grow(1.0)
 
+
 func _recentre() -> void:
 	if board:
 		_centre = _unit_rect().get_center()
 
+
 func to_screen(unit: Vector2) -> Vector2:
 	return (unit - _centre) * hex_size
+
 
 func to_unit(local: Vector2) -> Vector2:
 	return local / hex_size + _centre
 
+
 func cell_under_mouse() -> Vector2i:
 	return Hex.from_pixel(_mouse_unit, 1.0)
+
 
 #
 # ── Input ────────────────────────────────────────
@@ -114,7 +121,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			MOUSE_BUTTON_WHEEL_DOWN:
 				_rotate_held(1)
 		get_viewport().set_input_as_handled()
-	elif event is InputEventMouseButton and not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	elif (
+		event is InputEventMouseButton
+		and not event.pressed
+		and event.button_index == MOUSE_BUTTON_LEFT
+	):
 		_on_left_released()
 	elif event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_R:
@@ -122,19 +133,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		elif event.keycode == KEY_ESCAPE:
 			_drop_held()
 
+
 func _over_map() -> bool:
 	return board.has_cell(cell_under_mouse()) or held_enchantment != null or _drag_from != ""
+
 
 func _rotate_held(steps: int) -> void:
 	if held_enchantment:
 		held_rotation = posmod(held_rotation + steps, 6)
 		queue_redraw()
 
+
 func _drop_held() -> void:
 	held_enchantment = null
 	held_material = null
 	_drag_from = ""
 	queue_redraw()
+
 
 func _on_left_pressed() -> void:
 	if held_enchantment:
@@ -144,7 +159,12 @@ func _on_left_pressed() -> void:
 			message.emit(err)
 			return
 		board.place(held_enchantment, origin, held_rotation)
-		message.emit("Placed %s. Right click it to take it back while it's a draft." % held_enchantment.enchantment_name)
+		message.emit(
+			(
+				"Placed %s. Right click it to take it back while it's a draft."
+				% held_enchantment.enchantment_name
+			)
+		)
 		_changed()
 		return
 	if held_material:
@@ -160,11 +180,20 @@ func _on_left_pressed() -> void:
 			message.emit(err)
 			return
 		if old and old != held_material:
-			message.emit("Swapped %s for %s" % [InscriptionBoard.material_name(old), InscriptionBoard.material_name(held_material)])
+			message.emit(
+				(
+					"Swapped %s for %s"
+					% [
+						InscriptionBoard.material_name(old),
+						InscriptionBoard.material_name(held_material)
+					]
+				)
+			)
 		_changed()
 		return
 	if _hover_key != "":
 		_drag_from = _hover_key
+
 
 func _on_left_released() -> void:
 	if _drag_from == "":
@@ -182,6 +211,7 @@ func _on_left_released() -> void:
 		return
 	board.add_line(from, to)
 	_changed()
+
 
 func _on_right_pressed() -> void:
 	if held_enchantment or held_material:
@@ -203,25 +233,32 @@ func _on_right_pressed() -> void:
 	if key != "" and board.node_placement(key):
 		var p := board.node_placement(key)
 		var err := board.remove_placement(p)
-		message.emit(err if err != "" else "Took %s back off the item" % p.enchantment.enchantment_name)
+		message.emit(
+			err if err != "" else "Took %s back off the item" % p.enchantment.enchantment_name
+		)
 		if err == "":
 			_changed()
+
 
 func _line_under_mouse() -> LineState:
 	var best: LineState = null
 	var best_d := 0.25
 	for l in board.state.lines:
-		var d := InscriptionBoard._point_segment_distance(_mouse_unit, board.node_position(l.a), board.node_position(l.b))
+		var d := InscriptionBoard._point_segment_distance(
+			_mouse_unit, board.node_position(l.a), board.node_position(l.b)
+		)
 		if d < best_d:
 			best_d = d
 			best = l
 	return best
+
 
 func _changed() -> void:
 	_hover_key = board.node_at(cell_under_mouse())
 	hovered.emit(_hover_key)
 	queue_redraw()
 	changed.emit()
+
 
 #
 # ── Drawing ──────────────────────────────────────
@@ -239,7 +276,9 @@ func _draw() -> void:
 
 	for f in board.fixed_lines():
 		var p := board.node_placement(f[0])
-		draw_line(_screen(f[0]), _screen(f[1]), COLOR_COMMITTED if p.committed else COLOR_FIXED_LINE, 5.0)
+		draw_line(
+			_screen(f[0]), _screen(f[1]), COLOR_COMMITTED if p.committed else COLOR_FIXED_LINE, 5.0
+		)
 
 	for l in board.state.lines:
 		var col := COLOR_DRAFT_LINE
@@ -282,7 +321,10 @@ func _draw() -> void:
 
 	if held_material and _hover_key != "":
 		var ok := board.check_insert(_hover_key, held_material) == ""
-		draw_arc(_screen(_hover_key), radius + 6.0, 0, TAU, 32, COLOR_VALID if ok else COLOR_INVALID, 4.0)
+		draw_arc(
+			_screen(_hover_key), radius + 6.0, 0, TAU, 32, COLOR_VALID if ok else COLOR_INVALID, 4.0
+		)
+
 
 func _draw_ghost() -> void:
 	var origin := cell_under_mouse()
@@ -290,9 +332,15 @@ func _draw_ghost() -> void:
 	var col := COLOR_VALID if ok else COLOR_INVALID
 	var cells := board.placement_cells(held_enchantment, origin, held_rotation)
 	for l in held_enchantment.lines:
-		draw_line(to_screen(Hex.to_pixel(cells[l.x], 1.0)), to_screen(Hex.to_pixel(cells[l.y], 1.0)), col, 5.0)
+		draw_line(
+			to_screen(Hex.to_pixel(cells[l.x], 1.0)),
+			to_screen(Hex.to_pixel(cells[l.y], 1.0)),
+			col,
+			5.0
+		)
 	for c in cells:
 		draw_circle(to_screen(Hex.to_pixel(c, 1.0)), hex_size * 0.42, col)
+
 
 func _screen(key: String) -> Vector2:
 	return to_screen(board.node_position(key))

@@ -9,6 +9,7 @@ extends Resource
 ## Length of the enchanting day for playtesting
 @export var day_length_seconds: float = 3600.0
 
+
 func create_player() -> Player:
 	var p := Player.new()
 	for m in materials:

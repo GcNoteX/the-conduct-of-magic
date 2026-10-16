@@ -26,6 +26,7 @@ var _commit_button: Button
 var _day_over: PanelContainer
 var _day_over_text: RichTextLabel
 
+
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	player = setup.create_player()
@@ -37,6 +38,7 @@ func _ready() -> void:
 		_items.select(0)
 		_open_item(0)
 
+
 func _process(delta: float) -> void:
 	if _day_over.visible:
 		return
@@ -45,6 +47,7 @@ func _process(delta: float) -> void:
 	_timer_label.text = "Day %d · %02d:%02d left" % [day, s / 60, s % 60]
 	if time_left <= 0.0:
 		_end_day()
+
 
 #
 # ── Actions ──────────────────────────────────────
@@ -59,11 +62,18 @@ func _open_item(index: int) -> void:
 	_materials.deselect_all()
 	_refresh_all()
 
+
 func _on_enchantment_selected(index: int) -> void:
 	_materials.deselect_all()
 	_view.held_rotation = 0
 	_view.held_enchantment = player.known_enchantments[index]
-	_set_message("Click the item to place %s. Scroll or press R to rotate, right click to put it down." % player.known_enchantments[index].enchantment_name)
+	_set_message(
+		(
+			"Click the item to place %s. Scroll or press R to rotate, right click to put it down."
+			% player.known_enchantments[index].enchantment_name
+		)
+	)
+
 
 func _on_material_selected(index: int) -> void:
 	var mats := _material_order()
@@ -71,12 +81,19 @@ func _on_material_selected(index: int) -> void:
 		return
 	_enchantments.deselect_all()
 	_view.held_material = mats[index]
-	_set_message("Click an enchantment node to insert %s. Right click to put it down." % InscriptionBoard.material_name(mats[index]))
+	_set_message(
+		(
+			"Click an enchantment node to insert %s. Right click to put it down."
+			% InscriptionBoard.material_name(mats[index])
+		)
+	)
+
 
 func _can_use_material(m: EnchantmentMaterialDefinition) -> String:
 	if player.get_material_count(m) - board.reserved_in_drafts(m) <= 0:
 		return "You don't have another %s for this item's plan" % InscriptionBoard.material_name(m)
 	return ""
+
 
 func _on_commit_pressed() -> void:
 	var err := board.check_commit(player)
@@ -91,6 +108,7 @@ func _on_commit_pressed() -> void:
 	_view.queue_redraw()
 	_refresh_all()
 
+
 func _end_day() -> void:
 	var text := "[b]The day is over.[/b]\n\nYour inventory:\n"
 	for inst in player.items:
@@ -101,10 +119,12 @@ func _end_day() -> void:
 	_day_over_text.text = text
 	_day_over.visible = true
 
+
 func _start_next_day() -> void:
 	day += 1
 	time_left = setup.day_length_seconds
 	_day_over.visible = false
+
 
 #
 # ── Refreshing ───────────────────────────────────
@@ -114,6 +134,7 @@ func _refresh_all() -> void:
 	_refresh_item_panel()
 	_refresh_commit()
 	_on_hovered("")
+
 
 func _refresh_lists() -> void:
 	var selected_item := _items.get_selected_items()
@@ -143,6 +164,7 @@ func _refresh_lists() -> void:
 	if not selected_mat.is_empty() and selected_mat[0] < _materials.item_count:
 		_materials.select(selected_mat[0])
 
+
 func _refresh_item_panel() -> void:
 	if board == null:
 		return
@@ -151,9 +173,18 @@ func _refresh_item_panel() -> void:
 	var drafts: Array[String] = []
 	for p in board.state.placements:
 		if not p.committed:
-			drafts.append("%s (%s)" % [p.enchantment.enchantment_name, "active" if board.is_placement_active(p) else "not active yet"])
+			drafts.append(
+				(
+					"%s (%s)"
+					% [
+						p.enchantment.enchantment_name,
+						"active" if board.is_placement_active(p) else "not active yet"
+					]
+				)
+			)
 	text += "Planned: %s" % (", ".join(drafts) if not drafts.is_empty() else "nothing")
 	_item_label.text = text
+
 
 func _refresh_commit() -> void:
 	if board == null:
@@ -172,6 +203,7 @@ func _refresh_commit() -> void:
 			names.append(p.enchantment.enchantment_name)
 		_commit_button.text = "Commit " + ", ".join(names)
 
+
 func _on_hovered(key: String) -> void:
 	if board == null or key == "" or not board.has_node(key):
 		_hover_label.text = "[i]Hover a node for details.[/i]"
@@ -189,23 +221,35 @@ func _on_hovered(key: String) -> void:
 	else:
 		var p := board.node_placement(key)
 		var def := board.node_definition(key)
-		text = "[b]%s node[/b]%s\n" % [p.enchantment.enchantment_name, " (committed)" if p.committed else ""]
+		text = (
+			"[b]%s node[/b]%s\n"
+			% [p.enchantment.enchantment_name, " (committed)" if p.committed else ""]
+		)
 		text += "Accepts: %s\n" % def.describe_requirements()
-		text += "Lines drawn to it: %d\nMagic nodes reached: %d\n" % [board.line_count(key), board.reachable_magic_nodes(key).size()]
+		text += (
+			"Lines drawn to it: %d\nMagic nodes reached: %d\n"
+			% [board.line_count(key), board.reachable_magic_nodes(key).size()]
+		)
 		var mat := board.node_material(key)
 		if mat == null:
 			text += "Material: none"
 		else:
 			text += "Material: %s\n" % InscriptionBoard.material_name(mat)
 			for c in board.condition_status(key):
-				text += "%s %s\n" % ["[color=#7ee08a]✓[/color]" if c[1] else "[color=#f06060]✗[/color]", c[0]]
+				text += (
+					"%s %s\n"
+					% ["[color=#7ee08a]✓[/color]" if c[1] else "[color=#f06060]✗[/color]", c[0]]
+				)
 	_hover_label.text = text
+
 
 func _on_board_changed() -> void:
 	_refresh_all()
 
+
 func _set_message(t: String) -> void:
 	_message_label.text = t
+
 
 #
 # ── Helpers ──────────────────────────────────────
@@ -219,9 +263,15 @@ func _material_order() -> Array[EnchantmentMaterialDefinition]:
 			out.append(m)
 	return out
 
+
 func _item_name(inst: ItemInstance) -> String:
-	var n := inst.definition.display_name if inst.definition.display_name != "" else str(inst.definition.id)
+	var n := (
+		inst.definition.display_name
+		if inst.definition.display_name != ""
+		else str(inst.definition.id)
+	)
 	return "%s #%s" % [n, str(inst.id).get_slice("_", str(inst.id).get_slice_count("_") - 1)]
+
 
 func _item_effects(inst: ItemInstance) -> String:
 	if inst.enchantment_graph_state == null:
@@ -229,14 +279,18 @@ func _item_effects(inst: ItemInstance) -> String:
 	var effects: Array[String] = []
 	for p in inst.enchantment_graph_state.placements:
 		if p.committed:
-			effects.append("%s (%s)" % [p.enchantment.enchantment_name, p.enchantment.effect_description])
+			effects.append(
+				"%s (%s)" % [p.enchantment.enchantment_name, p.enchantment.effect_description]
+			)
 	return ", ".join(effects) if not effects.is_empty() else "nothing"
+
 
 func _enchantment_tooltip(e: Enchantment) -> String:
 	var t := "%s: %s\n" % [e.enchantment_name, e.effect_description]
 	for i in e.nodes.size():
 		t += "Node %d accepts %s\n" % [i + 1, e.nodes[i].describe_requirements()]
 	return t
+
 
 func _material_tooltip(m: EnchantmentMaterialDefinition) -> String:
 	var attrs: Array[String] = []
@@ -246,7 +300,11 @@ func _material_tooltip(m: EnchantmentMaterialDefinition) -> String:
 	for c in m.activation_conditions:
 		if c:
 			conds.append(c.describe())
-	return "Tier %d · %s\nActivates with: %s" % [m.tier, ", ".join(attrs), ", ".join(conds) if not conds.is_empty() else "nothing needed"]
+	return (
+		"Tier %d · %s\nActivates with: %s"
+		% [m.tier, ", ".join(attrs), ", ".join(conds) if not conds.is_empty() else "nothing needed"]
+	)
+
 
 func _fit_board() -> void:
 	if board == null or _board_area == null:
@@ -258,12 +316,13 @@ func _fit_board() -> void:
 	_view.hex_size = clampf(minf(area.x / unit.x, area.y / unit.y), 8.0, 48.0)
 	_view.position = area / 2.0
 
+
 #
 # ── UI construction ──────────────────────────────
 #
 func _build_ui() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
-	mouse_filter = Control.MOUSE_FILTER_IGNORE # Let board clicks reach the BoardView
+	mouse_filter = Control.MOUSE_FILTER_IGNORE  # Let board clicks reach the BoardView
 	var bg := ColorRect.new()
 	bg.color = Color("17161c")
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -285,7 +344,11 @@ func _build_ui() -> void:
 	_materials.item_selected.connect(_on_material_selected)
 	var help := Label.new()
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	help.text = "Pick an enchantment and click the item to place it. Drag between nodes to draw lines. Pick a material and click a node to insert it. Right click removes planned things. Commit when an enchantment glows green."
+	help.text = (
+		"Pick an enchantment and click the item to place it. Drag between nodes to draw lines. "
+		+ "Pick a material and click a node to insert it. Right click removes planned things. "
+		+ "Commit when an enchantment glows green."
+	)
 	help.add_theme_font_size_override("font_size", 13)
 	left.add_child(help)
 
@@ -347,6 +410,7 @@ func _build_ui() -> void:
 	next.pressed.connect(_start_next_day)
 	box.add_child(next)
 
+
 func _panel(parent: Control, width: float) -> VBoxContainer:
 	var margin := MarginContainer.new()
 	margin.custom_minimum_size.x = width
@@ -358,6 +422,7 @@ func _panel(parent: Control, width: float) -> VBoxContainer:
 	margin.add_child(v)
 	return v
 
+
 func _list(parent: Control, title: String, rows: int) -> ItemList:
 	var l := Label.new()
 	l.text = title
@@ -367,6 +432,7 @@ func _list(parent: Control, title: String, rows: int) -> ItemList:
 	list.custom_minimum_size.y = rows * 30 + 8
 	parent.add_child(list)
 	return list
+
 
 func _rich(parent: Control, height: float) -> RichTextLabel:
 	var r := RichTextLabel.new()

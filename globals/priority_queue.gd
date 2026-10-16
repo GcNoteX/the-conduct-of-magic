@@ -11,11 +11,13 @@ Tracks hovered objects for a cursor and hands back the most important one.
 var _order: Array = []
 var _queues: Array[Array] = []
 
+
 func set_priority_order(order: Array) -> void:
 	_order = order
 	_queues.clear()
 	for i in order.size():
 		_queues.append([])
+
 
 func push(obj: Object) -> void:
 	var i := _priority_of(obj)
@@ -26,9 +28,11 @@ func push(obj: Object) -> void:
 		return
 	_queues[i].append(obj)
 
+
 func remove(obj: Object) -> void:
 	for q in _queues:
 		q.erase(obj)
+
 
 func peek() -> Object:
 	for q in _queues:
@@ -39,9 +43,11 @@ func peek() -> Object:
 			return q.back()
 	return null
 
+
 func clear() -> void:
 	for q in _queues:
 		q.clear()
+
 
 func _priority_of(obj: Object) -> int:
 	for i in _order.size():

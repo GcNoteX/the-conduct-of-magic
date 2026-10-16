@@ -1,11 +1,11 @@
-extends Resource
 class_name Enchantment
+extends Resource
 
 @export var enchantment_name: String = "NULL"
 
 @export var icon: Texture2D
 
-@export var map: PackedScene ## Should be an EnchantmentGrid (old free-placement play map)
+@export var map: PackedScene  ## Should be an EnchantmentGrid (old free-placement play map)
 
 @export_category("Hex pattern")
 ## What a customer can tell the enchantment does

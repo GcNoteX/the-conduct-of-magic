@@ -9,8 +9,13 @@ var out_dir := "user://"
 var table: Control
 var view: BoardView
 
+
 func _ready() -> void:
-	get_tree().create_timer(30.0).timeout.connect(func(): printerr("drive_table timed out"); get_tree().quit(1))
+	get_tree().create_timer(30.0).timeout.connect(
+		func():
+			printerr("drive_table timed out")
+			get_tree().quit(1)
+	)
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():
 		out_dir = args[0]
@@ -38,7 +43,7 @@ func _ready() -> void:
 	_click(_cell(Vector2i(1, 3)), MOUSE_BUTTON_LEFT)
 	table._on_material_selected(3)
 	_click(_cell(Vector2i(2, 3)), MOUSE_BUTTON_LEFT)
-	_click(_cell(Vector2i(2, 3)), MOUSE_BUTTON_RIGHT) # drop held material
+	_click(_cell(Vector2i(2, 3)), MOUSE_BUTTON_RIGHT)  # drop held material
 	await _frames(2)
 	print("materials: ", table.board.node_material(e0), " ", table.board.node_material(e1))
 
@@ -46,9 +51,11 @@ func _ready() -> void:
 	_drag(Vector2i(1, 3), Vector2i(1, 2))
 	_drag(Vector2i(1, 3), Vector2i(1, 5))
 	_drag(Vector2i(2, 3), Vector2i(3, 2))
-	_drag(Vector2i(-2, 8), Vector2i(0, 8)) # dead chain
+	_drag(Vector2i(-2, 8), Vector2i(0, 8))  # dead chain
 	await _frames(2)
-	print("lines: ", table.board.state.lines.size(), " active: ", table.board.is_placement_active(p))
+	print(
+		"lines: ", table.board.state.lines.size(), " active: ", table.board.is_placement_active(p)
+	)
 	_move(_cell(Vector2i(1, 3)))
 	await _frames(2)
 	_shot("03_active")
@@ -63,8 +70,10 @@ func _ready() -> void:
 	_shot("05_day_over")
 	get_tree().quit()
 
+
 func _cell(c: Vector2i) -> Vector2:
 	return view.get_global_transform_with_canvas() * view.to_screen(Hex.to_pixel(c, 1.0))
+
 
 func _move(pos: Vector2) -> void:
 	var ev := InputEventMouseMotion.new()
@@ -72,6 +81,7 @@ func _move(pos: Vector2) -> void:
 	ev.global_position = pos
 	Input.parse_input_event(ev)
 	Input.flush_buffered_events()
+
 
 func _click(pos: Vector2, button: MouseButton) -> void:
 	_move(pos)
@@ -83,6 +93,7 @@ func _click(pos: Vector2, button: MouseButton) -> void:
 		ev.pressed = pressed
 		Input.parse_input_event(ev)
 		Input.flush_buffered_events()
+
 
 func _drag(a: Vector2i, b: Vector2i) -> void:
 	var pa := _cell(a)
@@ -104,9 +115,11 @@ func _drag(a: Vector2i, b: Vector2i) -> void:
 	Input.parse_input_event(up)
 	Input.flush_buffered_events()
 
+
 func _frames(n: int) -> void:
 	for i in n:
 		await get_tree().process_frame
+
 
 func _shot(name: String) -> void:
 	var img := get_viewport().get_texture().get_image()

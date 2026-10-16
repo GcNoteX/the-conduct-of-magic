@@ -13,6 +13,7 @@ Acceptance uses the same rules as MaterialHolder: a minimum tier, then the attri
 ## Same semantics as MaterialHolder.material_requirements
 @export var material_requirements: Array[MaterialCondition] = []
 
+
 func accepts(m: EnchantmentMaterialDefinition) -> bool:
 	if m == null or m.tier < tier_requirement:
 		return false
@@ -25,6 +26,7 @@ func accepts(m: EnchantmentMaterialDefinition) -> bool:
 		elif requirement.required:
 			return false
 	return has_valid
+
 
 func describe_requirements() -> String:
 	var parts: Array[String] = []

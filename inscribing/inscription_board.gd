@@ -1,31 +1,39 @@
+# gdlint: disable=max-public-methods
+# A rules facade the view and tests query from many angles, so it keeps a wide public API.
 class_name InscriptionBoard
 extends RefCounted
 
 """
 The rules of carving on one item's hex map. Pure logic, no drawing, so it can be tested headless.
-- Wraps an ItemInstance: its map comes from the definition, its plan and carvings from its GraphState
-- Nodes are addressed by key: "m:q,r" for magic nodes, "e:<placement id>:<node index>" for enchantment nodes
+- Wraps an ItemInstance: its map comes from the definition,
+  its plan and carvings from its GraphState
+- Nodes are addressed by key: "m:q,r" for magic nodes,
+  "e:<placement id>:<node index>" for enchantment nodes
 - Positions are in unit hex space (hex size 1); views scale them
 - Every check_* returns "" when allowed, or a player-facing reason when not
 """
 
-const NODE_RADIUS := 0.45 ## Lines may not pass this close to a node they don't attach to
+const NODE_RADIUS := 0.45  ## Lines may not pass this close to a node they don't attach to
 const EPS := 0.0001
 
 var item: ItemInstance
 var map: HexMapDefinition
 var state: GraphState
 
-var _cells: Dictionary = {} ## Vector2i -> true
+var _cells: Dictionary = {}  ## Vector2i -> true
 var _magic_cells: Array[Vector2i] = []
-var _nodes: Dictionary = {} ## key -> {kind, cell, placement, index}
-var _cell_to_node: Dictionary = {} ## Vector2i -> key
-var _adjacency: Dictionary = {} ## key -> Array[String], drawn lines only
+var _nodes: Dictionary = {}  ## key -> {kind, cell, placement, index}
+var _cell_to_node: Dictionary = {}  ## Vector2i -> key
+var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
+
 
 func _init(item_instance: ItemInstance) -> void:
 	item = item_instance
 	var def := item.definition as EnchantableItemDefinition
-	assert(def and def.map_template, "InscriptionBoard needs an EnchantableItemDefinition with a map_template")
+	assert(
+		def and def.map_template,
+		"InscriptionBoard needs an EnchantableItemDefinition with a map_template"
+	)
 	map = def.map_template
 	if item.enchantment_graph_state == null:
 		item.enchantment_graph_state = GraphState.new()
@@ -35,62 +43,78 @@ func _init(item_instance: ItemInstance) -> void:
 	_magic_cells = map.get_magic_nodes()
 	_rebuild()
 
+
 #
 # ── Keys and lookups ─────────────────────────────
 #
 static func magic_key(cell: Vector2i) -> String:
 	return "m:%d,%d" % [cell.x, cell.y]
 
+
 static func enchantment_key(placement_id: int, index: int) -> String:
 	return "e:%d:%d" % [placement_id, index]
+
 
 func get_cells() -> Array[Vector2i]:
 	var out: Array[Vector2i] = []
 	out.assign(_cells.keys())
 	return out
 
+
 func has_cell(c: Vector2i) -> bool:
 	return _cells.has(c)
+
 
 func get_node_keys() -> Array[String]:
 	var out: Array[String] = []
 	out.assign(_nodes.keys())
 	return out
 
+
 func has_node(key: String) -> bool:
 	return _nodes.has(key)
+
 
 func node_at(cell: Vector2i) -> String:
 	return _cell_to_node.get(cell, "")
 
+
 func node_cell(key: String) -> Vector2i:
 	return _nodes[key].cell
+
 
 func node_position(key: String) -> Vector2:
 	return Hex.to_pixel(_nodes[key].cell, 1.0)
 
+
 func is_magic(key: String) -> bool:
 	return _nodes.has(key) and _nodes[key].kind == "magic"
+
 
 func node_placement(key: String) -> PlacementState:
 	return _nodes[key].placement if _nodes.has(key) else null
 
+
 func node_index(key: String) -> int:
 	return _nodes[key].index if _nodes.has(key) else -1
+
 
 func node_material(key: String) -> EnchantmentMaterialDefinition:
 	var p := node_placement(key)
 	return p.materials[node_index(key)] if p else null
 
+
 func node_definition(key: String) -> EnchantmentPatternNode:
 	var p := node_placement(key)
 	return p.enchantment.nodes[node_index(key)] if p else null
+
 
 func placement_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
 	var out: Array[Vector2i] = []
 	for n in e.nodes:
 		out.append(origin + Hex.rotate(n.offset, rotation_steps))
 	return out
+
 
 ## The enchantments' own fixed lines, as [key_a, key_b]
 func fixed_lines() -> Array:
@@ -100,11 +124,13 @@ func fixed_lines() -> Array:
 			out.append([enchantment_key(p.id, l.x), enchantment_key(p.id, l.y)])
 	return out
 
+
 #
 # ── Graph queries (drawn lines only) ─────────────
 #
 func line_count(key: String) -> int:
 	return _adjacency.get(key, []).size()
+
 
 ## Every node reachable from `key` through drawn lines, including `key`
 func component(key: String) -> Array[String]:
@@ -120,12 +146,14 @@ func component(key: String) -> Array[String]:
 	out.assign(seen.keys())
 	return out
 
+
 func reachable_magic_nodes(key: String) -> Array[String]:
 	var out: Array[String] = []
 	for k in component(key):
 		if k != key and is_magic(k):
 			out.append(k)
 	return out
+
 
 ## Placement ids an enchantment-node-free chain would bind to, plus the node's own placement
 func _bound_placements(key: String) -> Dictionary:
@@ -136,12 +164,15 @@ func _bound_placements(key: String) -> Dictionary:
 			out[p.id] = p
 	return out
 
+
 ## A magic node (or line) that doesn't chain to any enchantment node is dead and ignored on commit
 func is_dead(key: String) -> bool:
 	return _bound_placements(key).is_empty()
 
+
 func is_line_dead(l: LineState) -> bool:
 	return is_dead(l.a)
+
 
 func is_node_committed(key: String) -> bool:
 	var p := node_placement(key)
@@ -152,6 +183,7 @@ func is_node_committed(key: String) -> bool:
 			return true
 	return false
 
+
 #
 # ── Placing enchantments ─────────────────────────
 #
@@ -159,15 +191,9 @@ func check_place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Strin
 	if e == null or e.nodes.is_empty():
 		return "That enchantment has no shape yet"
 	var cells := placement_cells(e, origin, rotation_steps)
-	var seen := {}
-	for c in cells:
-		if not _cells.has(c):
-			return "It doesn't fit inside the item"
-		if seen.has(c):
-			return "The enchantment's shape overlaps itself"
-		seen[c] = true
-		if _cell_to_node.has(c):
-			return "It overlaps another node"
+	var cell_err := _check_place_cells(cells)
+	if cell_err != "":
+		return cell_err
 	var new_positions: Array[Vector2] = []
 	for c in cells:
 		new_positions.append(Hex.to_pixel(c, 1.0))
@@ -177,7 +203,10 @@ func check_place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Strin
 	existing.append_array(fixed_lines())
 	for pos in new_positions:
 		for seg in existing:
-			if _point_segment_distance(pos, node_position(seg[0]), node_position(seg[1])) < NODE_RADIUS:
+			if (
+				_point_segment_distance(pos, node_position(seg[0]), node_position(seg[1]))
+				< NODE_RADIUS
+			):
 				return "It sits on top of a line"
 	for l in e.lines:
 		var a := new_positions[l.x]
@@ -186,6 +215,20 @@ func check_place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Strin
 		if err != "":
 			return err
 	return ""
+
+
+func _check_place_cells(cells: Array[Vector2i]) -> String:
+	var seen := {}
+	for c in cells:
+		if not _cells.has(c):
+			return "It doesn't fit inside the item"
+		if seen.has(c):
+			return "The enchantment's shape overlaps itself"
+		seen[c] = true
+		if _cell_to_node.has(c):
+			return "It overlaps another node"
+	return ""
+
 
 func place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> PlacementState:
 	if check_place(e, origin, rotation_steps) != "":
@@ -201,10 +244,12 @@ func place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> PlacementSt
 	_rebuild()
 	return p
 
+
 func check_remove_placement(p: PlacementState) -> String:
 	if p.committed:
 		return "Committed carvings can't be removed (disenchanting comes later)"
 	return ""
+
 
 func remove_placement(p: PlacementState) -> String:
 	var err := check_remove_placement(p)
@@ -217,6 +262,7 @@ func remove_placement(p: PlacementState) -> String:
 	state.placements.erase(p)
 	_rebuild()
 	return ""
+
 
 #
 # ── Drawing lines ────────────────────────────────
@@ -237,6 +283,7 @@ func check_line(a: String, b: String) -> String:
 		return "Enchantments can't share magic nodes"
 	return _check_segment(node_position(a), node_position(b), [a, b])
 
+
 func add_line(a: String, b: String) -> LineState:
 	if check_line(a, b) != "":
 		return null
@@ -247,11 +294,13 @@ func add_line(a: String, b: String) -> LineState:
 	_rebuild()
 	return l
 
+
 func find_line(a: String, b: String) -> LineState:
 	for l in state.lines:
 		if (l.a == a and l.b == b) or (l.a == b and l.b == a):
 			return l
 	return null
+
 
 func remove_line(l: LineState) -> String:
 	if l.committed:
@@ -259,6 +308,7 @@ func remove_line(l: LineState) -> String:
 	state.lines.erase(l)
 	_rebuild()
 	return ""
+
 
 #
 # ── Materials ────────────────────────────────────
@@ -273,11 +323,13 @@ func check_insert(key: String, m: EnchantmentMaterialDefinition) -> String:
 		return "This node accepts %s" % node_definition(key).describe_requirements()
 	return ""
 
+
 func insert_material(key: String, m: EnchantmentMaterialDefinition) -> String:
 	var err := check_insert(key, m)
 	if err == "":
 		node_placement(key).materials[node_index(key)] = m
 	return err
+
 
 func remove_material(key: String) -> EnchantmentMaterialDefinition:
 	var p := node_placement(key)
@@ -287,6 +339,7 @@ func remove_material(key: String) -> EnchantmentMaterialDefinition:
 	p.materials[node_index(key)] = null
 	return m
 
+
 ## How many of a material this item's drafts are planning to use
 func reserved_in_drafts(m: EnchantmentMaterialDefinition) -> int:
 	var n := 0
@@ -294,6 +347,7 @@ func reserved_in_drafts(m: EnchantmentMaterialDefinition) -> int:
 		if not p.committed:
 			n += p.materials.count(m)
 	return n
+
 
 #
 # ── Activation ───────────────────────────────────
@@ -308,6 +362,7 @@ func is_node_active(key: String) -> bool:
 			return false
 	return true
 
+
 ## [[description, fulfilled], ...] for the material in the node
 func condition_status(key: String) -> Array:
 	var out := []
@@ -320,11 +375,13 @@ func condition_status(key: String) -> Array:
 			out.append([c.describe(), c.is_fulfilled(ctx)])
 	return out
 
+
 func is_placement_active(p: PlacementState) -> bool:
 	for i in p.enchantment.nodes.size():
 		if not is_node_active(enchantment_key(p.id, i)):
 			return false
 	return true
+
 
 #
 # ── Commit ───────────────────────────────────────
@@ -337,6 +394,7 @@ func commit_candidates() -> Array[PlacementState]:
 			out.append(p)
 	return out
 
+
 func materials_needed(placements: Array[PlacementState]) -> Dictionary:
 	var need := {}
 	for p in placements:
@@ -344,6 +402,7 @@ func materials_needed(placements: Array[PlacementState]) -> Dictionary:
 			if m:
 				need[m] = need.get(m, 0) + 1
 	return need
+
 
 ## Materials the player is short of to commit now: {material: shortfall}
 func missing_materials(player: Player) -> Dictionary:
@@ -355,6 +414,7 @@ func missing_materials(player: Player) -> Dictionary:
 			missing[m] = short
 	return missing
 
+
 func check_commit(player: Player) -> String:
 	if commit_candidates().is_empty():
 		return "Activate an enchantment before committing"
@@ -365,6 +425,7 @@ func check_commit(player: Player) -> String:
 			names.append("%d× %s" % [missing[m], material_name(m)])
 		return "Not enough materials: " + ", ".join(names)
 	return ""
+
 
 ## Commits every activated draft enchantment with the lines chained to it. Materials are used up.
 ## Dead lines and inactive drafts stay as drafts.
@@ -386,6 +447,7 @@ func commit(player: Player) -> Array[PlacementState]:
 				l.committed = true
 	return done
 
+
 func committed_placements() -> Array[PlacementState]:
 	var out: Array[PlacementState] = []
 	for p in state.placements:
@@ -393,12 +455,14 @@ func committed_placements() -> Array[PlacementState]:
 			out.append(p)
 	return out
 
+
 static func material_name(m: EnchantmentMaterialDefinition) -> String:
 	if m == null:
 		return "nothing"
 	if m.display_name != "":
 		return m.display_name
 	return str(m.id) if m.id != &"" else m.resource_path.get_file().get_basename()
+
 
 #
 # ── Internals ────────────────────────────────────
@@ -425,10 +489,17 @@ func _rebuild() -> void:
 		_adjacency[l.a].append(l.b)
 		_adjacency[l.b].append(l.a)
 
+
 ## Checks a new straight segment against the map, nodes and every existing line.
 ## `endpoint_keys` are existing nodes the segment attaches to. `extra_nodes` are positions of nodes
 ## not placed yet (a placement being checked), with `extra_endpoints` the indexes it attaches to.
-func _check_segment(a: Vector2, b: Vector2, endpoint_keys: Array, extra_nodes: Array[Vector2] = [], extra_endpoints: Array = []) -> String:
+func _check_segment(
+	a: Vector2,
+	b: Vector2,
+	endpoint_keys: Array,
+	extra_nodes: Array[Vector2] = [],
+	extra_endpoints: Array = []
+) -> String:
 	var steps := maxi(2, int(a.distance_to(b) / 0.1))
 	for s in steps + 1:
 		if not _cells.has(Hex.from_pixel(a.lerp(b, float(s) / steps), 1.0)):
@@ -454,15 +525,20 @@ func _check_segment(a: Vector2, b: Vector2, endpoint_keys: Array, extra_nodes: A
 			return "Lines can't cross"
 	return ""
 
+
 static func _cross(u: Vector2, v: Vector2) -> float:
 	return u.x * v.y - u.y * v.x
+
 
 static func _segments_cross(a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> bool:
 	var d1 := _cross(d - c, a - c)
 	var d2 := _cross(d - c, b - c)
 	var d3 := _cross(b - a, c - a)
 	var d4 := _cross(b - a, d - a)
-	if ((d1 > EPS and d2 < -EPS) or (d1 < -EPS and d2 > EPS)) and ((d3 > EPS and d4 < -EPS) or (d3 < -EPS and d4 > EPS)):
+	if (
+		((d1 > EPS and d2 < -EPS) or (d1 < -EPS and d2 > EPS))
+		and ((d3 > EPS and d4 < -EPS) or (d3 < -EPS and d4 > EPS))
+	):
 		return true
 	# Collinear segments cross if they overlap by more than a point
 	if absf(d1) < EPS and absf(d2) < EPS:
@@ -473,6 +549,7 @@ static func _segments_cross(a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> b
 		var s1 := (d - a).dot(dir)
 		return minf(t1, maxf(s0, s1)) - maxf(t0, minf(s0, s1)) > EPS
 	return false
+
 
 static func _point_segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
 	var ab := b - a

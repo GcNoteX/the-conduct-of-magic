@@ -2,10 +2,12 @@ class_name NumberOfConnectionsConditon
 extends EnchantmentCondition
 
 ## The number of magic nodes the holder of this condition has to reach (directly or through a chain)
-@export var number_of_lines: int = 0 
+@export var number_of_lines: int = 0
+
 
 func is_fulfilled(ctx: MaterialActivationContext) -> bool:
 	return ctx.get_connection_count() >= number_of_lines
+
 
 func describe() -> String:
 	return "reach %d+ magic nodes" % number_of_lines
