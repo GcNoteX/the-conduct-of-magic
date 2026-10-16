@@ -318,6 +318,11 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - Build the **enchanting part first**: set up a player with materials and demo items for testing. The shop day comes later.
 - **Starter content:** about **5 materials** (each with the nodes that accept it, its conditions and its rune pattern), **3 or 4 enchantment shapes** and **one item map**.
 - **Enchantments can't share magic nodes** for now. Magic nodes are **1 cell**. Special nodes may come later.
+- **Scope of the first build: carving only.** Hex map, dragging enchantments on, drawing lines, inserting materials, activation, commit, inventory and the timer. Disenchanting comes in the second build.
+- **No condition cells** in the first build (hard to test, a later feature). **Condition nodes** are fine, such as enchantment nodes that accept only certain materials.
+- One demo sword with one fixed node arrangement. Drafts are kept per item during the session. No art pass.
+
+**Magic node to magic node lines.** These happen while enchanting. The magic nodes come from the template you bind to the item, and to activate an enchantment you may need to chain **magic node → magic node → enchantment node** to complete a condition. The game tracks which nodes are connected but **don't chain to an enchantment node**. Those are effectively **dead**, and they're **ignored on commit**.
 
 ## 8. Uses of enchanted items
 
@@ -446,6 +451,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | An edge's runes come from **both ends**: the enchantment node's material and the magic node, which emits a fixed set. **Cutting costs the displayed runes.** Whether returns are deterministic or random is open. |
 | 2026-10-16 | Rune returns are **deterministic**. Enchanting takes the form of **carving** (or inscribing). **Partial detachment** and **map-location wear** are archived (A.9, A.10). |
 | 2026-10-16 | Who drew a line doesn't matter once committed (free snapping of your own lines is dropped). Cutting costs runes; **freed nodes return runes**: magic nodes a deterministic set fixed by the chosen arrangement, enchantment nodes what their material sets. Runes **don't carry over** between sessions or items. **No par.** Foreign-line effects and rune-pool materials are archived (A.11, A.12). |
+| 2026-10-16 | First build is **carving only**, with **no condition cells** (condition nodes are fine). **Magic-to-magic lines** are drawn while enchanting to chain into enchantment nodes. Nodes that don't chain to an enchantment node are **dead** and ignored on commit (§7.7). |
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
 
 ## Appendix A: Idea archive
