@@ -291,6 +291,8 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - You keep cutting, spending runes as needed. **When you are blocked, a material is needed** to get the runes to continue. That is how you solve the board.
 - **Which line gives which runes is defined by the material inserted** in its node, and is visible when viewed. For example, lines leaving the node top left give one rune and lines leaving bottom right give another. The exact mapping is to be worked out.
 - **Runes are an inverse representation of the material.**
+- **An edge takes runes from both ends:** from the enchantment node's material and from the magic node. **Magic nodes emit their own fixed set of runes.**
+- **Cutting a line costs the runes it displays** (not their inverse), so it's easy to read. Cutting is not a simple swap of one rune for another.
 - **You start with 0 runes.** Dissolving a material gives you your starting runes, then cutting lines takes and gives runes.
 - **4 rune types** for now.
 - What a material gives is **deterministic**. A material could give any number of runes, but **1** for now.
@@ -379,6 +381,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day?
 12. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
+13. Disenchanting: are the runes you **get back** from a cut deterministic or random?
 
 ## 11. Decision log
 
@@ -430,6 +433,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | **Enchantments can't share magic nodes** for now, and magic nodes are 1 cell. |
 | 2026-10-15 | In the uncle's workshop, the end states are **running out of money** and **not having enough money for the next game stage**, each with different endings (§9.2.2). |
 | 2026-10-15 | Players can draw **as many lines as they like**. Node acceptance uses the prototype's **tier and attribute** requirements. A **focus** limit on dangling lines is archived for later (A.8). |
+| 2026-10-16 | An edge's runes come from **both ends**: the enchantment node's material and the magic node, which emits a fixed set. **Cutting costs the displayed runes.** Whether returns are deterministic or random is open. |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
