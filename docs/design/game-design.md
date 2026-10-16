@@ -236,7 +236,7 @@ Both nodes and materials can carry conditions, but **materials will carry most o
 
 **Decision: hex grid.** Discrete placement makes conditions exact ("adjacent" means a neighbouring cell, and distance is a count of steps). Shifting becomes a snap of one or a few cells. Hexes avoid the square grid's diagonal problem and look more like magic than a circuit board. 
 **Edges**
-- ~~**Snapping is free** for edges the player drew themselves.~~ Superseded: once lines are set and committed, **all lines cost the same** to cut, whoever drew them (§7.6).
+- ~~**Snapping is free** for edges the player drew themselves.~~ Superseded: once committed, a line's cost to cut depends only on the **nodes it's attached to**, not on who drew it (§7.6).
 - **No crossing**: edges can't cross each other. This is a rule to try out.
 - **Edges you draw don't have to be straight.** They can bend around obstacles.
 - **An enchantment's own lines are fixed** and come with it when you drag it on, usually straight.
@@ -291,13 +291,13 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - Lines carry **runes**. **Cutting a line consumes runes and gives runes.**
 - **Materials can be dissolved** to give you runes.
 - You keep cutting, spending runes as needed. **When you are blocked, a material is needed** to get the runes to continue. That is how you solve the board.
-- **Which line gives which runes is defined by the material inserted** in its node, and is visible when viewed. For example, lines leaving the node top left give one rune and lines leaving bottom right give another. The exact mapping is to be worked out.
+- **The material inserted defines the runes** on the lines at its node, and they are visible when viewed. ~~Lines leaving in different directions (top left, bottom right) give different runes.~~ Superseded: **a material puts the same cost on all its edges**.
 - **Runes are an inverse representation of the material.**
-- **An edge takes runes from both ends:** from the enchantment node's material and from the magic node. **Magic nodes emit their own fixed set of runes.**
+- **An edge's cost is determined by the nodes it's attached to: it costs whatever is connected to it, added together.** This applies to every kind of edge: enchantment node to enchantment node, enchantment node to magic node, and magic node to magic node. **Magic nodes have their own fixed set of runes.**
 - **Cutting a line costs the runes it displays** (not their inverse), so it's easy to read. Cutting is not a simple swap of one rune for another.
 - **What a cut gives back is deterministic**, not random.
-- **All committed lines cost the same**, including the player's own, because enchanting and disenchanting don't happen at the same time.
-- **Lines cost runes to cut; freed nodes give runes back.**
+- **Who drew a line doesn't matter.** Your own committed lines follow the same rule as anyone else's, because enchanting and disenchanting don't happen at the same time.
+- **Cutting a line costs runes; freed nodes give runes back.**
   - **Magic nodes** give back a deterministic set, fixed by the node arrangement chosen when you pick which map to bind to.
   - **Enchantment nodes** give back whatever is set on the material inside them.
 - **So a material defines three things:** its requirements, the rune cost it puts on the edges it touches, and what it returns when its node is freed (harvested).
@@ -445,7 +445,8 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Players can draw **as many lines as they like**. Node acceptance uses the prototype's **tier and attribute** requirements. A **focus** limit on dangling lines is archived for later (A.8). |
 | 2026-10-16 | An edge's runes come from **both ends**: the enchantment node's material and the magic node, which emits a fixed set. **Cutting costs the displayed runes.** Whether returns are deterministic or random is open. |
 | 2026-10-16 | Rune returns are **deterministic**. Enchanting takes the form of **carving** (or inscribing). **Partial detachment** and **map-location wear** are archived (A.9, A.10). |
-| 2026-10-16 | **All committed lines cost the same** to cut (free snapping of your own lines is dropped). Lines cost runes; **freed nodes return runes**: magic nodes a deterministic set fixed by the chosen arrangement, enchantment nodes what their material sets. Runes **don't carry over** between sessions or items. **No par.** Foreign-line effects and rune-pool materials are archived (A.11, A.12). |
+| 2026-10-16 | Who drew a line doesn't matter once committed (free snapping of your own lines is dropped). Cutting costs runes; **freed nodes return runes**: magic nodes a deterministic set fixed by the chosen arrangement, enchantment nodes what their material sets. Runes **don't carry over** between sessions or items. **No par.** Foreign-line effects and rune-pool materials are archived (A.11, A.12). |
+| 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
