@@ -2,12 +2,15 @@
 
 > Living document for the story the player goes through: the world, the characters they meet, the chapters and the endings. Gameplay rules live in the [game design document](../design/game-design.md); this file links to it rather than repeating it.
 > Same conventions as the design doc: **Decided** facts are stated plainly, **Proposed** marks suggestions not yet agreed, **On hold** marks parked ideas, and **Open questions** collect what still needs deciding.
+> **Authorship.** All story content here is Gavin's. Claude records what Gavin designs, asks questions, points out plot holes, gives feedback against the agreed themes, and brings in outside references on story construction. Claude does not write story content of its own into this file.
 
 ## 1. Premise and theme
 
 The main character has the **gift of enchanting** and starts out as an apprentice in their **uncle's workshop** (design doc §9.1).
 
 **Theme.** The title is the question the game asks. You've been given a rare gift. Enchanting can help a great many people, and it can also make you rich. How you conduct yourself with it is up to you (design doc §1).
+
+**Tone.** Cosy with a moral edge. Most of the game, and the shop above all, should feel like *Stardew Valley*. Later areas bring in a little more mystery, but the shop stays cosy.
 
 **How the story is told.** Mostly through the counter. Customers return, remember and carry their own plots, which your decisions move forward or cut off (pillar 4). The wider world reaches you through **printed matter** (news, culture guides, adverts) and **contacts**, because there's no foraging and the player rarely leaves the shop (design doc §4.2, §4.3).
 
@@ -25,6 +28,8 @@ The main character has the **gift of enchanting** and starts out as an apprentic
 *Not yet defined.* It must hold three destinations the player can end up in: the **University**, the **Adventurers' Guild** and the **Black Market** (§4.2). Different **cultures** have their own customs, markings and goods, which culture guides teach (design doc §4.2).
 
 ### 2.3 Magic in the world
+- **Enchanting (inscribing) is a rare talent, gifted at birth.** Most people can't do it because of how their mana behaves.
+- Having the right mana isn't enough. Not everyone with the right attributes has the proper mindset or the talent for inscribing.
 - Enchanting is done by carving patterns into an item's map of magic nodes and powering them with materials (design doc §7). How the characters themselves describe this is *not yet defined*.
 - Customers can tell whether an enchantment works (a warm blade, a light, rust resistance).
 - **Curses** and **faulty materials** exist and can harm the shop (design doc §5.3).
@@ -32,15 +37,16 @@ The main character has the **gift of enchanting** and starts out as an apprentic
 ## 3. Characters
 
 ### 3.1 The main character
-- Has the gift of enchanting. Young, learning the trade.
-- Name, background, and why they're living with their uncle are *not yet defined*.
+- A **teenager** learning the ropes of a trade.
+- Born with the gift of enchanting, and **quite talented** at it compared with others who have it.
+- Name and background are *not yet defined*.
 
 ### 3.2 The uncle
+- **A kind mentor.** The family dynamic is East Asian in its cultural sense: the uncle takes care of the player as family while teaching them the trade.
 - Owns the workshop and **settles the books at the end of each day**.
 - He's the player's first source of feedback: bad commissions mean lower income that day, and he docks the player's pay.
 - In the tutorial phase **he negotiates and makes the final call** while the player inspects and passes sheets to him approved or flagged. As he comes to trust the player, he hands the negotiation over (design doc §9.2.1).
 - Restocks materials early on, then stops (design doc §4.4).
-- His personality and whether he has an agenda of his own are *open* (Q3).
 
 ### 3.3 Recurring customers
 Every customer has a story of their own. The shape of a customer arc, from the commission rules (design doc §5):
@@ -126,22 +132,29 @@ Copy this for each recurring customer.
 ## 7. Open questions
 
 **Most important first**
-1. **Tone.** How dark and how funny is the world? Cosy shopkeeping with a moral edge, or grim and dangerous like Papers, Please?
-2. **The gift.** Is enchanting rare or unique to the main character, and who knows about it? Is it something that has to be hidden?
-3. **The uncle.** A kindly mentor, a stern businessman, or someone with an agenda (debts, a secret, a past with one of the factions)?
+1. **Can the uncle inscribe?** He runs an enchanting workshop, but the gift is rare. If he can't, what did the shop do before the player arrived, and why does it need them?
+2. **Why is the player with the uncle?** Sent to learn a family trade, sent because of the gift, or something else?
+3. **Who knows about the gift, and how is it found?** Is there a test, a guild register, or does it just show?
 4. **Chapter 1 length and shape.** How many in-game days, and is there a story event that ends it (an exam, a letter, a crisis), or does it end on the money check alone?
 5. **Choosing a route.** Does the player choose, or does the game assign it from their results? Can a rich player still pick the Black Market?
 6. **Factions in town.** Which guilds and groups exist, and which of them lead to each route?
 
 **Also open**
-7. Who is the main character: name, age, where they came from, why they're with the uncle? Fixed or player-defined?
-8. Where and when is this? An invented fantasy town, or something close to a historical period (the design doc already leans on medieval guilds and hallmarking)?
+7. Who is the main character: name, exact age, where they came from? Fixed or player-defined?
+8. Where and when is this? The family feel is East Asian, while the design doc's guilds and hallmarking lean medieval European. Is the town East Asian-inspired, mixed, or something else?
 9. How many recurring customers in chapter 1, and how many plots run at once?
 10. Is the book peddler a recurring character with a story of their own?
 11. Is there an overarching plot that runs through all chapters, or is the story made of customer plots?
+12. Does everyone have mana? If mana is common and only its behaviour differs, what can ordinary people do with theirs?
+13. What does "the proper mindset" for inscribing mean in play? Is it something the player can lose, or that the story tests?
+14. How do the harsher systems fit a cosy tone: the uncle docking pay, curses, faulty materials that blow up, the money endings, and Black Market deaths?
 
 ## 8. Decision log
 
 | Date | Decision |
 |---|---|
+| 2026-10-16 | **Tone:** cosy with a moral edge, *Stardew Valley*-like for most of the game; more mystery in later areas, the shop stays cosy. |
+| 2026-10-16 | **The uncle** is a kind mentor, in an East Asian family sense of taking care. **The player** is a teenager learning a trade. |
+| 2026-10-16 | **The gift** is rare and given at birth; most people can't inscribe because of how their mana behaves, and the right mana also needs the right mindset and talent. The player is relatively talented. |
+| 2026-10-16 | **Authorship:** the story is Gavin's. Claude asks questions, finds plot holes, gives feedback and brings references, and doesn't write story content. |
 | 2026-10-16 | The story bible lives in the repo at `docs/story/story-bible.md` beside the design doc, and story is discussed in the project's story thread. |
