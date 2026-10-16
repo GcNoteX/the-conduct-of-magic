@@ -236,7 +236,7 @@ Both nodes and materials can carry conditions, but **materials will carry most o
 
 **Decision: hex grid.** Discrete placement makes conditions exact ("adjacent" means a neighbouring cell, and distance is a count of steps). Shifting becomes a snap of one or a few cells. Hexes avoid the square grid's diagonal problem and look more like magic than a circuit board. 
 **Edges**
-- **Snapping is free** for edges the player drew themselves.
+- ~~**Snapping is free** for edges the player drew themselves.~~ Superseded: once lines are set and committed, **all lines cost the same** to cut, whoever drew them (§7.6).
 - **No crossing**: edges can't cross each other. This is a rule to try out.
 - **Edges you draw don't have to be straight.** They can bend around obstacles.
 - **An enchantment's own lines are fixed** and come with it when you drag it on, usually straight.
@@ -296,6 +296,13 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **An edge takes runes from both ends:** from the enchantment node's material and from the magic node. **Magic nodes emit their own fixed set of runes.**
 - **Cutting a line costs the runes it displays** (not their inverse), so it's easy to read. Cutting is not a simple swap of one rune for another.
 - **What a cut gives back is deterministic**, not random.
+- **All committed lines cost the same**, including the player's own, because enchanting and disenchanting don't happen at the same time.
+- **Lines cost runes to cut; freed nodes give runes back.**
+  - **Magic nodes** give back a deterministic set, fixed by the node arrangement chosen when you pick which map to bind to.
+  - **Enchantment nodes** give back whatever is set on the material inside them.
+- **So a material defines three things:** its requirements, the rune cost it puts on the edges it touches, and what it returns when its node is freed (harvested).
+- **Runes don't carry over** to another session with the item or to another item. They're "hot", live material that disperses if not reused straight away. That is why runes aren't materials themselves.
+- **No par** is shown on the board.
 - **You start with 0 runes.** Dissolving a material gives you your starting runes, then cutting lines takes and gives runes.
 - **4 rune types** for now.
 - What a material gives is **deterministic**. A material could give any number of runes, but **1** for now.
@@ -384,6 +391,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day?
 12. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
+13. Disenchanting balance: how do we decide which runes a material puts on the edges it touches, and what it returns when freed?
 
 ## 11. Decision log
 
@@ -437,6 +445,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | Players can draw **as many lines as they like**. Node acceptance uses the prototype's **tier and attribute** requirements. A **focus** limit on dangling lines is archived for later (A.8). |
 | 2026-10-16 | An edge's runes come from **both ends**: the enchantment node's material and the magic node, which emits a fixed set. **Cutting costs the displayed runes.** Whether returns are deterministic or random is open. |
 | 2026-10-16 | Rune returns are **deterministic**. Enchanting takes the form of **carving** (or inscribing). **Partial detachment** and **map-location wear** are archived (A.9, A.10). |
+| 2026-10-16 | **All committed lines cost the same** to cut (free snapping of your own lines is dropped). Lines cost runes; **freed nodes return runes**: magic nodes a deterministic set fixed by the chosen arrangement, enchantment nodes what their material sets. Runes **don't carry over** between sessions or items. **No par.** Foreign-line effects and rune-pool materials are archived (A.11, A.12). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -625,3 +634,9 @@ The player may be able to **partially detach** an enchantment, for times when th
 
 ### A.10 Map location and wear
 If we go the **inscribing** route rather than just enchanting, **where** on the map something sits could matter. For example, carvings **near the edges** of a sword's map may get **chipped** when the sword is used.
+
+### A.11 Foreign line effects
+Lines carved by someone else may come with **added effects** when you disenchant them.
+
+### A.12 Rune-pool materials
+Maybe some **stable materials** that are just **rune pools**, unlike live runes, which disperse.
