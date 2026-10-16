@@ -162,6 +162,8 @@ Rules can change over time, the way they do in Papers, Please.
 
 ## 7. The enchanting day
 
+**Terminology:** the form enchanting takes is **carving**, or **inscribing**.
+
 When the shop closes, the player moves to enchanting:
 1. **Review commissions** to see what's owed, to whom and by when.
 2. **Choose an item** you received from a customer or bought yourself.
@@ -293,6 +295,7 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Runes are an inverse representation of the material.**
 - **An edge takes runes from both ends:** from the enchantment node's material and from the magic node. **Magic nodes emit their own fixed set of runes.**
 - **Cutting a line costs the runes it displays** (not their inverse), so it's easy to read. Cutting is not a simple swap of one rune for another.
+- **What a cut gives back is deterministic**, not random.
 - **You start with 0 runes.** Dissolving a material gives you your starting runes, then cutting lines takes and gives runes.
 - **4 rune types** for now.
 - What a material gives is **deterministic**. A material could give any number of runes, but **1** for now.
@@ -381,7 +384,6 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day?
 12. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
-13. Disenchanting: are the runes you **get back** from a cut deterministic or random?
 
 ## 11. Decision log
 
@@ -434,6 +436,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | In the uncle's workshop, the end states are **running out of money** and **not having enough money for the next game stage**, each with different endings (§9.2.2). |
 | 2026-10-15 | Players can draw **as many lines as they like**. Node acceptance uses the prototype's **tier and attribute** requirements. A **focus** limit on dangling lines is archived for later (A.8). |
 | 2026-10-16 | An edge's runes come from **both ends**: the enchantment node's material and the magic node, which emits a fixed set. **Cutting costs the displayed runes.** Whether returns are deterministic or random is open. |
+| 2026-10-16 | Rune returns are **deterministic**. Enchanting takes the form of **carving** (or inscribing). **Partial detachment** and **map-location wear** are archived (A.9, A.10). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -616,3 +619,9 @@ Gavin's idea, kept for when we need something more difficult. It adds another co
 
 ### A.8 Focus (for later)
 A possible future limit: **focus** is how many **incomplete lines** can be left dangling while the player does something else. It would be another limitation on the player, but not for now.
+
+### A.9 Partial detachment (eventually)
+The player may be able to **partially detach** an enchantment, for times when they want to **reroute for space** without wasting all their materials.
+
+### A.10 Map location and wear
+If we go the **inscribing** route rather than just enchanting, **where** on the map something sits could matter. For example, carvings **near the edges** of a sword's map may get **chipped** when the sword is used.
