@@ -1,28 +1,31 @@
 [gd_resource type="Resource" script_class="DemoSetup" format=3]
 
-[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="1_x6lbh"]
-[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="2_pcxvv"]
-[ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="3_euygr"]
-[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="4_v6kwb"]
-[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="5_ndyfw"]
-[ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="6_o50qw"]
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="7_fq3d4"]
-[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="8_borej"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/fire_stone/fire_stone.tres" id="9_xnjl6"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="10_f6r6g"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/red_stone/red_stone.tres" id="11_15xsu"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/blue_stone/blue_stone.tres" id="12_fggba"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/yellow_stone/yellow_stone.tres" id="13_5x2an"]
-[ext_resource type="Script" path="res://inscribing/demo/demo_setup.gd" id="14_it10v"]
+[ext_resource type="Script" path="res://items/data/item_instance.gd" id="1_euygr"]
+[ext_resource type="Resource" path="res://inscribing/demo/carved_demo_sword.tres" id="2_v6kwb"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="3_ndyfw"]
+[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="4_o50qw"]
+[ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="5_fq3d4"]
+[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="6_borej"]
+[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="7_xnjl6"]
+[ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="8_f6r6g"]
+[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="9_15xsu"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="10_fggba"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/fire_stone/fire_stone.tres" id="11_5x2an"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="12_it10v"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/red_stone/red_stone.tres" id="13_iclr1"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/blue_stone/blue_stone.tres" id="14_704wn"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/yellow_stone/yellow_stone.tres" id="15_b0621"]
+[ext_resource type="Script" path="res://inscribing/demo/demo_setup.gd" id="16_04o2l"]
 
 [resource]
-script = ExtResource("14_it10v")
-materials = Dictionary[ExtResource("8_borej"), int]({
-ExtResource("9_xnjl6"): 3,
-ExtResource("10_f6r6g"): 3,
-ExtResource("11_15xsu"): 3,
-ExtResource("12_fggba"): 3,
-ExtResource("13_5x2an"): 1
+script = ExtResource("16_04o2l")
+materials = Dictionary[ExtResource("10_fggba"), int]({
+ExtResource("11_5x2an"): 3,
+ExtResource("12_it10v"): 3,
+ExtResource("13_iclr1"): 3,
+ExtResource("14_704wn"): 3,
+ExtResource("15_b0621"): 1
 })
-items = Array[ExtResource("6_o50qw")]([ExtResource("7_fq3d4"), ExtResource("7_fq3d4")])
-enchantments = Array[ExtResource("1_x6lbh")]([ExtResource("2_pcxvv"), ExtResource("3_euygr"), ExtResource("4_v6kwb"), ExtResource("5_ndyfw")])
+items = Array[ExtResource("8_f6r6g")]([ExtResource("9_15xsu"), ExtResource("9_15xsu")])
+carved_items = Array[ExtResource("1_euygr")]([ExtResource("2_v6kwb")])
+enchantments = Array[ExtResource("3_ndyfw")]([ExtResource("4_o50qw"), ExtResource("5_fq3d4"), ExtResource("6_borej"), ExtResource("7_xnjl6")])

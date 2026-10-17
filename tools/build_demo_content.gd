@@ -124,9 +124,13 @@ func _ready() -> void:
 	_save(sword, "res://inscribing/demo/demo_sword.tres")
 	var saved_sword: EnchantableItemDefinition = load("res://inscribing/demo/demo_sword.tres")
 
+	var carved := _carved_sword(saved_sword, kindle, keen, [fire, water, red, blue])
+	_save(carved, "res://inscribing/demo/carved_demo_sword.tres")
+
 	var setup := DemoSetup.new()
 	setup.materials = {fire: 3, water: 3, red: 3, blue: 3, yellow: 1}
 	setup.items = [saved_sword, saved_sword]
+	setup.carved_items = [load("res://inscribing/demo/carved_demo_sword.tres")]
 	setup.enchantments = [kindle, glow, keen, ward]
 	setup.day_length_seconds = 3600.0
 	_save(setup, "res://inscribing/demo/demo_setup.tres")
@@ -151,6 +155,51 @@ func _stone(
 	m.activation_conditions = conds
 	_save(m, path)
 	return load(path)
+
+
+## A demo sword that arrives already carved, to practise disenchanting on: Kindle (fire, water)
+## on the blade with a magic-to-magic chain, and Keen (red, blue, red) on the crossguard
+func _carved_sword(
+	sword: EnchantableItemDefinition, kindle: Enchantment, keen: Enchantment, stones: Array
+) -> ItemInstance:
+	var fire: EnchantmentMaterialDefinition = stones[0]
+	var water: EnchantmentMaterialDefinition = stones[1]
+	var red: EnchantmentMaterialDefinition = stones[2]
+	var blue: EnchantmentMaterialDefinition = stones[3]
+	var carver := Player.new()
+	for m in stones:
+		carver.add_material(m, 9)
+	var inst := ItemInstance.new()
+	inst.id = &"carved_demo_sword"
+	inst.definition = sword
+	var b := InscriptionBoard.new(inst, carver)
+	var k := b.place(kindle, Vector2i(1, 5), 0)
+	b.insert_material(InscriptionBoard.enchantment_key(k.id, 0), fire)
+	b.insert_material(InscriptionBoard.enchantment_key(k.id, 1), water)
+	_carve(b, [Vector2i(1, 5), Vector2i(1, 4), Vector2i(0, 4)])
+	_carve(b, [Vector2i(1, 5), Vector2i(1, 6), Vector2i(1, 7)])
+	_carve(b, [Vector2i(3, 5), Vector2i(4, 4)])
+	_carve(b, [Vector2i(4, 4), Vector2i(4, 3), Vector2i(4, 2), Vector2i(3, 2)])
+	var e := b.place(keen, Vector2i(-5, 13), 0)
+	b.insert_material(InscriptionBoard.enchantment_key(e.id, 0), red)
+	b.insert_material(InscriptionBoard.enchantment_key(e.id, 1), blue)
+	b.insert_material(InscriptionBoard.enchantment_key(e.id, 2), red)
+	_carve(b, [Vector2i(-5, 13), Vector2i(-6, 14), Vector2i(-7, 14)])
+	_carve(b, [Vector2i(-5, 13), Vector2i(-5, 14), Vector2i(-4, 14), Vector2i(-3, 14)])
+	_carve(b, [Vector2i(-3, 13), Vector2i(-3, 14)])
+	_carve(b, [Vector2i(-1, 13), Vector2i(-2, 14), Vector2i(-3, 14)])
+	_carve(b, [Vector2i(-1, 13), Vector2i(-1, 14), Vector2i(0, 14), Vector2i(1, 14)])
+	var done := b.commit()
+	assert(done.size() == 2, "The carved demo sword didn't commit: " + b.check_commit())
+	return inst
+
+
+func _carve(b: InscriptionBoard, cells: Array) -> void:
+	var path: Array[Vector2i] = []
+	path.assign(cells)
+	var err := b.check_line(path)
+	assert(err == "", "Can't carve %s: %s" % [cells, err])
+	b.add_line(path)
 
 
 func _runes(
