@@ -9,9 +9,10 @@ Story: [docs/story/story-bible.md](docs/story/story-bible.md)
 ## Running the inscribing prototype
 Open the project in Godot 4.7 and run it (F5). The main scene is the inscribing table (`inscribing/inscribing_table.tscn`), set up with the demo player in `inscribing/demo/demo_setup.tres`.
 
-- **Place an enchantment:** pick it in the list, then click the item. Scroll or press R to rotate.
+- **Place an enchantment:** drag its card onto the item, pressing R or scrolling to rotate it on the way. Clicking a card holds it instead, so you can click to place.
+- **Try the layouts:** the Layout dropdown at the bottom right switches between the sidebar (Tab opens and closes it), a bottom tray, a quick palette (hold Space) and the original lists.
 - **Draw a line:** press on a node and drag through neighbouring cells to another node. A line fills every cell it passes, so lines can't cross; move back along the line to undo cells. Lines can join magic nodes to each other to build a chain.
-- **Insert a material:** drag it from the list onto an enchantment node. Nodes that accept it get a green ring.
+- **Insert a material:** drag its card onto an enchantment node. Nodes that accept it get a green ring.
 - **Take back planned things:** right click a material, a line, then an enchantment. Esc drops what you're holding or cancels a line.
 - **Commit:** commits every enchantment that is fully active. Materials are used up then.
 

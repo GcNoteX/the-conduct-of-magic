@@ -25,34 +25,40 @@ func _ready() -> void:
 	view = table._view
 	_shot("01_empty")
 
-	# Place Kindle with the mouse
-	table._enchantments.select(0)
-	table._on_enchantment_selected(0)
+	# Drag Kindle from the sidebar, rotating it once mid-drag to show the ghost turn
+	var kindle := _card(table.player.known_enchantments[0])
+	_start_drag(kindle)
 	_move(_cell(Vector2i(1, 5)))
+	_key(KEY_R)
+	_move(_cell(Vector2i(1, 5)) + Vector2(1, 0))
 	await _frames(2)
-	_shot("02_ghost")
-	_click(_cell(Vector2i(1, 5)), MOUSE_BUTTON_LEFT)
+	_shot("02_dragging_rotated")
+	for i in 5:
+		_key(KEY_R)
+	_move(_cell(Vector2i(1, 5)))
+	_release(_cell(Vector2i(1, 5)))
 	await _frames(2)
 	var p: PlacementState = table.board.state.placements[0]
 	var e0 := InscriptionBoard.enchantment_key(p.id, 0)
 	var e1 := InscriptionBoard.enchantment_key(p.id, 1)
-	print("placed: ", table.board.state.placements.size())
-	_move(_cell(Vector2i(3, 5)))
-	await _frames(2)
-	_shot("03_requirements")
+	print("placed: ", table.board.state.placements.size(), " rotation: ", p.rotation_steps)
 
 	# Drag fire onto the flame node, showing the drop preview first
-	var mats: Array[EnchantmentMaterialDefinition] = table._materials.materials
-	table._on_material_drag_started(mats[0])
-	table._board_area._can_drop_data(_area(Vector2i(1, 5)), mats[0])
+	var mats: Array[EnchantmentMaterialDefinition] = table._material_order()
+	table._layout.set_open(true)
+	await _frames(15)
+	_start_drag(_card(mats[0]))
+	_move(_cell(Vector2i(1, 5)))
+	await _frames(15)
+	_shot("03_drop_preview")
+	_release(_cell(Vector2i(1, 5)))
 	await _frames(2)
-	_shot("04_drop_preview")
-	table._board_area._drop_data(_area(Vector2i(1, 5)), mats[0])
-	table._board_area._drop_data(_area(Vector2i(3, 5)), mats[3])
-	await _frames(2)
+	_start_drag(_card(mats[3]))
+	_move(_cell(Vector2i(3, 5)))
+	_release(_cell(Vector2i(3, 5)))
 	_move(_cell(Vector2i(1, 5)))
 	await _frames(2)
-	_shot("04b_inserted")
+	_shot("04_inserted")
 	print("materials: ", table.board.node_material(e0), " ", table.board.node_material(e1))
 
 	# Draw lines cell by cell, with a wobble back along the first one
@@ -84,10 +90,51 @@ func _ready() -> void:
 	print("committed: ", p.committed, " message: ", table._message_label.text)
 	_shot("07_committed")
 
+	# The other layouts, for comparison
+	_key(KEY_TAB)
+	await _frames(20)
+	_shot("10_sidebar_closed")
+	table._set_layout(table.Layout.BOTTOM_TRAY)
+	await _frames(3)
+	_shot("11_bottom_tray")
+	table._set_layout(table.Layout.QUICK_PALETTE)
+	await _frames(2)
+	_move(_cell(Vector2i(0, 9)))
+	_key(KEY_SPACE, true)
+	await _frames(3)
+	_shot("12_quick_palette")
+	_key(KEY_SPACE, false)
+	table._set_layout(table.Layout.LISTS)
+	await _frames(3)
+	_shot("13_lists")
+
 	table.time_left = 0.01
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()
+
+
+func _card(payload: Resource) -> PaletteCard:
+	for c in table.find_children("*", "PaletteCard", true, false):
+		if c.payload == payload and not c.is_queued_for_deletion():
+			return c
+	return null
+
+
+func _start_drag(card: PaletteCard) -> void:
+	card.force_drag(card.payload, card.make_preview())
+	table._on_card_drag_started(card.payload)
+
+
+func _key(code: Key, pressed := true) -> void:
+	var ev := InputEventKey.new()
+	ev.keycode = code
+	ev.physical_keycode = code
+	ev.pressed = pressed
+	Input.parse_input_event(ev)
+	Input.flush_buffered_events()
+	if code != KEY_SPACE and pressed:
+		_key(code, false)
 
 
 func _cell(c: Vector2i) -> Vector2:
