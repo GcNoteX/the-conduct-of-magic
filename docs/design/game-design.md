@@ -333,6 +333,8 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 
 ## 9. Story and progression
 
+Characters, setting, chapters and endings are developed in the [story bible](../story/story-bible.md). This section keeps the progression rules.
+
 ### 9.1 Premise
 The main character has the gift of enchanting. They start out working in their **uncle's workshop**.
 
