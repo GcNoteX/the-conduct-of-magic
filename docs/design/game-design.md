@@ -5,7 +5,7 @@
 
 ## 1. Pitch
 
-A shop-management, inspection and crafting game about a young enchanter learning the trade in their uncle's workshop. By day you serve customers at the counter: you sell enchanted goods, take commissions and inspect what people bring you. At night you enchant items by laying enchantment patterns onto them and powering those patterns with materials. Who you choose to help, and how well you do the work, decides where your life goes next.
+A shop-management, inspection and crafting game about a young enchanter learning the trade as an apprentice in their mentor's workshop. By day you serve customers at the counter: you sell enchanted goods, take commissions and inspect what people bring you. At night you enchant items by laying enchantment patterns onto them and powering those patterns with materials. Who you choose to help, and how well you do the work, decides where your life goes next.
 
 **Theme.** The title, *The Conduct of Magic*, is the question the game asks. You've been given a rare gift. Enchanting can help a great many people, and it can also make you rich. How you conduct yourself with it is up to you.
 
@@ -31,7 +31,7 @@ A shop-management, inspection and crafting game about a young enchanter learning
 │ Inspect documents, ID, items, materials   │ ◄─── │ Finished commissions wait for pickup       │
 │ Accept or decline                         │      │                                            │
 └───────────────────────────────────────────┘      └────────────────────────────────────────────┘
-        End of day: the uncle settles the books → money · reputation · plot flags
+        End of day: the mentor settles the books → money · reputation · plot flags
 ```
 
 ## 4. The shop day
@@ -87,11 +87,11 @@ How the player gets materials changes as the game goes on:
 
 | Phase | Source | Notes |
 |---|---|---|
-| **Start** | **The uncle's stock** | Given at the start of the game, and the uncle **restocks it early on** |
+| **Start** | **The mentor's stock** | Given at the start of the game, and the mentor **restocks it early on** |
 | **Later** | **Catalogue** | The player manages stock themselves and orders from a catalogue |
 | **Any time** | **Customers in the store** | Chatting with customers, or asking whether they have anything to sell besides their commission. These are random encounters |
 | **Any time** | **Contacts** | Unique or cheaper materials (§4.3) |
-| **Fallback** | **The uncle's store** | **Expedited materials at a surcharge**, for when you forgot something or run short |
+| **Fallback** | **The mentor's store** | **Expedited materials at a surcharge**, for when you forgot something or run short |
 
 ## 5. Commissions
 
@@ -113,7 +113,7 @@ Consequences mostly land **when the commission is completed or due**, not when i
 
 | What went wrong | Possible consequence |
 |---|---|
-| Couldn't deliver (customer lied, or you overreached) | Lost payment, refund, reputation damage, the uncle docks your income |
+| Couldn't deliver (customer lied, or you overreached) | Lost payment, refund, reputation damage, the mentor docks your income |
 | Cursed item | Strange effects in the shop, harm to you or the stock; you can only shed it by finding the right customer, cleansing it or giving it up |
 | Faulty materials | They **blow up** when used or at the end of the market day. Recovering costs money, and in severe cases it's game over |
 | Breaking guild or legal rules | Fines, investigation, loss of standing with a faction |
@@ -136,9 +136,9 @@ Options ranked from simplest to most complex, with **when in the game** each cou
 
 | # | Mechanic | How it works | Complexity | When to introduce |
 |---|---|---|---|---|
-| 1 | **Fixed deadline** | Each commission type has a set turnaround, for example 3 days | Very low | Day 1. It's the uncle's shop rule while you learn |
+| 1 | **Fixed deadline** | Each commission type has a set turnaround, for example 3 days | Very low | Day 1. It's the mentor's shop rule while you learn |
 | 2 | **Customer-set deadline** | The deadline is written on the commission slip, and you take it or leave it | Low | First week. It adds a reason to reject ("I can't make that date") |
-| 3 | **Preset options** | The customer offers two or three choices, such as "2 days for 150g or 4 days for 100g" | Low to medium | Late in the uncle's-workshop chapter, once you have overlapping commissions |
+| 3 | **Preset options** | The customer offers two or three choices, such as "2 days for 150g or 4 days for 100g" | Low to medium | Late in the mentor's-workshop chapter, once you have overlapping commissions |
 | 4 | **Calendar pick** *(Gavin's idea)* | A calendar is laid out on the counter. The customer proposes a date and you drag a marker to counter. Earlier dates pay more and later dates pay less. Each customer has a **patience window**, and pushing past it makes them leave or sour | Medium | When the player runs the counter on their own. The same calendar can double as the commission schedule on the enchanting day |
 | 5 | **Pay in materials (simple)** | The customer offers some or all of the payment as materials, and you accept or decline | Low to medium | Early to mid. It's a natural fit because customers already bring materials |
 | 6 | **Price haggling** | A back-and-forth offer meter, in the style of Potion Craft | Medium | Mid. Possibly combined with the calendar so you trade time against money |
@@ -336,34 +336,34 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 Characters, setting, chapters and endings are developed in the [story bible](../story/story-bible.md). This section keeps the progression rules.
 
 ### 9.1 Premise
-The main character has the gift of enchanting. They start out working in their **uncle's workshop**.
+The main character has the gift of enchanting. They start out as an apprentice in their **mentor's workshop**. The mentor isn't related to them; earlier drafts called him the uncle.
 
-### 9.2 The uncle
-The uncle owns the shop and settles the books at the end of each day. He's the immediate feedback for bad decisions: taking bad commissions means **lower income** that day. This makes consequences felt early without needing a game over.
+### 9.2 The mentor
+The mentor owns the shop and settles the books at the end of each day. He's the immediate feedback for bad decisions: taking bad commissions means **lower income** that day. This makes consequences felt early without needing a game over.
 
-### 9.2.1 Working the counter with the uncle (tutorial phase)
-At first the **uncle runs the business**, and the player is his apprentice.
+### 9.2.1 Working the counter with the mentor (tutorial phase)
+At first the **mentor runs the business**, and the player is his apprentice.
 
 **Proposed flow:** the customer comes to **you first**.
 1. The customer arrives with a **commission sheet** already filled in.
 2. You read what they want made and **check it against the rules**. You also inspect any goods they brought.
-3. You pass the sheet to the uncle, either approved or flagged with a concern.
-4. **The uncle negotiates**, setting a **fixed deadline** (negotiation option #1) and the price, and makes the final call.
+3. You pass the sheet to the mentor, either approved or flagged with a concern.
+4. **The mentor negotiates**, setting a **fixed deadline** (negotiation option #1) and the price, and makes the final call.
 5. At night you do the enchanting.
 
-Why you first rather than the uncle first:
+Why you first rather than the mentor first:
 - **You stay the checkpoint.** Inspection is the core verb, and it stays in your hands from day 1, as in Papers, Please.
-- **Blame is clear.** If you approve a bad commission and the uncle takes it on your word, docking your pay at the end of the day follows naturally.
-- **Clean handover.** As you earn trust, the uncle stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
+- **Blame is clear.** If you approve a bad commission and the mentor takes it on your word, docking your pay at the end of the day follows naturally.
+- **Clean handover.** As you earn trust, the mentor stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
 
-### 9.2.2 End states in the uncle's workshop
+### 9.2.2 End states in the mentor's workshop
 - The game keeps progressing day to day.
 - **Running out of money** leads to different endings.
 - **Not having enough money to progress to the next game stage** also leads to different endings.
-- Death or similar may come later, but in the uncle's workshop these money endings are the end states.
+- Death or similar may come later, but in the mentor's workshop these money endings are the end states.
 
 ### 9.3 Progression routes
-After a few days or weeks in the uncle's shop, the player moves on. **Where they go depends on performance, money and choices:**
+After a few days or weeks in the mentor's shop, the player moves on. **Where they go depends on performance, money and choices:**
 
 | Route | How you get there | What it means |
 |---|---|---|
@@ -385,19 +385,19 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 3. Can you return or refuse an item *after* accepting, for example once you discover it's cursed? What does that cost?
 
 **Rules and factions**
-4. Which guilds and factions exist in the uncle's town, and which of them later lead to the University, Adventurers' Guild and Black Market?
-5. How does the player learn the rules: from the uncle, guild notices or books?
+4. Which guilds and factions exist in the mentor's town, and which of them later lead to the University, Adventurers' Guild and Black Market?
+5. How does the player learn the rules: from the mentor, guild notices or books?
 
 **Story**
 6. Is the main character's gift rare or unique, and who knows about it?
-7. What is the uncle like? Does he have an agenda of his own, or is he a mentor?
+7. What is the mentor like? See the [story bible](../story/story-bible.md): a kind, honest mentor, Mr. Leywin (placeholder name), not related to the player.
 8. Does the player choose a route, or does the game assign one from their results?
-9. How many days or weeks does the uncle's-workshop chapter last?
+9. How many days or weeks does the mentor's-workshop chapter last?
 
 **Shop and enchanting**
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day?
-12. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
+12. When does the mentor stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
 13. Disenchanting balance: how do we decide which runes a material puts on the edges it touches, and what it returns when freed?
 
 ## 11. Decision log
@@ -455,6 +455,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | Who drew a line doesn't matter once committed (free snapping of your own lines is dropped). Cutting costs runes; **freed nodes return runes**: magic nodes a deterministic set fixed by the chosen arrangement, enchantment nodes what their material sets. Runes **don't carry over** between sessions or items. **No par.** Foreign-line effects and rune-pool materials are archived (A.11, A.12). |
 | 2026-10-16 | First build is **carving only**, with **no condition cells** (condition nodes are fine). **Magic-to-magic lines** are drawn while enchanting to chain into enchantment nodes. Nodes that don't chain to an enchantment node are **dead** and ignored on commit (§7.7). |
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
+| 2026-10-17 | **The uncle becomes the mentor** (Mr. Leywin, placeholder). He isn't related to the player. Story details live in the [story bible](../story/story-bible.md). Earlier log entries keep the old name. |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
