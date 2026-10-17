@@ -142,7 +142,7 @@ Options ranked from simplest to most complex, with **when in the game** each cou
 | 4 | **Calendar pick** *(Gavin's idea)* | A calendar is laid out on the counter. The customer proposes a date and you drag a marker to counter. Earlier dates pay more and later dates pay less. Each customer has a **patience window**, and pushing past it makes them leave or sour | Medium | When the player runs the counter on their own. The same calendar can double as the commission schedule on the enchanting day |
 | 5 | **Pay in materials (simple)** | The customer offers some or all of the payment as materials, and you accept or decline | Low to medium | Early to mid. It's a natural fit because customers already bring materials |
 | 6 | **Price haggling** | A back-and-forth offer meter, in the style of Potion Craft | Medium | Mid. Possibly combined with the calendar so you trade time against money |
-| 7 | **Full bartering** | Both sides put goods on the counter until the trade balances. Needs an item-valuation system | High | Late, or a macro-level special such as the Black Market |
+| 7 | **Full bartering** | Both sides put goods on the counter until the trade balances. Needs an item-valuation system | High | Late, or a special for a later location |
 | 8 | **Renegotiation on return** | The customer comes back early or late. They ask for an extension, you ask for one, partial delivery, late penalties | Medium to high | Late, once relationships carry weight |
 | 9 | **Relationship and faction modifiers** | Trust and allegiance change patience, discounts and willingness to barter | Medium (a layer over the rest) | Grows alongside the relationship system |
 
@@ -363,13 +363,15 @@ Why you first rather than the mentor first:
 - Death or similar may come later, but in the mentor's workshop these money endings are the end states.
 
 ### 9.3 Progression routes
-After a few days or weeks in the mentor's shop, the player moves on. **Where they go depends on performance, money and choices:**
+After a few days or weeks in the mentor's shop, the player moves on. The game has four location streams: the **shop** (the mentor's workshop, where it starts), then one of three routes. Reputation here means the player's relationship with particular people. If the player qualifies for more than one route, they choose. Story details are in the [story bible](../story/story-bible.md).
 
-| Route | How you get there | What it means |
+| Route | What it is | How you get there |
 |---|---|---|
-| **University** | A near-perfect run with enough money | The respectable, scholarly path |
-| **Adventurers' Guild** | Not enough money for the university | Practical, dangerous work |
-| **Black Market** | *(Proposed: reached through shady commissions or allegiances)* | High reward, high risk, and early game overs (death) are possible |
+| **University** | The job by its nature. A prestigious school for young adults in many professions; the player's dream goal | Mr. Leywin's recommendation; costs money and a good reputation |
+| **Luxury shop** *(temporary name)* | The money side: a fancier workshop that caters to luxuries | A nouveau riche patron's taxing but well-paid tasks |
+| **Guild** (Adventurers' Guild) | The practical, people side | A guild recruiter, if the player is generally reputable with townsfolk or adventurers |
+
+The Black Market is archived (A.13).
 
 ### 9.4 Macro levels (later)
 Each route is a **macro level**: a new place with slightly different mechanics and new kinds of customers. This will be developed later.
@@ -385,7 +387,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 3. Can you return or refuse an item *after* accepting, for example once you discover it's cursed? What does that cost?
 
 **Rules and factions**
-4. Which guilds and factions exist in the mentor's town, and which of them later lead to the University, Adventurers' Guild and Black Market?
+4. Which guilds and factions exist in the mentor's town, and which of them later lead to the university, the luxury shop and the guild?
 5. How does the player learn the rules: from the mentor, guild notices or books?
 
 **Story**
@@ -456,6 +458,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | First build is **carving only**, with **no condition cells** (condition nodes are fine). **Magic-to-magic lines** are drawn while enchanting to chain into enchantment nodes. Nodes that don't chain to an enchantment node are **dead** and ignored on commit (§7.7). |
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
 | 2026-10-17 | **The uncle becomes the mentor** (Mr. Leywin, placeholder). He isn't related to the player. Story details live in the [story bible](../story/story-bible.md). Earlier log entries keep the old name. |
+| 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -650,3 +653,6 @@ Lines carved by someone else may come with **added effects** when you disenchant
 
 ### A.12 Rune-pool materials
 Maybe some **stable materials** that are just **rune pools**, unlike live runes, which disperse.
+
+### A.13 Black Market
+Archived as a route. Something black-market in style could be reached from any route: the things you would do for money, knowledge or reputation.
