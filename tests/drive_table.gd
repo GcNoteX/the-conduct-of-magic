@@ -75,6 +75,10 @@ func _ready() -> void:
 	await _frames(2)
 	_shot("06_active")
 
+	# The unconnected chain blocks the commit until it's removed
+	print("commit button: ", table._commit_button.text)
+	_click(_cell(Vector2i(-5, 14)), MOUSE_BUTTON_RIGHT)
+	await _frames(2)
 	table._on_commit_pressed()
 	await _frames(2)
 	print("committed: ", p.committed, " message: ", table._message_label.text)

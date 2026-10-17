@@ -208,7 +208,8 @@ func _bound_placements(key: String) -> Dictionary:
 	return out
 
 
-## A magic node (or line) that doesn't chain to any enchantment node is dead and ignored on commit
+## A magic node (or line) that doesn't chain to any enchantment node is dead.
+## Dead draft lines block a commit.
 func is_dead(key: String) -> bool:
 	return _bound_placements(key).is_empty()
 
@@ -479,8 +480,19 @@ func inactive_drafts() -> Array[PlacementState]:
 	return out
 
 
-## You can only commit a clean board: every draft enchantment active, none left half done
+## Draft lines in chains that don't reach an enchantment node. Any of these blocks a commit.
+func dead_lines() -> Array[LineState]:
+	var out: Array[LineState] = []
+	for l in state.lines:
+		if not l.committed and is_line_dead(l):
+			out.append(l)
+	return out
+
+
+## You can only commit a clean board: every draft enchantment active and every line connected
 func check_commit(player: Player) -> String:
+	if not dead_lines().is_empty():
+		return "Some magic nodes aren't connected to an enchantment. Connect or remove them first"
 	var inactive := inactive_drafts()
 	if not inactive.is_empty():
 		var names: Array[String] = []
@@ -499,7 +511,7 @@ func check_commit(player: Player) -> String:
 
 
 ## Commits every draft enchantment (all must be active) with the lines chained to it.
-## Materials are used up. Dead lines stay as drafts.
+## Materials are used up.
 func commit(player: Player) -> Array[PlacementState]:
 	var done: Array[PlacementState] = []
 	if check_commit(player) != "":

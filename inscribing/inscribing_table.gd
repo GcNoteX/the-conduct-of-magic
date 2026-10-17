@@ -189,7 +189,10 @@ func _refresh_commit() -> void:
 	var inactive := board.inactive_drafts()
 	_commit_button.disabled = candidates.is_empty() or not inactive.is_empty()
 	_commit_button.modulate = Color(1, 0.45, 0.45) if not missing.is_empty() else Color.WHITE
-	if not inactive.is_empty():
+	_commit_button.disabled = _commit_button.disabled or not board.dead_lines().is_empty()
+	if not board.dead_lines().is_empty():
+		_commit_button.text = "Commit (unconnected magic nodes)"
+	elif not inactive.is_empty():
 		_commit_button.text = "Commit (%s not active)" % inactive[0].enchantment.enchantment_name
 	elif candidates.is_empty():
 		_commit_button.text = "Commit (nothing planned)"
@@ -213,7 +216,7 @@ func _on_hovered(key: String) -> void:
 		if board.is_node_committed(key):
 			text += "Part of a committed carving."
 		elif board.is_dead(key):
-			text += "Not chained to an enchantment node, so it's ignored on commit."
+			text += "Not chained to an enchantment node. Connect or remove it before committing."
 		else:
 			text += "Chained to an enchantment."
 		text += "\nLines: %d" % board.line_count(key)

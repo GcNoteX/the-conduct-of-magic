@@ -225,6 +225,13 @@ func test_commit() -> void:
 			]
 		)
 	)
+	player.add_material(BLUE, 3)
+	check(
+		b.check_commit(player).begins_with("Some magic nodes"),
+		"a chain of magic nodes that reaches no enchantment blocks the commit"
+	)
+	b.remove_line(b.find_line(m(-7, 14), m(-3, 14)))
+	player.remove_material(BLUE, 3)
 	var g := b.place(GLOW, Vector2i(-1, 8), 0)
 	b.insert_material(InscriptionBoard.enchantment_key(g.id, 2), YELLOW)
 	player.add_material(BLUE, 2)
@@ -259,7 +266,6 @@ func test_commit() -> void:
 		b.check_commit(player).begins_with("Plan and activate"), "nothing left to commit after one"
 	)
 	check(b.find_line(e0, m(1, 7)).committed, "chained lines commit")
-	check(not b.find_line(m(-7, 14), m(-3, 14)).committed, "dead line ignored on commit")
 	check(b.check_line_start(Vector2i(3, 5)) != "", "can't add lines to a committed carving")
 	check(b.remove_placement(p) != "", "committed carving can't be removed")
 	check(b.check_insert(e0, FIRE) != "", "committed node takes no materials")
