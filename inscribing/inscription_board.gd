@@ -13,11 +13,15 @@ The rules of carving on one item's hex map. Pure logic, no drawing, so it can be
 - Lines run cell by cell between two nodes and fill every cell between them,
   so "lines can't cross" means "no two lines share a cell"
 - Every check_* returns "" when allowed, or a player-facing reason when not
+- Planned materials stay with the item: inserting one into a draft node takes it out of the
+  inventory, and taking it back out (or swapping it) returns it
 """
 
 var item: ItemInstance
 var map: HexMapDefinition
 var state: GraphState
+## The player's materials. Planning a material moves it from here into the item.
+var inventory: Player
 
 var _cells: Dictionary = {}  ## Vector2i -> true
 var _magic_cells: Array[Vector2i] = []
@@ -27,8 +31,9 @@ var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
 var _occupied: Dictionary = {}  ## Vector2i -> LineState, or PlacementState for its fixed lines
 
 
-func _init(item_instance: ItemInstance) -> void:
+func _init(item_instance: ItemInstance, player_inventory: Player) -> void:
 	item = item_instance
+	inventory = player_inventory
 	var def := item.definition as EnchantableItemDefinition
 	assert(
 		def and def.map_template,
@@ -265,21 +270,34 @@ func place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> PlacementSt
 
 func check_remove_placement(p: PlacementState) -> String:
 	if p.committed:
-		return "Committed carvings can't be removed (disenchanting comes later)"
+		return "Committed carvings are removed by disenchanting"
 	return ""
 
 
+## Takes a draft enchantment off the item, with its lines. Its planned materials go back to the
+## inventory.
 func remove_placement(p: PlacementState) -> String:
 	var err := check_remove_placement(p)
 	if err != "":
 		return err
-	var prefix := "e:%d:" % p.id
-	for l in state.lines.duplicate():
-		if l.a.begins_with(prefix) or l.b.begins_with(prefix):
-			state.lines.erase(l)
-	state.placements.erase(p)
-	_rebuild()
+	for m in p.materials:
+		if m:
+			inventory.add_material(m)
+	_erase_placement(p)
 	return ""
+
+
+## Removes a committed enchantment and every line in its chain, leaving its cells free.
+## Its materials are used up. Only a committed disenchant does this (see DisenchantBoard).
+func remove_carving(p: PlacementState) -> void:
+	var chain := {}
+	for i in p.enchantment.nodes.size():
+		for k in component(enchantment_key(p.id, i)):
+			chain[k] = true
+	for l in state.lines.duplicate():
+		if chain.has(l.a) or chain.has(l.b):
+			state.lines.erase(l)
+	_erase_placement(p)
 
 
 #
@@ -360,7 +378,7 @@ func find_line(a: String, b: String) -> LineState:
 
 func remove_line(l: LineState) -> String:
 	if l.committed:
-		return "Committed lines can't be removed (disenchanting comes later)"
+		return "Committed lines are cut by disenchanting"
 	state.lines.erase(l)
 	_rebuild()
 	return ""
@@ -377,32 +395,37 @@ func check_insert(key: String, m: EnchantmentMaterialDefinition) -> String:
 		return "That carving is already committed"
 	if not node_definition(key).accepts(m):
 		return "This node accepts %s" % node_definition(key).describe_requirements()
+	if node_material(key) != m and inventory.get_material_count(m) <= 0:
+		return "You don't have another %s" % material_name(m)
 	return ""
 
 
+## Moves `m` from the inventory into the draft node, returning any material it held
 func insert_material(key: String, m: EnchantmentMaterialDefinition) -> String:
 	var err := check_insert(key, m)
-	if err == "":
-		node_placement(key).materials[node_index(key)] = m
-	return err
+	if err != "" or node_material(key) == m:
+		return err
+	remove_material(key)
+	inventory.remove_material(m)
+	node_placement(key).materials[node_index(key)] = m
+	return ""
 
 
+## Takes the material out of a draft node and returns it to the inventory
 func remove_material(key: String) -> EnchantmentMaterialDefinition:
 	var p := node_placement(key)
 	if p == null or p.committed:
 		return null
 	var m: EnchantmentMaterialDefinition = p.materials[node_index(key)]
 	p.materials[node_index(key)] = null
+	if m:
+		inventory.add_material(m)
 	return m
 
 
-## How many of a material this item's drafts are planning to use
-func reserved_in_drafts(m: EnchantmentMaterialDefinition) -> int:
-	var n := 0
-	for p in state.placements:
-		if not p.committed:
-			n += p.materials.count(m)
-	return n
+## How many of a material this item's plans hold (carving drafts and planned dissolves)
+func planned_count(m: EnchantmentMaterialDefinition) -> int:
+	return state.planned_materials().get(m, 0)
 
 
 #
@@ -451,26 +474,6 @@ func commit_candidates() -> Array[PlacementState]:
 	return out
 
 
-func materials_needed(placements: Array[PlacementState]) -> Dictionary:
-	var need := {}
-	for p in placements:
-		for m in p.materials:
-			if m:
-				need[m] = need.get(m, 0) + 1
-	return need
-
-
-## Materials the player is short of to commit now: {material: shortfall}
-func missing_materials(player: Player) -> Dictionary:
-	var missing := {}
-	var need := materials_needed(commit_candidates())
-	for m in need:
-		var short: int = need[m] - player.get_material_count(m)
-		if short > 0:
-			missing[m] = short
-	return missing
-
-
 ## Draft enchantments that aren't fully activated yet. Any of these blocks a commit.
 func inactive_drafts() -> Array[PlacementState]:
 	var out: Array[PlacementState] = []
@@ -490,7 +493,7 @@ func dead_lines() -> Array[LineState]:
 
 
 ## You can only commit a clean board: every draft enchantment active and every line connected
-func check_commit(player: Player) -> String:
+func check_commit() -> String:
 	if not dead_lines().is_empty():
 		return "Some magic nodes aren't connected to an enchantment. Connect or remove them first"
 	var inactive := inactive_drafts()
@@ -501,25 +504,16 @@ func check_commit(player: Player) -> String:
 		return "Every planned enchantment has to be active to commit. Not yet: " + ", ".join(names)
 	if commit_candidates().is_empty():
 		return "Plan and activate an enchantment before committing"
-	var missing := missing_materials(player)
-	if not missing.is_empty():
-		var names: Array[String] = []
-		for m in missing:
-			names.append("%d× %s" % [missing[m], material_name(m)])
-		return "Not enough materials: " + ", ".join(names)
 	return ""
 
 
 ## Commits every draft enchantment (all must be active) with the lines chained to it.
-## Materials are used up.
-func commit(player: Player) -> Array[PlacementState]:
+## Its materials, already held by the item, are used up.
+func commit() -> Array[PlacementState]:
 	var done: Array[PlacementState] = []
-	if check_commit(player) != "":
+	if check_commit() != "":
 		return done
 	done = commit_candidates()
-	var need := materials_needed(done)
-	for m in need:
-		player.remove_material(m, need[m])
 	var ids := {}
 	for p in done:
 		p.committed = true
@@ -579,6 +573,15 @@ func _rebuild() -> void:
 		for l in p.enchantment.lines:
 			for c in l.cells:
 				_occupied[p.origin + Hex.rotate(c, p.rotation_steps)] = p
+
+
+func _erase_placement(p: PlacementState) -> void:
+	var prefix := "e:%d:" % p.id
+	for l in state.lines.duplicate():
+		if l.a.begins_with(prefix) or l.b.begins_with(prefix):
+			state.lines.erase(l)
+	state.placements.erase(p)
+	_rebuild()
 
 
 func _check_step_cell(path: Array[Vector2i], next: Vector2i) -> String:

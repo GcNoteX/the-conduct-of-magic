@@ -49,8 +49,6 @@ var held_enchantment: Enchantment = null:
 		held_enchantment = e
 		queue_redraw()
 var held_rotation: int = 0
-## Asked before inserting a material: returns "" or why the player can't
-var can_use_material: Callable = func(_m): return ""
 
 var _centre := Vector2.ZERO  ## Unit-space centre of the map, drawn at this node's origin
 var _mouse_unit := Vector2.ZERO
@@ -251,7 +249,7 @@ func _on_right_pressed() -> void:
 	var key := _hover_key
 	if key != "" and board.node_material(key) and not board.node_placement(key).committed:
 		board.remove_material(key)
-		message.emit("Took the material back out (it's only planned until you commit)")
+		message.emit("Took the material back out and returned it to your inventory")
 		_changed()
 		return
 	var line := board.line_at(cell_under_mouse())
@@ -301,7 +299,7 @@ func check_drop(m: EnchantmentMaterialDefinition, local: Vector2) -> String:
 		return err
 	if board.node_material(_hover_key) == m:
 		return "That node already holds %s" % InscriptionBoard.material_name(m)
-	return can_use_material.call(m)
+	return ""
 
 
 func drop_material(m: EnchantmentMaterialDefinition, local: Vector2) -> void:

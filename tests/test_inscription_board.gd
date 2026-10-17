@@ -28,6 +28,7 @@ func _ready() -> void:
 	test_shared_magic_nodes()
 	test_activation_and_chains()
 	test_commit()
+	test_planned_materials_stay_with_the_item()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -39,10 +40,15 @@ func check(cond: bool, what: String) -> void:
 		printerr("FAIL: ", what)
 
 
-func new_board() -> InscriptionBoard:
+## A board on a fresh demo sword. With no player given, one with plenty of every material.
+func new_board(player: Player = null) -> InscriptionBoard:
+	if player == null:
+		player = Player.new()
+		for mat in [FIRE, WATER, BLUE, YELLOW]:
+			player.add_material(mat, 9)
 	var inst := ItemInstance.new()
 	inst.definition = SWORD
-	return InscriptionBoard.new(inst)
+	return InscriptionBoard.new(inst, player)
 
 
 func m(q: int, r: int) -> String:
@@ -202,13 +208,14 @@ func test_activation_and_chains() -> void:
 
 
 func test_commit() -> void:
-	var b := new_board()
 	var player := Player.new()
 	player.add_material(FIRE, 1)
+	player.add_material(BLUE, 1)
+	var b := new_board(player)
 	var p := b.place(KINDLE, Vector2i(1, 5), 0)
 	var e0 := InscriptionBoard.enchantment_key(p.id, 0)
 	var e1 := InscriptionBoard.enchantment_key(p.id, 1)
-	check(b.check_commit(player) != "", "nothing to commit before activation")
+	check(b.check_commit() != "", "nothing to commit before activation")
 	b.insert_material(e0, FIRE)
 	b.insert_material(e1, BLUE)
 	b.add_line(path([Vector2i(1, 5), Vector2i(1, 4), Vector2i(0, 4)]))
@@ -225,47 +232,83 @@ func test_commit() -> void:
 			]
 		)
 	)
-	player.add_material(BLUE, 3)
 	check(
-		b.check_commit(player).begins_with("Some magic nodes"),
+		b.check_commit().begins_with("Some magic nodes"),
 		"a chain of magic nodes that reaches no enchantment blocks the commit"
 	)
 	b.remove_line(b.find_line(m(-7, 14), m(-3, 14)))
-	player.remove_material(BLUE, 3)
+	player.add_material(YELLOW, 1)
 	var g := b.place(GLOW, Vector2i(-1, 8), 0)
 	b.insert_material(InscriptionBoard.enchantment_key(g.id, 2), YELLOW)
-	player.add_material(BLUE, 2)
 	check(
-		b.check_commit(player).begins_with("Every planned enchantment"),
+		b.check_commit().begins_with("Every planned enchantment"),
 		"commit blocked while glow is planned but not active"
 	)
-	check(b.commit(player).is_empty() and not p.committed, "nothing commits from a half-done plan")
-	check(b.reserved_in_drafts(YELLOW) == 1, "glow's yellow is reserved in the draft")
+	check(b.commit().is_empty() and not p.committed, "nothing commits from a half-done plan")
+	check(b.planned_count(YELLOW) == 1, "glow's yellow is held in the item's plan")
 	b.remove_placement(g)
-	player.remove_material(BLUE, 2)
 	check(
-		b.check_commit(player).begins_with("Not enough materials"),
-		"commit blocked when short of blue"
+		player.get_material_count(YELLOW) == 1 and b.planned_count(YELLOW) == 0,
+		"taking glow off returns its yellow to the inventory"
 	)
-	check(b.missing_materials(player).get(BLUE, 0) == 1, "short exactly one blue")
-	player.add_material(BLUE, 2)
-	check(b.check_commit(player) == "", "commit allowed once every draft is active")
-	var done := b.commit(player)
+	check(b.check_commit() == "", "commit allowed once every draft is active")
+	var done := b.commit()
 	check(done.size() == 1 and done[0] == p and p.committed, "the active enchantment commits")
 	check(
-		player.get_material_count(FIRE) == 0 and player.get_material_count(BLUE) == 1,
-		"materials used up on commit"
+		player.get_material_count(FIRE) == 0 and player.get_material_count(BLUE) == 0,
+		"committed materials stay used up"
 	)
+	check(b.planned_count(FIRE) == 0, "a committed carving holds no planned materials")
 	var k2 := b.place(KINDLE, Vector2i(-1, 9), 0)
 	check(
-		b.check_commit(player).begins_with("Every planned enchantment"),
+		b.check_commit().begins_with("Every planned enchantment"),
 		"a new half-done enchantment blocks the next commit"
 	)
 	b.remove_placement(k2)
-	check(
-		b.check_commit(player).begins_with("Plan and activate"), "nothing left to commit after one"
-	)
+	check(b.check_commit().begins_with("Plan and activate"), "nothing left to commit after one")
 	check(b.find_line(e0, m(1, 7)).committed, "chained lines commit")
 	check(b.check_line_start(Vector2i(3, 5)) != "", "can't add lines to a committed carving")
 	check(b.remove_placement(p) != "", "committed carving can't be removed")
 	check(b.check_insert(e0, FIRE) != "", "committed node takes no materials")
+
+
+## Planning a material takes it out of the inventory and holds it in the item
+func test_planned_materials_stay_with_the_item() -> void:
+	var player := Player.new()
+	player.add_material(FIRE, 1)
+	player.add_material(WATER, 2)
+	var b := new_board(player)
+	var other := new_board(player)
+	var p := b.place(KINDLE, Vector2i(1, 5), 0)
+	var q := other.place(KINDLE, Vector2i(1, 5), 0)
+	var e0 := InscriptionBoard.enchantment_key(p.id, 0)
+	var e1 := InscriptionBoard.enchantment_key(p.id, 1)
+	check(b.insert_material(e0, FIRE) == "", "fire planned into the first sword")
+	check(
+		player.get_material_count(FIRE) == 0 and b.planned_count(FIRE) == 1,
+		"planned fire moves from the inventory into the item"
+	)
+	check(
+		other.check_insert(InscriptionBoard.enchantment_key(q.id, 0), FIRE).begins_with(
+			"You don't have"
+		),
+		"another item can't plan the fire this one holds"
+	)
+	b.insert_material(e1, WATER)
+	check(player.get_material_count(WATER) == 1, "water planned")
+	check(b.insert_material(e1, WATER) == "", "inserting the same material again is a no-op")
+	check(player.get_material_count(WATER) == 1, "and takes nothing more")
+	b.remove_material(e0)
+	check(
+		player.get_material_count(FIRE) == 1 and b.planned_count(FIRE) == 0,
+		"unplanning fire returns it"
+	)
+	b.insert_material(e1, FIRE)
+	check(
+		player.get_material_count(WATER) == 2 and player.get_material_count(FIRE) == 0,
+		"swapping returns the old material and takes the new one"
+	)
+	check(
+		other.check_insert(InscriptionBoard.enchantment_key(q.id, 0), FIRE) != "",
+		"still held by the first item after the swap"
+	)

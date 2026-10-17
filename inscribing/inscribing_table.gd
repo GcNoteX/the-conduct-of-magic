@@ -56,7 +56,7 @@ func _process(delta: float) -> void:
 # ── Actions ──────────────────────────────────────
 #
 func _open_item(index: int) -> void:
-	board = InscriptionBoard.new(player.items[index])
+	board = InscriptionBoard.new(player.items[index], player)
 	_view.board = board
 	_fit_board()
 	_view.held_enchantment = null
@@ -86,18 +86,12 @@ func _on_material_drag_started(m: EnchantmentMaterialDefinition) -> void:
 	)
 
 
-func _can_use_material(m: EnchantmentMaterialDefinition) -> String:
-	if player.get_material_count(m) - board.reserved_in_drafts(m) <= 0:
-		return "You don't have another %s for this item's plan" % InscriptionBoard.material_name(m)
-	return ""
-
-
 func _on_commit_pressed() -> void:
-	var err := board.check_commit(player)
+	var err := board.check_commit()
 	if err != "":
 		_set_message(err)
 		return
-	var done := board.commit(player)
+	var done := board.commit()
 	var names: Array[String] = []
 	for p in done:
 		names.append(p.enchantment.enchantment_name)
@@ -150,10 +144,10 @@ func _refresh_lists() -> void:
 	_materials.clear()
 	_materials.materials = _material_order()
 	for m in _materials.materials:
-		var planned := board.reserved_in_drafts(m) if board else 0
+		var planned := board.planned_count(m) if board else 0
 		var label := "%s ×%d" % [InscriptionBoard.material_name(m), player.get_material_count(m)]
 		if planned > 0:
-			label += "  (%d planned)" % planned
+			label += "  (+%d planned here)" % planned
 		_materials.add_item(label)
 		var idx := _materials.item_count - 1
 		_materials.set_item_custom_fg_color(idx, m.color.lightened(0.3))
@@ -185,10 +179,8 @@ func _refresh_commit() -> void:
 	if board == null:
 		return
 	var candidates := board.commit_candidates()
-	var missing := board.missing_materials(player)
 	var inactive := board.inactive_drafts()
 	_commit_button.disabled = candidates.is_empty() or not inactive.is_empty()
-	_commit_button.modulate = Color(1, 0.45, 0.45) if not missing.is_empty() else Color.WHITE
 	_commit_button.disabled = _commit_button.disabled or not board.dead_lines().is_empty()
 	if not board.dead_lines().is_empty():
 		_commit_button.text = "Commit (unconnected magic nodes)"
@@ -196,8 +188,6 @@ func _refresh_commit() -> void:
 		_commit_button.text = "Commit (%s not active)" % inactive[0].enchantment.enchantment_name
 	elif candidates.is_empty():
 		_commit_button.text = "Commit (nothing planned)"
-	elif not missing.is_empty():
-		_commit_button.text = "Commit (missing materials)"
 	else:
 		var names: Array[String] = []
 		for p in candidates:
@@ -374,7 +364,6 @@ func _build_ui() -> void:
 	root.add_child(_board_area)
 	_view = BoardView.new()
 	_board_area.view = _view
-	_view.can_use_material = _can_use_material
 	_view.message.connect(_set_message)
 	_view.changed.connect(_on_board_changed)
 	_view.hovered.connect(_on_hovered)
