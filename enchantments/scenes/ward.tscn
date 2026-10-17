@@ -1,0 +1,94 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_scene.gd" id="1_lek1e"]
+[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="2_1oc3y"]
+[ext_resource type="Script" path="res://enchantments/enchantment_node_component.gd" id="3_o616l"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="4_ftrc3"]
+[ext_resource type="Script" path="res://enchantments/enchantment_line_component.gd" id="5_8xcel"]
+
+[sub_resource type="Resource" id="Resource_giigo"]
+script = ExtResource("4_ftrc3")
+attribute = 4
+required = false
+
+[sub_resource type="Resource" id="Resource_gyly0"]
+script = ExtResource("4_ftrc3")
+attribute = 1
+required = false
+
+[sub_resource type="Resource" id="Resource_nn5a7"]
+script = ExtResource("4_ftrc3")
+attribute = 1
+required = false
+
+[sub_resource type="Resource" id="Resource_uonrj"]
+script = ExtResource("4_ftrc3")
+attribute = 4
+required = false
+
+[node name="Ward" type="Node2D" unique_id=322585608]
+script = ExtResource("1_lek1e")
+enchantment = ExtResource("2_1oc3y")
+
+[node name="NodeA" type="Node2D" parent="." unique_id=1571969646]
+z_index = 1
+script = ExtResource("3_o616l")
+material_requirements = Array[ExtResource("4_ftrc3")]([SubResource("Resource_giigo")])
+
+[node name="NodeB" type="Node2D" parent="." unique_id=356393299]
+z_index = 1
+position = Vector2(110.85125, 0)
+script = ExtResource("3_o616l")
+material_requirements = Array[ExtResource("4_ftrc3")]([SubResource("Resource_gyly0")])
+
+[node name="NodeC" type="Node2D" parent="." unique_id=1513221222]
+z_index = 1
+position = Vector2(55.425625, 96)
+script = ExtResource("3_o616l")
+material_requirements = Array[ExtResource("4_ftrc3")]([SubResource("Resource_nn5a7")])
+
+[node name="NodeD" type="Node2D" parent="." unique_id=62779774]
+z_index = 1
+position = Vector2(166.27687, 96)
+script = ExtResource("3_o616l")
+material_requirements = Array[ExtResource("4_ftrc3")]([SubResource("Resource_uonrj")])
+
+[node name="LineAB" type="Line2D" parent="." unique_id=840717873 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(0, 0, 110.85125, 0)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_8xcel")
+from_node = NodePath("../NodeA")
+to_node = NodePath("../NodeB")
+
+[node name="LineAC" type="Line2D" parent="." unique_id=264002496 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(0, 0, 55.425625, 96)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_8xcel")
+from_node = NodePath("../NodeA")
+to_node = NodePath("../NodeC")
+
+[node name="LineBD" type="Line2D" parent="." unique_id=852828824 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(110.85125, 0, 166.27687, 96)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_8xcel")
+from_node = NodePath("../NodeB")
+to_node = NodePath("../NodeD")
+
+[node name="LineCD" type="Line2D" parent="." unique_id=1899099591 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(55.425625, 96, 166.27687, 96)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_8xcel")
+from_node = NodePath("../NodeC")
+to_node = NodePath("../NodeD")
+
+[node name="LineBC" type="Line2D" parent="." unique_id=155713209 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(110.85125, 0, 55.425625, 96)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_8xcel")
+from_node = NodePath("../NodeB")
+to_node = NodePath("../NodeC")

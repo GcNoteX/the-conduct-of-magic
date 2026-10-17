@@ -1,0 +1,34 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_scene.gd" id="1_m7bnv"]
+[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="2_x01e2"]
+[ext_resource type="Script" path="res://enchantments/enchantment_node_component.gd" id="3_jql67"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="4_oe0r1"]
+[ext_resource type="Script" path="res://enchantments/enchantment_line_component.gd" id="5_fl6cw"]
+
+[sub_resource type="Resource" id="Resource_44ivk"]
+script = ExtResource("4_oe0r1")
+attribute = 3
+required = false
+
+[node name="Kindle" type="Node2D" unique_id=956643863]
+script = ExtResource("1_m7bnv")
+enchantment = ExtResource("2_x01e2")
+
+[node name="NodeA" type="Node2D" parent="." unique_id=465384526]
+z_index = 1
+script = ExtResource("3_jql67")
+material_requirements = Array[ExtResource("4_oe0r1")]([SubResource("Resource_44ivk")])
+
+[node name="NodeB" type="Node2D" parent="." unique_id=1257740403]
+z_index = 1
+position = Vector2(110.85125, 0)
+script = ExtResource("3_jql67")
+
+[node name="LineAB" type="Line2D" parent="." unique_id=2048726736 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(0, 0, 110.85125, 0)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_fl6cw")
+from_node = NodePath("../NodeA")
+to_node = NodePath("../NodeB")
