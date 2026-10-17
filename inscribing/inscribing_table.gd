@@ -6,6 +6,13 @@ materials on its hex map, then commit. Plans are drafts kept on each item, so sw
 coming back keeps them. The day timer runs continuously; when it ends, the day is over.
 """
 
+## The palette layouts being compared (sheet 0004); the losers go once one is picked
+enum Layout { SIDEBAR, BOTTOM_TRAY, QUICK_PALETTE, LISTS }
+
+const LAYOUT_NAMES: Array[String] = [
+	"Sidebar", "Bottom tray", "Quick palette (hold Space)", "Lists (original)"
+]
+
 @export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
 
 var player: Player
@@ -15,9 +22,12 @@ var day: int = 1
 
 var _view: BoardView
 var _board_area: BoardDropArea
-var _items: ItemList
-var _enchantments: ItemList
-var _materials: MaterialList
+var _item_picker: OptionButton
+var _layout_picker: OptionButton
+var _layout: PaletteLayout
+var _left_slot: Control
+var _bottom_slot: Control
+var _overlay: Control
 var _timer_label: Label
 var _item_label: RichTextLabel
 var _tooltip: PanelContainer
@@ -34,9 +44,10 @@ func _ready() -> void:
 	PlayerManager.set_player(player)
 	time_left = setup.day_length_seconds
 	_build_ui()
-	_refresh_lists()
+	_set_layout(Layout.SIDEBAR)
+	_refresh_items()
 	if not player.items.is_empty():
-		_items.select(0)
+		_item_picker.select(0)
 		_open_item(0)
 
 
@@ -60,30 +71,83 @@ func _open_item(index: int) -> void:
 	_view.board = board
 	_fit_board()
 	_view.held_enchantment = null
-	_enchantments.deselect_all()
 	_refresh_all()
 
 
-func _on_enchantment_selected(index: int) -> void:
+## Click-to-hold, kept as a fallback to dragging
+func _hold_enchantment(e: Enchantment) -> void:
 	_view.held_rotation = 0
-	_view.held_enchantment = player.known_enchantments[index]
+	_view.held_enchantment = e
 	_set_message(
 		(
 			"Click the item to place %s. Scroll or press R to rotate, right click to put it down."
-			% player.known_enchantments[index].enchantment_name
+			% e.enchantment_name
 		)
 	)
 
 
-func _on_material_drag_started(m: EnchantmentMaterialDefinition) -> void:
-	_enchantments.deselect_all()
+func _on_card_pressed(payload: Resource) -> void:
+	if payload is Enchantment:
+		_hold_enchantment(payload)
+	else:
+		_set_message("Drag the material onto an enchantment node.")
+
+
+func _on_card_drag_started(payload: Resource) -> void:
 	_view.held_enchantment = null
-	_set_message(
-		(
-			"Drop %s onto an enchantment node. Green rings show the nodes that accept it."
-			% InscriptionBoard.material_name(m)
+	if _layout:
+		_layout.on_drag_started()
+	if payload is Enchantment:
+		_view.held_rotation = 0
+		_set_message(
+			(
+				"Drop %s onto the item. Press R or scroll to rotate it while dragging."
+				% (payload as Enchantment).enchantment_name
+			)
 		)
-	)
+	else:
+		_set_message(
+			(
+				"Drop %s onto an enchantment node. Green rings show the nodes that accept it."
+				% InscriptionBoard.material_name(payload as EnchantmentMaterialDefinition)
+			)
+		)
+
+
+func _unhandled_key_input(event: InputEvent) -> void:
+	if _layout and not _day_over.visible and _layout.handle_key(event as InputEventKey):
+		get_viewport().set_input_as_handled()
+
+
+func _set_layout(which: Layout) -> void:
+	if _layout:
+		_layout.queue_free()
+	match which:
+		Layout.SIDEBAR:
+			_layout = CollapsibleSidebar.new()
+		Layout.BOTTOM_TRAY:
+			_layout = BottomTray.new()
+		Layout.QUICK_PALETTE:
+			_layout = QuickPalette.new()
+		_:
+			var lists := ClassicLists.new()
+			lists.enchantment_chosen.connect(_hold_enchantment)
+			lists.material_list().drag_started.connect(_on_card_drag_started)
+			_layout = lists
+	match _layout.slot():
+		PaletteLayout.Slot.LEFT:
+			_left_slot.add_child(_layout)
+			_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
+		PaletteLayout.Slot.BOTTOM:
+			_bottom_slot.add_child(_layout)
+			_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_:
+			_overlay.add_child(_layout)
+	_left_slot.visible = _layout.slot() == PaletteLayout.Slot.LEFT
+	_bottom_slot.visible = _layout.slot() == PaletteLayout.Slot.BOTTOM
+	_bottom_slot.custom_minimum_size.y = _layout.custom_minimum_size.y
+	_layout_picker.select(which)
+	_refresh_cards()
 
 
 func _can_use_material(m: EnchantmentMaterialDefinition) -> String:
@@ -127,37 +191,50 @@ func _start_next_day() -> void:
 # ── Refreshing ───────────────────────────────────
 #
 func _refresh_all() -> void:
-	_refresh_lists()
+	_refresh_items()
+	_refresh_cards()
 	_refresh_item_panel()
 	_refresh_commit()
 	_on_hovered("")
 
 
-func _refresh_lists() -> void:
-	var selected_item := _items.get_selected_items()
-	_items.clear()
+func _refresh_items() -> void:
+	var selected := _item_picker.selected
+	_item_picker.clear()
 	for inst in player.items:
-		_items.add_item(_item_name(inst))
-	if not selected_item.is_empty():
-		_items.select(selected_item[0])
+		_item_picker.add_item(_item_name(inst))
+	if selected >= 0 and selected < _item_picker.item_count:
+		_item_picker.select(selected)
 
-	if _enchantments.item_count != player.known_enchantments.size():
-		_enchantments.clear()
-		for e in player.known_enchantments:
-			_enchantments.add_item("%s  (%d nodes)" % [e.enchantment_name, e.nodes.size()])
-			_enchantments.set_item_tooltip(_enchantments.item_count - 1, _enchantment_tooltip(e))
 
-	_materials.clear()
-	_materials.materials = _material_order()
-	for m in _materials.materials:
+func _refresh_cards() -> void:
+	if _layout == null:
+		return
+	var enchantment_cards: Array[PaletteCard] = []
+	for e in player.known_enchantments:
+		enchantment_cards.append(
+			_card(e, e.enchantment_name, "%d nodes" % e.nodes.size(), _enchantment_tooltip(e))
+		)
+	var material_cards: Array[PaletteCard] = []
+	for m in _material_order():
+		var count := player.get_material_count(m)
 		var planned := board.reserved_in_drafts(m) if board else 0
-		var label := "%s ×%d" % [InscriptionBoard.material_name(m), player.get_material_count(m)]
+		var sub := "×%d" % count
 		if planned > 0:
-			label += "  (%d planned)" % planned
-		_materials.add_item(label)
-		var idx := _materials.item_count - 1
-		_materials.set_item_custom_fg_color(idx, m.color.lightened(0.3))
-		_materials.set_item_tooltip(idx, _material_tooltip(m))
+			sub += "  (%d planned)" % planned
+		material_cards.append(
+			_card(m, InscriptionBoard.material_name(m), sub, _material_tooltip(m), count <= planned)
+		)
+	_layout.set_cards(enchantment_cards, material_cards)
+
+
+func _card(
+	payload: Resource, title: String, sub: String, tip: String, dimmed := false
+) -> PaletteCard:
+	var card := PaletteCard.new(payload, title, sub, tip, dimmed)
+	card.drag_started.connect(_on_card_drag_started)
+	card.pressed.connect(_on_card_pressed)
+	return card
 
 
 func _refresh_item_panel() -> void:
@@ -350,28 +427,24 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
-	var left := _panel(root, 300)
-	_items = _list(left, "Items", 2)
-	_items.item_selected.connect(_open_item)
-	_enchantments = _list(left, "Enchantments", 4)
-	_enchantments.item_selected.connect(_on_enchantment_selected)
-	_materials = MaterialList.new()
-	_list(left, "Materials", 6, _materials)
-	_materials.drag_started.connect(_on_material_drag_started)
-	var help := Label.new()
-	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	help.text = (
-		"Pick an enchantment and click the item to place it. Press on a node and drag through "
-		+ "cells to draw a line; move back to undo. Drag a material onto a node to insert it. "
-		+ "Right click removes planned things. Commit when every node shows a tick."
-	)
-	help.add_theme_font_size_override("font_size", 13)
-	left.add_child(help)
+	_left_slot = Control.new()
+	_left_slot.custom_minimum_size.x = 290
+	_left_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_left_slot)
 
+	var board_column := VBoxContainer.new()
+	board_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	board_column.add_theme_constant_override("separation", 0)
+	board_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(board_column)
+	var board_stack := Control.new()  # The board, with the overlay layouts on top of it
+	board_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	board_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_column.add_child(board_stack)
 	_board_area = BoardDropArea.new()
-	_board_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_board_area.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_board_area.resized.connect(_fit_board)
-	root.add_child(_board_area)
+	board_stack.add_child(_board_area)
 	_view = BoardView.new()
 	_board_area.view = _view
 	_view.can_use_material = _can_use_material
@@ -379,11 +452,20 @@ func _build_ui() -> void:
 	_view.changed.connect(_on_board_changed)
 	_view.hovered.connect(_on_hovered)
 	_board_area.add_child(_view)
+	_overlay = Control.new()
+	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_stack.add_child(_overlay)
+	_bottom_slot = Control.new()
+	_bottom_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_column.add_child(_bottom_slot)
 
 	var right := _panel(root, 320)
 	_timer_label = Label.new()
 	_timer_label.add_theme_font_size_override("font_size", 22)
 	right.add_child(_timer_label)
+	_item_picker = _picker(right, "Item")
+	_item_picker.item_selected.connect(_open_item)
 	_item_label = _rich(right, 110)
 	_commit_button = Button.new()
 	_commit_button.custom_minimum_size.y = 44
@@ -403,8 +485,16 @@ func _build_ui() -> void:
 		+ "any for any material. A gold number means that tier or higher.\n"
 		+ "Filled nodes show their material's progress, like 1/2 lines, with a red ring "
 		+ "until it's met and a green ring and tick after.\n"
-		+ "Hover a node for the details."
+		+ "Hover a node for the details.\n\n"
+		+ "[b]Working[/b]\n"
+		+ "Drag an enchantment onto the item (R rotates it), or click it to hold it. "
+		+ "Press on a node and drag through cells to draw a line; move back to undo. "
+		+ "Drag a material onto a node. Right click removes planned things."
 	)
+	_layout_picker = _picker(right, "Layout (experiment)")
+	for n in LAYOUT_NAMES:
+		_layout_picker.add_item(n)
+	_layout_picker.item_selected.connect(func(i: int): _set_layout(i as Layout))
 
 	_tooltip = PanelContainer.new()
 	_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -465,16 +555,17 @@ func _panel(parent: Control, width: float) -> VBoxContainer:
 	return v
 
 
-func _list(parent: Control, title: String, rows: int, list: ItemList = null) -> ItemList:
+func _picker(parent: Control, title: String) -> OptionButton:
+	var row := HBoxContainer.new()
+	parent.add_child(row)
 	var l := Label.new()
 	l.text = title
-	l.add_theme_font_size_override("font_size", 18)
-	parent.add_child(l)
-	if list == null:
-		list = ItemList.new()
-	list.custom_minimum_size.y = rows * 30 + 8
-	parent.add_child(list)
-	return list
+	row.add_child(l)
+	var picker := OptionButton.new()
+	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker.focus_mode = Control.FOCUS_NONE
+	row.add_child(picker)
+	return picker
 
 
 func _rich(parent: Control, height: float) -> RichTextLabel:
