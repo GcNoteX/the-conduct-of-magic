@@ -322,7 +322,9 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **No condition cells** in the first build (hard to test, a later feature). **Condition nodes** are fine, such as enchantment nodes that accept only certain materials.
 - One demo sword with one fixed node arrangement. Drafts are kept per item during the session. No art pass.
 
-**Magic node to magic node lines.** These happen while enchanting. The magic nodes come from the template you bind to the item, and to activate an enchantment you may need to chain **magic node → magic node → enchantment node** to complete a condition. The game tracks which nodes are connected but **don't chain to an enchantment node**. Those are effectively **dead**, and they're **ignored on commit**.
+**Magic node to magic node lines.** These happen while enchanting. The magic nodes come from the template you bind to the item, and to activate an enchantment you may need to chain **magic node → magic node → enchantment node** to complete a condition. The game tracks which nodes are connected but **don't chain to an enchantment node**. Those are effectively **dead**, and ~~they're **ignored on commit**~~ (superseded 2026-10-17) a dead chain **blocks the commit** until it's connected or removed.
+
+**Commit needs a clean board.** You can only commit when every planned enchantment is fully active and every drawn line chains to an enchantment. A half-done enchantment or a dead chain blocks the commit until it's finished or taken off.
 
 ## 8. Uses of enchanted items
 
@@ -455,6 +457,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | Who drew a line doesn't matter once committed (free snapping of your own lines is dropped). Cutting costs runes; **freed nodes return runes**: magic nodes a deterministic set fixed by the chosen arrangement, enchantment nodes what their material sets. Runes **don't carry over** between sessions or items. **No par.** Foreign-line effects and rune-pool materials are archived (A.11, A.12). |
 | 2026-10-16 | First build is **carving only**, with **no condition cells** (condition nodes are fine). **Magic-to-magic lines** are drawn while enchanting to chain into enchantment nodes. Nodes that don't chain to an enchantment node are **dead** and ignored on commit (§7.7). |
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
+| 2026-10-17 | **Commit needs a clean board:** every planned enchantment must be fully active and every line must chain to an enchantment, so a half-done enchantment or a dead chain blocks the commit (§7.7, replacing "dead chains are ignored on commit"). Lines run **cell by cell** and fill their cells, including an enchantment's own lines. |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**

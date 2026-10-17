@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="Enchantment" format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_pattern_line.gd" id="1_bdtwr"]
+[ext_resource type="Script" path="res://enchantments/enchantment_pattern_node.gd" id="2_v27wd"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="3_iubnr"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="4_ch3an"]
+
+[sub_resource type="Resource" id="Resource_chsyh"]
+script = ExtResource("1_bdtwr")
+cells = Array[Vector2i]([Vector2i(1, 0)])
+
+[sub_resource type="Resource" id="Resource_kci4w"]
+script = ExtResource("3_iubnr")
+attribute = 3
+
+[sub_resource type="Resource" id="Resource_s4ltt"]
+script = ExtResource("2_v27wd")
+material_requirements = Array[ExtResource("3_iubnr")]([SubResource("Resource_kci4w")])
+
+[sub_resource type="Resource" id="Resource_mkr7t"]
+script = ExtResource("2_v27wd")
+offset = Vector2i(2, 0)
+
+[resource]
+script = ExtResource("4_ch3an")
+enchantment_name = "Kindle"
+effect_description = "Warm to the touch"
+nodes = Array[ExtResource("2_v27wd")]([SubResource("Resource_s4ltt"), SubResource("Resource_mkr7t")])
+lines = Array[ExtResource("1_bdtwr")]([SubResource("Resource_chsyh")])

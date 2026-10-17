@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="Enchantment" format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_pattern_line.gd" id="1_57m0y"]
+[ext_resource type="Script" path="res://enchantments/enchantment_pattern_node.gd" id="2_bpe1w"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="3_0up1f"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="4_upocd"]
+
+[sub_resource type="Resource" id="Resource_7vxpw"]
+script = ExtResource("1_57m0y")
+cells = Array[Vector2i]([Vector2i(1, 0)])
+
+[sub_resource type="Resource" id="Resource_rt13i"]
+script = ExtResource("1_57m0y")
+from_node = 1
+to_node = 2
+cells = Array[Vector2i]([Vector2i(1, 1)])
+
+[sub_resource type="Resource" id="Resource_d2olv"]
+script = ExtResource("1_57m0y")
+from_node = 2
+to_node = 0
+cells = Array[Vector2i]([Vector2i(0, 1)])
+
+[sub_resource type="Resource" id="Resource_2m22d"]
+script = ExtResource("2_bpe1w")
+
+[sub_resource type="Resource" id="Resource_eajl1"]
+script = ExtResource("2_bpe1w")
+offset = Vector2i(2, 0)
+
+[sub_resource type="Resource" id="Resource_uhlbo"]
+script = ExtResource("3_0up1f")
+attribute = 2
+
+[sub_resource type="Resource" id="Resource_v4b0q"]
+script = ExtResource("2_bpe1w")
+offset = Vector2i(0, 2)
+tier_requirement = 2
+material_requirements = Array[ExtResource("3_0up1f")]([SubResource("Resource_uhlbo")])
+
+[resource]
+script = ExtResource("4_upocd")
+enchantment_name = "Glow"
+effect_description = "Gives off a soft light"
+nodes = Array[ExtResource("2_bpe1w")]([SubResource("Resource_2m22d"), SubResource("Resource_eajl1"), SubResource("Resource_v4b0q")])
+lines = Array[ExtResource("1_57m0y")]([SubResource("Resource_7vxpw"), SubResource("Resource_rt13i"), SubResource("Resource_d2olv")])

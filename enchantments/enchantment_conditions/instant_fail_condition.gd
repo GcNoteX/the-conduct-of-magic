@@ -3,5 +3,12 @@ extends EnchantmentCondition
 
 
 func is_fulfilled(_ctx: MaterialActivationContext) -> bool:
-	#TODO: Would need references to a map and stuff to actually make work.
 	return false
+
+
+func describe() -> String:
+	return "never activates"
+
+
+func progress(_ctx: MaterialActivationContext) -> String:
+	return "never"

@@ -1,16 +1,19 @@
 [gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" format=3 uid="uid://dh646e83nxwig"]
 
-[ext_resource type="Script" uid="uid://buedytf1h1hyg" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_dsjdc"]
-[ext_resource type="Script" uid="uid://ciwwc44rc76de" path="res://enchantments/enchantment_conditions/instant_fail_condition.gd" id="2_3tvwi"]
-[ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="3_atkc2"]
-[ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="3_ipdwk"]
+[ext_resource type="Script" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_dsjdc"]
+[ext_resource type="Script" path="res://enchantments/enchantment_conditions/number_of_lines_condition.gd" id="2_atkc2"]
+[ext_resource type="Texture2D" path="res://placeholder_assets/circle.png" id="3_atkc2"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="3_ipdwk"]
 
-[sub_resource type="Resource" id="Resource_6d5m1"]
-script = ExtResource("2_3tvwi")
-metadata/_custom_type_script = "uid://ciwwc44rc76de"
+[sub_resource type="Resource" id="Resource_c2tdp"]
+script = ExtResource("2_atkc2")
+number_of_lines = 2
 
 [resource]
 script = ExtResource("3_ipdwk")
 enchantment_sprite_normal = ExtResource("3_atkc2")
+color = Color(0.78431374, 0.19607843, 0.29411766, 1)
 material_attributes = Array[int]([0, 2])
-activation_conditions = Array[ExtResource("1_dsjdc")]([SubResource("Resource_6d5m1")])
+activation_conditions = Array[ExtResource("1_dsjdc")]([SubResource("Resource_c2tdp")])
+id = &"red_stone"
+display_name = "Red stone"
