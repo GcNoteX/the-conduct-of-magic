@@ -4,8 +4,10 @@ A shop-management, inspection and crafting game about running an enchanter's sho
 
 Game design: [docs/design/game-design.md](docs/design/game-design.md)
 
+Story: [docs/story/story-bible.md](docs/story/story-bible.md)
+
 ## Running the inscribing prototype
-Open the project in Godot 4.6 and run it (F5). The main scene is the inscribing table (`inscribing/inscribing_table.tscn`), set up with the demo player in `inscribing/demo/demo_setup.tres`.
+Open the project in Godot 4.7 and run it (F5). The main scene is the inscribing table (`inscribing/inscribing_table.tscn`), set up with the demo player in `inscribing/demo/demo_setup.tres`.
 
 - **Place an enchantment:** pick it in the list, then click the item. Scroll or press R to rotate.
 - **Draw a line:** drag from one node to another. Lines can join magic nodes to each other to build a chain.

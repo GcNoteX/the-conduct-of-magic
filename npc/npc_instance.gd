@@ -1,18 +1,17 @@
-extends Resource
 class_name NPCInstance
+extends Resource
 
 # -----------------
 # Identification
 # -----------------
-var instance_id: int             # Unique per NPC (save/load key)
+var instance_id: int  # Unique per NPC (save/load key)
 
 # -----------------
 # Selected generation data
 # -----------------
-var first_name: String           # Chosen from template
-var last_name: String            # Chosen from template
-var sprite_set: NPCSpriteSet     # Resource reference; save path used
-var behavior_tree: BehaviorTree  # Resource reference; save path used
+var first_name: String  # Chosen from template
+var last_name: String  # Chosen from template
+var sprite_set: NPCSpriteSet  # Resource reference; save path used
 var attributes: Array[NPCTemplate.NPCAttribute]  # Copied from template
 
 # -----------------
