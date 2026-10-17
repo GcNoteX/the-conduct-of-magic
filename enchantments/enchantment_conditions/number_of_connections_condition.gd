@@ -11,3 +11,9 @@ func is_fulfilled(ctx: MaterialActivationContext) -> bool:
 
 func describe() -> String:
 	return "reach %d+ magic nodes" % number_of_lines
+
+
+func progress(ctx: MaterialActivationContext) -> String:
+	return (
+		"%d/%d magic nodes" % [mini(ctx.get_connection_count(), number_of_lines), number_of_lines]
+	)

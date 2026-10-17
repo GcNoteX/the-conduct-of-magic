@@ -26,19 +26,24 @@ func _ready() -> void:
 		[InstantPassCondition.new()]
 	)
 
+	# Nodes are spaced out so each fixed line runs through cells, like a drawn line
 	var kindle := _pattern(
 		"kindle",
 		"Kindle",
 		"Warm to the touch",
-		[_node(Vector2i(0, 0), 1, [A.Flame]), _node(Vector2i(1, 0))],
-		[Vector2i(0, 1)]
+		[_node(Vector2i(0, 0), 1, [A.Flame]), _node(Vector2i(2, 0))],
+		[_line(0, 1, [Vector2i(1, 0)])]
 	)
 	var glow := _pattern(
 		"glow",
 		"Glow",
 		"Gives off a soft light",
-		[_node(Vector2i(0, 0)), _node(Vector2i(1, 0)), _node(Vector2i(0, 1), 2, [A.Shiny])],
-		[Vector2i(0, 1), Vector2i(1, 2), Vector2i(2, 0)]
+		[_node(Vector2i(0, 0)), _node(Vector2i(2, 0)), _node(Vector2i(0, 2), 2, [A.Shiny])],
+		[
+			_line(0, 1, [Vector2i(1, 0)]),
+			_line(1, 2, [Vector2i(1, 1)]),
+			_line(2, 0, [Vector2i(0, 1)]),
+		]
 	)
 	var keen := _pattern(
 		"keen",
@@ -46,10 +51,10 @@ func _ready() -> void:
 		"Cuts noticeably better",
 		[
 			_node(Vector2i(0, 0), 1, [A.Soft]),
-			_node(Vector2i(1, 0), 1, [A.Hard]),
-			_node(Vector2i(2, 0), 1, [A.Soft])
+			_node(Vector2i(2, 0), 1, [A.Hard]),
+			_node(Vector2i(4, 0), 1, [A.Soft])
 		],
-		[Vector2i(0, 1), Vector2i(1, 2)]
+		[_line(0, 1, [Vector2i(1, 0)]), _line(1, 2, [Vector2i(3, 0)])]
 	)
 	var ward := _pattern(
 		"ward",
@@ -57,34 +62,42 @@ func _ready() -> void:
 		"Shrugs off rust and water",
 		[
 			_node(Vector2i(0, 0), 1, [A.Water]),
-			_node(Vector2i(1, 0), 1, [A.Hard]),
-			_node(Vector2i(0, 1), 1, [A.Hard]),
-			_node(Vector2i(1, 1), 1, [A.Water])
+			_node(Vector2i(2, 0), 1, [A.Hard]),
+			_node(Vector2i(0, 2), 1, [A.Hard]),
+			_node(Vector2i(2, 2), 1, [A.Water])
 		],
-		[Vector2i(0, 1), Vector2i(0, 2), Vector2i(1, 3), Vector2i(2, 3), Vector2i(1, 2)]
+		[
+			_line(0, 1, [Vector2i(1, 0)]),
+			_line(0, 2, [Vector2i(0, 1)]),
+			_line(1, 3, [Vector2i(2, 1)]),
+			_line(2, 3, [Vector2i(1, 2)]),
+			_line(1, 2, [Vector2i(1, 1)]),
+		]
 	)
 
 	var sword_map := HexMapDefinition.new()
 	sword_map.map_name = "Demo sword"
 	sword_map.layout = PackedStringArray(
 		[
-			"...#...",
-			"..###..",
-			"..M#M..",
-			"..###..",
-			"..###..",
-			"..#M#..",
-			"..###..",
-			"..###..",
-			"..M#M..",
-			"..###..",
-			"..###..",
-			"#######",
-			"M##M##M",
-			"...##..",
-			"..##...",
-			"...##..",
-			"..#M#..",
+			"....#....",
+			"...###...",
+			"...#M#...",
+			"..#####..",
+			"..M###M..",
+			"..#####..",
+			"..#####..",
+			"..##M##..",
+			"..#####..",
+			"..#####..",
+			"..M###M..",
+			"..#####..",
+			"..#####..",
+			"#########",
+			"M###M###M",
+			"...###...",
+			"...##....",
+			"...###...",
+			"...#M#...",
 		]
 	)
 	_save(sword_map, "res://inscribing/demo/demo_sword_map.tres")
@@ -135,11 +148,19 @@ func _pattern(
 	var n: Array[EnchantmentPatternNode] = []
 	n.assign(nodes)
 	e.nodes = n
-	var l: Array[Vector2i] = []
+	var l: Array[EnchantmentPatternLine] = []
 	l.assign(lines)
 	e.lines = l
 	_save(e, path)
 	return load(path)
+
+
+func _line(from: int, to: int, cells: Array[Vector2i]) -> EnchantmentPatternLine:
+	var l := EnchantmentPatternLine.new()
+	l.from_node = from
+	l.to_node = to
+	l.cells = cells
+	return l
 
 
 func _node(offset: Vector2i, tier := 1, attributes: Array = []) -> EnchantmentPatternNode:

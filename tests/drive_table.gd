@@ -28,46 +28,61 @@ func _ready() -> void:
 	# Place Kindle with the mouse
 	table._enchantments.select(0)
 	table._on_enchantment_selected(0)
-	_move(_cell(Vector2i(1, 3)))
+	_move(_cell(Vector2i(1, 5)))
 	await _frames(2)
 	_shot("02_ghost")
-	_click(_cell(Vector2i(1, 3)), MOUSE_BUTTON_LEFT)
+	_click(_cell(Vector2i(1, 5)), MOUSE_BUTTON_LEFT)
 	await _frames(2)
 	var p: PlacementState = table.board.state.placements[0]
 	var e0 := InscriptionBoard.enchantment_key(p.id, 0)
 	var e1 := InscriptionBoard.enchantment_key(p.id, 1)
 	print("placed: ", table.board.state.placements.size())
-
-	# Insert fire and blue
-	table._on_material_selected(0)
-	_click(_cell(Vector2i(1, 3)), MOUSE_BUTTON_LEFT)
-	table._on_material_selected(3)
-	_click(_cell(Vector2i(2, 3)), MOUSE_BUTTON_LEFT)
-	_click(_cell(Vector2i(2, 3)), MOUSE_BUTTON_RIGHT)  # drop held material
+	_move(_cell(Vector2i(3, 5)))
 	await _frames(2)
+	_shot("03_requirements")
+
+	# Drag fire onto the flame node, showing the drop preview first
+	var mats: Array[EnchantmentMaterialDefinition] = table._materials.materials
+	table._on_material_drag_started(mats[0])
+	table._board_area._can_drop_data(_area(Vector2i(1, 5)), mats[0])
+	await _frames(2)
+	_shot("04_drop_preview")
+	table._board_area._drop_data(_area(Vector2i(1, 5)), mats[0])
+	table._board_area._drop_data(_area(Vector2i(3, 5)), mats[3])
+	await _frames(2)
+	_move(_cell(Vector2i(1, 5)))
+	await _frames(2)
+	_shot("04b_inserted")
 	print("materials: ", table.board.node_material(e0), " ", table.board.node_material(e1))
 
-	# Draw lines by dragging
-	_drag(Vector2i(1, 3), Vector2i(1, 2))
-	_drag(Vector2i(1, 3), Vector2i(1, 5))
-	_drag(Vector2i(2, 3), Vector2i(3, 2))
-	_drag(Vector2i(-2, 8), Vector2i(0, 8))  # dead chain
+	# Draw lines cell by cell, with a wobble back along the first one
+	_draw_path([Vector2i(1, 5), Vector2i(1, 6), Vector2i(0, 7), Vector2i(1, 6), Vector2i(1, 7)])
+	_draw_path([Vector2i(1, 5), Vector2i(1, 4), Vector2i(0, 4)])
+	_draw_path([Vector2i(3, 5), Vector2i(4, 4)])
+	_draw_path(
+		[Vector2i(-7, 14), Vector2i(-6, 14), Vector2i(-5, 14), Vector2i(-4, 14), Vector2i(-3, 14)]
+	)
 	await _frames(2)
 	print(
 		"lines: ", table.board.state.lines.size(), " active: ", table.board.is_placement_active(p)
 	)
-	_move(_cell(Vector2i(1, 3)))
+	# Try to cross the first line and hold the mouse there
+	_draw_path([Vector2i(3, 5), Vector2i(2, 6), Vector2i(1, 6)], false)
 	await _frames(2)
-	_shot("03_active")
+	_shot("05_blocked")
+	_release(_cell(Vector2i(1, 6)))
+	_move(_cell(Vector2i(1, 5)))
+	await _frames(2)
+	_shot("06_active")
 
 	table._on_commit_pressed()
 	await _frames(2)
 	print("committed: ", p.committed, " message: ", table._message_label.text)
-	_shot("04_committed")
+	_shot("07_committed")
 
 	table.time_left = 0.01
 	await _frames(3)
-	_shot("05_day_over")
+	_shot("08_day_over")
 	get_tree().quit()
 
 
@@ -76,6 +91,7 @@ func _cell(c: Vector2i) -> Vector2:
 
 
 func _move(pos: Vector2) -> void:
+	Input.warp_mouse(pos)  # Keeps the real cursor with the simulated one, for the tooltip
 	var ev := InputEventMouseMotion.new()
 	ev.position = pos
 	ev.global_position = pos
@@ -85,34 +101,36 @@ func _move(pos: Vector2) -> void:
 
 func _click(pos: Vector2, button: MouseButton) -> void:
 	_move(pos)
-	for pressed in [true, false]:
-		var ev := InputEventMouseButton.new()
-		ev.position = pos
-		ev.global_position = pos
-		ev.button_index = button
-		ev.pressed = pressed
-		Input.parse_input_event(ev)
-		Input.flush_buffered_events()
+	_button(pos, button, true)
+	_button(pos, button, false)
 
 
-func _drag(a: Vector2i, b: Vector2i) -> void:
-	var pa := _cell(a)
-	var pb := _cell(b)
-	_move(pa)
-	var down := InputEventMouseButton.new()
-	down.position = pa
-	down.global_position = pa
-	down.button_index = MOUSE_BUTTON_LEFT
-	down.pressed = true
-	Input.parse_input_event(down)
-	Input.flush_buffered_events()
-	_move(pb)
-	var up := InputEventMouseButton.new()
-	up.position = pb
-	up.global_position = pb
-	up.button_index = MOUSE_BUTTON_LEFT
-	up.pressed = false
-	Input.parse_input_event(up)
+func _area(c: Vector2i) -> Vector2:
+	return view.position + view.cell_screen(c)
+
+
+## Presses on the first cell, moves through the rest one by one, then releases unless told not to
+func _draw_path(cells: Array, release := true) -> void:
+	var start := _cell(cells[0])
+	_move(start)
+	_button(start, MOUSE_BUTTON_LEFT, true)
+	for c in cells.slice(1):
+		_move(_cell(c))
+	if release:
+		_release(_cell(cells.back()))
+
+
+func _release(pos: Vector2) -> void:
+	_button(pos, MOUSE_BUTTON_LEFT, false)
+
+
+func _button(pos: Vector2, button: MouseButton, pressed: bool) -> void:
+	var ev := InputEventMouseButton.new()
+	ev.position = pos
+	ev.global_position = pos
+	ev.button_index = button
+	ev.pressed = pressed
+	Input.parse_input_event(ev)
 	Input.flush_buffered_events()
 
 

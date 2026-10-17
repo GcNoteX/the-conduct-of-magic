@@ -57,6 +57,19 @@ static func distance(a: Vector2i, b: Vector2i) -> int:
 	return (absi(d.x) + absi(d.y) + absi(d.x + d.y)) / 2
 
 
+## The cells on a straight run from `a` to `b`, both included, each neighbouring the one before
+static func line(a: Vector2i, b: Vector2i) -> Array[Vector2i]:
+	var n := distance(a, b)
+	var out: Array[Vector2i] = [a]
+	# Nudge off exact cell edges so ties always break the same way
+	var start := Vector2(a.x + 1e-6, a.y + 2e-6)
+	var end := Vector2(b.x + 1e-6, b.y + 2e-6)
+	for i in range(1, n + 1):
+		var p := start.lerp(end, float(i) / n)
+		out.append(_round(p.x, p.y))
+	return out
+
+
 static func corners(centre: Vector2, size: float) -> PackedVector2Array:
 	var pts := PackedVector2Array()
 	for i in 6:

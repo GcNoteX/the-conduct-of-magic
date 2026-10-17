@@ -10,11 +10,10 @@ The rules of carving on one item's hex map. Pure logic, no drawing, so it can be
 - Nodes are addressed by key: "m:q,r" for magic nodes,
   "e:<placement id>:<node index>" for enchantment nodes
 - Positions are in unit hex space (hex size 1); views scale them
+- Lines run cell by cell between two nodes and fill every cell between them,
+  so "lines can't cross" means "no two lines share a cell"
 - Every check_* returns "" when allowed, or a player-facing reason when not
 """
-
-const NODE_RADIUS := 0.45  ## Lines may not pass this close to a node they don't attach to
-const EPS := 0.0001
 
 var item: ItemInstance
 var map: HexMapDefinition
@@ -25,6 +24,7 @@ var _magic_cells: Array[Vector2i] = []
 var _nodes: Dictionary = {}  ## key -> {kind, cell, placement, index}
 var _cell_to_node: Dictionary = {}  ## Vector2i -> key
 var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
+var _occupied: Dictionary = {}  ## Vector2i -> LineState, or PlacementState for its fixed lines
 
 
 func _init(item_instance: ItemInstance) -> void:
@@ -116,13 +116,56 @@ func placement_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> A
 	return out
 
 
-## The enchantments' own fixed lines, as [key_a, key_b]
+## Each fixed line of an enchantment placed this way, as its full cell path from node to node
+func pattern_line_paths(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array:
+	var nodes := placement_cells(e, origin, rotation_steps)
+	var out := []
+	for l in e.lines:
+		var path: Array[Vector2i] = [nodes[l.from_node]]
+		for c in l.cells:
+			path.append(origin + Hex.rotate(c, rotation_steps))
+		path.append(nodes[l.to_node])
+		out.append(path)
+	return out
+
+
+## Every cell an enchantment placed this way covers: its nodes and the cells of its fixed lines
+func footprint(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
+	var out := placement_cells(e, origin, rotation_steps)
+	for l in e.lines:
+		for c in l.cells:
+			out.append(origin + Hex.rotate(c, rotation_steps))
+	return out
+
+
+## The placed enchantments' own fixed lines: [{a, b, cells, placement}]
 func fixed_lines() -> Array:
 	var out := []
 	for p in state.placements:
-		for l in p.enchantment.lines:
-			out.append([enchantment_key(p.id, l.x), enchantment_key(p.id, l.y)])
+		var paths := pattern_line_paths(p.enchantment, p.origin, p.rotation_steps)
+		for i in paths.size():
+			var l: EnchantmentPatternLine = p.enchantment.lines[i]
+			(
+				out
+				. append(
+					{
+						"a": enchantment_key(p.id, l.from_node),
+						"b": enchantment_key(p.id, l.to_node),
+						"cells": paths[i],
+						"placement": p,
+					}
+				)
+			)
 	return out
+
+
+## The drawn line filling `cell` (a cell between nodes), or null
+func line_at(cell: Vector2i) -> LineState:
+	return _occupied.get(cell) as LineState
+
+
+func is_occupied(cell: Vector2i) -> bool:
+	return _occupied.has(cell)
 
 
 #
@@ -190,36 +233,8 @@ func is_node_committed(key: String) -> bool:
 func check_place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> String:
 	if e == null or e.nodes.is_empty():
 		return "That enchantment has no shape yet"
-	var cells := placement_cells(e, origin, rotation_steps)
-	var cell_err := _check_place_cells(cells)
-	if cell_err != "":
-		return cell_err
-	var new_positions: Array[Vector2] = []
-	for c in cells:
-		new_positions.append(Hex.to_pixel(c, 1.0))
-	var existing := []
-	for l in state.lines:
-		existing.append([l.a, l.b])
-	existing.append_array(fixed_lines())
-	for pos in new_positions:
-		for seg in existing:
-			if (
-				_point_segment_distance(pos, node_position(seg[0]), node_position(seg[1]))
-				< NODE_RADIUS
-			):
-				return "It sits on top of a line"
-	for l in e.lines:
-		var a := new_positions[l.x]
-		var b := new_positions[l.y]
-		var err := _check_segment(a, b, [], new_positions, [l.x, l.y])
-		if err != "":
-			return err
-	return ""
-
-
-func _check_place_cells(cells: Array[Vector2i]) -> String:
 	var seen := {}
-	for c in cells:
+	for c in footprint(e, origin, rotation_steps):
 		if not _cells.has(c):
 			return "It doesn't fit inside the item"
 		if seen.has(c):
@@ -227,6 +242,8 @@ func _check_place_cells(cells: Array[Vector2i]) -> String:
 		seen[c] = true
 		if _cell_to_node.has(c):
 			return "It overlaps another node"
+		if _occupied.has(c):
+			return "A line runs through there"
 	return ""
 
 
@@ -267,32 +284,70 @@ func remove_placement(p: PlacementState) -> String:
 #
 # ── Drawing lines ────────────────────────────────
 #
-func check_line(a: String, b: String) -> String:
-	if a == b or not _nodes.has(a) or not _nodes.has(b):
-		return "Draw from one node to another"
-	if find_line(a, b):
-		return "Those nodes are already connected"
-	for f in fixed_lines():
-		if (f[0] == a and f[1] == b) or (f[0] == b and f[1] == a):
-			return "Those nodes are already connected"
-	if is_node_committed(a) or is_node_committed(b):
+## Whether a line may start on the node in `cell`
+func check_line_start(cell: Vector2i) -> String:
+	var key := node_at(cell)
+	if key == "":
+		return "Lines start on a node"
+	if is_node_committed(key):
 		return "That node is part of a committed carving"
-	var bound := _bound_placements(a)
-	bound.merge(_bound_placements(b))
-	if bound.size() > 1:
-		return "Enchantments can't share magic nodes"
-	return _check_segment(node_position(a), node_position(b), [a, b])
+	return ""
 
 
-func add_line(a: String, b: String) -> LineState:
-	if check_line(a, b) != "":
+## Whether a line being drawn along `path` (starting on a node) may step into `next`.
+## Stepping onto a node finishes the line, so the two end nodes are checked then.
+func check_step(path: Array[Vector2i], next: Vector2i) -> String:
+	if path.is_empty():
+		return "Lines start on a node"
+	var start_err := check_line_start(path[0])
+	if start_err != "":
+		return start_err
+	var last: Vector2i = path.back()
+	if path.size() > 1 and node_at(last) != "":
+		return "The line already ends on a node"
+	var cell_err := _check_step_cell(path, next)
+	if cell_err != "":
+		return cell_err
+	var end_key := node_at(next)
+	if end_key != "":
+		return _check_ends(node_at(path[0]), end_key)
+	return ""
+
+
+## Whether `cells` is a whole line: from one node, cell by cell, to another node
+func check_line(cells: Array[Vector2i]) -> String:
+	if cells.size() < 2:
+		return "Draw from one node to another"
+	var path: Array[Vector2i] = [cells[0]]
+	for i in range(1, cells.size()):
+		var err := check_step(path, cells[i])
+		if err != "":
+			return err
+		path.append(cells[i])
+	if node_at(cells.back()) == "":
+		return "Lines have to end on a node"
+	return ""
+
+
+func add_line(cells: Array[Vector2i]) -> LineState:
+	if check_line(cells) != "":
 		return null
 	var l := LineState.new()
-	l.a = a
-	l.b = b
+	l.a = node_at(cells[0])
+	l.b = node_at(cells.back())
+	l.cells.assign(cells)
 	state.lines.append(l)
 	_rebuild()
 	return l
+
+
+## The draft line most recently drawn onto a node, or null
+func last_draft_line(key: String) -> LineState:
+	for i in range(state.lines.size() - 1, -1, -1):
+		var l: LineState = state.lines[i]
+		if not l.committed and (l.a == key or l.b == key):
+			return l
+	return null
 
 
 func find_line(a: String, b: String) -> LineState:
@@ -363,7 +418,7 @@ func is_node_active(key: String) -> bool:
 	return true
 
 
-## [[description, fulfilled], ...] for the material in the node
+## [[description, fulfilled, progress], ...] for the material in the node
 func condition_status(key: String) -> Array:
 	var out := []
 	var m := node_material(key)
@@ -372,7 +427,7 @@ func condition_status(key: String) -> Array:
 	var ctx := MaterialActivationContext.for_board(self, key)
 	for c in m.activation_conditions:
 		if c:
-			out.append([c.describe(), c.is_fulfilled(ctx)])
+			out.append([c.describe(), c.is_fulfilled(ctx), c.progress(ctx)])
 	return out
 
 
@@ -488,70 +543,44 @@ func _rebuild() -> void:
 			_adjacency[l.b] = []
 		_adjacency[l.a].append(l.b)
 		_adjacency[l.b].append(l.a)
-
-
-## Checks a new straight segment against the map, nodes and every existing line.
-## `endpoint_keys` are existing nodes the segment attaches to. `extra_nodes` are positions of nodes
-## not placed yet (a placement being checked), with `extra_endpoints` the indexes it attaches to.
-func _check_segment(
-	a: Vector2,
-	b: Vector2,
-	endpoint_keys: Array,
-	extra_nodes: Array[Vector2] = [],
-	extra_endpoints: Array = []
-) -> String:
-	var steps := maxi(2, int(a.distance_to(b) / 0.1))
-	for s in steps + 1:
-		if not _cells.has(Hex.from_pixel(a.lerp(b, float(s) / steps), 1.0)):
-			return "Lines have to stay inside the item"
-	for k in _nodes:
-		if k in endpoint_keys:
-			continue
-		if _point_segment_distance(node_position(k), a, b) < NODE_RADIUS:
-			return "Lines can't pass through a node"
-	for i in extra_nodes.size():
-		if i in extra_endpoints:
-			continue
-		if _point_segment_distance(extra_nodes[i], a, b) < NODE_RADIUS:
-			return "Lines can't pass through a node"
-	var existing := []
+	_occupied.clear()
 	for l in state.lines:
-		existing.append([l.a, l.b])
-	existing.append_array(fixed_lines())
-	for seg in existing:
-		var c := node_position(seg[0])
-		var d := node_position(seg[1])
-		if _segments_cross(a, b, c, d):
-			return "Lines can't cross"
+		for i in range(1, l.cells.size() - 1):
+			_occupied[l.cells[i]] = l
+	for p in state.placements:
+		for l in p.enchantment.lines:
+			for c in l.cells:
+				_occupied[p.origin + Hex.rotate(c, p.rotation_steps)] = p
+
+
+func _check_step_cell(path: Array[Vector2i], next: Vector2i) -> String:
+	var last: Vector2i = path.back()
+	if Hex.distance(last, next) != 1:
+		return "Lines go from a cell to its neighbour"
+	if not _cells.has(next):
+		return "Lines have to stay inside the item"
+	if next in path:
+		return "A line can't cross itself"
+	var owner: Variant = _occupied.get(next)
+	if owner is LineState:
+		return "Another line runs through here"
+	if owner is PlacementState:
+		return "An enchantment's own line runs through here"
 	return ""
 
 
-static func _cross(u: Vector2, v: Vector2) -> float:
-	return u.x * v.y - u.y * v.x
-
-
-static func _segments_cross(a: Vector2, b: Vector2, c: Vector2, d: Vector2) -> bool:
-	var d1 := _cross(d - c, a - c)
-	var d2 := _cross(d - c, b - c)
-	var d3 := _cross(b - a, c - a)
-	var d4 := _cross(b - a, d - a)
-	if (
-		((d1 > EPS and d2 < -EPS) or (d1 < -EPS and d2 > EPS))
-		and ((d3 > EPS and d4 < -EPS) or (d3 < -EPS and d4 > EPS))
-	):
-		return true
-	# Collinear segments cross if they overlap by more than a point
-	if absf(d1) < EPS and absf(d2) < EPS:
-		var dir := (b - a).normalized()
-		var t0 := 0.0
-		var t1 := (b - a).length()
-		var s0 := (c - a).dot(dir)
-		var s1 := (d - a).dot(dir)
-		return minf(t1, maxf(s0, s1)) - maxf(t0, minf(s0, s1)) > EPS
-	return false
-
-
-static func _point_segment_distance(p: Vector2, a: Vector2, b: Vector2) -> float:
-	var ab := b - a
-	var t := clampf((p - a).dot(ab) / maxf(ab.length_squared(), EPS), 0.0, 1.0)
-	return p.distance_to(a + ab * t)
+func _check_ends(a: String, b: String) -> String:
+	if a == b:
+		return "Draw from one node to another"
+	if find_line(a, b):
+		return "Those nodes are already connected"
+	for f in fixed_lines():
+		if (f.a == a and f.b == b) or (f.a == b and f.b == a):
+			return "Those nodes are already connected"
+	if is_node_committed(b):
+		return "That node is part of a committed carving"
+	var bound := _bound_placements(a)
+	bound.merge(_bound_placements(b))
+	if bound.size() > 1:
+		return "Enchantments can't share magic nodes"
+	return ""

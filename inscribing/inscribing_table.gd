@@ -14,13 +14,14 @@ var time_left: float = 0.0
 var day: int = 1
 
 var _view: BoardView
-var _board_area: Control
+var _board_area: BoardDropArea
 var _items: ItemList
 var _enchantments: ItemList
-var _materials: ItemList
+var _materials: MaterialList
 var _timer_label: Label
 var _item_label: RichTextLabel
-var _hover_label: RichTextLabel
+var _tooltip: PanelContainer
+var _tooltip_label: RichTextLabel
 var _message_label: Label
 var _commit_button: Button
 var _day_over: PanelContainer
@@ -47,6 +48,8 @@ func _process(delta: float) -> void:
 	_timer_label.text = "Day %d · %02d:%02d left" % [day, s / 60, s % 60]
 	if time_left <= 0.0:
 		_end_day()
+	if _tooltip.visible:
+		_place_tooltip()
 
 
 #
@@ -57,14 +60,11 @@ func _open_item(index: int) -> void:
 	_view.board = board
 	_fit_board()
 	_view.held_enchantment = null
-	_view.held_material = null
 	_enchantments.deselect_all()
-	_materials.deselect_all()
 	_refresh_all()
 
 
 func _on_enchantment_selected(index: int) -> void:
-	_materials.deselect_all()
 	_view.held_rotation = 0
 	_view.held_enchantment = player.known_enchantments[index]
 	_set_message(
@@ -75,16 +75,13 @@ func _on_enchantment_selected(index: int) -> void:
 	)
 
 
-func _on_material_selected(index: int) -> void:
-	var mats := _material_order()
-	if index >= mats.size():
-		return
+func _on_material_drag_started(m: EnchantmentMaterialDefinition) -> void:
 	_enchantments.deselect_all()
-	_view.held_material = mats[index]
+	_view.held_enchantment = null
 	_set_message(
 		(
-			"Click an enchantment node to insert %s. Right click to put it down."
-			% InscriptionBoard.material_name(mats[index])
+			"Drop %s onto an enchantment node. Green rings show the nodes that accept it."
+			% InscriptionBoard.material_name(m)
 		)
 	)
 
@@ -150,9 +147,9 @@ func _refresh_lists() -> void:
 			_enchantments.add_item("%s  (%d nodes)" % [e.enchantment_name, e.nodes.size()])
 			_enchantments.set_item_tooltip(_enchantments.item_count - 1, _enchantment_tooltip(e))
 
-	var selected_mat := _materials.get_selected_items()
 	_materials.clear()
-	for m in _material_order():
+	_materials.materials = _material_order()
+	for m in _materials.materials:
 		var planned := board.reserved_in_drafts(m) if board else 0
 		var label := "%s ×%d" % [InscriptionBoard.material_name(m), player.get_material_count(m)]
 		if planned > 0:
@@ -161,8 +158,6 @@ func _refresh_lists() -> void:
 		var idx := _materials.item_count - 1
 		_materials.set_item_custom_fg_color(idx, m.color.lightened(0.3))
 		_materials.set_item_tooltip(idx, _material_tooltip(m))
-	if not selected_mat.is_empty() and selected_mat[0] < _materials.item_count:
-		_materials.select(selected_mat[0])
 
 
 func _refresh_item_panel() -> void:
@@ -204,9 +199,10 @@ func _refresh_commit() -> void:
 		_commit_button.text = "Commit " + ", ".join(names)
 
 
+## Shows the node's details in a tooltip that follows the mouse
 func _on_hovered(key: String) -> void:
 	if board == null or key == "" or not board.has_node(key):
-		_hover_label.text = "[i]Hover a node for details.[/i]"
+		_tooltip.visible = false
 		return
 	var text := ""
 	if board.is_magic(key):
@@ -225,22 +221,35 @@ func _on_hovered(key: String) -> void:
 			"[b]%s node[/b]%s\n"
 			% [p.enchantment.enchantment_name, " (committed)" if p.committed else ""]
 		)
-		text += "Accepts: %s\n" % def.describe_requirements()
+		text += "Needs: %s\n" % def.describe_requirements()
 		text += (
 			"Lines drawn to it: %d\nMagic nodes reached: %d\n"
 			% [board.line_count(key), board.reachable_magic_nodes(key).size()]
 		)
 		var mat := board.node_material(key)
 		if mat == null:
-			text += "Material: none"
+			text += "Material: none yet. Drag one here from the list."
 		else:
-			text += "Material: %s\n" % InscriptionBoard.material_name(mat)
+			text += "Material: %s\nTo activate:\n" % InscriptionBoard.material_name(mat)
 			for c in board.condition_status(key):
 				text += (
-					"%s %s\n"
-					% ["[color=#7ee08a]✓[/color]" if c[1] else "[color=#f06060]✗[/color]", c[0]]
+					"%s %s (%s)\n"
+					% [
+						"[color=#7ee08a]✓[/color]" if c[1] else "[color=#f06060]✗[/color]",
+						c[0],
+						c[2]
+					]
 				)
-	_hover_label.text = text
+	_tooltip_label.text = text.strip_edges()
+	_tooltip.visible = true
+	_tooltip.reset_size()
+	_place_tooltip()
+
+
+func _place_tooltip() -> void:
+	var at := get_global_mouse_position() + Vector2(20, 20)
+	var limit := get_viewport_rect().size - _tooltip.size
+	_tooltip.position = at.clamp(Vector2.ZERO, limit.max(Vector2.ZERO))
 
 
 func _on_board_changed() -> void:
@@ -340,25 +349,25 @@ func _build_ui() -> void:
 	_items.item_selected.connect(_open_item)
 	_enchantments = _list(left, "Enchantments", 4)
 	_enchantments.item_selected.connect(_on_enchantment_selected)
-	_materials = _list(left, "Materials", 6)
-	_materials.item_selected.connect(_on_material_selected)
+	_materials = MaterialList.new()
+	_list(left, "Materials", 6, _materials)
+	_materials.drag_started.connect(_on_material_drag_started)
 	var help := Label.new()
 	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	help.text = (
-		"Pick an enchantment and click the item to place it. Drag between nodes to draw lines. "
-		+ "Pick a material and click a node to insert it. Right click removes planned things. "
-		+ "Commit when an enchantment glows green."
+		"Pick an enchantment and click the item to place it. Press on a node and drag through "
+		+ "cells to draw a line; move back to undo. Drag a material onto a node to insert it. "
+		+ "Right click removes planned things. Commit when every node shows a tick."
 	)
 	help.add_theme_font_size_override("font_size", 13)
 	left.add_child(help)
 
-	_board_area = Control.new()
+	_board_area = BoardDropArea.new()
 	_board_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_board_area.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_board_area.clip_contents = true
 	_board_area.resized.connect(_fit_board)
 	root.add_child(_board_area)
 	_view = BoardView.new()
+	_board_area.view = _view
 	_view.can_use_material = _can_use_material
 	_view.message.connect(_set_message)
 	_view.changed.connect(_on_board_changed)
@@ -380,8 +389,35 @@ func _build_ui() -> void:
 	_message_label.custom_minimum_size.y = 60
 	_message_label.add_theme_color_override("font_color", Color("f0d68a"))
 	right.add_child(_message_label)
-	_hover_label = _rich(right, 220)
-	_hover_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var legend := _rich(right, 220)
+	legend.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	legend.text = (
+		"[b]Reading the board[/b]\n"
+		+ "Empty nodes show what they need: Fl flame, Wa water, So soft, Ha hard, Sh shiny, "
+		+ "any for any material. A gold number means that tier or higher.\n"
+		+ "Filled nodes show their material's progress, like 1/2 lines, with a red ring "
+		+ "until it's met and a green ring and tick after.\n"
+		+ "Hover a node for the details."
+	)
+
+	_tooltip = PanelContainer.new()
+	_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tooltip.top_level = true
+	_tooltip.visible = false
+	var tip_style := StyleBoxFlat.new()
+	tip_style.bg_color = Color(0.1, 0.1, 0.12, 0.95)
+	tip_style.border_color = Color("45434f")
+	tip_style.set_border_width_all(1)
+	tip_style.set_corner_radius_all(6)
+	tip_style.set_content_margin_all(10)
+	_tooltip.add_theme_stylebox_override("panel", tip_style)
+	_tooltip_label = RichTextLabel.new()
+	_tooltip_label.bbcode_enabled = true
+	_tooltip_label.fit_content = true
+	_tooltip_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_tooltip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_tooltip.add_child(_tooltip_label)
+	add_child(_tooltip)
 
 	# Day-over screen: a dimmer that blocks the board, with a summary panel on top
 	_day_over = PanelContainer.new()
@@ -423,12 +459,13 @@ func _panel(parent: Control, width: float) -> VBoxContainer:
 	return v
 
 
-func _list(parent: Control, title: String, rows: int) -> ItemList:
+func _list(parent: Control, title: String, rows: int, list: ItemList = null) -> ItemList:
 	var l := Label.new()
 	l.text = title
 	l.add_theme_font_size_override("font_size", 18)
 	parent.add_child(l)
-	var list := ItemList.new()
+	if list == null:
+		list = ItemList.new()
 	list.custom_minimum_size.y = rows * 30 + 8
 	parent.add_child(list)
 	return list
