@@ -1,6 +1,6 @@
 # The Conduct of Magic: working rules
 
-Godot 4.6 (GDScript) game. The game design lives in [docs/design/game-design.md](docs/design/game-design.md).
+Godot 4.7 (GDScript) game. The game design lives in [docs/design/game-design.md](docs/design/game-design.md).
 
 Gavin is the designer. Only decisions he has confirmed go into documents, including this file and the design doc. Offer options and recommendations in conversation; write them down only after he confirms.
 
@@ -57,5 +57,5 @@ Principles for this codebase:
 Run these locally before pushing. CI runs the same on every PR.
 
 - **Lint and format**: `pip install gdtoolkit==4.5.0`, then `gdformat --check <files>` and `gdlint <files>` on the `.gd` files you changed. CI only checks changed files, so a file you touch is brought up to style as part of that change.
-- **Script check**: Godot 4.6 headless. `godot --headless --path . --import`, then `godot --headless --path . res://tools/ci/check_scripts.tscn`. It loads every project script (skipping `addons/` and `demo/`) and fails if any doesn't compile.
+- **Script check**: Godot 4.7.2 headless. `godot --headless --path . --import`, then `godot --headless --path . res://tools/ci/check_scripts.tscn`. It loads every project script (skipping `addons/` and `demo/`) and fails if any doesn't compile.
 - Unit tests (GUT) will be added once an item owns its enchantment map.
