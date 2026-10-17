@@ -8,6 +8,7 @@ Editing the generated .tres files in the editor is fine; rerunning this overwrit
 
 const STONES := "res://items/enchantment_materials/%s/%s.tres"
 const A := EnchantmentMaterialDefinition.MATERIAL_ATTRIBUTES
+const R := RuneSet.Rune
 
 
 func _ready() -> void:
@@ -25,6 +26,12 @@ func _ready() -> void:
 		[A.Shiny, A.Hard],
 		[InstantPassCondition.new()]
 	)
+	# Placeholder rune numbers, to tune. Each stone's runes are its own kind.
+	_runes(fire, RuneSet.of(0, 1, 0, 0), RuneSet.of(0, 2, 0, 0), RuneSet.of(0, 3, 0, 0))
+	_runes(water, RuneSet.of(1, 0, 0, 0), RuneSet.of(2, 0, 0, 0), RuneSet.of(3, 0, 0, 0))
+	_runes(red, RuneSet.of(0, 0, 1, 0), RuneSet.of(0, 0, 2, 0), RuneSet.of(0, 1, 2, 0))
+	_runes(blue, RuneSet.of(0, 0, 0, 1), RuneSet.of(0, 0, 0, 2), RuneSet.of(0, 0, 0, 3))
+	_runes(yellow, RuneSet.of(0, 0, 1, 0), RuneSet.of(0, 0, 2, 0), RuneSet.of(1, 0, 2, 1))
 
 	# Nodes are spaced out so each fixed line runs through cells, like a drawn line
 	var kindle := _pattern(
@@ -100,6 +107,14 @@ func _ready() -> void:
 			"...#M#...",
 		]
 	)
+	# Placeholder rune numbers, to tune: each magic node (in reading order) puts 1 rune of its
+	# kind on its lines and gives back 1 of its kind and 1 of the next kind when freed
+	var kinds: Array[R] = [
+		R.WIND, R.WATER, R.FIRE, R.STONE, R.FIRE, R.WATER, R.STONE, R.WIND, R.STONE, R.WATER
+	]
+	for k in kinds:
+		sword_map.magic_edge_runes.append(_one(k, 1))
+		sword_map.magic_harvest_runes.append(_one(k, 1).plus(_one(posmod(k + 1, 4), 1)))
 	_save(sword_map, "res://inscribing/demo/demo_sword_map.tres")
 
 	var sword := EnchantableItemDefinition.new()
@@ -136,6 +151,21 @@ func _stone(
 	m.activation_conditions = conds
 	_save(m, path)
 	return load(path)
+
+
+func _runes(
+	m: EnchantmentMaterialDefinition, edge: RuneSet, harvest: RuneSet, dissolve: RuneSet
+) -> void:
+	m.edge_runes = edge
+	m.harvest_runes = harvest
+	m.dissolve_runes = dissolve
+	_save(m, m.resource_path)
+
+
+func _one(rune: int, count: int) -> RuneSet:
+	var counts := [0, 0, 0, 0]
+	counts[rune] = count
+	return RuneSet.of(counts[0], counts[1], counts[2], counts[3])
 
 
 func _pattern(
