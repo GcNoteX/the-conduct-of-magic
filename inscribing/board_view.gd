@@ -339,7 +339,7 @@ func _draw() -> void:
 		var pts := Hex.corners(cell_screen(c), hex_size * 0.96)
 		draw_colored_polygon(pts, COLOR_CELL)
 		pts.append(pts[0])
-		draw_polyline(pts, COLOR_CELL_EDGE, 1.0)
+		draw_polyline(pts, COLOR_CELL_EDGE, 1.0, true)
 
 	for f in board.fixed_lines():
 		var p: PlacementState = f.placement
@@ -376,10 +376,10 @@ func _draw_magic_node(k: String) -> void:
 	var col := COLOR_DEAD if board.line_count(k) > 0 and board.is_dead(k) else COLOR_MAGIC
 	if board.is_node_committed(k):
 		col = COLOR_COMMITTED
-	draw_circle(pos, radius, col)
-	draw_arc(pos, radius, 0, TAU, 24, Color.BLACK, 1.5)
+	draw_circle(pos, radius, col, true, -1.0, true)
+	draw_arc(pos, radius, 0, TAU, 24, Color.BLACK, 1.5, true)
 	if k == _hover_key:
-		draw_arc(pos, hex_size * 0.48, 0, TAU, 32, Color(1, 1, 1, 0.6), 1.5)
+		draw_arc(pos, hex_size * 0.48, 0, TAU, 32, Color(1, 1, 1, 0.6), 1.5, true)
 
 
 ## Empty nodes show what they accept; filled nodes show their material and condition progress
@@ -389,25 +389,25 @@ func _draw_enchantment_node(k: String) -> void:
 	var p := board.node_placement(k)
 	var def := board.node_definition(k)
 	var mat := board.node_material(k)
-	draw_circle(pos, radius, mat.color if mat else COLOR_EMPTY_NODE)
+	draw_circle(pos, radius, mat.color if mat else COLOR_EMPTY_NODE, true, -1.0, true)
 	var ring := COLOR_COMMITTED if p.committed else COLOR_FIXED_LINE
 	if mat and not p.committed:
 		ring = COLOR_ACTIVE if board.is_node_active(k) else COLOR_UNMET
-	draw_arc(pos, radius, 0, TAU, 32, ring, 3.0 if mat else 2.0)
+	draw_arc(pos, radius, 0, TAU, 32, ring, 3.0 if mat else 2.0, true)
 	_draw_label(pos, _progress_label(k) if mat else _requirement_label(def), radius * 1.9)
 	if def.tier_requirement > 1 and mat == null:
 		var badge := pos + Vector2(radius * 0.8, -radius * 0.8)
-		draw_circle(badge, radius * 0.42, COLOR_COMMITTED)
+		draw_circle(badge, radius * 0.42, COLOR_COMMITTED, true, -1.0, true)
 		_draw_label(badge, "%d" % def.tier_requirement, radius, Color.BLACK)
 
 	if _dragging_material and not p.committed:
 		var ok := board.check_insert(k, _dragging_material) == ""
-		draw_arc(pos, radius + 5.0, 0, TAU, 32, COLOR_VALID if ok else COLOR_INVALID, 3.0)
+		draw_arc(pos, radius + 5.0, 0, TAU, 32, COLOR_VALID if ok else COLOR_INVALID, 3.0, true)
 	if k == _hover_key:
 		var col := Color(1, 1, 1, 0.6)
 		if _dragging_material:
 			col = COLOR_ACTIVE if board.check_insert(k, _dragging_material) == "" else COLOR_UNMET
-		draw_arc(pos, radius + 8.0, 0, TAU, 32, col, 2.0)
+		draw_arc(pos, radius + 8.0, 0, TAU, 32, col, 2.0, true)
 
 
 func _requirement_label(def: EnchantmentPatternNode) -> String:
@@ -444,9 +444,9 @@ func _draw_path(cells: Array[Vector2i], col: Color, width: float) -> void:
 		pts.append(cell_screen(c))
 	var w := hex_size * width
 	if pts.size() > 1:
-		draw_polyline(pts, col, w)
+		draw_polyline(pts, col, w, true)
 	for pt in pts:
-		draw_circle(pt, w / 2.0, col)
+		draw_circle(pt, w / 2.0, col, true, -1.0, true)
 
 
 func _draw_ghost() -> void:
@@ -456,7 +456,7 @@ func _draw_ghost() -> void:
 	for cells in board.pattern_line_paths(held_enchantment, origin, held_rotation):
 		_draw_path(cells, col, 0.4)
 	for c in board.placement_cells(held_enchantment, origin, held_rotation):
-		draw_circle(cell_screen(c), hex_size * 0.42, col)
+		draw_circle(cell_screen(c), hex_size * 0.42, col, true, -1.0, true)
 
 
 func _screen(key: String) -> Vector2:

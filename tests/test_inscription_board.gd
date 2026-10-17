@@ -227,23 +227,39 @@ func test_commit() -> void:
 	)
 	var g := b.place(GLOW, Vector2i(-1, 8), 0)
 	b.insert_material(InscriptionBoard.enchantment_key(g.id, 2), YELLOW)
+	player.add_material(BLUE, 2)
+	check(
+		b.check_commit(player).begins_with("Every planned enchantment"),
+		"commit blocked while glow is planned but not active"
+	)
+	check(b.commit(player).is_empty() and not p.committed, "nothing commits from a half-done plan")
+	check(b.reserved_in_drafts(YELLOW) == 1, "glow's yellow is reserved in the draft")
+	b.remove_placement(g)
+	player.remove_material(BLUE, 2)
 	check(
 		b.check_commit(player).begins_with("Not enough materials"),
 		"commit blocked when short of blue"
 	)
 	check(b.missing_materials(player).get(BLUE, 0) == 1, "short exactly one blue")
 	player.add_material(BLUE, 2)
-	check(b.check_commit(player) == "", "commit allowed")
+	check(b.check_commit(player) == "", "commit allowed once every draft is active")
 	var done := b.commit(player)
-	check(done.size() == 1 and done[0] == p and p.committed, "only the active enchantment commits")
-	check(not g.committed, "inactive glow stays a draft")
+	check(done.size() == 1 and done[0] == p and p.committed, "the active enchantment commits")
 	check(
 		player.get_material_count(FIRE) == 0 and player.get_material_count(BLUE) == 1,
 		"materials used up on commit"
+	)
+	var k2 := b.place(KINDLE, Vector2i(-1, 9), 0)
+	check(
+		b.check_commit(player).begins_with("Every planned enchantment"),
+		"a new half-done enchantment blocks the next commit"
+	)
+	b.remove_placement(k2)
+	check(
+		b.check_commit(player).begins_with("Plan and activate"), "nothing left to commit after one"
 	)
 	check(b.find_line(e0, m(1, 7)).committed, "chained lines commit")
 	check(not b.find_line(m(-7, 14), m(-3, 14)).committed, "dead line ignored on commit")
 	check(b.check_line_start(Vector2i(3, 5)) != "", "can't add lines to a committed carving")
 	check(b.remove_placement(p) != "", "committed carving can't be removed")
 	check(b.check_insert(e0, FIRE) != "", "committed node takes no materials")
-	check(b.reserved_in_drafts(YELLOW) == 1, "glow's yellow is reserved in the draft")

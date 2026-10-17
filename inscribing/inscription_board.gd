@@ -470,9 +470,25 @@ func missing_materials(player: Player) -> Dictionary:
 	return missing
 
 
+## Draft enchantments that aren't fully activated yet. Any of these blocks a commit.
+func inactive_drafts() -> Array[PlacementState]:
+	var out: Array[PlacementState] = []
+	for p in state.placements:
+		if not p.committed and not is_placement_active(p):
+			out.append(p)
+	return out
+
+
+## You can only commit a clean board: every draft enchantment active, none left half done
 func check_commit(player: Player) -> String:
+	var inactive := inactive_drafts()
+	if not inactive.is_empty():
+		var names: Array[String] = []
+		for p in inactive:
+			names.append(p.enchantment.enchantment_name)
+		return "Every planned enchantment has to be active to commit. Not yet: " + ", ".join(names)
 	if commit_candidates().is_empty():
-		return "Activate an enchantment before committing"
+		return "Plan and activate an enchantment before committing"
 	var missing := missing_materials(player)
 	if not missing.is_empty():
 		var names: Array[String] = []
@@ -482,8 +498,8 @@ func check_commit(player: Player) -> String:
 	return ""
 
 
-## Commits every activated draft enchantment with the lines chained to it. Materials are used up.
-## Dead lines and inactive drafts stay as drafts.
+## Commits every draft enchantment (all must be active) with the lines chained to it.
+## Materials are used up. Dead lines stay as drafts.
 func commit(player: Player) -> Array[PlacementState]:
 	var done: Array[PlacementState] = []
 	if check_commit(player) != "":

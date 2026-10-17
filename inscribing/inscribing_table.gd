@@ -186,10 +186,13 @@ func _refresh_commit() -> void:
 		return
 	var candidates := board.commit_candidates()
 	var missing := board.missing_materials(player)
-	_commit_button.disabled = candidates.is_empty()
+	var inactive := board.inactive_drafts()
+	_commit_button.disabled = candidates.is_empty() or not inactive.is_empty()
 	_commit_button.modulate = Color(1, 0.45, 0.45) if not missing.is_empty() else Color.WHITE
-	if candidates.is_empty():
-		_commit_button.text = "Commit (nothing active yet)"
+	if not inactive.is_empty():
+		_commit_button.text = "Commit (%s not active)" % inactive[0].enchantment.enchantment_name
+	elif candidates.is_empty():
+		_commit_button.text = "Commit (nothing planned)"
 	elif not missing.is_empty():
 		_commit_button.text = "Commit (missing materials)"
 	else:

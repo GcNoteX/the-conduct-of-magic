@@ -31,7 +31,7 @@ EmapUpdateManager="*res://globals/emap_update_manager.gd"
 
 window/size/viewport_width=1920
 window/size/viewport_height=1080
-window/stretch/mode="viewport"
+window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [global_group]
@@ -90,4 +90,5 @@ cursor_toggle_emap_layout={
 
 [rendering]
 
+anti_aliasing/quality/msaa_2d=2
 viewport/hdr_2d=true
