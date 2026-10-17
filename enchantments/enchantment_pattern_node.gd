@@ -1,3 +1,4 @@
+@tool
 class_name EnchantmentPatternNode
 extends Resource
 
@@ -12,6 +13,9 @@ Acceptance uses the same rules as MaterialHolder: a minimum tier, then the attri
 @export var tier_requirement: int = 1
 ## Same semantics as MaterialHolder.material_requirements
 @export var material_requirements: Array[MaterialCondition] = []
+## Other cells this node covers, as axial offsets from the node's own cell (`offset`).
+## They're taken like the node's own cell. Lines attach at the node's own cell.
+@export var extra_cells: Array[Vector2i] = []
 
 
 func accepts(m: EnchantmentMaterialDefinition) -> bool:

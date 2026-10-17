@@ -9,6 +9,7 @@ Exits with code 1 if any check fails. Bakes go to user://, never over the shippe
 const TILES := preload("res://inscribing/tiles/hex_map_tiles.tres")
 const SWORD_MAP := preload("res://inscribing/demo/demo_sword_map.tres")
 const SWORD_MAP_SCENE := preload("res://inscribing/demo/demo_sword_map.tscn")
+const ENCHANTMENTS := ["kindle", "glow", "keen", "ward"]
 const CELL_TILE := Vector2i(0, 0)
 const MAGIC_TILE := Vector2i(1, 0)
 
@@ -21,6 +22,11 @@ func _ready() -> void:
 	test_layout_round_trip()
 	test_map_scene_bake()
 	test_map_scene_warnings()
+	test_enchantment_scenes_bake()
+	test_enchantment_scene_snapping()
+	test_enchantment_scene_warnings()
+	test_enchantment_scene_lines()
+	test_enchantment_scene_extra_cells()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -118,4 +124,138 @@ func test_map_scene_warnings() -> void:
 	)
 	scene.cells_layer = null
 	check(scene.check_cells() != "", "no layer, no bake")
+	scene.free()
+
+
+func new_enchantment_scene(file: String) -> EnchantmentScene:
+	var packed: PackedScene = load("res://enchantments/scenes/%s.tscn" % file)
+	var scene: EnchantmentScene = packed.instantiate()
+	add_child(scene)
+	return scene
+
+
+func shipped(file: String) -> Enchantment:
+	return load("res://enchantments/patterns/%s.tres" % file)
+
+
+func test_enchantment_scenes_bake() -> void:
+	for file: String in ENCHANTMENTS:
+		var scene := new_enchantment_scene(file)
+		var e := shipped(file)
+		check(scene.check_shape() == "", "%s scene has a sound shape" % file)
+		check(
+			(
+				EnchantmentScene.shape_signature(scene.build_enchantment())
+				== EnchantmentScene.shape_signature(e)
+			),
+			"%s scene builds the shipped shape" % file
+		)
+		check(scene.is_baked(), "%s scene counts as baked" % file)
+		check(scene.get_problems().is_empty(), "%s scene has no warnings" % file)
+		var target: Enchantment = e.duplicate(true)
+		target.nodes = [] as Array[EnchantmentPatternNode]
+		target.lines = [] as Array[EnchantmentPatternLine]
+		var path := "user://test_scene_bake/%s.tres" % file
+		check(scene.bake_into(target, path) == OK, "%s bakes" % file)
+		var saved: Enchantment = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+		check(
+			EnchantmentScene.shape_signature(saved) == EnchantmentScene.shape_signature(e),
+			"%s's saved bake has the shipped shape" % file
+		)
+		check(
+			(
+				saved.enchantment_name == e.enchantment_name
+				and saved.effect_description == e.effect_description
+			),
+			"%s's bake keeps its name and description" % file
+		)
+		check(InscriptionBoard.check_shape(e) == "", "shipped %s passes the shape check" % file)
+		scene.free()
+
+
+func test_enchantment_scene_snapping() -> void:
+	var scene := new_enchantment_scene("kindle")
+	var b: EnchantmentNodeComponent = scene.node_components()[1]
+	b.position += Vector2(9, -7)
+	scene.snap()
+	check(b.position == Hex.to_pixel(Vector2i(2, 0), EnchantmentScene.HEX_SIZE), "nodes snap")
+	b.position = Hex.to_pixel(Vector2i(2, -2), EnchantmentScene.HEX_SIZE) + Vector2(5, 5)
+	scene.snap()
+	var line: EnchantmentLineComponent = scene.line_components()[0]
+	check(b.cell() == Vector2i(2, -2), "a moved node lands on its new cell")
+	check(line.points[line.points.size() - 1] == b.position, "the line's end follows its node")
+	check(line.middle_cells() == ([Vector2i(1, -1)] as Array[Vector2i]), "the line reroutes")
+	check(not scene.is_baked(), "a moved node makes the scene unbaked")
+	check(
+		Array(scene.get_problems()).any(func(w: String) -> bool: return w.begins_with("Not baked")),
+		"the unbaked scene warns"
+	)
+	scene.free()
+
+
+func test_enchantment_scene_warnings() -> void:
+	var scene := new_enchantment_scene("ward")
+	var nodes := scene.node_components()
+	nodes[3].position = nodes[2].position
+	scene.snap()
+	check(scene.check_shape().begins_with("Node 3 overlaps node 2"), "nodes on one cell warn")
+	check(scene.overlapping_cells().has(nodes[2].cell()), "the overlap is drawn")
+	var target: Enchantment = shipped("ward").duplicate(true)
+	check(
+		scene.bake_into(target, "user://test_scene_bake/bad.tres") != OK,
+		"an invalid shape refuses to bake"
+	)
+	scene.free()
+	scene = new_enchantment_scene("keen")
+	nodes = scene.node_components()
+	nodes[2].position = Hex.to_pixel(Vector2i(-2, 0), EnchantmentScene.HEX_SIZE)
+	scene.snap()
+	check(scene.check_shape() == "Line 1: it runs over line 0", "lines can't cross")
+	scene.free()
+	scene = new_enchantment_scene("kindle")
+	nodes = scene.node_components()
+	nodes[1].position = Hex.to_pixel(Vector2i(1, 0), EnchantmentScene.HEX_SIZE)
+	scene.snap()
+	check(scene.check_shape() == "", "neighbouring nodes join with no cells between")
+	var line: EnchantmentLineComponent = scene.line_components()[0]
+	line.to_node = null
+	check(scene.check_shape().begins_with("LineAB"), "a line without both nodes warns")
+	scene.free()
+
+
+func test_enchantment_scene_lines() -> void:
+	var scene := new_enchantment_scene("kindle")
+	var line: EnchantmentLineComponent = scene.line_components()[0]
+	var bend := Hex.to_pixel(Vector2i(1, -1), EnchantmentScene.HEX_SIZE) + Vector2(4, -3)
+	line.points = PackedVector2Array([line.points[0], bend, line.points[1]])
+	scene.snap()
+	check(
+		line.points[1] == Hex.to_pixel(Vector2i(1, -1), EnchantmentScene.HEX_SIZE),
+		"bend points snap to cell centres"
+	)
+	var path := line.path_cells()
+	var joined := path.size() > 2
+	for i in range(1, path.size()):
+		joined = joined and Hex.distance(path[i - 1], path[i]) == 1
+	check(joined and Vector2i(1, -1) in path, "a bent line runs cell by cell through its bend")
+	check(scene.check_shape() == "", "a bent line is a sound shape")
+	var built := scene.build_enchantment()
+	check(built.lines[0].cells == line.middle_cells(), "the bent line's cells bake")
+	scene.free()
+
+
+func test_enchantment_scene_extra_cells() -> void:
+	var scene := new_enchantment_scene("kindle")
+	var b: EnchantmentNodeComponent = scene.node_components()[1]
+	b.extra_cells = [Vector2i(1, 0), Vector2i(0, 1)] as Array[Vector2i]
+	check(scene.check_shape() == "", "a node can cover extra cells")
+	var built := scene.build_enchantment()
+	check(built.nodes[1].extra_cells == b.extra_cells, "extra cells bake relative to their node")
+	check(b.covered_cells().has(Vector2i(3, 0)), "a node covers its extra cells")
+	b.extra_cells = [Vector2i(-1, 0)] as Array[Vector2i]
+	check(
+		scene.check_shape() == "Line 0: it runs over node 1",
+		"an extra cell can't sit on the node's own line"
+	)
+	check(scene.overlapping_cells().has(Vector2i(1, 0)), "the extra cell overlap is drawn")
 	scene.free()
