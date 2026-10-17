@@ -134,6 +134,32 @@ func find_carving(placement_id: int) -> PlacementState:
 	return null
 
 
+## A short player-facing name for a node, like "Kindle's Fire stone" or "magic node"
+func node_label(node_key: String) -> String:
+	if board.is_magic(node_key):
+		return "magic node"
+	var p := board.node_placement(node_key)
+	return (
+		"%s's %s"
+		% [
+			p.enchantment.enchantment_name,
+			InscriptionBoard.material_name(board.node_material(node_key))
+		]
+	)
+
+
+## A short player-facing description of a step, like "Cut Kindle's Fire stone to magic node"
+func describe_step(s: DisenchantStep) -> String:
+	match s.kind:
+		DisenchantStep.Kind.CUT:
+			return "Cut %s to %s" % [node_label(s.a), node_label(s.b)]
+		DisenchantStep.Kind.DISSOLVE:
+			return "Dissolve %s" % InscriptionBoard.material_name(s.material)
+		_:
+			var p := find_carving(s.placement_id)
+			return "Pull out %s" % (p.enchantment.enchantment_name if p else "an enchantment")
+
+
 #
 # ── Replaying a plan ─────────────────────────────
 #

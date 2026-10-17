@@ -5,13 +5,16 @@ Drives the inscribing table with simulated mouse input and saves screenshots.
 Run (needs a display): godot --path . res://tests/drive_table.tscn -- <output_dir>
 """
 
+const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
+const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+
 var out_dir := "user://"
 var table: Control
 var view: BoardView
 
 
 func _ready() -> void:
-	get_tree().create_timer(30.0).timeout.connect(
+	get_tree().create_timer(60.0).timeout.connect(
 		func():
 			printerr("drive_table timed out")
 			get_tree().quit(1)
@@ -84,10 +87,95 @@ func _ready() -> void:
 	print("committed: ", p.committed, " message: ", table._message_label.text)
 	_shot("07_committed")
 
+	await _disenchant()
+
 	table.time_left = 0.01
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()
+
+
+## Disenchant mode on the pre-carved demo sword: costs on lines, a cut you can't afford, dissolving,
+## planning every cut of Kindle, pulling it out and committing
+func _disenchant() -> void:
+	var carved: int = table.player.items.size() - 1
+	table._items.select(carved)
+	table._open_item(carved)
+	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print(
+		"disenchant mode: ",
+		table.is_disenchanting(),
+		" carvings: ",
+		table.disenchant.carvings().size()
+	)
+	_move(_edge_point("e:1:0", "m:1,7"))
+	await _frames(2)
+	_shot("09_disenchant_costs")
+
+	_click(_edge_point("e:1:0", "m:1,7"), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print("blocked step: ", table.disenchant.first_blocked(), " ", table._message_label.text)
+	_shot("10_cant_afford")
+	_click(_edge_point("e:1:0", "m:1,7"), MOUSE_BUTTON_RIGHT)
+	await _frames(1)
+
+	var mats: Array[EnchantmentMaterialDefinition] = table._materials.materials
+	table._on_material_activated(mats.find(FIRE))
+	table._on_material_activated(mats.find(YELLOW))
+	for ends in [["e:1:0", "m:1,7"], ["e:1:0", "m:0,4"]]:
+		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	_move(_cell(Vector2i(0, 4)))
+	await _frames(2)
+	_shot("11_planning")
+
+	for ends in [["e:1:0", "e:1:1"], ["m:3,2", "m:4,4"], ["e:1:1", "m:4,4"]]:
+		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
+	_click(_cell(Vector2i(1, 5)), MOUSE_BUTTON_LEFT)
+	# Two Keen cuts with what's left over: the second can't be afforded, so it shows red
+	_click(_edge_point("e:2:0", "m:-3,14"), MOUSE_BUTTON_LEFT)
+	_click(_edge_point("e:2:2", "m:-3,14"), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print(
+		"plan: ",
+		table.disenchant.state.disenchant_plan.size(),
+		" blocked: ",
+		table.disenchant.first_blocked()
+	)
+	_shot("12_blocked_mid_plan")
+	table._on_undo_pressed()
+	table._on_undo_pressed()
+	await _frames(2)
+	print("commit button: ", table._commit_button.text)
+	_shot("13_ready_to_commit")
+
+	_click(table._commit_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print(
+		"after commit: ",
+		table.disenchant.carvings().size(),
+		" message: ",
+		table._message_label.text
+	)
+	print(
+		"fire left: ",
+		table.player.get_material_count(FIRE),
+		" yellow left: ",
+		table.player.get_material_count(YELLOW)
+	)
+	_shot("14_committed")
+
+	# Disenchant mode works on the sword carved earlier in this run too
+	table._items.select(0)
+	table._open_item(0)
+	await _frames(2)
+	_shot("15_own_carving")
+
+
+func _edge_point(a: String, b: String) -> Vector2:
+	var mid := view._edge_middle(DisenchantBoard.edge_key(a, b))
+	return view.get_global_transform_with_canvas() * mid
 
 
 func _cell(c: Vector2i) -> Vector2:
