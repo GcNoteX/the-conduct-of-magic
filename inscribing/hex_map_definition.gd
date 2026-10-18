@@ -21,6 +21,12 @@ below use that numbering. A missing entry means no runes.
 @export var magic_harvest_runes: Array[RuneSet] = []
 
 
+## The number of the magic node in `cell`, counting from 1 in reading order (top row first, left
+## to right), or 0 when there's no magic node there. The board labels magic nodes with it.
+func magic_node_number(cell: Vector2i) -> int:
+	return get_magic_nodes().find(cell) + 1
+
+
 ## A copy of the edge runes of the magic node in `cell` (empty when none are set)
 func edge_runes_at(cell: Vector2i) -> RuneSet:
 	return _runes_at(magic_edge_runes, cell)

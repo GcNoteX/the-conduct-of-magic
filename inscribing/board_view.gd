@@ -612,6 +612,10 @@ func _draw_magic_node(k: String) -> void:
 		col = COLOR_COMMITTED
 	draw_circle(pos, radius, col, true, -1.0, true)
 	draw_arc(pos, radius, 0, TAU, 24, Color.BLACK, 1.5, true)
+	if disenchant:
+		# The magic node's number, as the solvability check names it
+		var number := board.map.magic_node_number(board.node_cell(k))
+		_draw_label(pos, "%d" % number, radius * 2.0, Color.BLACK, false)
 	if k == _hover_key:
 		draw_arc(pos, hex_size * 0.48, 0, TAU, 32, Color(1, 1, 1, 0.6), 1.5, true)
 

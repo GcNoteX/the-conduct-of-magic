@@ -13,7 +13,6 @@ const WATER := preload("res://items/enchantment_materials/water_stone/water_ston
 const RED := preload("res://items/enchantment_materials/red_stone/red_stone.tres")
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
 const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
-const CHECKER_SCENE := preload("res://tools/check_solvability.gd")
 
 var _failures := 0
 var _checks := 0
@@ -24,6 +23,7 @@ func _ready() -> void:
 	test_single_enchantment()
 	test_against_every_cut_order()
 	test_unsolvable_and_empty()
+	test_component_toggle()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -69,8 +69,12 @@ func test_whole_board() -> void:
 	check(found[0].cuts.size() == 12, "cutting every line")
 	for s in found:
 		check(replays_cleanly(d, s, all), "solution %s replays through the rules" % names(s))
-	var report: String = CHECKER_SCENE.report(d, demo_inventory())
-	check(report.contains("Everything: clearable"), "the report says the board clears")
+	var report := SolvabilityCheck.report(d, demo_inventory())
+	check(report.contains("Everything: can be cleared"), "the report says the board clears")
+	check(report.contains("Kindle node 1 (Fire stone)"), "the report names enchantment nodes")
+	check(report.contains("magic node 2"), "the report numbers magic nodes")
+	var raw_key := RegEx.create_from_string("[em]:-?\\d")
+	check(raw_key.search(report) == null, "the report has no raw node keys")
 
 
 func test_single_enchantment() -> void:
@@ -151,3 +155,19 @@ func permutations(items: Array[String]) -> Array:
 		for p in permutations(rest):
 			out.append([head] + p)
 	return out
+
+
+## The SolvabilityCheck component reports only when enabled, and only for carved items
+func test_component_toggle() -> void:
+	var player := Player.new()
+	for m: EnchantmentMaterialDefinition in demo_inventory():
+		player.add_material(m, demo_inventory()[m])
+	var component := SolvabilityCheck.new()
+	var carved: ItemInstance = CARVED.duplicate(true)
+	check(component.check_item(carved, player) == "", "disabled, it stays quiet")
+	component.enabled = true
+	check(component.check_item(carved, player).contains("can be cleared"), "enabled, it reports")
+	var bare := ItemInstance.new()
+	bare.definition = SWORD
+	check(component.check_item(bare, player) == "", "an item with no carvings is skipped")
+	component.free()

@@ -35,7 +35,8 @@ const DISENCHANT_LEGEND := (
 	+ "Each committed line shows what cutting it costs: [color=#4aa3ff]water[/color], "
 	+ "[color=#ff7a3d]fire[/color], [color=#bfeccb]wind[/color] and "
 	+ "[color=#b49a74]stone[/color] runes. Planned cuts show their step number, red when "
-	+ "you can't afford them. A green ring marks a node that pays out in the plan.\n"
+	+ "you can't afford them. A green ring marks a node that pays out in the plan. "
+	+ "Magic nodes show their number.\n"
 	+ "Hover a node or line for its runes."
 )
 const LAYOUT_NAMES: Array[String] = [
@@ -43,6 +44,8 @@ const LAYOUT_NAMES: Array[String] = [
 ]
 
 @export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
+## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
+@export var solvability_check: SolvabilityCheck
 
 var player: Player
 var board: InscriptionBoard
@@ -85,6 +88,8 @@ func _ready() -> void:
 	if not player.items.is_empty():
 		_item_picker.select(0)
 		_open_item(0)
+	if solvability_check:
+		solvability_check.check_items(player.items, player)
 
 
 func _process(delta: float) -> void:
@@ -112,6 +117,12 @@ func _open_item(index: int) -> void:
 	_refresh_all()
 	if board.get_cells().is_empty():
 		_set_message("This item's map has no cells. Paint its map scene and press Bake.")
+
+
+func _on_item_picked(index: int) -> void:
+	_open_item(index)
+	if solvability_check:
+		solvability_check.check_item(player.items[index], player)
 
 
 func is_disenchanting() -> bool:
@@ -708,7 +719,7 @@ func _build_ui() -> void:
 	_timer_label.add_theme_font_size_override("font_size", 22)
 	right.add_child(_timer_label)
 	_item_picker = _picker(right, "Item")
-	_item_picker.item_selected.connect(_open_item)
+	_item_picker.item_selected.connect(_on_item_picked)
 	_item_label = _rich(right, 130)
 	_commit_button = Button.new()
 	_commit_button.custom_minimum_size.y = 44

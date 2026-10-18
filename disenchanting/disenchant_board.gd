@@ -134,10 +134,10 @@ func find_carving(placement_id: int) -> PlacementState:
 	return null
 
 
-## A short player-facing name for a node, like "Kindle's Fire stone" or "magic node"
+## A short player-facing name for a node, like "Kindle's Fire stone" or "magic node 3"
 func node_label(node_key: String) -> String:
 	if board.is_magic(node_key):
-		return "magic node"
+		return "magic node %d" % board.map.magic_node_number(board.node_cell(node_key))
 	var p := board.node_placement(node_key)
 	return (
 		"%s's %s"
@@ -146,6 +146,28 @@ func node_label(node_key: String) -> String:
 			InscriptionBoard.material_name(board.node_material(node_key))
 		]
 	)
+
+
+## A full name for a node, like "Kindle node 1 (Fire stone)" or "magic node 3". Enchantment nodes
+## count from 1 in the enchantment's own order; magic nodes use the numbers drawn on the board.
+func node_name(node_key: String) -> String:
+	if board.is_magic(node_key):
+		return node_label(node_key)
+	var p := board.node_placement(node_key)
+	return (
+		"%s node %d (%s)"
+		% [
+			p.enchantment.enchantment_name,
+			node_key.get_slice(":", 2).to_int() + 1,
+			InscriptionBoard.material_name(board.node_material(node_key))
+		]
+	)
+
+
+## A full name for a line, like "Kindle node 1 (Fire stone) to magic node 3"
+func edge_name(key: String) -> String:
+	var ends := edge_ends(key)
+	return "%s to %s" % [node_name(ends[0]), node_name(ends[1])]
 
 
 ## A short player-facing description of a step, like "Cut Kindle's Fire stone to magic node"
