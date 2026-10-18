@@ -148,6 +148,7 @@ func _ready() -> void:
 	_key(KEY_ESCAPE)
 	await _frames(2)
 	await _bastion_parallel_cut()
+	await _art_on_and_off()
 
 	table.time_left = 0.01
 	await _frames(3)
@@ -479,6 +480,49 @@ func _bastion_parallel_cut() -> void:
 	await _frames(3)
 	print("  tooltip: ", table._tooltip_label.get_parsed_text().get_slice("\n", 0))
 	_shot("29_bastion_parallel_cut")
+
+
+## The board with its art (sheet 0006) and flat, in both modes: the pre-carved sword in Carve mode
+## while a material is dragged over it (green and red rings), then in Disenchant mode with the
+## solvability check's Kindle plan entered (step numbers, rune chips, labels and green rings)
+func _art_on_and_off() -> void:
+	table._set_layout(table.Layout.SIDEBAR)
+	for art in [true, false]:
+		table.use_art = art
+		var look := "art" if art else "flat"
+		var carved := _fresh_carved_sword()
+		table._set_disenchanting(false)
+		table._item_picker.select(carved)
+		table._open_item(carved)
+		var glow: Enchantment = load("res://enchantments/patterns/glow.tres")
+		var at := Vector2i(-99, -99)
+		for c in table.board.get_cells():
+			if at.x == -99 and table.board.check_place(glow, c, 0) == "":
+				at = c
+		var p: PlacementState = table.board.place(glow, at, 0)
+		print(look, ": placed Glow for the drop rings: ", p != null)
+		table._on_board_changed()
+		var node: Vector2i = table.board.node_cell(InscriptionBoard.enchantment_key(p.id, 0))
+		_start_drag(_card(FIRE))
+		await _frames(2)
+		_move(_cell(node))
+		await _frames(3)
+		_shot("30_%s_carve" % look)
+		_release(_cell(node))
+		await _frames(2)
+		table._on_board_changed()
+		_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+		await _frames(2)
+		var d: DisenchantBoard = table.disenchant
+		var targets: Array[PlacementState] = [d.carvings()[0]]
+		var available: Dictionary = table.player.material_inventory.duplicate()
+		var steps := SolvabilityChecker.new(d).solve(targets, available)[0].steps(targets, d)
+		for s in steps.slice(0, steps.size() - 2):
+			await _do_step(s, d)
+		_move(Vector2(1300, 900))
+		await _frames(3)
+		_shot("31_%s_disenchant" % look)
+	table.use_art = true
 
 
 ## Gives the player the demo's starting materials again
