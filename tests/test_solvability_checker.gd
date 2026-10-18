@@ -202,7 +202,7 @@ func test_plans_commit() -> void:
 				DisenchantStep.Kind.DISSOLVE:
 					ok = ok and d.plan_dissolve(s.material) == ""
 				DisenchantStep.Kind.CUT:
-					ok = ok and d.plan_cut(DisenchantBoard.edge_key(s.a, s.b)) == ""
+					ok = ok and d.plan_cut(DisenchantBoard.step_edge_key(s)) == ""
 				_:
 					ok = ok and d.plan_pull_out(d.find_carving(s.placement_id)) == ""
 		check(ok, "%s: every step of the plan can be planned" % label)

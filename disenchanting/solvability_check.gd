@@ -120,7 +120,7 @@ static func _section(
 		var s := steps[i]
 		var row := "      %d. %s" % [i + 1, board.describe_step(s)]
 		if s.kind == DisenchantStep.Kind.CUT:
-			var cost := board.edge_cost(DisenchantBoard.edge_key(s.a, s.b))
+			var cost := board.edge_cost(DisenchantBoard.step_edge_key(s))
 			out += "%s  (click the line; costs %s)\n" % [row, cost.describe()]
 		elif s.kind == DisenchantStep.Kind.PULL_OUT:
 			var n := board.carving_name(board.find_carving(s.placement_id))

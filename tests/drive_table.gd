@@ -138,6 +138,7 @@ func _ready() -> void:
 	_shot("20_lists_disenchant")
 
 	await _replay_checker_plans()
+	await _bastion_ports()
 
 	table.time_left = 0.01
 	await _frames(3)
@@ -309,8 +310,8 @@ func _replay_checker_plans() -> void:
 			print("  wanted: ", wanted, "\n  got:    ", planned)
 		print("  blocked step: ", d.first_blocked(), " commit check: '", d.check_commit(), "'")
 		if c[0] == "kindle":
-			var k := DisenchantBoard.edge_key(steps[4].a, steps[4].b)
-			_move(_edge_point(steps[4].a, steps[4].b))
+			var k := DisenchantBoard.step_edge_key(steps[4])
+			_move(_edge_point(steps[4].a, steps[4].b, steps[4].line))
 			await _frames(3)
 			print("  tooltip: ", table._tooltip_label.get_parsed_text().get_slice("\n", 0))
 			print(
@@ -367,7 +368,7 @@ func _do_step(s: DisenchantStep, d: DisenchantBoard) -> void:
 			else:
 				_double_click(_card(s.material))
 		DisenchantStep.Kind.CUT:
-			_click(_edge_point(s.a, s.b), MOUSE_BUTTON_LEFT)
+			_click(_edge_point(s.a, s.b, s.line), MOUSE_BUTTON_LEFT)
 		_:
 			var key := InscriptionBoard.enchantment_key(s.placement_id, 0)
 			_click(
@@ -380,8 +381,80 @@ func _do_step(s: DisenchantStep, d: DisenchantBoard) -> void:
 	await _frames(1)
 
 
-func _edge_point(a: String, b: String) -> Vector2:
-	var mid := view._edge_middle(DisenchantBoard.edge_key(a, b))
+## Bastion (the example big node) on the first sword it fits on with room to reach a magic node
+## from each of its big node's two ports, with those two lines drawn by mouse
+func _bastion_ports() -> void:
+	table._set_layout(table.Layout.SIDEBAR)
+	table._set_disenchanting(false)
+	var found := []
+	for item in [1, 2, 0]:
+		if found.is_empty():
+			table._item_picker.select(item)
+			table._open_item(item)
+			await _frames(2)
+			found = _place_bastion()
+	print("bastion placed: ", not found.is_empty())
+	if found.is_empty():
+		return
+	for route in found:
+		_draw_path(route)
+		await _frames(1)
+	var b: InscriptionBoard = table.board
+	var big_key := InscriptionBoard.enchantment_key(b.state.placements.back().id, 0)
+	print("lines at the big node: ", b.line_count(big_key))
+	table._on_board_changed()
+	_move(Vector2(1300, 900))  # Off the board, so no tooltip hides the lines
+	await _frames(2)
+	_shot("21_bastion_ports")
+
+
+## Places Bastion where both its big node's ports can reach a magic node; returns the two routes
+func _place_bastion() -> Array:
+	var bastion: Enchantment = load("res://enchantments/patterns/bastion.tres")
+	var b: InscriptionBoard = table.board
+	for c in b.get_cells():
+		for r in 6:
+			if b.check_place(bastion, c, r) != "":
+				continue
+			var p := b.place(bastion, c, r)
+			var paths := []
+			for port in b.node_ports(InscriptionBoard.enchantment_key(p.id, 0)):
+				var route := _route_to_magic(port, paths)
+				if not route.is_empty():
+					paths.append(route)
+			if paths.size() == 2:
+				return paths
+			b.remove_placement(p)
+	return []
+
+
+## The shortest free route from `start` to a magic node not used by `taken` routes, or []
+func _route_to_magic(start: Vector2i, taken: Array) -> Array:
+	var b: InscriptionBoard = table.board
+	var used := {}
+	for t in taken:
+		for c in t:
+			used[c] = true
+	var prev := {start: start}
+	var queue: Array[Vector2i] = [start]
+	while not queue.is_empty():
+		var at: Vector2i = queue.pop_front()
+		for n in Hex.neighbours(at):
+			if prev.has(n) or used.has(n) or not b.has_cell(n):
+				continue
+			prev[n] = at
+			var route: Array[Vector2i] = [n]
+			while route[0] != start:
+				route.push_front(prev[route[0]])
+			if route.size() > 2 and b.is_magic(b.node_at(n)) and b.check_line(route) == "":
+				return route
+			if b.node_covering(n) == "" and not b.is_occupied(n):
+				queue.append(n)
+	return []
+
+
+func _edge_point(a: String, b: String, which := 0) -> Vector2:
+	var mid := view._edge_middle(DisenchantBoard.edge_key(a, b, which))
 	return view.get_global_transform_with_canvas() * mid
 
 

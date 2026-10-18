@@ -1,18 +1,86 @@
 [gd_resource type="TileSet" format=3]
 
-[ext_resource type="Texture2D" path="res://inscribing/tiles/hex_map_tiles.png" id="1_ve7as"]
+[ext_resource type="Texture2D" path="res://art/placeholder/cell_steel.png" id="1_cell"]
+[ext_resource type="Texture2D" path="res://art/placeholder/magic_node_tiles.png" id="2_magic"]
+[ext_resource type="Script" path="res://disenchanting/rune_set.gd" id="3_runes"]
+[ext_resource type="PackedScene" path="res://items/maps/magic_nodes/ember_well.tscn" id="4_ember"]
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_v1x7l"]
-resource_name = "Placeholder"
-texture = ExtResource("1_ve7as")
+[sub_resource type="Resource" id="Resource_water_edge"]
+script = ExtResource("3_runes")
+water = 1
+
+[sub_resource type="Resource" id="Resource_water_harvest"]
+script = ExtResource("3_runes")
+water = 1
+fire = 1
+
+[sub_resource type="Resource" id="Resource_fire_edge"]
+script = ExtResource("3_runes")
+fire = 1
+
+[sub_resource type="Resource" id="Resource_fire_harvest"]
+script = ExtResource("3_runes")
+fire = 1
+wind = 1
+
+[sub_resource type="Resource" id="Resource_wind_edge"]
+script = ExtResource("3_runes")
+wind = 1
+
+[sub_resource type="Resource" id="Resource_wind_harvest"]
+script = ExtResource("3_runes")
+wind = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_stone_edge"]
+script = ExtResource("3_runes")
+stone = 1
+
+[sub_resource type="Resource" id="Resource_stone_harvest"]
+script = ExtResource("3_runes")
+water = 1
+stone = 1
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cells"]
+resource_name = "Cells"
+texture = ExtResource("1_cell")
 texture_region_size = Vector2i(56, 64)
 0:0/0 = 0
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_magic"]
+resource_name = "Magic nodes"
+texture = ExtResource("2_magic")
+texture_region_size = Vector2i(56, 64)
+0:0/0 = 0
+0:0/0/custom_data_0 = true
+0:0/0/custom_data_1 = SubResource("Resource_water_edge")
+0:0/0/custom_data_2 = SubResource("Resource_water_harvest")
 1:0/0 = 0
 1:0/0/custom_data_0 = true
+1:0/0/custom_data_1 = SubResource("Resource_fire_edge")
+1:0/0/custom_data_2 = SubResource("Resource_fire_harvest")
+2:0/0 = 0
+2:0/0/custom_data_0 = true
+2:0/0/custom_data_1 = SubResource("Resource_wind_edge")
+2:0/0/custom_data_2 = SubResource("Resource_wind_harvest")
+3:0/0 = 0
+3:0/0/custom_data_0 = true
+3:0/0/custom_data_1 = SubResource("Resource_stone_edge")
+3:0/0/custom_data_2 = SubResource("Resource_stone_harvest")
+
+[sub_resource type="TileSetScenesCollectionSource" id="TileSetScenesCollectionSource_magic"]
+resource_name = "Magic node scenes"
+scenes/1/scene = ExtResource("4_ember")
 
 [resource]
 tile_shape = 3
 tile_size = Vector2i(56, 64)
 custom_data_layer_0/name = "magic_node"
 custom_data_layer_0/type = 1
-sources/0 = SubResource("TileSetAtlasSource_v1x7l")
+custom_data_layer_1/name = "edge_runes"
+custom_data_layer_1/type = 24
+custom_data_layer_2/name = "harvest_runes"
+custom_data_layer_2/type = 24
+sources/0 = SubResource("TileSetAtlasSource_cells")
+sources/1 = SubResource("TileSetAtlasSource_magic")
+sources/2 = SubResource("TileSetScenesCollectionSource_magic")

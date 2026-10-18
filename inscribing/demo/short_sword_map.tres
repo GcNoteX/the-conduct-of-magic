@@ -3,13 +3,21 @@
 [ext_resource type="Script" path="res://disenchanting/rune_set.gd" id="1_ue5xt"]
 [ext_resource type="Script" path="res://inscribing/hex_map_definition.gd" id="2_3vsx4"]
 
-[sub_resource type="Resource" id="Resource_n410x"]
+[sub_resource type="Resource" id="Resource_ue5xt"]
 script = ExtResource("1_ue5xt")
 wind = 1
 
-[sub_resource type="Resource" id="Resource_w58rx"]
+[sub_resource type="Resource" id="Resource_3vsx4"]
 script = ExtResource("1_ue5xt")
 water = 1
+
+[sub_resource type="Resource" id="Resource_n410x"]
+script = ExtResource("1_ue5xt")
+fire = 1
+
+[sub_resource type="Resource" id="Resource_w58rx"]
+script = ExtResource("1_ue5xt")
+stone = 1
 
 [sub_resource type="Resource" id="Resource_krllv"]
 script = ExtResource("1_ue5xt")
@@ -17,29 +25,31 @@ fire = 1
 
 [sub_resource type="Resource" id="Resource_0suko"]
 script = ExtResource("1_ue5xt")
-stone = 1
+water = 1
 
 [sub_resource type="Resource" id="Resource_0auwd"]
 script = ExtResource("1_ue5xt")
-fire = 1
-
-[sub_resource type="Resource" id="Resource_vpg00"]
-script = ExtResource("1_ue5xt")
-water = 1
-
-[sub_resource type="Resource" id="Resource_3iecr"]
-script = ExtResource("1_ue5xt")
 stone = 1
 
-[sub_resource type="Resource" id="Resource_y5pp6"]
+[sub_resource type="Resource" id="Resource_vpg00"]
 script = ExtResource("1_ue5xt")
 wind = 1
 stone = 1
 
-[sub_resource type="Resource" id="Resource_kjuoq"]
+[sub_resource type="Resource" id="Resource_3iecr"]
 script = ExtResource("1_ue5xt")
 water = 1
 fire = 1
+
+[sub_resource type="Resource" id="Resource_y5pp6"]
+script = ExtResource("1_ue5xt")
+fire = 1
+wind = 1
+
+[sub_resource type="Resource" id="Resource_kjuoq"]
+script = ExtResource("1_ue5xt")
+water = 1
+stone = 1
 
 [sub_resource type="Resource" id="Resource_jkegk"]
 script = ExtResource("1_ue5xt")
@@ -49,19 +59,9 @@ wind = 1
 [sub_resource type="Resource" id="Resource_thhsm"]
 script = ExtResource("1_ue5xt")
 water = 1
-stone = 1
+fire = 1
 
 [sub_resource type="Resource" id="Resource_q6kdf"]
-script = ExtResource("1_ue5xt")
-fire = 1
-wind = 1
-
-[sub_resource type="Resource" id="Resource_ucbuk"]
-script = ExtResource("1_ue5xt")
-water = 1
-fire = 1
-
-[sub_resource type="Resource" id="Resource_yu718"]
 script = ExtResource("1_ue5xt")
 water = 1
 stone = 1
@@ -70,5 +70,8 @@ stone = 1
 script = ExtResource("2_3vsx4")
 map_name = "Short sword"
 layout = PackedStringArray("...#...", "..##...", "..#M#..", "..##...", "..###..", "..##...", "..M#M..", "..##...", "..###..", "..##...", "..#M#..", "######.", "M#####M", "..##...", "..#M#..")
-magic_edge_runes = Array[ExtResource("1_ue5xt")]([SubResource("Resource_n410x"), SubResource("Resource_w58rx"), SubResource("Resource_krllv"), SubResource("Resource_0suko"), SubResource("Resource_0auwd"), SubResource("Resource_vpg00"), SubResource("Resource_3iecr")])
-magic_harvest_runes = Array[ExtResource("1_ue5xt")]([SubResource("Resource_y5pp6"), SubResource("Resource_kjuoq"), SubResource("Resource_jkegk"), SubResource("Resource_thhsm"), SubResource("Resource_q6kdf"), SubResource("Resource_ucbuk"), SubResource("Resource_yu718")])
+magic_node_extra_cells = Dictionary[Vector2i, Vector2i]({
+Vector2i(-5, 12): Vector2i(-6, 12)
+})
+magic_edge_runes = Array[ExtResource("1_ue5xt")]([SubResource("Resource_ue5xt"), SubResource("Resource_3vsx4"), SubResource("Resource_n410x"), SubResource("Resource_w58rx"), SubResource("Resource_krllv"), SubResource("Resource_0suko"), SubResource("Resource_0auwd")])
+magic_harvest_runes = Array[ExtResource("1_ue5xt")]([SubResource("Resource_vpg00"), SubResource("Resource_3iecr"), SubResource("Resource_y5pp6"), SubResource("Resource_kjuoq"), SubResource("Resource_jkegk"), SubResource("Resource_thhsm"), SubResource("Resource_q6kdf")])

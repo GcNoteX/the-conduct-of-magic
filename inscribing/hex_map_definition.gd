@@ -10,10 +10,15 @@ Authored as rows of characters in odd-r offset layout, top row first:
 	'M'         a cell holding a magic node
 Magic nodes are numbered in reading order (top row first, left to right), and the rune lists
 below use that numbering. A missing entry means no runes.
+Maps are painted in an ItemMapScene, whose Bake writes every field here except map_name: the
+runes come from the magic node tiles painted on its Magic nodes layer.
 """
 
 @export var map_name: String = ""
 @export var layout: PackedStringArray = []
+## Cells covered by a bigger magic node besides its own cell: covered cell -> the magic node's own
+## cell (axial). Lines can't run through them; lines attach at the magic node's own cell.
+@export var magic_node_extra_cells: Dictionary[Vector2i, Vector2i] = {}
 @export_category("Disenchanting")
 ## The runes each magic node puts on every line at it, by magic node number
 @export var magic_edge_runes: Array[RuneSet] = []
@@ -42,35 +47,13 @@ func _runes_at(list: Array[RuneSet], cell: Vector2i) -> RuneSet:
 	return RuneSet.copy_of(list[i] if i >= 0 and i < list.size() else null)
 
 
-## The entry at `i` of an old rune list, or a new empty set when there is none
-static func _kept_runes(list: Array, i: int) -> RuneSet:
-	if i >= 0 and i < list.size() and list[i] != null:
-		return list[i]
-	return RuneSet.new()
-
-
-## Replaces the layout, keeping each magic node's runes where a magic node stays in the same cell.
-## The rune lists are resized to the new magic nodes; a new magic node starts with no runes.
-## When the old layout had no magic nodes (never baked), the rune lists are kept in order.
-## Returns how many magic nodes got no runes.
-func set_layout_keeping_runes(new_layout: PackedStringArray) -> int:
-	var old_nodes := get_magic_nodes()
-	var old_edge := magic_edge_runes.duplicate()
-	var old_harvest := magic_harvest_runes.duplicate()
-	layout = new_layout
-	var edge: Array[RuneSet] = []
-	var harvest: Array[RuneSet] = []
-	var added := 0
-	var new_nodes := get_magic_nodes()
-	for n in new_nodes.size():
-		var i := old_nodes.find(new_nodes[n]) if not old_nodes.is_empty() else n
-		if i < 0 or i >= old_edge.size():
-			added += 1
-		edge.append(_kept_runes(old_edge, i))
-		harvest.append(_kept_runes(old_harvest, i))
-	magic_edge_runes = edge
-	magic_harvest_runes = harvest
-	return added
+## The other cells the magic node in `cell` covers (a bigger magic node), in axial coordinates
+func magic_extra_cells(cell: Vector2i) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for c in magic_node_extra_cells:
+		if magic_node_extra_cells[c] == cell:
+			out.append(c)
+	return out
 
 
 ## Axial coordinates of every cell in the silhouette (magic node cells included)

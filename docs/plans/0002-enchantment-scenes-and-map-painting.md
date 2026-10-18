@@ -70,3 +70,15 @@ One new field, `extra_cells` on `EnchantmentPatternNode`, empty by default, so e
 
 1. **PR `map-painting`:** the tile set, `ItemMapScene`, the demo sword map as a scene, the map guide, tests.
 2. **PR `enchantment-scenes`:** the components, `EnchantmentScene`, multi-cell `extra_cells`, the four demos as scenes, the enchantment guide, tests.
+
+## Revision 2 (Gavin, 2026-10-18)
+
+After testing, Gavin confirmed these changes. They're built in one new PR on top of #18.
+
+- **Magic nodes get their own layer.** A map scene has a Cells `TileMapLayer` and a Magic nodes `TileMapLayer` above it. Each rune kind is its own magic node tile (Fire node, Water node, and so on), and the tile carries what the node puts on its lines and gives back when freed. Painting a tile sets those runes. Bigger or custom magic nodes and tiles are **scene tiles**.
+- **A full end-to-end example and tutorial.** One example magic node is built as a scene tile, step by step in the map guide: making the tile, setting its runes, painting it, baking, and seeing it in the game.
+- **Big nodes with ports.** An enchantment node can cover several cells (for example 2 by 2) and has port markers where lines attach. It activates and deactivates as one node, with all its lines counted together.
+- **More than one line between the same two nodes is allowed in enchantment shapes only.** Lines the player draws keep the current rule.
+- **Placeholder art made by Claude.** It's saved as real asset files (PNG), so one enchantment, one map and one magic node show a complete example of art on nodes, cells and lines. It gets replaced when Gavin drops in real art.
+
+**Steps:** one PR (`editor-layers-and-ports`) with the layer, the example scene node and tutorial, ports, double lines in shapes, the art example, updated guides and tests.

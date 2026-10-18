@@ -14,8 +14,26 @@ Acceptance uses the same rules as MaterialHolder: a minimum tier, then the attri
 ## Same semantics as MaterialHolder.material_requirements
 @export var material_requirements: Array[MaterialCondition] = []
 ## Other cells this node covers, as axial offsets from the node's own cell (`offset`).
-## They're taken like the node's own cell. Lines attach at the node's own cell.
+## They're taken like the node's own cell. Lines attach only at the node's ports.
 @export var extra_cells: Array[Vector2i] = []
+## The cells where lines attach (fixed lines and drawn lines), as axial offsets from the node's own
+## cell: each is (0, 0) or one of extra_cells. Empty means lines attach at the node's own cell.
+## However many ports it has, it's one node: all its lines count together.
+@export var ports: Array[Vector2i] = []
+
+
+## The node's ports as offsets from its own cell, (0, 0) when none are set
+func port_offsets() -> Array[Vector2i]:
+	if ports.is_empty():
+		return [Vector2i.ZERO] as Array[Vector2i]
+	return ports.duplicate()
+
+
+## Every cell the node covers, as offsets from its own cell: (0, 0) first, then extra_cells
+func covered_offsets() -> Array[Vector2i]:
+	var out: Array[Vector2i] = [Vector2i.ZERO]
+	out.append_array(extra_cells)
+	return out
 
 
 func accepts(m: EnchantmentMaterialDefinition) -> bool:

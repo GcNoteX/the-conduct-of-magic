@@ -108,6 +108,7 @@ func build_enchantment() -> Enchantment:
 				reqs.append(r.duplicate())
 		pn.material_requirements = reqs
 		pn.extra_cells = n.extra_cells.duplicate()
+		pn.ports = n.ports.duplicate()
 		built_nodes.append(pn)
 	e.nodes = built_nodes
 	var built_lines: Array[EnchantmentPatternLine] = []
@@ -115,6 +116,8 @@ func build_enchantment() -> Enchantment:
 		var pl := EnchantmentPatternLine.new()
 		pl.from_node = nodes.find(l.from_node)
 		pl.to_node = nodes.find(l.to_node)
+		pl.from_port = l.from_port
+		pl.to_port = l.to_port
 		var cells: Array[Vector2i] = []
 		for c in l.middle_cells():
 			cells.append(c - origin)
@@ -198,10 +201,10 @@ static func shape_signature(e: Enchantment) -> String:
 		var reqs := []
 		for r in n.material_requirements:
 			reqs.append([r.attribute, r.required] if r else null)
-		nodes.append([n.offset, n.tier_requirement, reqs, n.extra_cells])
+		nodes.append([n.offset, n.tier_requirement, reqs, n.extra_cells, n.ports])
 	var lines := []
 	for l in e.lines:
-		lines.append([l.from_node, l.to_node, l.cells])
+		lines.append([l.from_node, l.to_node, l.cells, l.from_port, l.to_port])
 	return var_to_str([nodes, lines])
 
 
@@ -277,6 +280,7 @@ func _bake_node(
 	into.offset = from.offset
 	into.tier_requirement = from.tier_requirement
 	into.extra_cells = from.extra_cells
+	into.ports = from.ports
 	var reqs: Array[MaterialCondition] = []
 	for i in from.material_requirements.size():
 		var r: MaterialCondition = from.material_requirements[i]
@@ -300,5 +304,7 @@ func _bake_line(
 		return from
 	into.from_node = from.from_node
 	into.to_node = from.to_node
+	into.from_port = from.from_port
+	into.to_port = from.to_port
 	into.cells = from.cells
 	return into

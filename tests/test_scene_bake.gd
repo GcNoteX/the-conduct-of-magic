@@ -1,5 +1,5 @@
 # gdlint: disable=max-public-methods
-# One test function per check, run from _ready.
+# One test function per check group, so the suite keeps many public functions.
 extends Node
 
 """
@@ -15,9 +15,17 @@ const SWORD_MAP := preload("res://inscribing/demo/long_sword_map.tres")
 const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
 const DEMO_SETUP := preload("res://inscribing/demo/demo_setup.tres")
 const TABLE := preload("res://inscribing/inscribing_table.tscn")
-const ENCHANTMENTS := ["kindle", "glow", "keen", "ward"]
+const ENCHANTMENTS := ["kindle", "glow", "keen", "ward", "bastion"]
+const CELL_SOURCE := 0
+const MAGIC_SOURCE := 1
 const CELL_TILE := Vector2i(0, 0)
-const MAGIC_TILE := Vector2i(1, 0)
+## Magic node tiles by rune kind, in RuneSet.Rune order
+const WATER_TILE := Vector2i(0, 0)
+const FIRE_TILE := Vector2i(1, 0)
+const STONE_TILE := Vector2i(3, 0)
+const SCENE_SOURCE := 2
+## The Ember Well scene tile's id in the scenes source
+const EMBER_WELL := 1
 
 var _failures := 0
 var _checks := 0
@@ -53,7 +61,10 @@ func _ready() -> void:
 	test_enchantment_scene_warnings()
 	test_enchantment_scene_lines()
 	test_enchantment_scene_extra_cells()
-	test_bake_keeps_runes_by_position()
+	test_enchantment_scene_ports()
+	test_bake_reads_tile_runes()
+	test_magic_node_tiles()
+	test_magic_node_scene_tile()
 	await test_painted_map_runs_on_the_table()
 	await test_empty_map_runs_on_the_table()
 	await test_rebaked_enchantments_run_on_the_table()
@@ -191,22 +202,44 @@ func test_map_scene_bake() -> void:
 func test_map_scene_warnings() -> void:
 	var scene := new_map_scene()
 	var below := SWORD_MAP.layout.size()
-	scene.cells_layer.set_cell(Vector2i(4, below), 0, CELL_TILE)
+	scene.cells_layer.set_cell(Vector2i(4, below), CELL_SOURCE, CELL_TILE)
 	check(not scene.is_baked(), "a new painted cell makes the scene unbaked")
 	check(
 		Array(scene.get_problems()).any(func(w: String) -> bool: return w.begins_with("Not baked")),
 		"the unbaked scene warns"
 	)
-	scene.cells_layer.set_cell(Vector2i(4, below), 0, MAGIC_TILE)
-	check(scene.build_layout()[below] == "....M....", "magic node tile bakes as M on a new row")
+	scene.magic_layer.set_cell(Vector2i(4, below), MAGIC_SOURCE, FIRE_TILE)
+	check(scene.build_layout()[below] == "....M....", "a magic node tile bakes as M on a new row")
+	scene.magic_layer.set_cell(Vector2i(4, below + 1), MAGIC_SOURCE, FIRE_TILE)
+	check(
+		(
+			scene.check_cells()
+			== "The magic node at (4, %d) isn't on a cell: paint a cell under it" % [below + 1]
+		),
+		"a magic node has to sit on a cell"
+	)
+	scene.magic_layer.erase_cell(Vector2i(4, below + 1))
+	scene.magic_layer.set_cell(Vector2i(4, below), CELL_SOURCE, CELL_TILE)
+	check(
+		scene.check_cells().ends_with("on the Magic nodes layer isn't a magic node tile"),
+		"a plain cell tile on the magic layer warns"
+	)
+	scene.magic_layer.erase_cell(Vector2i(4, below))
+	scene.cells_layer.set_cell(Vector2i(4, below), MAGIC_SOURCE, FIRE_TILE)
+	check(
+		scene.check_cells().ends_with("paint it on the Magic nodes layer"),
+		"a magic node tile on the cells layer warns"
+	)
 	scene.cells_layer.erase_cell(Vector2i(4, below))
-	check(scene.is_baked(), "erasing the cell makes it baked again")
-	scene.cells_layer.set_cell(Vector2i(-1, 3), 0, CELL_TILE)
+	check(scene.is_baked(), "erasing the new tiles makes it baked again")
+	scene.cells_layer.set_cell(Vector2i(-1, 3), CELL_SOURCE, CELL_TILE)
 	check(scene.check_cells().begins_with("A cell at"), "cells left of column 0 can't bake")
 	check(
 		scene.bake_into(SWORD_MAP.duplicate(), "user://test_scene_bake/bad.tres") != OK,
 		"an invalid map refuses to bake"
 	)
+	scene.magic_layer = null
+	check(scene.check_cells().begins_with("Set Magic Layer"), "no magic layer, no bake")
 	scene.cells_layer = null
 	check(scene.check_cells() != "", "no layer, no bake")
 	scene.free()
@@ -346,29 +379,121 @@ func test_enchantment_scene_extra_cells() -> void:
 	scene.free()
 
 
-## Paints over the long sword: a plain cell and a new magic node under the bottom row, and the
-## first magic node turned into a plain cell. Returns the scene, not yet baked.
+## Bastion's lines end on the big node's ports, which bake with it
+func test_enchantment_scene_ports() -> void:
+	var scene := new_enchantment_scene("bastion")
+	var big: EnchantmentNodeComponent = scene.node_components()[0]
+	var right: EnchantmentLineComponent = scene.line_components()[1]
+	check(big.port_cell(1) == Vector2i(1, 1), "port 1 is the big node's bottom right cell")
+	check(right.points[0] == big.port_position(1), "a line snaps to its port")
+	check(right.path_cells()[0] == Vector2i(1, 1), "and runs from it")
+	var built := scene.build_enchantment()
+	check(built.nodes[0].ports == big.ports and built.lines[1].from_port == 1, "ports bake")
+	right.from_port = 3
+	check(
+		scene.check_shape() == "LineRight: BigNode has no port 3 (set From Port)",
+		"a line naming a missing port warns"
+	)
+	right.from_port = 1
+	big.ports = [Vector2i(0, 0), Vector2i(2, 2)] as Array[Vector2i]
+	check(
+		scene.check_shape() == "Node 0: its port (2, 2) isn't one of its cells",
+		"a port off the node warns"
+	)
+	scene.free()
+
+
+## Paints over the long sword: a plain cell and a new stone magic node under the bottom row, and
+## the first magic node turned into a water node. Returns the scene, not yet baked.
 func paint_over_sword() -> ItemMapScene:
 	var scene := new_map_scene()
-	var layer := scene.cells_layer
 	var bottom := Vector2i(-1, -1)
-	var first_magic := Vector2i(-1, -1)
-	for c in layer.get_used_cells():
+	for c in scene.cells_layer.get_used_cells():
 		if c.y > bottom.y:
 			bottom = c
-		var data := layer.get_cell_tile_data(c)
-		var magic: bool = data != null and data.get_custom_data(ItemMapScene.MAGIC_NODE_DATA)
-		if magic and (first_magic.y < 0 or c.y < first_magic.y):
-			first_magic = c
-	layer.set_cell(bottom + Vector2i(0, 1), 0, CELL_TILE)
-	layer.set_cell(bottom + Vector2i(0, 2), 0, MAGIC_TILE)
-	layer.set_cell(first_magic, 0, CELL_TILE)
+	scene.cells_layer.set_cell(bottom + Vector2i(0, 1), CELL_SOURCE, CELL_TILE)
+	scene.cells_layer.set_cell(bottom + Vector2i(0, 2), CELL_SOURCE, CELL_TILE)
+	scene.magic_layer.set_cell(bottom + Vector2i(0, 2), MAGIC_SOURCE, STONE_TILE)
+	scene.magic_layer.set_cell(scene.magic_node_anchors()[0], MAGIC_SOURCE, WATER_TILE)
 	return scene
 
 
-## Baking a map whose magic nodes changed keeps each remaining node's runes by its cell, and gives
-## new nodes empty rune sets, so the rune lists always match the magic nodes
-func test_bake_keeps_runes_by_position() -> void:
+## Baking takes each magic node's runes from its tile: the swords' magic nodes give the placeholder
+## runes (1 of its kind on each line; 1 of its kind and 1 of the next kind back)
+func test_magic_node_tiles() -> void:
+	var kinds := ["water", "fire", "wind", "stone"]
+	var tiles := TILES.get_source(MAGIC_SOURCE) as TileSetAtlasSource
+	check(tiles.get_tiles_count() == 4, "one magic node tile per rune kind")
+	for k in 4:
+		var data := tiles.get_tile_data(Vector2i(k, 0), 0)
+		var edge: RuneSet = data.get_custom_data(ItemMapScene.EDGE_RUNES_DATA)
+		var harvest: RuneSet = data.get_custom_data(ItemMapScene.HARVEST_RUNES_DATA)
+		var one := [0, 0, 0, 0]
+		one[k] = 1
+		var back := one.duplicate()
+		back[(k + 1) % 4] += 1
+		check(
+			edge.to_array() == one and harvest.to_array() == back,
+			"the %s tile puts 1 %s on its lines and gives back %s" % [kinds[k], kinds[k], back]
+		)
+		check(
+			data.get_custom_data(ItemMapScene.MAGIC_NODE_DATA),
+			"the %s tile is a magic node" % kinds[k]
+		)
+	for file: String in SWORDS:
+		var scene := new_map_scene(file)
+		var map := shipped_map(file)
+		var built := scene.build_map()
+		var same := built.magic_edge_runes.size() == map.magic_edge_runes.size()
+		for i in mini(built.magic_edge_runes.size(), map.magic_edge_runes.size()):
+			same = same and built.magic_edge_runes[i].equals(map.magic_edge_runes[i])
+			same = same and built.magic_harvest_runes[i].equals(map.magic_harvest_runes[i])
+		check(same, "the %s's magic node tiles bake to its shipped runes" % file)
+		scene.free()
+
+
+## The Ember Well is a 2-cell fire magic node scene tile on the short sword: Bake reads its runes
+## and extra cell from the MagicNodeTile at the scene's root
+func test_magic_node_scene_tile() -> void:
+	var well: MagicNodeTile = load("res://items/maps/magic_nodes/ember_well.tscn").instantiate()
+	check(well.edge_runes.equals(RuneSet.of(0, 1, 0, 0)), "the Ember Well puts 1 fire on its lines")
+	check(well.harvest_runes.equals(RuneSet.of(0, 1, 1, 0)), "and gives back 1 fire and 1 wind")
+	check(well.extra_cells == ([Vector2i(1, 0)] as Array[Vector2i]), "and covers the next cell")
+	well.free()
+	var scene := new_map_scene("short_sword")
+	var at := Vector2i(0, 12)
+	check(scene.magic_layer.get_cell_source_id(at) == SCENE_SOURCE, "the short sword has the well")
+	check(scene.is_magic_tile(scene.magic_layer, at), "a MagicNodeTile scene tile is a magic node")
+	check(
+		scene.magic_node_cells(at) == ([at, Vector2i(1, 12)] as Array[Vector2i]),
+		"the well covers its own cell and the one to its right"
+	)
+	var map := shipped_map("short_sword")
+	var own := Hex.offset_to_axial(0, 12)
+	check(
+		map.magic_node_extra_cells == {own + Vector2i(1, 0): own},
+		"the baked short sword knows the well's extra cell"
+	)
+	check(map.edge_runes_at(own).equals(RuneSet.of(0, 1, 0, 0)), "the baked well has its runes")
+	check(map.magic_extra_cells(own) == ([own + Vector2i(1, 0)] as Array[Vector2i]), "lookup")
+	scene.magic_layer.set_cell(Vector2i(1, 11), MAGIC_SOURCE, FIRE_TILE)
+	scene.magic_layer.set_cell(Vector2i(0, 11), SCENE_SOURCE, Vector2i.ZERO, EMBER_WELL)
+	check(
+		scene.check_cells() == "Two magic nodes cover the cell at (1, 11)",
+		"a well's extra cell can't sit on another magic node"
+	)
+	scene.magic_layer.erase_cell(Vector2i(1, 11))
+	scene.magic_layer.erase_cell(Vector2i(0, 11))
+	scene.magic_layer.set_cell(Vector2i(5, 11), SCENE_SOURCE, Vector2i.ZERO, EMBER_WELL)
+	check(
+		scene.check_cells() == "The magic node at (5, 11) isn't on a cell: paint a cell under it",
+		"every cell a bigger magic node covers has to be on a cell"
+	)
+	scene.free()
+
+
+## Baking a repainted map writes the runes of the tiles now painted, in reading order
+func test_bake_reads_tile_runes() -> void:
 	var scene := paint_over_sword()
 	check(scene.refresh_if_painted(), "painting is noticed, so the warnings refresh")
 	check(not scene.refresh_if_painted(), "and only once per change")
@@ -381,28 +506,27 @@ func test_bake_keeps_runes_by_position() -> void:
 	check(scene.get_problems().is_empty(), "and its warning clears once baked")
 	var saved: HexMapDefinition = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
 	var nodes := saved.get_magic_nodes()
-	check(nodes.size() == SWORD_MAP.get_magic_nodes().size(), "one magic node gone, one new")
+	check(nodes.size() == SWORD_MAP.get_magic_nodes().size() + 1, "one new magic node")
 	check(
 		(
 			saved.magic_edge_runes.size() == nodes.size()
 			and saved.magic_harvest_runes.size() == nodes.size()
 		),
-		"the rune lists match the new magic nodes"
+		"the rune lists match the magic nodes"
 	)
+	check(
+		saved.edge_runes_at(nodes[0]).equals(RuneSet.of(1, 0, 0, 0)), "the repainted node is water"
+	)
+	check(
+		saved.harvest_runes_at(nodes[0]).equals(RuneSet.of(1, 1, 0, 0)),
+		"and gives back water and fire"
+	)
+	check(saved.edge_runes_at(nodes.back()).equals(RuneSet.of(0, 0, 0, 1)), "the new node is stone")
 	var kept := true
-	var fresh := 0
-	for c in nodes:
-		if c in SWORD_MAP.get_magic_nodes():
-			kept = kept and saved.edge_runes_at(c).equals(SWORD_MAP.edge_runes_at(c))
-			kept = kept and saved.harvest_runes_at(c).equals(SWORD_MAP.harvest_runes_at(c))
-		else:
-			fresh += 1
-			check(
-				saved.edge_runes_at(c).is_empty() and saved.harvest_runes_at(c).is_empty(),
-				"a new magic node starts with no runes"
-			)
-	check(kept, "magic nodes that stayed keep their runes")
-	check(fresh == 1, "exactly one magic node is new")
+	for i in range(1, SWORD_MAP.get_magic_nodes().size()):
+		kept = kept and saved.edge_runes_at(nodes[i]).equals(SWORD_MAP.edge_runes_at(nodes[i]))
+	check(kept, "the other magic nodes keep their tiles' runes")
+	check(saved.map_name == SWORD_MAP.map_name, "bake keeps the map's name")
 	scene.free()
 
 
