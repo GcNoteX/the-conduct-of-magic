@@ -7,6 +7,7 @@ Run (needs a display): godot --path . res://tests/drive_table.tscn -- <output_di
 
 const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
 const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
 
 var out_dir := "user://"
 var table: Control
@@ -92,6 +93,7 @@ func _ready() -> void:
 	await _frames(2)
 	print("committed: ", p.committed, " message: ", table._message_label.text)
 	_shot("07_committed")
+	await _drag_used_up()
 
 	await _disenchant()
 
@@ -126,6 +128,27 @@ func _ready() -> void:
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()
+
+
+## Tries to drag a material the player has none of: no drag starts, and the table says why
+func _drag_used_up() -> void:
+	var count: int = table.player.get_material_count(BLUE)
+	table.player.remove_material(BLUE, count)
+	table._refresh_cards()
+	table._layout.set_open(true)
+	var tabs: TabContainer = table._layout.find_children("*", "TabContainer", true, false)[0]
+	tabs.current_tab = 1
+	await _frames(15)
+	# What the GUI asks a card when a drag starts on it
+	var data: Variant = _card(BLUE)._get_drag_data(Vector2.ZERO)
+	await _frames(2)
+	print("empty material drag data: ", data, " message: ", table._message_label.text)
+	_shot("07b_used_up")
+	tabs.current_tab = 0
+	table._layout.set_open(false)
+	table.player.add_material(BLUE, count)
+	table._refresh_cards()
+	await _frames(15)
 
 
 ## Disenchant mode on the pre-carved demo sword: costs on lines, a cut you can't afford, dissolving,

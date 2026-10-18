@@ -20,7 +20,10 @@ var title: String
 var subtitle: String
 var dimmed: bool
 ## False when the card can't be dragged right now; a drag attempt then only emits drag_started
-var draggable := true
+var draggable := true:
+	set(value):
+		draggable = value
+		mouse_default_cursor_shape = Control.CURSOR_DRAG if value else Control.CURSOR_ARROW
 var _style := StyleBoxFlat.new()
 var _dragging := false
 

@@ -160,13 +160,28 @@ func _on_card_pressed(payload: Resource) -> void:
 				% InscriptionBoard.material_name(payload as EnchantmentMaterialDefinition)
 			)
 		)
+	elif _is_used_up(payload):
+		_set_message(_used_up_message(payload))
 	else:
 		_set_message("Drag the material onto an enchantment node.")
+
+
+## Whether `payload` is a material the player has none of
+func _is_used_up(payload: Resource) -> bool:
+	var m := payload as EnchantmentMaterialDefinition
+	return m != null and player.get_material_count(m) == 0
+
+
+func _used_up_message(payload: Resource) -> String:
+	return "No %s left" % InscriptionBoard.material_name(payload as EnchantmentMaterialDefinition)
 
 
 func _on_card_drag_started(payload: Resource) -> void:
 	if is_disenchanting():
 		_on_card_pressed(payload)
+		return
+	if _is_used_up(payload):
+		_set_message(_used_up_message(payload))
 		return
 	_view.held_enchantment = null
 	if _layout:
@@ -359,7 +374,7 @@ func _refresh_cards() -> void:
 		var card := _card(
 			m, InscriptionBoard.material_name(m), sub, _material_tooltip(m), count == 0
 		)
-		card.draggable = not on
+		card.draggable = not on and count > 0
 		material_cards.append(card)
 	_layout.set_cards(enchantment_cards, material_cards)
 

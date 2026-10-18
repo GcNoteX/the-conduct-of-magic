@@ -61,9 +61,12 @@ func set_cards(enchantments: Array[PaletteCard], materials: Array[PaletteCard]) 
 		c.queue_free()
 	_materials.clear()
 	_materials.materials.clear()
+	_materials.locked.clear()
 	for c in materials:
 		var m := c.payload as EnchantmentMaterialDefinition
 		_materials.materials.append(m)
+		if not c.draggable:
+			_materials.locked.append(m)
 		_materials.add_item("%s  %s" % [c.title, c.subtitle])
 		_materials.set_item_custom_fg_color(
 			_materials.item_count - 1, DIMMED if c.dimmed else m.color.lightened(0.3)
