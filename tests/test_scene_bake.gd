@@ -1,3 +1,5 @@
+# gdlint: disable=max-public-methods
+# One test function per check, run from _ready.
 extends Node
 
 """
@@ -54,6 +56,7 @@ func _ready() -> void:
 	test_bake_keeps_runes_by_position()
 	await test_painted_map_runs_on_the_table()
 	await test_empty_map_runs_on_the_table()
+	await test_rebaked_enchantments_run_on_the_table()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -405,12 +408,12 @@ func test_bake_keeps_runes_by_position() -> void:
 
 ## Opens every item on the table (carving and disenchanting, hovering every node) for a few frames
 ## and returns the errors raised
-func run_table(map: HexMapDefinition) -> Array[String]:
+func run_table(map: HexMapDefinition, carved_item: ItemInstance = null) -> Array[String]:
 	var item := EnchantableItemDefinition.new()
 	item.id = &"painted_sword"
 	item.display_name = "Painted sword"
 	item.map_template = map
-	var carved: ItemInstance = CARVED.duplicate(true)
+	var carved: ItemInstance = carved_item if carved_item else CARVED.duplicate(true)
 	carved.definition = item
 	var setup := DemoSetup.new()
 	setup.materials = DEMO_SETUP.materials
@@ -449,3 +452,45 @@ func test_painted_map_runs_on_the_table() -> void:
 func test_empty_map_runs_on_the_table() -> void:
 	var errors := await run_table(HexMapDefinition.new())
 	check(errors.is_empty(), "a map with no cells runs on the table: %s" % [errors])
+
+
+## Kindle re-baked with a third node and Keen with one node fewer: the pre-carved sword, saved
+## with the old shapes, still opens, carves and disenchants (it used to fail with "Out of bounds
+## get index '2'" on the carving's materials)
+func test_rebaked_enchantments_run_on_the_table() -> void:
+	var kindle_scene := new_enchantment_scene("kindle")
+	var extra := EnchantmentNodeComponent.new()
+	extra.name = "NodeC"
+	extra.position = Hex.to_pixel(Vector2i(4, 0), EnchantmentScene.HEX_SIZE)
+	kindle_scene.add_child(extra)
+	var kindle: Enchantment = shipped("kindle").duplicate(true)
+	check(kindle_scene.bake_into(kindle, "user://test_scene_bake/kindle_3.tres") == OK, "bakes")
+	kindle_scene.free()
+	var keen_scene := new_enchantment_scene("keen")
+	var last: EnchantmentNodeComponent = keen_scene.node_components().back()
+	for l in keen_scene.line_components():
+		if l.to_node == last or l.from_node == last:
+			keen_scene.remove_child(l)
+			l.free()
+	keen_scene.remove_child(last)
+	last.free()
+	var keen: Enchantment = shipped("keen").duplicate(true)
+	check(keen_scene.bake_into(keen, "user://test_scene_bake/keen_2.tres") == OK, "bakes")
+	keen_scene.free()
+	check(kindle.nodes.size() == 3 and keen.nodes.size() == 2, "the shapes changed")
+	var carved: ItemInstance = CARVED.duplicate(true)
+	for p in carved.enchantment_graph_state.placements:
+		p.enchantment = kindle if p.enchantment.enchantment_name == "Kindle" else keen
+	var errors := await run_table(SWORD_MAP, carved)
+	errors = errors.filter(func(e: String) -> bool: return not e.contains("changed shape"))
+	check(errors.is_empty(), "a carving saved with older shapes runs on the table: %s" % [errors])
+	var gs := InscriptionBoard.new(carved, Player.new()).state
+	for p in gs.placements:
+		check(
+			p.materials.size() == p.enchantment.nodes.size(),
+			"%s has one material slot per node" % p.enchantment.enchantment_name
+		)
+	var dangling := false
+	for l in gs.lines:
+		dangling = dangling or l.a.begins_with("e:2:2") or l.b.begins_with("e:2:2")
+	check(not dangling, "lines at Keen's removed node are gone")
