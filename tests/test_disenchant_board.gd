@@ -307,15 +307,30 @@ func test_big_node_with_ports() -> void:
 	b.insert_material(big, FIRE)
 	b.insert_material(InscriptionBoard.enchantment_key(p.id, 1), YELLOW)
 	b.insert_material(InscriptionBoard.enchantment_key(p.id, 2), YELLOW)
-	b.add_line(PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(4, 2), o]))
+	b.add_line(PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(5, 2), o]))
 	b.add_line(PortBoard.path([o + Vector2i(1, 1), Vector2i(5, 5), PortBoard.MAGIC_BELOW]))
 	check(b.commit().size() == 1, "Bastion commits: " + b.check_commit())
 	var d := DisenchantBoard.new(b)
-	check(d.node_edges(big).size() == 4, "the big node's 2 fixed and 2 drawn lines are all its own")
-	check(d.chain(p).size() == 4, "Bastion's chain is its 4 lines")
+	check(d.node_edges(big).size() == 5, "the big node's 3 fixed and 2 drawn lines are all its own")
+	check(d.chain(p).size() == 5, "Bastion's chain is its 5 lines")
+	var left := InscriptionBoard.enchantment_key(p.id, 1)
+	var first := DisenchantBoard.edge_key(left, big)
+	var second := DisenchantBoard.edge_key(left, big, 1)
+	check(
+		d.has_edge(first) and d.has_edge(second),
+		"the two lines between the same nodes are two edges"
+	)
+	check(d.edge_cells(first) != d.edge_cells(second), "each with its own cells")
+	check(d.edge_cost(second).equals(d.edge_cost(first)), "and each with its own cost")
+	check(d.plan_cut(second) == "", "the second line can be planned on its own")
+	check(not d.is_cut_planned(first), "without planning the first")
+	check(d.planned_step_of_edge(second) == 0, "the plan finds the right line")
+	check(d.cut_step(second).line == 1, "its step names which of the two lines it cuts")
+	d.undo_last()
 	var steps: Array[DisenchantStep] = []
-	for i in 3:
+	for i in 4:
 		steps.append(DisenchantStep.dissolve(FIRE))
+	steps.append(DisenchantStep.dissolve(YELLOW))
 	steps.append(DisenchantStep.dissolve(YELLOW))
 	for k in d.node_edges(big):
 		steps.append(d.cut_step(k))

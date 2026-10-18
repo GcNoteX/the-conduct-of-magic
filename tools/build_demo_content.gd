@@ -105,7 +105,8 @@ func _ready() -> void:
 		]
 	)
 
-	# An example, not a real enchantment: one node covering 2x2 cells with two ports
+	# An example, not a real enchantment: one node covering 2x2 cells with two ports, joined twice
+	# to its left node
 	var bastion := _pattern(
 		"bastion",
 		"Bastion",
@@ -124,6 +125,8 @@ func _ready() -> void:
 		[
 			_line(1, 0, [Vector2i(-1, 0)]),
 			_line(0, 2, [Vector2i(2, 1)], 1, 0),
+			# A second line between the same two nodes, over the top: shapes may do that
+			_line(1, 0, [Vector2i(-1, -1), Vector2i(0, -1)]),
 		]
 	)
 

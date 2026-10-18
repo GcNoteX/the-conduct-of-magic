@@ -533,7 +533,7 @@ func _draw_planned_cuts(outs: Array[DisenchantBoard.Outcome]) -> void:
 	for o in outs:
 		if o.step.kind != DisenchantStep.Kind.CUT:
 			continue
-		var k := DisenchantBoard.edge_key(o.step.a, o.step.b)
+		var k := DisenchantBoard.step_edge_key(o.step)
 		if not disenchant.has_edge(k):
 			continue
 		var col := COLOR_PLANNED_CUT
@@ -552,7 +552,7 @@ func _draw_disenchant_overlay(outs: Array[DisenchantBoard.Outcome]) -> void:
 		var o := outs[i]
 		match o.step.kind:
 			DisenchantStep.Kind.CUT:
-				step_of[DisenchantBoard.edge_key(o.step.a, o.step.b)] = i
+				step_of[DisenchantBoard.step_edge_key(o.step)] = i
 				if o.error == "":
 					for n in o.freed:
 						freed[n] = true

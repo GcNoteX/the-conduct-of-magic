@@ -58,9 +58,16 @@ func _init(inscription_board: InscriptionBoard) -> void:
 #
 # ── Lines and their runes ────────────────────────
 #
-## The key of the line between two nodes, the same whichever end comes first
-static func edge_key(a: String, b: String) -> String:
-	return "%s|%s" % [a, b] if a < b else "%s|%s" % [b, a]
+## The key of the line between two nodes, the same whichever end comes first. `which` tells apart
+## lines joining the same two nodes (an enchantment's shape can have more than one), from 0.
+static func edge_key(a: String, b: String, which := 0) -> String:
+	var key := "%s|%s" % [a, b] if a < b else "%s|%s" % [b, a]
+	return key if which == 0 else "%s#%d" % [key, which]
+
+
+## The key of the line a CUT step cuts
+static func step_edge_key(s: DisenchantStep) -> String:
+	return edge_key(s.a, s.b, s.line)
 
 
 ## Every committed line, by edge key
@@ -252,7 +259,7 @@ func is_cut_planned(key: String) -> bool:
 func planned_step_of_edge(key: String) -> int:
 	var plan := state.disenchant_plan
 	for i in plan.size():
-		if plan[i].kind == DisenchantStep.Kind.CUT and edge_key(plan[i].a, plan[i].b) == key:
+		if plan[i].kind == DisenchantStep.Kind.CUT and step_edge_key(plan[i]) == key:
 			return i
 	return -1
 
@@ -283,7 +290,7 @@ func plan_cut(key: String) -> String:
 
 ## A new step that cuts the line `key`
 func cut_step(key: String) -> DisenchantStep:
-	return DisenchantStep.cut(_edges[key].a, _edges[key].b)
+	return DisenchantStep.cut(_edges[key].a, _edges[key].b, _edges[key].which)
 
 
 func check_dissolve(m: EnchantmentMaterialDefinition) -> String:
@@ -369,7 +376,7 @@ func check_commit() -> String:
 	for s in state.disenchant_plan:
 		if s.kind != DisenchantStep.Kind.CUT:
 			continue
-		var p := edge_placement(edge_key(s.a, s.b))
+		var p := edge_placement(step_edge_key(s))
 		if p == null:
 			continue
 		var n := p.enchantment.enchantment_name
@@ -401,7 +408,7 @@ func commit() -> Array[PlacementState]:
 # ── Internals ────────────────────────────────────
 #
 func _replay_cut(o: Outcome, runes: RuneSet, cut: Dictionary, left: Dictionary) -> void:
-	var key := edge_key(o.step.a, o.step.b)
+	var key := step_edge_key(o.step)
 	if not _edges.has(key):
 		o.error = "That line isn't part of a committed carving"
 		return
@@ -467,8 +474,11 @@ func _rebuild() -> void:
 
 
 func _add_edge(a: String, b: String, cells: Array[Vector2i]) -> void:
-	var key := edge_key(a, b)
-	_edges[key] = {"a": a, "b": b, "cells": cells, "placement": null}
+	var which := 0
+	while _edges.has(edge_key(a, b, which)):
+		which += 1
+	var key := edge_key(a, b, which)
+	_edges[key] = {"a": a, "b": b, "which": which, "cells": cells, "placement": null}
 	for n in [a, b]:
 		if not _node_edges.has(n):
 			_node_edges[n] = []

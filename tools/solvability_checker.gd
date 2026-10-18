@@ -24,8 +24,7 @@ class Solution:
 		for m in dissolves:
 			out.append(DisenchantStep.dissolve(m))
 		for k in cuts:
-			var ends := board.edge_ends(k)
-			out.append(DisenchantStep.cut(ends[0], ends[1]))
+			out.append(board.cut_step(k))
 		for p in targets:
 			out.append(DisenchantStep.pull_out(p.id))
 		return out

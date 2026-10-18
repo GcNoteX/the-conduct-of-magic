@@ -599,8 +599,9 @@ static func material_name(m: EnchantmentMaterialDefinition) -> String:
 # ── Enchantment shapes ───────────────────────────
 #
 ## Why an enchantment's own shape is broken, or "" when it's sound. Checked unrotated at the origin:
-## the first node sits on the origin, no two cells overlap,
-## and each fixed line runs cell by cell between two different nodes.
+## the first node sits on the origin, no two cells overlap, each port is one of its node's cells,
+## and each fixed line runs cell by cell between ports of two different nodes. Unlike drawn lines,
+## a shape may join the same two nodes more than once, as long as each line takes its own cells.
 static func check_shape(e: Enchantment) -> String:
 	if e == null or e.nodes.is_empty():
 		return "That enchantment has no shape yet"
@@ -643,13 +644,17 @@ static func _check_shape_line(
 		return "node %d has no port %d" % [l.from_node, l.from_port]
 	if l.to_port < 0 or l.to_port >= to.port_offsets().size():
 		return "node %d has no port %d" % [l.to_node, l.to_port]
-	var pair := Vector2i(mini(l.from_node, l.to_node), maxi(l.from_node, l.to_node))
-	if joined.has(pair):
-		return "nodes %d and %d are already joined" % [pair.x, pair.y]
-	joined[pair] = true
 	var path: Array[Vector2i] = [from.offset + from.port_offsets()[l.from_port]]
 	path.append_array(l.cells)
 	path.append(to.offset + to.port_offsets()[l.to_port])
+	# Two nodes can be joined by more than one line, each through its own cells. Lines with no
+	# cells between the same two ports would be the same line.
+	if l.cells.is_empty():
+		var ends := [path[0], path.back()]
+		ends.sort()
+		if joined.has(ends):
+			return "it runs the same way as line %d" % joined[ends]
+		joined[ends] = i
 	for j in range(1, path.size()):
 		if Hex.distance(path[j - 1], path[j]) != 1:
 			return "its cells have to run from node to node, each next to the one before"

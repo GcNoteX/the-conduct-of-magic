@@ -267,41 +267,51 @@ func _disenchant() -> void:
 	_shot("15_own_carving")
 
 
-## Bastion (the example big node) on the short sword, with a line drawn by mouse to each of its
-## big node's two ports
+## Bastion (the example big node) on the first sword it fits on with room to reach a magic node
+## from each of its big node's two ports, with those two lines drawn by mouse
 func _bastion_ports() -> void:
 	table._set_layout(table.Layout.SIDEBAR)
-	table._item_picker.select(1)
-	table._open_item(1)
 	table._set_disenchanting(false)
-	await _frames(2)
-	var bastion: Enchantment = load("res://enchantments/patterns/bastion.tres")
-	var b: InscriptionBoard = table.board
 	var found := []
-	for c in b.get_cells():
-		for r in 6:
-			if found.is_empty() and b.check_place(bastion, c, r) == "":
-				var p := b.place(bastion, c, r)
-				var big := InscriptionBoard.enchantment_key(p.id, 0)
-				var paths := []
-				for port in b.node_ports(big):
-					var route := _route_to_magic(port, paths)
-					if not route.is_empty():
-						paths.append(route)
-				if paths.size() == 2:
-					found = paths
-				else:
-					b.remove_placement(p)
+	for item in [1, 2, 0]:
+		if found.is_empty():
+			table._item_picker.select(item)
+			table._open_item(item)
+			await _frames(2)
+			found = _place_bastion()
 	print("bastion placed: ", not found.is_empty())
+	if found.is_empty():
+		return
 	for route in found:
 		_draw_path(route)
 		await _frames(1)
+	var b: InscriptionBoard = table.board
 	var big_key := InscriptionBoard.enchantment_key(b.state.placements.back().id, 0)
 	print("lines at the big node: ", b.line_count(big_key))
 	table._on_board_changed()
-	_move(_cell(found[0][0]) if not found.is_empty() else Vector2.ZERO)
+	_move(Vector2(1300, 900))  # Off the board, so no tooltip hides the lines
 	await _frames(2)
 	_shot("21_bastion_ports")
+
+
+## Places Bastion where both its big node's ports can reach a magic node; returns the two routes
+func _place_bastion() -> Array:
+	var bastion: Enchantment = load("res://enchantments/patterns/bastion.tres")
+	var b: InscriptionBoard = table.board
+	for c in b.get_cells():
+		for r in 6:
+			if b.check_place(bastion, c, r) != "":
+				continue
+			var p := b.place(bastion, c, r)
+			var paths := []
+			for port in b.node_ports(InscriptionBoard.enchantment_key(p.id, 0)):
+				var route := _route_to_magic(port, paths)
+				if not route.is_empty():
+					paths.append(route)
+			if paths.size() == 2:
+				return paths
+			b.remove_placement(p)
+	return []
 
 
 ## The shortest free route from `start` to a magic node not used by `taken` routes, or []

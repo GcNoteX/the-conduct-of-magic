@@ -6,8 +6,9 @@ extends RefCounted
 
 const BASTION := preload("res://enchantments/patterns/bastion.tres")
 const ORIGIN := Vector2i(4, 3)
-## Two cells above port 0, two cells below port 1, and next to the big node's top right cell
-const MAGIC_ABOVE := Vector2i(4, 1)
+## Two cells up and right of port 0, two cells below port 1, and next to the big node's top
+## right cell
+const MAGIC_ABOVE := Vector2i(5, 1)
 const MAGIC_BELOW := Vector2i(5, 6)
 const MAGIC_SIDE := Vector2i(6, 2)
 

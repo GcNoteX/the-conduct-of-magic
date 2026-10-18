@@ -34,6 +34,7 @@ func _ready() -> void:
 	test_bigger_magic_nodes()
 	test_big_nodes_with_ports()
 	test_port_shape_checks()
+	test_parallel_fixed_lines()
 	test_shape_check()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -416,7 +417,7 @@ func test_big_nodes_with_ports() -> void:
 	var fixed := b.fixed_lines()
 	check(fixed[1].cells[0] == corner, "a fixed line starts at its port")
 	check(fixed[0].cells.back() == o, "and ends at its port")
-	var above := PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(4, 2), o])
+	var above := PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(5, 2), o])
 	var below := PortBoard.path([corner, Vector2i(5, 5), PortBoard.MAGIC_BELOW])
 	check(b.check_line(above) == "", "a drawn line can end at port 0")
 	b.add_line(above)
@@ -475,6 +476,51 @@ func test_port_shape_checks() -> void:
 	check(
 		InscriptionBoard.check_shape(e).begins_with("Line 1: its cells"),
 		"a line runs from the port it names"
+	)
+
+
+## An enchantment's shape can join the same two nodes more than once, each line through its own
+## cells; drawn lines still can't join nodes that are already joined
+func test_parallel_fixed_lines() -> void:
+	var e := Enchantment.new()
+	var nodes: Array[EnchantmentPatternNode] = [
+		EnchantmentPatternNode.new(), EnchantmentPatternNode.new()
+	]
+	nodes[1].offset = Vector2i(1, 0)
+	e.nodes = nodes
+	var straight := EnchantmentPatternLine.new()
+	var over := EnchantmentPatternLine.new()
+	over.cells = path([Vector2i(1, -1)])
+	e.lines = [straight, over] as Array[EnchantmentPatternLine]
+	check(InscriptionBoard.check_shape(e) == "", "two lines may join the same two nodes")
+	var again := EnchantmentPatternLine.new()
+	e.lines = [straight, over, again] as Array[EnchantmentPatternLine]
+	check(
+		InscriptionBoard.check_shape(e) == "Line 2: it runs the same way as line 0",
+		"but not the same way twice"
+	)
+	again.cells = path([Vector2i(0, -1), Vector2i(2, -1)])
+	check(
+		InscriptionBoard.check_shape(e).begins_with("Line 2: its cells have to run"),
+		"a third line needs a sound path"
+	)
+	again.cells = path([Vector2i(0, 1)])
+	check(InscriptionBoard.check_shape(e) == "", "three lines between two nodes, each its own way")
+	var b := PortBoard.board(new_board().inventory)
+	var p := b.place(PortBoard.BASTION, PortBoard.ORIGIN, 0)
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	var left := InscriptionBoard.enchantment_key(p.id, 1)
+	var joins := 0
+	for f in b.fixed_lines():
+		if (f.a == left and f.b == big) or (f.a == big and f.b == left):
+			joins += 1
+	check(joins == 2, "Bastion joins its left node to the big node twice")
+	check(
+		(
+			b.check_line(path([Vector2i(2, 3), Vector2i(2, 4), Vector2i(3, 4), PortBoard.ORIGIN]))
+			== "Those nodes are already connected"
+		),
+		"a drawn line can't join them a third time"
 	)
 
 
