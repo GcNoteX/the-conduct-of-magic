@@ -10,11 +10,18 @@ extends Node2D
 
 ## The tile set custom data layer (a bool) that marks a tile as a magic node
 const MAGIC_NODE_DATA := "magic_node"
+## How often, in seconds, the editor looks for newly painted cells to refresh the warnings.
+## TileMapLayer doesn't signal cell edits, so painting is noticed by polling.
+const PAINT_POLL_SECONDS := 0.25
 
 ## The HexMapDefinition that Bake writes the painted cells into
 @export var map_definition: HexMapDefinition:
 	set(value):
+		if map_definition and map_definition.changed.is_connected(update_configuration_warnings):
+			map_definition.changed.disconnect(update_configuration_warnings)
 		map_definition = value
+		if map_definition and Engine.is_editor_hint():
+			map_definition.changed.connect(update_configuration_warnings)
 		update_configuration_warnings()
 
 ## The TileMapLayer holding the painted cells
@@ -29,25 +36,78 @@ const MAGIC_NODE_DATA := "magic_node"
 
 @export_tool_button("Bake", "Save") var bake_action: Callable = bake
 
+var _poll_left := 0.0
+var _painted_hash := 0
+
+
+func _ready() -> void:
+	set_process(Engine.is_editor_hint())
+	_painted_hash = painted_hash()
+	update_configuration_warnings()
+
+
+func _process(delta: float) -> void:
+	_poll_left -= delta
+	if _poll_left > 0.0:
+		return
+	_poll_left = PAINT_POLL_SECONDS
+	refresh_if_painted()
+
+
+## Refreshes the editor warnings when the painted cells changed since the last look.
+## Returns whether they changed.
+func refresh_if_painted() -> bool:
+	var h := painted_hash()
+	if h == _painted_hash:
+		return false
+	_painted_hash = h
+	update_configuration_warnings()
+	return true
+
+
+## A hash of the painted tiles, to notice painting
+func painted_hash() -> int:
+	return hash(cells_layer.tile_map_data) if cells_layer else 0
+
 
 ## Writes the painted cells into map_definition and saves it
 func bake() -> Error:
 	if map_definition == null or map_definition.resource_path == "":
 		push_error("Set Map Definition to a saved HexMapDefinition before baking")
+		update_configuration_warnings()
 		return ERR_UNCONFIGURED
 	return bake_into(map_definition, map_definition.resource_path)
 
 
-## Writes the painted cells into `target` and saves it to `path`. Other fields are kept.
+## Writes the painted cells into `target` and saves it to `path`. Other fields are kept, and each
+## magic node keeps its runes as long as it stays in the same cell; new magic nodes get none.
 func bake_into(target: HexMapDefinition, path: String) -> Error:
 	var problem := check_cells()
 	if problem != "":
 		push_error("Can't bake %s: %s" % [name, problem])
+		update_configuration_warnings()
 		return ERR_INVALID_DATA
-	target.layout = build_layout()
+	var added := target.set_layout_keeping_runes(build_layout())
 	var err := ResourceSaver.save(target, path)
 	if err != OK:
 		push_error("Could not save %s (error %d)" % [path, err])
+	else:
+		print(
+			(
+				"Baked %s into %s: %d cells, %d magic nodes%s"
+				% [
+					name,
+					path,
+					target.get_cells().size(),
+					target.get_magic_nodes().size(),
+					(
+						" (%d new, with no runes yet: set them under Disenchanting)" % added
+						if added > 0
+						else ""
+					),
+				]
+			)
+		)
 	target.emit_changed()
 	update_configuration_warnings()
 	return err

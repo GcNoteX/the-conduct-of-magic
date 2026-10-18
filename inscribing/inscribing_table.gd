@@ -110,6 +110,8 @@ func _open_item(index: int) -> void:
 	_fit_board()
 	_view.held_enchantment = null
 	_refresh_all()
+	if board.get_cells().is_empty():
+		_set_message("This item's map has no cells. Paint its map scene and press Bake.")
 
 
 func is_disenchanting() -> bool:

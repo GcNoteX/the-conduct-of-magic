@@ -89,6 +89,8 @@ func unit_size() -> Vector2:
 
 func _unit_rect() -> Rect2:
 	var cells := board.get_cells()
+	if cells.is_empty():
+		return Rect2()
 	var rect := Rect2(Hex.to_pixel(cells[0], 1.0), Vector2.ZERO)
 	for c in cells:
 		rect = rect.expand(Hex.to_pixel(c, 1.0))

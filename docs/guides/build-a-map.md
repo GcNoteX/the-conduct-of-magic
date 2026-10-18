@@ -41,7 +41,7 @@ Every other row sits half a cell to the right. That's the same layout the game u
 2. Press **Bake** in the Inspector, under **Cells Layer**.
 3. Save the scene (Ctrl+S) as well, so your painting is kept.
 
-Bake only changes the map's cells. The map's name and any other fields on the resource stay as they are.
+Bake only changes the map's cells. The map's name and any other fields on the resource stay as they are. A magic node that stays in the same cell keeps its runes; a new magic node starts with none, so set its runes under **Disenchanting** on the map resource. The Output panel prints what was baked, or why it couldn't be.
 
 ## Warnings
 

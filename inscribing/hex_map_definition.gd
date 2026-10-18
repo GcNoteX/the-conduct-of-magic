@@ -36,6 +36,37 @@ func _runes_at(list: Array[RuneSet], cell: Vector2i) -> RuneSet:
 	return RuneSet.copy_of(list[i] if i >= 0 and i < list.size() else null)
 
 
+## The entry at `i` of an old rune list, or a new empty set when there is none
+static func _kept_runes(list: Array, i: int) -> RuneSet:
+	if i >= 0 and i < list.size() and list[i] != null:
+		return list[i]
+	return RuneSet.new()
+
+
+## Replaces the layout, keeping each magic node's runes where a magic node stays in the same cell.
+## The rune lists are resized to the new magic nodes; a new magic node starts with no runes.
+## When the old layout had no magic nodes (never baked), the rune lists are kept in order.
+## Returns how many magic nodes got no runes.
+func set_layout_keeping_runes(new_layout: PackedStringArray) -> int:
+	var old_nodes := get_magic_nodes()
+	var old_edge := magic_edge_runes.duplicate()
+	var old_harvest := magic_harvest_runes.duplicate()
+	layout = new_layout
+	var edge: Array[RuneSet] = []
+	var harvest: Array[RuneSet] = []
+	var added := 0
+	var new_nodes := get_magic_nodes()
+	for n in new_nodes.size():
+		var i := old_nodes.find(new_nodes[n]) if not old_nodes.is_empty() else n
+		if i < 0 or i >= old_edge.size():
+			added += 1
+		edge.append(_kept_runes(old_edge, i))
+		harvest.append(_kept_runes(old_harvest, i))
+	magic_edge_runes = edge
+	magic_harvest_runes = harvest
+	return added
+
+
 ## Axial coordinates of every cell in the silhouette (magic node cells included)
 func get_cells() -> Array[Vector2i]:
 	var out: Array[Vector2i] = []

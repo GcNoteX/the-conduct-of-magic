@@ -9,12 +9,34 @@ Exits with code 1 if any check fails. Bakes go to user://, never over the shippe
 const TILES := preload("res://inscribing/tiles/hex_map_tiles.tres")
 const SWORD_MAP := preload("res://inscribing/demo/demo_sword_map.tres")
 const SWORD_MAP_SCENE := preload("res://inscribing/demo/demo_sword_map.tscn")
+const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
+const DEMO_SETUP := preload("res://inscribing/demo/demo_setup.tres")
+const TABLE := preload("res://inscribing/inscribing_table.tscn")
 const ENCHANTMENTS := ["kindle", "glow", "keen", "ward"]
 const CELL_TILE := Vector2i(0, 0)
 const MAGIC_TILE := Vector2i(1, 0)
 
 var _failures := 0
 var _checks := 0
+
+
+## Collects the script and engine errors raised while it's added, so a test can fail on them
+class ErrorCatcher:
+	extends Logger
+
+	var errors: Array[String] = []
+
+	func _log_error(
+		_function: String,
+		_file: String,
+		_line: int,
+		code: String,
+		rationale: String,
+		_editor_notify: bool,
+		_error_type: int,
+		_script_backtraces: Array[ScriptBacktrace]
+	) -> void:
+		errors.append("%s %s" % [code, rationale])
 
 
 func _ready() -> void:
@@ -27,6 +49,9 @@ func _ready() -> void:
 	test_enchantment_scene_warnings()
 	test_enchantment_scene_lines()
 	test_enchantment_scene_extra_cells()
+	test_bake_keeps_runes_by_position()
+	await test_painted_map_runs_on_the_table()
+	await test_empty_map_runs_on_the_table()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -259,3 +284,111 @@ func test_enchantment_scene_extra_cells() -> void:
 	)
 	check(scene.overlapping_cells().has(Vector2i(1, 0)), "the extra cell overlap is drawn")
 	scene.free()
+
+
+## Paints over the demo sword: a plain cell and a new magic node under the bottom row, and the
+## first magic node turned into a plain cell. Returns the scene, not yet baked.
+func paint_over_sword() -> ItemMapScene:
+	var scene := new_map_scene()
+	var layer := scene.cells_layer
+	var bottom := Vector2i(-1, -1)
+	var first_magic := Vector2i(-1, -1)
+	for c in layer.get_used_cells():
+		if c.y > bottom.y:
+			bottom = c
+		var data := layer.get_cell_tile_data(c)
+		var magic: bool = data != null and data.get_custom_data(ItemMapScene.MAGIC_NODE_DATA)
+		if magic and (first_magic.y < 0 or c.y < first_magic.y):
+			first_magic = c
+	layer.set_cell(bottom + Vector2i(0, 1), 0, CELL_TILE)
+	layer.set_cell(bottom + Vector2i(0, 2), 0, MAGIC_TILE)
+	layer.set_cell(first_magic, 0, CELL_TILE)
+	return scene
+
+
+## Baking a map whose magic nodes changed keeps each remaining node's runes by its cell, and gives
+## new nodes empty rune sets, so the rune lists always match the magic nodes
+func test_bake_keeps_runes_by_position() -> void:
+	var scene := paint_over_sword()
+	check(scene.refresh_if_painted(), "painting is noticed, so the warnings refresh")
+	check(not scene.refresh_if_painted(), "and only once per change")
+	check(not scene.is_baked(), "the painted sword is not baked yet")
+	var path := "user://test_scene_bake/painted_map.tres"
+	ResourceSaver.save(SWORD_MAP.duplicate(true), path)
+	scene.map_definition = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_REPLACE)
+	check(not scene.get_problems().is_empty(), "the painted sword warns before baking")
+	check(scene.bake() == OK, "the painted sword bakes")
+	check(scene.get_problems().is_empty(), "and its warning clears once baked")
+	var saved: HexMapDefinition = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	var nodes := saved.get_magic_nodes()
+	check(nodes.size() == SWORD_MAP.get_magic_nodes().size(), "one magic node gone, one new")
+	check(
+		(
+			saved.magic_edge_runes.size() == nodes.size()
+			and saved.magic_harvest_runes.size() == nodes.size()
+		),
+		"the rune lists match the new magic nodes"
+	)
+	var kept := true
+	var fresh := 0
+	for c in nodes:
+		if c in SWORD_MAP.get_magic_nodes():
+			kept = kept and saved.edge_runes_at(c).equals(SWORD_MAP.edge_runes_at(c))
+			kept = kept and saved.harvest_runes_at(c).equals(SWORD_MAP.harvest_runes_at(c))
+		else:
+			fresh += 1
+			check(
+				saved.edge_runes_at(c).is_empty() and saved.harvest_runes_at(c).is_empty(),
+				"a new magic node starts with no runes"
+			)
+	check(kept, "magic nodes that stayed keep their runes")
+	check(fresh == 1, "exactly one magic node is new")
+	scene.free()
+
+
+## Opens every item on the table (carving and disenchanting, hovering every node) for a few frames
+## and returns the errors raised
+func run_table(map: HexMapDefinition) -> Array[String]:
+	var item := EnchantableItemDefinition.new()
+	item.id = &"painted_sword"
+	item.display_name = "Painted sword"
+	item.map_template = map
+	var carved: ItemInstance = CARVED.duplicate(true)
+	carved.definition = item
+	var setup := DemoSetup.new()
+	setup.materials = DEMO_SETUP.materials
+	setup.items = [item] as Array[EnchantableItemDefinition]
+	setup.carved_items = [carved] as Array[ItemInstance]
+	setup.enchantments = DEMO_SETUP.enchantments
+	var catcher := ErrorCatcher.new()
+	OS.add_logger(catcher)
+	var table: Control = TABLE.instantiate()
+	table.setup = setup
+	add_child(table)
+	for i in table.player.items.size():
+		table._open_item(i)
+		await get_tree().process_frame
+		for on in [true, false]:
+			table._set_disenchanting(on)
+			for k: String in table.board.get_node_keys():
+				table._on_hovered(k)
+			await get_tree().process_frame
+	OS.remove_logger(catcher)
+	table.free()
+	return catcher.errors
+
+
+func test_painted_map_runs_on_the_table() -> void:
+	var scene := paint_over_sword()
+	var path := "user://test_scene_bake/painted_run.tres"
+	scene.bake_into(SWORD_MAP.duplicate(true), path)
+	scene.free()
+	var map: HexMapDefinition = ResourceLoader.load(path, "", ResourceLoader.CACHE_MODE_IGNORE)
+	var errors := await run_table(map)
+	check(errors.is_empty(), "the painted, baked sword runs on the table: %s" % [errors])
+
+
+## A map with no cells (a definition never baked) shows an empty board instead of failing
+func test_empty_map_runs_on_the_table() -> void:
+	var errors := await run_table(HexMapDefinition.new())
+	check(errors.is_empty(), "a map with no cells runs on the table: %s" % [errors])
