@@ -9,6 +9,8 @@ extends Node2D
 ## A painted tile at (column, row) is the map cell at that odd-r offset position, so paint from
 ## column 0 and row 0 rightwards and downwards. Each magic node tile carries its runes as tile
 ## custom data (EDGE_RUNES_DATA and HARVEST_RUNES_DATA), and Bake copies them into the map.
+## Bigger or custom magic nodes are scene tiles whose root is a MagicNodeTile, which holds the
+## runes and the extra cells the node covers.
 
 ## The tile set custom data layer (a bool) that marks a tile as a magic node
 const MAGIC_NODE_DATA := "magic_node"
@@ -136,22 +138,58 @@ func check_cells() -> String:
 
 ## Whether the tile at `cell` (offset) on `layer` is a magic node tile
 func is_magic_tile(layer: TileMapLayer, cell: Vector2i) -> bool:
+	if not scene_tile_info(layer, cell).is_empty():
+		return true
 	var data := layer.get_cell_tile_data(cell)
 	return data != null and data.get_custom_data(MAGIC_NODE_DATA) == true
 
 
-## The cells (offset) the magic node painted at `cell` takes: its own cell first
+## The cells (offset) the magic node painted at `cell` takes: its own cell first, then the extra
+## cells of a scene tile
 func magic_node_cells(cell: Vector2i) -> Array[Vector2i]:
 	var out: Array[Vector2i] = [cell]
+	var info := scene_tile_info(magic_layer, cell)
+	var own := Hex.offset_to_axial(cell.x, cell.y)
+	for step: Vector2i in info.get("extra_cells", []):
+		out.append(Hex.axial_to_offset(own + step))
 	return out
 
 
 ## The runes of the magic node painted at `cell`: [edge runes, harvest runes]
 func magic_node_runes(cell: Vector2i) -> Array[RuneSet]:
+	var info := scene_tile_info(magic_layer, cell)
+	if not info.is_empty():
+		return [RuneSet.copy_of(info.edge_runes), RuneSet.copy_of(info.harvest_runes)]
 	var data := magic_layer.get_cell_tile_data(cell)
 	var edge: RuneSet = data.get_custom_data(EDGE_RUNES_DATA) as RuneSet if data else null
 	var harvest: RuneSet = data.get_custom_data(HARVEST_RUNES_DATA) as RuneSet if data else null
 	return [RuneSet.copy_of(edge), RuneSet.copy_of(harvest)]
+
+
+## What the MagicNodeTile scene painted at `cell` (offset) on `layer` holds:
+## {edge_runes, harvest_runes, extra_cells}, or {} when that isn't a magic node scene tile
+static func scene_tile_info(layer: TileMapLayer, cell: Vector2i) -> Dictionary:
+	var id := layer.get_cell_source_id(cell)
+	if id == -1 or layer.tile_set == null or not layer.tile_set.has_source(id):
+		return {}
+	var source := layer.tile_set.get_source(id) as TileSetScenesCollectionSource
+	var alternative := layer.get_cell_alternative_tile(cell)
+	if source == null or not source.has_scene_tile_id(alternative):
+		return {}
+	var packed := source.get_scene_tile_scene(alternative)
+	if packed == null:
+		return {}
+	var root := packed.instantiate()
+	var info := {}
+	if root is MagicNodeTile:
+		var tile := root as MagicNodeTile
+		info = {
+			"edge_runes": tile.edge_runes,
+			"harvest_runes": tile.harvest_runes,
+			"extra_cells": tile.extra_cells.duplicate(),
+		}
+	root.free()
+	return info
 
 
 ## The magic nodes' own cells (offset) in reading order: top row first, left to right

@@ -610,6 +610,10 @@ func _draw_magic_node(k: String) -> void:
 	var col := COLOR_DEAD if board.line_count(k) > 0 and board.is_dead(k) else COLOR_MAGIC
 	if board.is_node_committed(k):
 		col = COLOR_COMMITTED
+	# A bigger magic node: its other cells are shaded and joined to its own cell
+	for c in board.node_cells(k).slice(1):
+		draw_colored_polygon(Hex.corners(cell_screen(c), hex_size * 0.82), Color(col, 0.35))
+		draw_line(pos, cell_screen(c), Color(col, 0.6), hex_size * 0.22, true)
 	draw_circle(pos, radius, col, true, -1.0, true)
 	draw_arc(pos, radius, 0, TAU, 24, Color.BLACK, 1.5, true)
 	if disenchant:

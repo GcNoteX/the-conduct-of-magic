@@ -30,6 +30,7 @@ var _cell_to_node: Dictionary = {}  ## Vector2i -> key
 var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
 var _occupied: Dictionary = {}  ## Vector2i -> LineState, or PlacementState for its fixed lines
 var _extra_cells: Dictionary = {}  ## Vector2i -> key of the multi-cell node covering it
+var _magic_extra_cells: Dictionary[Vector2i, Vector2i] = {}  ## covered cell -> magic node cell
 
 
 func _init(item_instance: ItemInstance, player_inventory: Player) -> void:
@@ -47,6 +48,7 @@ func _init(item_instance: ItemInstance, player_inventory: Player) -> void:
 	for c in map.get_cells():
 		_cells[c] = true
 	_magic_cells = map.get_magic_nodes()
+	_magic_extra_cells = map.magic_node_extra_cells
 	_rebuild()
 
 
@@ -92,6 +94,15 @@ func node_covering(cell: Vector2i) -> String:
 
 func node_cell(key: String) -> Vector2i:
 	return _nodes[key].cell
+
+
+## Every cell the node covers: its own cell first, then its extra cells
+func node_cells(key: String) -> Array[Vector2i]:
+	var out: Array[Vector2i] = [_nodes[key].cell]
+	for c in _extra_cells:
+		if _extra_cells[c] == key:
+			out.append(c)
+	return out
 
 
 func node_position(key: String) -> Vector2:
@@ -625,6 +636,8 @@ func _rebuild() -> void:
 		_nodes[k] = {"kind": "magic", "cell": c, "placement": null, "index": -1}
 		_cell_to_node[c] = k
 	_extra_cells.clear()
+	for c in _magic_extra_cells:
+		_extra_cells[c] = magic_key(_magic_extra_cells[c])
 	for p in state.placements:
 		var cells := placement_cells(p.enchantment, p.origin, p.rotation_steps)
 		for i in cells.size():
@@ -673,6 +686,8 @@ func _check_step_cell(path: Array[Vector2i], next: Vector2i) -> String:
 ## Why a line can't run through `cell` because something already takes it, or ""
 func _taken_reason(cell: Vector2i) -> String:
 	if _extra_cells.has(cell):
+		if is_magic(_extra_cells[cell]):
+			return "A magic node covers this cell"
 		return "An enchantment node covers this cell"
 	var owner: Variant = _occupied.get(cell)
 	if owner is LineState:

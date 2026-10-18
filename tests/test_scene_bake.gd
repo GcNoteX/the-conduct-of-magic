@@ -23,6 +23,9 @@ const CELL_TILE := Vector2i(0, 0)
 const WATER_TILE := Vector2i(0, 0)
 const FIRE_TILE := Vector2i(1, 0)
 const STONE_TILE := Vector2i(3, 0)
+const SCENE_SOURCE := 2
+## The Ember Well scene tile's id in the scenes source
+const EMBER_WELL := 1
 
 var _failures := 0
 var _checks := 0
@@ -60,6 +63,7 @@ func _ready() -> void:
 	test_enchantment_scene_extra_cells()
 	test_bake_reads_tile_runes()
 	test_magic_node_tiles()
+	test_magic_node_scene_tile()
 	await test_painted_map_runs_on_the_table()
 	await test_empty_map_runs_on_the_table()
 	print("%d checks, %d failed" % [_checks, _failures])
@@ -420,6 +424,46 @@ func test_magic_node_tiles() -> void:
 			same = same and built.magic_harvest_runes[i].equals(map.magic_harvest_runes[i])
 		check(same, "the %s's magic node tiles bake to its shipped runes" % file)
 		scene.free()
+
+
+## The Ember Well is a 2-cell fire magic node scene tile on the short sword: Bake reads its runes
+## and extra cell from the MagicNodeTile at the scene's root
+func test_magic_node_scene_tile() -> void:
+	var well: MagicNodeTile = load("res://items/maps/magic_nodes/ember_well.tscn").instantiate()
+	check(well.edge_runes.equals(RuneSet.of(0, 1, 0, 0)), "the Ember Well puts 1 fire on its lines")
+	check(well.harvest_runes.equals(RuneSet.of(0, 1, 1, 0)), "and gives back 1 fire and 1 wind")
+	check(well.extra_cells == ([Vector2i(1, 0)] as Array[Vector2i]), "and covers the next cell")
+	well.free()
+	var scene := new_map_scene("short_sword")
+	var at := Vector2i(0, 12)
+	check(scene.magic_layer.get_cell_source_id(at) == SCENE_SOURCE, "the short sword has the well")
+	check(scene.is_magic_tile(scene.magic_layer, at), "a MagicNodeTile scene tile is a magic node")
+	check(
+		scene.magic_node_cells(at) == ([at, Vector2i(1, 12)] as Array[Vector2i]),
+		"the well covers its own cell and the one to its right"
+	)
+	var map := shipped_map("short_sword")
+	var own := Hex.offset_to_axial(0, 12)
+	check(
+		map.magic_node_extra_cells == {own + Vector2i(1, 0): own},
+		"the baked short sword knows the well's extra cell"
+	)
+	check(map.edge_runes_at(own).equals(RuneSet.of(0, 1, 0, 0)), "the baked well has its runes")
+	check(map.magic_extra_cells(own) == ([own + Vector2i(1, 0)] as Array[Vector2i]), "lookup")
+	scene.magic_layer.set_cell(Vector2i(1, 11), MAGIC_SOURCE, FIRE_TILE)
+	scene.magic_layer.set_cell(Vector2i(0, 11), SCENE_SOURCE, Vector2i.ZERO, EMBER_WELL)
+	check(
+		scene.check_cells() == "Two magic nodes cover the cell at (1, 11)",
+		"a well's extra cell can't sit on another magic node"
+	)
+	scene.magic_layer.erase_cell(Vector2i(1, 11))
+	scene.magic_layer.erase_cell(Vector2i(0, 11))
+	scene.magic_layer.set_cell(Vector2i(5, 11), SCENE_SOURCE, Vector2i.ZERO, EMBER_WELL)
+	check(
+		scene.check_cells() == "The magic node at (5, 11) isn't on a cell: paint a cell under it",
+		"every cell a bigger magic node covers has to be on a cell"
+	)
+	scene.free()
 
 
 ## Baking a repainted map writes the runes of the tiles now painted, in reading order

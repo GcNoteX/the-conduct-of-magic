@@ -30,6 +30,7 @@ func _ready() -> void:
 	test_commit()
 	test_planned_materials_stay_with_the_item()
 	test_multi_cell_nodes()
+	test_bigger_magic_nodes()
 	test_shape_check()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -364,6 +365,24 @@ func test_multi_cell_nodes() -> void:
 	check(b.check_line(path([Vector2i(4, 4), Vector2i(3, 5)])) == "", "lines still join the node")
 	b.remove_placement(p)
 	check(b.node_covering(Vector2i(4, 5)) == "", "removing the placement frees its extra cells")
+
+
+## The short sword's Ember Well covers two cells: lines attach at its own cell only
+func test_bigger_magic_nodes() -> void:
+	var inst := ItemInstance.new()
+	inst.definition = preload("res://inscribing/demo/short_sword.tres")
+	var b := InscriptionBoard.new(inst, Player.new())
+	var well := Hex.offset_to_axial(0, 12)
+	var extra := well + Vector2i(1, 0)
+	var key := InscriptionBoard.magic_key(well)
+	check(b.node_covering(extra) == key, "the well's extra cell belongs to it")
+	check(b.node_at(extra) == "", "lines don't attach at the extra cell")
+	check(b.node_cells(key) == ([well, extra] as Array[Vector2i]), "the well covers two cells")
+	check(
+		b.check_step(path([well]), extra) == "A magic node covers this cell",
+		"a line can't run through the extra cell"
+	)
+	check(b.check_place(KINDLE, extra, 0) == "It overlaps another node", "nothing sits on it")
 
 
 func test_shape_check() -> void:

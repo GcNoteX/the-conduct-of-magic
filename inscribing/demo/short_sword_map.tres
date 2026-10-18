@@ -70,5 +70,8 @@ stone = 1
 script = ExtResource("2_3vsx4")
 map_name = "Short sword"
 layout = PackedStringArray("...#...", "..##...", "..#M#..", "..##...", "..###..", "..##...", "..M#M..", "..##...", "..###..", "..##...", "..#M#..", "######.", "M#####M", "..##...", "..#M#..")
+magic_node_extra_cells = Dictionary[Vector2i, Vector2i]({
+Vector2i(-5, 12): Vector2i(-6, 12)
+})
 magic_edge_runes = Array[ExtResource("1_ue5xt")]([SubResource("Resource_ue5xt"), SubResource("Resource_3vsx4"), SubResource("Resource_n410x"), SubResource("Resource_w58rx"), SubResource("Resource_krllv"), SubResource("Resource_0suko"), SubResource("Resource_0auwd")])
 magic_harvest_runes = Array[ExtResource("1_ue5xt")]([SubResource("Resource_vpg00"), SubResource("Resource_3iecr"), SubResource("Resource_y5pp6"), SubResource("Resource_kjuoq"), SubResource("Resource_jkegk"), SubResource("Resource_thhsm"), SubResource("Resource_q6kdf")])

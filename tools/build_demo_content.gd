@@ -13,7 +13,10 @@ const TILES := preload("res://inscribing/tiles/hex_map_tiles.tres")
 ## order, each carrying its runes as custom data)
 const CELL_SOURCE := 0
 const MAGIC_SOURCE := 1
+const SCENE_SOURCE := 2
 const CELL_TILE := Vector2i(0, 0)
+## The Ember Well, the example magic node scene tile (items/maps/magic_nodes/ember_well.tscn)
+const EMBER_WELL_TILE := 1
 ## Placeholder magic node kinds, to tune: the magic nodes of each sword in reading order get
 ## these tiles in turn. A magic node tile puts 1 rune of its kind on each line and gives back 1 of
 ## its kind and 1 of the next kind when freed (see hex_map_tiles.tres).
@@ -144,7 +147,8 @@ func _ready() -> void:
 				"..##...",
 				"..#M#..",
 			]
-		)
+		),
+		{4: EMBER_WELL_TILE}
 	)
 	var long_sword := _sword(
 		"long_sword",
@@ -243,15 +247,18 @@ func _carved_sword(
 
 
 ## Writes a sword's map scene (cells and magic node tiles painted from `layout`), bakes it into
-## the sword's map, and writes the item definition
-func _sword(file: String, display: String, layout: PackedStringArray) -> EnchantableItemDefinition:
+## the sword's map, and writes the item definition. `scene_tiles` paints some magic nodes (by
+## number in reading order, from 0) with a magic node scene tile instead: {number: scene tile id}.
+func _sword(
+	file: String, display: String, layout: PackedStringArray, scene_tiles := {}
+) -> EnchantableItemDefinition:
 	var map_path := "res://inscribing/demo/%s_map.tres" % file
 	var map: HexMapDefinition = (
 		load(map_path) if ResourceLoader.exists(map_path) else HexMapDefinition.new()
 	)
 	map.map_name = display
 	map.layout = layout
-	_map_scene(map, map_path, "res://inscribing/demo/%s_map.tscn" % file)
+	_map_scene(map, map_path, "res://inscribing/demo/%s_map.tscn" % file, scene_tiles)
 	var item := EnchantableItemDefinition.new()
 	item.id = StringName(file)
 	item.display_name = display
@@ -262,7 +269,9 @@ func _sword(file: String, display: String, layout: PackedStringArray) -> Enchant
 
 
 ## Writes the scene a map is painted in, painted from the map's layout, and bakes it into the map
-func _map_scene(map: HexMapDefinition, map_path: String, path: String) -> void:
+func _map_scene(
+	map: HexMapDefinition, map_path: String, path: String, scene_tiles: Dictionary
+) -> void:
 	var root := ItemMapScene.new()
 	root.name = path.get_file().get_basename().to_pascal_case()
 	var cells := TileMapLayer.new()
@@ -279,8 +288,12 @@ func _map_scene(map: HexMapDefinition, map_path: String, path: String) -> void:
 		cells.set_cell(Hex.axial_to_offset(a), CELL_SOURCE, CELL_TILE)
 	var nodes := map.get_magic_nodes()
 	for i in nodes.size():
-		var kind := MAGIC_KINDS[i % MAGIC_KINDS.size()]
-		magic.set_cell(Hex.axial_to_offset(nodes[i]), MAGIC_SOURCE, Vector2i(kind, 0))
+		var at := Hex.axial_to_offset(nodes[i])
+		if scene_tiles.has(i):
+			magic.set_cell(at, SCENE_SOURCE, Vector2i.ZERO, scene_tiles[i])
+		else:
+			var kind := MAGIC_KINDS[i % MAGIC_KINDS.size()]
+			magic.set_cell(at, MAGIC_SOURCE, Vector2i(kind, 0))
 	root.map_definition = map
 	root.cells_layer = cells
 	root.magic_layer = magic
