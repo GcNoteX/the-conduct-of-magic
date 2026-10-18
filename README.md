@@ -7,7 +7,7 @@ Game design: [docs/design/game-design.md](docs/design/game-design.md)
 Story: [docs/story/story-bible.md](docs/story/story-bible.md)
 
 ## Running the inscribing prototype
-Open the project in Godot 4.7 and run it (F5). The main scene is the inscribing table (`inscribing/inscribing_table.tscn`), set up with the demo player in `inscribing/demo/demo_setup.tres`.
+Open the project in Godot 4.7 and run it (F5). The main scene is the inscribing table (`inscribing/inscribing_table.tscn`), set up with the demo player in `inscribing/demo/demo_setup.tres`: three swords of different sizes (a dagger, a short sword and a long sword) and a pre-carved long sword.
 
 - **Place an enchantment:** drag its card onto the item, pressing R or scrolling to rotate it on the way. Clicking a card holds it instead, so you can click to place.
 - **Try the layouts:** the Layout dropdown at the bottom right switches between the sidebar (Tab opens and closes it), a bottom tray, a quick palette (hold Space) and the original lists.
@@ -15,7 +15,7 @@ Open the project in Godot 4.7 and run it (F5). The main scene is the inscribing 
 - **Insert a material:** drag its card onto an enchantment node. Nodes that accept it get a green ring. A planned material leaves your inventory and is held by that item until you take it back out.
 - **Take back planned things:** right click a material, a line, then an enchantment. Esc drops what you're holding or cancels a line.
 - **Commit:** commits every enchantment that is fully active. Its materials are used up then.
-- **Disenchant:** pick an item with carvings (Demo sword #3 arrives pre-carved) and press Disenchant above the board. Each committed line shows its rune cost. Double-click a material card to dissolve it for runes, click lines to plan cutting them, then click an enchantment node to pull it out once its whole chain is cut. Your runes are in the bar above the board, the plan is on the right (a step you can't afford shows red), and right click or Undo takes back the last step. Commit pulls out the planned enchantments and frees their cells.
+- **Disenchant:** pick an item with carvings (Long sword #4 arrives pre-carved) and press Disenchant above the board. Each committed line shows its rune cost. Double-click a material card to dissolve it for runes, click lines to plan cutting them, then click an enchantment node to pull it out once its whole chain is cut. Your runes are in the bar above the board, the plan is on the right (a step you can't afford shows red), and right click or Undo takes back the last step. Commit pulls out the planned enchantments and frees their cells.
 
 Tests: `godot --headless --path . res://tests/test_inscription_board.tscn` and `res://tests/test_disenchant_board.tscn` (each exits 1 on failure).
 Solvability (dev tool): `godot --headless --path . res://tools/solvability_checker.tscn` reports, for each carved demo item, whether its disenchant board can be cleared with the demo inventory, the fewest materials to dissolve and a cut order that works. Its test is `res://tests/test_solvability_checker.tscn`.

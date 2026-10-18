@@ -7,6 +7,8 @@ Run (needs a display): godot --path . res://tests/drive_table.tscn -- <output_di
 
 const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
 const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+## The long sword's place in the demo player's items (dagger, short sword, long sword, carved)
+const LONG_SWORD := 2
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
 
 var out_dir := "user://"
@@ -27,6 +29,15 @@ func _ready() -> void:
 	add_child(table)
 	await _frames(5)
 	view = table._view
+	_shot("00_dagger")
+	table._item_picker.select(1)
+	table._open_item(1)
+	await _frames(2)
+	_shot("00_short_sword")
+	# Carve on the long sword, the largest of the three
+	table._item_picker.select(LONG_SWORD)
+	table._open_item(LONG_SWORD)
+	await _frames(2)
 	_shot("01_empty")
 
 	# Drag Kindle from the sidebar, rotating it once mid-drag to show the ghost turn
@@ -66,12 +77,13 @@ func _ready() -> void:
 	print("materials: ", table.board.node_material(e0), " ", table.board.node_material(e1))
 
 	# Draw lines cell by cell, with a wobble back along the first one
-	_draw_path([Vector2i(1, 5), Vector2i(1, 6), Vector2i(0, 7), Vector2i(1, 6), Vector2i(1, 7)])
-	_draw_path([Vector2i(1, 5), Vector2i(1, 4), Vector2i(0, 4)])
-	_draw_path([Vector2i(3, 5), Vector2i(4, 4)])
-	_draw_path(
-		[Vector2i(-7, 14), Vector2i(-6, 14), Vector2i(-5, 14), Vector2i(-4, 14), Vector2i(-3, 14)]
-	)
+	_draw_path([Vector2i(1, 5), Vector2i(0, 6), Vector2i(0, 5), Vector2i(0, 6), Vector2i(-1, 6)])
+	_draw_path([Vector2i(1, 5), Vector2i(1, 6), Vector2i(0, 7), Vector2i(0, 8)])
+	_draw_path([Vector2i(3, 5), Vector2i(3, 6)])
+	var guard: Array[Vector2i] = []
+	for q in range(-7, 2):
+		guard.append(Vector2i(q, 14))
+	_draw_path(guard)
 	await _frames(2)
 	print(
 		"lines: ", table.board.state.lines.size(), " active: ", table.board.is_placement_active(p)
@@ -87,7 +99,7 @@ func _ready() -> void:
 
 	# The unconnected chain blocks the commit until it's removed
 	print("commit button: ", table._commit_button.text)
-	_click(_cell(Vector2i(-5, 14)), MOUSE_BUTTON_RIGHT)
+	_click(_cell(Vector2i(-4, 14)), MOUSE_BUTTON_RIGHT)
 	await _frames(2)
 	table._on_commit_pressed()
 	await _frames(2)
@@ -165,21 +177,23 @@ func _disenchant() -> void:
 		" carvings: ",
 		table.disenchant.carvings().size()
 	)
-	_move(_edge_point("e:1:0", "m:1,7"))
+	_move(_edge_point("e:1:0", "m:0,8"))
 	await _frames(2)
 	_shot("09_disenchant_costs")
 
-	_click(_edge_point("e:1:0", "m:1,7"), MOUSE_BUTTON_LEFT)
+	_click(_edge_point("e:1:0", "m:0,8"), MOUSE_BUTTON_LEFT)
 	await _frames(2)
 	print("blocked step: ", table.disenchant.first_blocked(), " ", table._message_label.text)
 	_shot("10_cant_afford")
-	_click(_edge_point("e:1:0", "m:1,7"), MOUSE_BUTTON_RIGHT)
+	_click(_edge_point("e:1:0", "m:0,8"), MOUSE_BUTTON_RIGHT)
 	await _frames(1)
 
 	# Dissolve by double-clicking the material cards (the cards are rebuilt after each one)
 	_double_click(_card(FIRE))
 	await _frames(1)
 	_double_click(_card(YELLOW))
+	await _frames(1)
+	_double_click(_card(BLUE))
 	await _frames(1)
 	print("planned fire: ", table.board.planned_count(FIRE), " card: ", _card(FIRE).subtitle)
 	table._layout.set_open(true)
@@ -190,19 +204,30 @@ func _disenchant() -> void:
 	tabs.current_tab = 0
 	table._layout.set_open(false)
 	await _frames(15)
-	for ends in [["e:1:0", "m:1,7"], ["e:1:0", "m:0,4"]]:
+	for ends in [["e:1:0", "m:0,8"], ["e:1:0", "m:-1,6"]]:
 		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
 	await _frames(2)
-	_move(_cell(Vector2i(0, 4)))
+	_move(_cell(Vector2i(-1, 6)))
 	await _frames(2)
 	_shot("11_planning")
 
-	for ends in [["e:1:0", "e:1:1"], ["m:3,2", "m:4,4"], ["e:1:1", "m:4,4"]]:
+	for ends in [["e:1:0", "e:1:1"], ["m:0,8", "m:3,6"], ["e:1:1", "m:3,6"]]:
 		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
 	_click(_cell(Vector2i(1, 5)), MOUSE_BUTTON_LEFT)
-	# Two Keen cuts with what's left over: the second can't be afforded, so it shows red
-	_click(_edge_point("e:2:0", "m:-3,14"), MOUSE_BUTTON_LEFT)
-	_click(_edge_point("e:2:2", "m:-3,14"), MOUSE_BUTTON_LEFT)
+	# Keen cuts with what's left over until one can't be afforded, so it shows red
+	var keen_cuts := [
+		["e:2:1", "m:-4,16"],
+		["e:2:0", "m:-2,12"],
+		["e:2:2", "m:-2,12"],
+		["e:2:0", "m:-7,14"],
+		["e:2:2", "m:1,14"],
+	]
+	var added := 0
+	for ends in keen_cuts:
+		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
+		added += 1
+		if table.disenchant.first_blocked() >= 0:
+			break
 	await _frames(2)
 	print(
 		"plan: ",
@@ -211,8 +236,8 @@ func _disenchant() -> void:
 		table.disenchant.first_blocked()
 	)
 	_shot("12_blocked_mid_plan")
-	table._on_undo_pressed()
-	table._on_undo_pressed()
+	for i in added:
+		table._on_undo_pressed()
 	await _frames(2)
 	print("commit button: ", table._commit_button.text)
 	_shot("13_ready_to_commit")
@@ -234,8 +259,8 @@ func _disenchant() -> void:
 	_shot("14_committed")
 
 	# Disenchant mode works on the sword carved earlier in this run too
-	table._item_picker.select(0)
-	table._open_item(0)
+	table._item_picker.select(LONG_SWORD)
+	table._open_item(LONG_SWORD)
 	await _frames(2)
 	_shot("15_own_carving")
 

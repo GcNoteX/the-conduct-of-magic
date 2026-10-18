@@ -7,7 +7,7 @@ Exits with code 1 if any check fails.
 """
 
 const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
-const SWORD := preload("res://inscribing/demo/demo_sword.tres")
+const SWORD := preload("res://inscribing/demo/long_sword.tres")
 const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
 const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
 const RED := preload("res://items/enchantment_materials/red_stone/red_stone.tres")
@@ -79,14 +79,16 @@ func test_single_enchantment() -> void:
 	var kindle: Array[PlacementState] = [d.carvings()[0]]
 	var found := checker.solve(kindle, demo_inventory())
 	check(
-		found.size() == 1 and names(found[0]) == "Fire stone, Yellow stone", "kindle: fire + yellow"
+		found.size() == 2 and names(found[0]) == "Blue stone, Fire stone, Water stone",
+		"kindle: blue + fire + water at the fewest"
 	)
-	check(replays_cleanly(d, found[0], kindle), "kindle's solution replays")
-	var without_yellow := demo_inventory()
-	without_yellow.erase(YELLOW)
-	found = checker.solve(kindle, without_yellow)
-	check(not found.is_empty() and found[0].dissolves.size() == 3, "without yellow it takes 3")
-	check(replays_cleanly(d, found[0], kindle), "and that replays too")
+	check(names(found[1]) == "Blue stone, Fire stone, Yellow stone", "or blue + fire + yellow")
+	for s in found:
+		check(replays_cleanly(d, s, kindle), "kindle's solution %s replays" % names(s))
+	var without_blue := demo_inventory()
+	without_blue.erase(BLUE)
+	found = checker.solve(kindle, without_blue)
+	check(found.is_empty(), "without blue (the only stone runes) it can't be cleared")
 
 
 ## The checker's answer for Kindle matches trying every one of its 120 cut orders

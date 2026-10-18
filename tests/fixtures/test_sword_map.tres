@@ -95,7 +95,7 @@ fire = 1
 
 [resource]
 script = ExtResource("2_b6wwy")
-map_name = "Demo sword"
+map_name = "Test sword"
 layout = PackedStringArray("....#....", "...###...", "...#M#...", "..#####..", "..M###M..", "..#####..", "..#####..", "..##M##..", "..#####..", "..#####..", "..M###M..", "..#####..", "..#####..", "#########", "M###M###M", "...###...", "...##....", "...###...", "...#M#...")
 magic_edge_runes = Array[ExtResource("1_yyf4w")]([SubResource("Resource_71yto"), SubResource("Resource_xe5ky"), SubResource("Resource_eauqs"), SubResource("Resource_1muf8"), SubResource("Resource_0ke2w"), SubResource("Resource_0yyov"), SubResource("Resource_7yc1s"), SubResource("Resource_wdc25"), SubResource("Resource_7lmh8"), SubResource("Resource_rogmr")])
 magic_harvest_runes = Array[ExtResource("1_yyf4w")]([SubResource("Resource_nbqxn"), SubResource("Resource_60e0q"), SubResource("Resource_tgudg"), SubResource("Resource_yj4ve"), SubResource("Resource_3frd8"), SubResource("Resource_ydkk1"), SubResource("Resource_n3xja"), SubResource("Resource_mbprl"), SubResource("Resource_6ggwu"), SubResource("Resource_bf0ji")])

@@ -6,7 +6,7 @@ Run: godot --headless --path . res://tests/test_disenchant_board.tscn
 Exits with code 1 if any check fails.
 """
 
-const SWORD := preload("res://inscribing/demo/demo_sword.tres")
+const SWORD := preload("res://tests/fixtures/test_sword.tres")
 const KINDLE := preload("res://enchantments/patterns/kindle.tres")
 const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
 const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
@@ -50,7 +50,7 @@ func runes(water: int, fire: int, wind: int, stone: int) -> RuneSet:
 	return RuneSet.of(water, fire, wind, stone)
 
 
-## A demo sword carved with Kindle (fire and water) on the blade, and optionally a second Kindle
+## A test sword carved with Kindle (fire and water) on the blade, and optionally a second Kindle
 ## (fire and blue) lower down. The carving's own materials come from a separate player.
 func carved_sword(second: bool = false) -> ItemInstance:
 	var carver := Player.new()

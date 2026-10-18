@@ -1,6 +1,6 @@
 [gd_resource type="Resource" script_class="ItemInstance" format=3]
 
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="1_jhkf7"]
+[ext_resource type="Resource" path="res://inscribing/demo/long_sword.tres" id="1_jhkf7"]
 [ext_resource type="Script" path="res://disenchanting/disenchant_step.gd" id="2_uj54f"]
 [ext_resource type="Script" path="res://enchantments/line_state.gd" id="3_tdtn5"]
 [ext_resource type="Script" path="res://enchantments/placement_state.gd" id="4_frvhv"]
@@ -17,30 +17,30 @@
 [sub_resource type="Resource" id="Resource_jjh3q"]
 script = ExtResource("3_tdtn5")
 a = "e:1:0"
-b = "m:0,4"
+b = "m:-1,6"
 committed = true
-cells = Array[Vector2i]([Vector2i(1, 5), Vector2i(1, 4), Vector2i(0, 4)])
+cells = Array[Vector2i]([Vector2i(1, 5), Vector2i(0, 6), Vector2i(-1, 6)])
 
 [sub_resource type="Resource" id="Resource_kionn"]
 script = ExtResource("3_tdtn5")
 a = "e:1:0"
-b = "m:1,7"
+b = "m:0,8"
 committed = true
-cells = Array[Vector2i]([Vector2i(1, 5), Vector2i(1, 6), Vector2i(1, 7)])
+cells = Array[Vector2i]([Vector2i(1, 5), Vector2i(1, 6), Vector2i(0, 7), Vector2i(0, 8)])
 
 [sub_resource type="Resource" id="Resource_v1gye"]
 script = ExtResource("3_tdtn5")
 a = "e:1:1"
-b = "m:4,4"
+b = "m:3,6"
 committed = true
-cells = Array[Vector2i]([Vector2i(3, 5), Vector2i(4, 4)])
+cells = Array[Vector2i]([Vector2i(3, 5), Vector2i(3, 6)])
 
 [sub_resource type="Resource" id="Resource_fmcm5"]
 script = ExtResource("3_tdtn5")
-a = "m:4,4"
-b = "m:3,2"
+a = "m:3,6"
+b = "m:0,8"
 committed = true
-cells = Array[Vector2i]([Vector2i(4, 4), Vector2i(4, 3), Vector2i(4, 2), Vector2i(3, 2)])
+cells = Array[Vector2i]([Vector2i(3, 6), Vector2i(2, 7), Vector2i(1, 8), Vector2i(0, 8)])
 
 [sub_resource type="Resource" id="Resource_cmg3q"]
 script = ExtResource("3_tdtn5")
@@ -52,30 +52,30 @@ cells = Array[Vector2i]([Vector2i(-5, 13), Vector2i(-6, 14), Vector2i(-7, 14)])
 [sub_resource type="Resource" id="Resource_j5ylx"]
 script = ExtResource("3_tdtn5")
 a = "e:2:0"
-b = "m:-3,14"
+b = "m:-2,12"
 committed = true
-cells = Array[Vector2i]([Vector2i(-5, 13), Vector2i(-5, 14), Vector2i(-4, 14), Vector2i(-3, 14)])
+cells = Array[Vector2i]([Vector2i(-5, 13), Vector2i(-4, 12), Vector2i(-3, 12), Vector2i(-2, 12)])
 
 [sub_resource type="Resource" id="Resource_uky4g"]
 script = ExtResource("3_tdtn5")
 a = "e:2:1"
-b = "m:-3,14"
+b = "m:-4,16"
 committed = true
-cells = Array[Vector2i]([Vector2i(-3, 13), Vector2i(-3, 14)])
+cells = Array[Vector2i]([Vector2i(-3, 13), Vector2i(-3, 14), Vector2i(-3, 15), Vector2i(-4, 16)])
 
 [sub_resource type="Resource" id="Resource_u83ak"]
 script = ExtResource("3_tdtn5")
 a = "e:2:2"
-b = "m:-3,14"
+b = "m:-2,12"
 committed = true
-cells = Array[Vector2i]([Vector2i(-1, 13), Vector2i(-2, 14), Vector2i(-3, 14)])
+cells = Array[Vector2i]([Vector2i(-1, 13), Vector2i(-1, 12), Vector2i(-2, 12)])
 
 [sub_resource type="Resource" id="Resource_o2t72"]
 script = ExtResource("3_tdtn5")
 a = "e:2:2"
 b = "m:1,14"
 committed = true
-cells = Array[Vector2i]([Vector2i(-1, 13), Vector2i(-1, 14), Vector2i(0, 14), Vector2i(1, 14)])
+cells = Array[Vector2i]([Vector2i(-1, 13), Vector2i(0, 13), Vector2i(0, 14), Vector2i(1, 14)])
 
 [sub_resource type="Resource" id="Resource_cs6e3"]
 script = ExtResource("4_frvhv")

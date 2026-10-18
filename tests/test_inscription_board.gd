@@ -6,7 +6,7 @@ Run: godot --headless --path . res://tests/test_inscription_board.tscn
 Exits with code 1 if any check fails.
 """
 
-const SWORD := preload("res://inscribing/demo/demo_sword.tres")
+const SWORD := preload("res://tests/fixtures/test_sword.tres")
 const KINDLE := preload("res://enchantments/patterns/kindle.tres")
 const GLOW := preload("res://enchantments/patterns/glow.tres")
 const KEEN := preload("res://enchantments/patterns/keen.tres")
@@ -42,7 +42,8 @@ func check(cond: bool, what: String) -> void:
 		printerr("FAIL: ", what)
 
 
-## A board on a fresh demo sword. With no player given, one with plenty of every material.
+## A board on a fresh test sword (the 9x19 fixture). With no player given, one with plenty of
+## every material.
 func new_board(player: Player = null) -> InscriptionBoard:
 	if player == null:
 		player = Player.new()
@@ -82,7 +83,7 @@ func test_hex_math() -> void:
 
 func test_map() -> void:
 	var b := new_board()
-	check(b.get_node_keys().size() == 10, "demo sword has 10 magic nodes")
+	check(b.get_node_keys().size() == 10, "the test sword has 10 magic nodes")
 	check(b.has_node(m(3, 2)) and b.is_magic(m(3, 2)), "magic node at (3,2)")
 	for e in [KINDLE, GLOW, KEEN, WARD]:
 		for cells: Array[Vector2i] in b.pattern_line_paths(e, Vector2i.ZERO, 0):

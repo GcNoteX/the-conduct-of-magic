@@ -7,8 +7,9 @@ Exits with code 1 if any check fails. Bakes go to user://, never over the shippe
 """
 
 const TILES := preload("res://inscribing/tiles/hex_map_tiles.tres")
-const SWORD_MAP := preload("res://inscribing/demo/demo_sword_map.tres")
-const SWORD_MAP_SCENE := preload("res://inscribing/demo/demo_sword_map.tscn")
+## The demo swords, smallest first. Each has a map scene and the map resource it bakes to.
+const SWORDS := ["dagger", "short_sword", "long_sword"]
+const SWORD_MAP := preload("res://inscribing/demo/long_sword_map.tres")
 const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
 const DEMO_SETUP := preload("res://inscribing/demo/demo_setup.tres")
 const TABLE := preload("res://inscribing/inscribing_table.tscn")
@@ -42,6 +43,7 @@ class ErrorCatcher:
 func _ready() -> void:
 	test_tile_layout_matches_hex()
 	test_layout_round_trip()
+	test_demo_swords_are_clean()
 	test_map_scene_bake()
 	test_map_scene_warnings()
 	test_enchantment_scenes_bake()
@@ -63,10 +65,15 @@ func check(cond: bool, what: String) -> void:
 		printerr("FAIL: ", what)
 
 
-func new_map_scene() -> ItemMapScene:
-	var scene: ItemMapScene = SWORD_MAP_SCENE.instantiate()
+func new_map_scene(file := "long_sword") -> ItemMapScene:
+	var packed: PackedScene = load("res://inscribing/demo/%s_map.tscn" % file)
+	var scene: ItemMapScene = packed.instantiate()
 	add_child(scene)
 	return scene
+
+
+func shipped_map(file: String) -> HexMapDefinition:
+	return load("res://inscribing/demo/%s_map.tres" % file)
 
 
 ## A painted tile at (col, row) has to be the game's cell at odd-r offset (col, row)
@@ -100,22 +107,72 @@ func test_tile_layout_matches_hex() -> void:
 
 
 func test_layout_round_trip() -> void:
-	check(
-		(
-			HexMapDefinition.layout_from_cells(SWORD_MAP.get_cells(), SWORD_MAP.get_magic_nodes())
-			== SWORD_MAP.layout
-		),
-		"layout_from_cells rebuilds the demo sword layout"
-	)
+	for file: String in SWORDS:
+		var map := shipped_map(file)
+		check(
+			(
+				HexMapDefinition.layout_from_cells(map.get_cells(), map.get_magic_nodes())
+				== map.layout
+			),
+			"layout_from_cells rebuilds the %s layout" % file
+		)
 	var empty: Array[Vector2i] = []
 	check(HexMapDefinition.layout_from_cells(empty, empty).is_empty(), "no cells, no rows")
 
 
+## Every demo sword is a clean silhouette: each row is one unbroken run of cells, centred on the
+## same middle, so it's symmetric with no chipped edges. Each is smaller than the old 9x19 sword,
+## each is bigger than the one before, and every demo enchantment fits on the largest.
+func test_demo_swords_are_clean() -> void:
+	var last_cells := 0
+	for file: String in SWORDS:
+		var map := shipped_map(file)
+		var middle := -1.0
+		var clean := true
+		for row in map.layout.size():
+			var line := map.layout[row].replace("M", "#")
+			var first := line.find("#")
+			var count := line.count("#")
+			clean = clean and count > 0 and line.substr(first, count) == "#".repeat(count)
+			var row_middle := first + count / 2.0 + (0.5 if row % 2 == 1 else 0.0)
+			if middle < 0.0:
+				middle = row_middle
+			clean = clean and is_equal_approx(row_middle, middle)
+		check(clean, "the %s is symmetric with unbroken rows" % file)
+		check(
+			map.layout.size() < 19 and map.get_cells().size() > last_cells,
+			"the %s is smaller than the old sword and bigger than the last" % file
+		)
+		var magic := map.get_magic_nodes().size()
+		check(magic >= 6 and magic <= 10, "the %s has 6 to 10 magic nodes" % file)
+		check(
+			map.magic_edge_runes.size() == magic and map.magic_harvest_runes.size() == magic,
+			"every magic node on the %s has runes" % file
+		)
+		last_cells = map.get_cells().size()
+	var item := EnchantableItemDefinition.new()
+	item.map_template = SWORD_MAP
+	var inst := ItemInstance.new()
+	inst.definition = item
+	var b := InscriptionBoard.new(inst, Player.new())
+	for e: Enchantment in DEMO_SETUP.enchantments:
+		var fits := false
+		for c in b.get_cells():
+			for r in 6:
+				fits = fits or b.check_place(e, c, r) == ""
+		check(fits, "%s fits on the long sword" % e.enchantment_name)
+
+
 func test_map_scene_bake() -> void:
+	for file: String in SWORDS:
+		var map := shipped_map(file)
+		var scene := new_map_scene(file)
+		check(scene.check_cells() == "", "%s scene has bakeable cells" % file)
+		check(scene.build_layout() == map.layout, "%s scene bakes to the shipped layout" % file)
+		check(scene.is_baked(), "%s scene counts as baked" % file)
+		check(scene.get_problems().is_empty(), "no warnings on the baked %s" % file)
+		scene.free()
 	var scene := new_map_scene()
-	check(scene.check_cells() == "", "demo sword scene has bakeable cells")
-	check(scene.build_layout() == SWORD_MAP.layout, "demo sword scene bakes to the shipped layout")
-	check(scene.is_baked(), "demo sword scene counts as baked")
 	var target: HexMapDefinition = SWORD_MAP.duplicate()
 	target.layout = PackedStringArray()
 	var path := "user://test_scene_bake/sword_map.tres"
@@ -130,16 +187,16 @@ func test_map_scene_bake() -> void:
 
 func test_map_scene_warnings() -> void:
 	var scene := new_map_scene()
-	check(scene.get_problems().is_empty(), "no warnings on the baked demo sword")
-	scene.cells_layer.set_cell(Vector2i(4, 19), 0, CELL_TILE)
+	var below := SWORD_MAP.layout.size()
+	scene.cells_layer.set_cell(Vector2i(4, below), 0, CELL_TILE)
 	check(not scene.is_baked(), "a new painted cell makes the scene unbaked")
 	check(
 		Array(scene.get_problems()).any(func(w: String) -> bool: return w.begins_with("Not baked")),
 		"the unbaked scene warns"
 	)
-	scene.cells_layer.set_cell(Vector2i(4, 19), 0, MAGIC_TILE)
-	check(scene.build_layout()[19] == "....M....", "magic node tile bakes as M on a new row")
-	scene.cells_layer.erase_cell(Vector2i(4, 19))
+	scene.cells_layer.set_cell(Vector2i(4, below), 0, MAGIC_TILE)
+	check(scene.build_layout()[below] == "....M....", "magic node tile bakes as M on a new row")
+	scene.cells_layer.erase_cell(Vector2i(4, below))
 	check(scene.is_baked(), "erasing the cell makes it baked again")
 	scene.cells_layer.set_cell(Vector2i(-1, 3), 0, CELL_TILE)
 	check(scene.check_cells().begins_with("A cell at"), "cells left of column 0 can't bake")
@@ -286,7 +343,7 @@ func test_enchantment_scene_extra_cells() -> void:
 	scene.free()
 
 
-## Paints over the demo sword: a plain cell and a new magic node under the bottom row, and the
+## Paints over the long sword: a plain cell and a new magic node under the bottom row, and the
 ## first magic node turned into a plain cell. Returns the scene, not yet baked.
 func paint_over_sword() -> ItemMapScene:
 	var scene := new_map_scene()

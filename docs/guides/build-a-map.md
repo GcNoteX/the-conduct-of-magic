@@ -1,6 +1,6 @@
 # Build an item map
 
-An item's map is painted in a scene with Godot's tile tools. Pressing **Bake** writes the painted cells into the item's `HexMapDefinition` resource, which is what the game reads. The worked example is `inscribing/demo/demo_sword_map.tscn`.
+An item's map is painted in a scene with Godot's tile tools. Pressing **Bake** writes the painted cells into the item's `HexMapDefinition` resource, which is what the game reads. The worked examples are the three demo swords: `inscribing/demo/dagger_map.tscn`, `short_sword_map.tscn` and `long_sword_map.tscn`.
 
 ## What's in a map scene
 
@@ -22,7 +22,7 @@ The tile set has two tiles:
 4. **Connect the root.** Select the root. In the Inspector, set **Map Definition** to your new `.tres` file and **Cells Layer** to the `Cells` node.
 5. **Save the scene** next to the resource, for example as `ring_map.tscn`.
 
-The quickest alternative is to duplicate `demo_sword_map.tscn` (right-click it in the FileSystem dock and choose **Duplicate...**), point its **Map Definition** at a new resource, and repaint it.
+The quickest alternative is to duplicate `long_sword_map.tscn` (right-click it in the FileSystem dock and choose **Duplicate...**), point its **Map Definition** at a new resource, and repaint it.
 
 ## Paint the cells
 
@@ -33,7 +33,7 @@ The quickest alternative is to duplicate `demo_sword_map.tscn` (right-click it i
 
 **Stay right of and below the scene's origin.** The tile at the origin is column 0, row 0 of the map. Cells to the left of it or above it can't be baked, and the root shows a warning if any are there.
 
-Every other row sits half a cell to the right. That's the same layout the game uses, so what you paint is exactly what the player sees.
+Every other row sits half a cell to the right. That's the same layout the game uses, so what you paint is exactly what the player sees. For a clean, symmetric edge, centre every row on the same middle: rows 0, 2, 4... get an odd number of cells and rows 1, 3, 5... an even number (see the demo swords).
 
 ## Bake
 
@@ -57,8 +57,8 @@ A yellow warning sign next to the root in the Scene dock means something needs f
 
 ## Use the map in the game
 
-The game reads the baked resource, not the scene. To give an item this map, open the item's `EnchantableItemDefinition` (for example `inscribing/demo/demo_sword.tres`) and set its **Map Template** to the baked `.tres` file. Then run the project (F5): the inscribing table shows the new shape.
+The game reads the baked resource, not the scene. To give an item this map, open the item's `EnchantableItemDefinition` (for example `inscribing/demo/long_sword.tres`) and set its **Map Template** to the baked `.tres` file. Then run the project (F5): the inscribing table shows the new shape.
 
 ## Check it headless
 
-`godot --headless --path . res://tests/test_scene_bake.tscn` checks that the demo sword scene bakes to the shipped `demo_sword_map.tres`.
+`godot --headless --path . res://tests/test_scene_bake.tscn` checks that each demo sword scene bakes to its shipped map, and that the demo swords are clean, symmetric silhouettes. `tools/build_demo_content.tscn` regenerates the demo swords' maps, scenes and items from the layouts written in it.
