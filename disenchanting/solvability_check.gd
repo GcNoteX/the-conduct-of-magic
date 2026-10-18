@@ -1,3 +1,4 @@
+@icon("res://editor/icons/solvability_check.svg")
 class_name SolvabilityCheck
 extends Node
 

@@ -1,4 +1,5 @@
 @tool
+@icon("res://editor/icons/item_map_scene.svg")
 class_name ItemMapScene
 extends Node2D
 ## Where an item's map is authored: paint cell and magic node tiles on a hex TileMapLayer,

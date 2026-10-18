@@ -1,4 +1,5 @@
 @tool
+@icon("res://editor/icons/enchantment_node_component.svg")
 class_name EnchantmentNodeComponent
 extends Node2D
 ## One node of an enchantment in an EnchantmentScene: what it accepts and the cells it covers.

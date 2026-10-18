@@ -1,4 +1,5 @@
 @tool
+@icon("res://editor/icons/enchantment_scene.svg")
 class_name EnchantmentScene
 extends Node2D
 ## Where an enchantment's shape is authored: EnchantmentNodeComponent and EnchantmentLineComponent

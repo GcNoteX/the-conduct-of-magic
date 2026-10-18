@@ -1,4 +1,5 @@
 @tool
+@icon("res://editor/icons/enchantment_line_component.svg")
 class_name EnchantmentLineComponent
 extends Line2D
 ## One of an enchantment's own fixed lines in an EnchantmentScene: the two nodes it joins and the
