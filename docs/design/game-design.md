@@ -363,7 +363,7 @@ Why you first rather than the mentor first:
 - Death or similar may come later, but in the mentor's workshop these money endings are the end states.
 
 ### 9.3 Progression routes
-After a few days or weeks in the mentor's shop, the player moves on. The game has four location streams: the **shop** (the mentor's workshop, where it starts), then one of three routes. Reputation here means the player's relationship with particular people. If the player qualifies for more than one route, they choose. Story details are in the [story bible](../story/story-bible.md).
+After a year-long apprenticeship in the mentor's shop, across four seasons, the player moves on. The game has four location streams: the **shop** (the mentor's workshop, where it starts), then one of three routes. Reputation here means the player's relationship with particular people. If the player qualifies for more than one route, they choose. Story details are in the [story bible](../story/story-bible.md).
 
 | Route | What it is | How you get there |
 |---|---|---|
@@ -394,7 +394,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 6. Is the main character's gift rare or unique, and who knows about it?
 7. What is the mentor like? See the [story bible](../story/story-bible.md): a kind, honest mentor, Mr. Leywin (placeholder name), not related to the player.
 8. Does the player choose a route, or does the game assign one from their results?
-9. How many days or weeks does the mentor's-workshop chapter last?
+9. The mentor's-workshop chapter lasts one year. How are play days spread across it: spaced-out days, or inscribing jobs that take several days?
 
 **Shop and enchanting**
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
@@ -459,6 +459,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
 | 2026-10-17 | **The uncle becomes the mentor** (Mr. Leywin, placeholder). He isn't related to the player. Story details live in the [story bible](../story/story-bible.md). Earlier log entries keep the old name. |
 | 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
+| 2026-10-18 | The mentor's-workshop chapter is a **one-year apprenticeship** with **four seasons**. How play days spread across the year is still open. Story details are in the [story bible](../story/story-bible.md). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
