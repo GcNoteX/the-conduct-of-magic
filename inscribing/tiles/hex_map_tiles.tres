@@ -1,0 +1,18 @@
+[gd_resource type="TileSet" format=3]
+
+[ext_resource type="Texture2D" path="res://inscribing/tiles/hex_map_tiles.png" id="1_ve7as"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_v1x7l"]
+resource_name = "Placeholder"
+texture = ExtResource("1_ve7as")
+texture_region_size = Vector2i(56, 64)
+0:0/0 = 0
+1:0/0 = 0
+1:0/0/custom_data_0 = true
+
+[resource]
+tile_shape = 3
+tile_size = Vector2i(56, 64)
+custom_data_layer_0/name = "magic_node"
+custom_data_layer_0/type = 1
+sources/0 = SubResource("TileSetAtlasSource_v1x7l")

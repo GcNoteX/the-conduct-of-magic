@@ -29,6 +29,8 @@ func _ready() -> void:
 	test_activation_and_chains()
 	test_commit()
 	test_planned_materials_stay_with_the_item()
+	test_multi_cell_nodes()
+	test_shape_check()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -311,4 +313,85 @@ func test_planned_materials_stay_with_the_item() -> void:
 	check(
 		other.check_insert(InscriptionBoard.enchantment_key(q.id, 0), FIRE) != "",
 		"still held by the first item after the swap"
+	)
+
+
+## Kindle with its second node covering one more cell to the east
+func wide_kindle(extra: Array[Vector2i]) -> Enchantment:
+	var e := Enchantment.new()
+	e.enchantment_name = "Wide kindle"
+	var nodes: Array[EnchantmentPatternNode] = []
+	for n in KINDLE.nodes:
+		var copy := EnchantmentPatternNode.new()
+		copy.offset = n.offset
+		copy.tier_requirement = n.tier_requirement
+		copy.material_requirements = n.material_requirements
+		nodes.append(copy)
+	nodes[1].extra_cells = extra
+	e.nodes = nodes
+	e.lines = KINDLE.lines
+	return e
+
+
+func test_multi_cell_nodes() -> void:
+	var b := new_board()
+	var wide := wide_kindle(path([Vector2i(1, 0)]))
+	check(b.footprint(wide, Vector2i(1, 5), 0).has(Vector2i(4, 5)), "footprint has extra cells")
+	check(
+		b.footprint(wide, Vector2i(1, 5), 1).has(Vector2i(1, 8)), "extra cells turn with the node"
+	)
+	check(
+		b.check_place(wide, Vector2i(1, 4), 0) == "It overlaps another node",
+		"an extra cell can't sit on a magic node"
+	)
+	var p := b.place(wide, Vector2i(1, 5), 0)
+	check(p != null, "a multi-cell node places")
+	var e1 := InscriptionBoard.enchantment_key(p.id, 1)
+	check(b.node_covering(Vector2i(4, 5)) == e1, "the extra cell belongs to its node")
+	check(b.node_at(Vector2i(4, 5)) == "", "lines attach at the node's own cell, not extra cells")
+	check(
+		b.check_place(KINDLE, Vector2i(4, 5), 0) == "It overlaps another node",
+		"another enchantment can't sit on an extra cell"
+	)
+	check(
+		(
+			b.check_step(path([Vector2i(4, 4)]), Vector2i(4, 5))
+			== "An enchantment node covers this cell"
+		),
+		"a line can't run through an extra cell"
+	)
+	check(b.check_line(path([Vector2i(4, 4), Vector2i(3, 5)])) == "", "lines still join the node")
+	b.remove_placement(p)
+	check(b.node_covering(Vector2i(4, 5)) == "", "removing the placement frees its extra cells")
+
+
+func test_shape_check() -> void:
+	for e in [KINDLE, GLOW, KEEN, WARD]:
+		check(InscriptionBoard.check_shape(e) == "", "%s has a sound shape" % e.enchantment_name)
+	check(InscriptionBoard.check_shape(wide_kindle(path([Vector2i(1, 0)]))) == "", "wide kindle")
+	check(
+		(
+			InscriptionBoard.check_shape(wide_kindle(path([Vector2i(-1, 0)])))
+			== "Line 0: it runs over node 1"
+		),
+		"an extra cell can't sit on a line"
+	)
+	check(
+		(
+			InscriptionBoard.check_shape(wide_kindle(path([Vector2i(-2, 0)])))
+			== "Node 1 overlaps node 0"
+		),
+		"an extra cell can't sit on another node"
+	)
+	var moved := wide_kindle(path([]))
+	moved.nodes[0].offset = Vector2i(0, 1)
+	check(
+		InscriptionBoard.check_shape(moved) == "The first node has to sit on the origin cell",
+		"the first node sits on the origin"
+	)
+	var gap := wide_kindle(path([]))
+	gap.nodes[1].offset = Vector2i(3, 0)
+	check(InscriptionBoard.check_shape(gap).begins_with("Line 0: its cells"), "lines can't skip")
+	check(
+		InscriptionBoard.check_shape(Enchantment.new()) != "", "an empty enchantment has no shape"
 	)

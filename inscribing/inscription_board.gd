@@ -29,6 +29,7 @@ var _nodes: Dictionary = {}  ## key -> {kind, cell, placement, index}
 var _cell_to_node: Dictionary = {}  ## Vector2i -> key
 var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
 var _occupied: Dictionary = {}  ## Vector2i -> LineState, or PlacementState for its fixed lines
+var _extra_cells: Dictionary = {}  ## Vector2i -> key of the multi-cell node covering it
 
 
 func _init(item_instance: ItemInstance, player_inventory: Player) -> void:
@@ -84,6 +85,11 @@ func node_at(cell: Vector2i) -> String:
 	return _cell_to_node.get(cell, "")
 
 
+## The node covering `cell`, by its own cell or one of its extra cells, or ""
+func node_covering(cell: Vector2i) -> String:
+	return _cell_to_node.get(cell, _extra_cells.get(cell, ""))
+
+
 func node_cell(key: String) -> Vector2i:
 	return _nodes[key].cell
 
@@ -121,6 +127,15 @@ func placement_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> A
 	return out
 
 
+## The extra cells of an enchantment's multi-cell nodes placed this way
+func node_extra_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for n in e.nodes:
+		for c in n.extra_cells:
+			out.append(origin + Hex.rotate(n.offset + c, rotation_steps))
+	return out
+
+
 ## Each fixed line of an enchantment placed this way, as its full cell path from node to node
 func pattern_line_paths(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array:
 	var nodes := placement_cells(e, origin, rotation_steps)
@@ -134,9 +149,11 @@ func pattern_line_paths(e: Enchantment, origin: Vector2i, rotation_steps: int) -
 	return out
 
 
-## Every cell an enchantment placed this way covers: its nodes and the cells of its fixed lines
+## Every cell an enchantment placed this way covers: its nodes (with their extra cells)
+## and the cells of its fixed lines
 func footprint(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
 	var out := placement_cells(e, origin, rotation_steps)
+	out.append_array(node_extra_cells(e, origin, rotation_steps))
 	for l in e.lines:
 		for c in l.cells:
 			out.append(origin + Hex.rotate(c, rotation_steps))
@@ -246,7 +263,7 @@ func check_place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Strin
 		if seen.has(c):
 			return "The enchantment's shape overlaps itself"
 		seen[c] = true
-		if _cell_to_node.has(c):
+		if node_covering(c) != "":
 			return "It overlaps another node"
 		if _occupied.has(c):
 			return "A line runs through there"
@@ -542,6 +559,61 @@ static func material_name(m: EnchantmentMaterialDefinition) -> String:
 
 
 #
+# ── Enchantment shapes ───────────────────────────
+#
+## Why an enchantment's own shape is broken, or "" when it's sound. Checked unrotated at the origin:
+## the first node sits on the origin, no two cells overlap,
+## and each fixed line runs cell by cell between two different nodes.
+static func check_shape(e: Enchantment) -> String:
+	if e == null or e.nodes.is_empty():
+		return "That enchantment has no shape yet"
+	if e.nodes[0].offset != Vector2i.ZERO:
+		return "The first node has to sit on the origin cell"
+	var taken := {}  ## Vector2i -> what takes it, for messages
+	for i in e.nodes.size():
+		var n: EnchantmentPatternNode = e.nodes[i]
+		var cells: Array[Vector2i] = [n.offset]
+		for c in n.extra_cells:
+			cells.append(n.offset + c)
+		for c in cells:
+			if taken.has(c):
+				return "Node %d overlaps %s" % [i, taken[c]]
+			taken[c] = "node %d" % i
+	var joined := {}
+	for i in e.lines.size():
+		var err := _check_shape_line(e, i, taken, joined)
+		if err != "":
+			return "Line %d: %s" % [i, err]
+	return ""
+
+
+static func _check_shape_line(
+	e: Enchantment, i: int, taken: Dictionary, joined: Dictionary
+) -> String:
+	var l: EnchantmentPatternLine = e.lines[i]
+	var count := e.nodes.size()
+	if l.from_node < 0 or l.from_node >= count or l.to_node < 0 or l.to_node >= count:
+		return "it has to join two of the enchantment's nodes"
+	if l.from_node == l.to_node:
+		return "it has to join two different nodes"
+	var pair := Vector2i(mini(l.from_node, l.to_node), maxi(l.from_node, l.to_node))
+	if joined.has(pair):
+		return "nodes %d and %d are already joined" % [pair.x, pair.y]
+	joined[pair] = true
+	var path: Array[Vector2i] = [e.nodes[l.from_node].offset]
+	path.append_array(l.cells)
+	path.append(e.nodes[l.to_node].offset)
+	for j in range(1, path.size()):
+		if Hex.distance(path[j - 1], path[j]) != 1:
+			return "its cells have to run from node to node, each next to the one before"
+	for c in l.cells:
+		if taken.has(c):
+			return "it runs over %s" % taken[c]
+		taken[c] = "line %d" % i
+	return ""
+
+
+#
 # ── Internals ────────────────────────────────────
 #
 func _rebuild() -> void:
@@ -552,12 +624,15 @@ func _rebuild() -> void:
 		var k := magic_key(c)
 		_nodes[k] = {"kind": "magic", "cell": c, "placement": null, "index": -1}
 		_cell_to_node[c] = k
+	_extra_cells.clear()
 	for p in state.placements:
 		var cells := placement_cells(p.enchantment, p.origin, p.rotation_steps)
 		for i in cells.size():
 			var k := enchantment_key(p.id, i)
 			_nodes[k] = {"kind": "enchantment", "cell": cells[i], "placement": p, "index": i}
 			_cell_to_node[cells[i]] = k
+			for c in p.enchantment.nodes[i].extra_cells:
+				_extra_cells[p.origin + Hex.rotate(p.enchantment.nodes[i].offset + c, p.rotation_steps)] = k
 	for l in state.lines:
 		if not _adjacency.has(l.a):
 			_adjacency[l.a] = []
@@ -592,7 +667,14 @@ func _check_step_cell(path: Array[Vector2i], next: Vector2i) -> String:
 		return "Lines have to stay inside the item"
 	if next in path:
 		return "A line can't cross itself"
-	var owner: Variant = _occupied.get(next)
+	return _taken_reason(next)
+
+
+## Why a line can't run through `cell` because something already takes it, or ""
+func _taken_reason(cell: Vector2i) -> String:
+	if _extra_cells.has(cell):
+		return "An enchantment node covers this cell"
+	var owner: Variant = _occupied.get(cell)
 	if owner is LineState:
 		return "Another line runs through here"
 	if owner is PlacementState:
