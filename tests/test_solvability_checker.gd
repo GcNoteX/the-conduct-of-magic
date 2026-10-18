@@ -13,6 +13,7 @@ const WATER := preload("res://items/enchantment_materials/water_stone/water_ston
 const RED := preload("res://items/enchantment_materials/red_stone/red_stone.tres")
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
 const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+const PortBoard := preload("res://tests/fixtures/port_board.gd")
 
 var _failures := 0
 var _checks := 0
@@ -26,6 +27,7 @@ func _ready() -> void:
 	test_component_toggle()
 	test_plans_commit()
 	test_report_matches_the_plan_list()
+	test_bastion_parallel_lines()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -222,3 +224,48 @@ func test_report_matches_the_plan_list() -> void:
 		if steps[i].kind != DisenchantStep.Kind.DISSOLVE:
 			var row := "%d. %s  (" % [i + 1, d.describe_step(steps[i])]
 			check(report.contains(row), "the report has step %s" % row)
+
+
+## Bastion (a big node with two ports, and two lines joining its left node to the big node): the
+## checker's plan cuts both of those lines, the report names the second "(line 2)" exactly as the
+## plan list does, and following the plan pulls Bastion out
+func test_bastion_parallel_lines() -> void:
+	var player := Player.new()
+	for mat in [FIRE, YELLOW]:
+		player.add_material(mat, 3)
+	var b := PortBoard.board(player)
+	var o := PortBoard.ORIGIN
+	var p := b.place(PortBoard.BASTION, o, 0)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 0), FIRE)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 1), YELLOW)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 2), YELLOW)
+	b.add_line(PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(5, 2), o]))
+	b.add_line(PortBoard.path([o + Vector2i(1, 1), Vector2i(5, 5), PortBoard.MAGIC_BELOW]))
+	check(b.commit().size() == 1, "Bastion commits")
+	var d := DisenchantBoard.new(b)
+	var available := {FIRE: 6, WATER: 6, RED: 6, BLUE: 6, YELLOW: 6}
+	var targets := d.carvings()
+	var found := SolvabilityChecker.new(d).solve(targets, available)
+	check(not found.is_empty(), "Bastion can be cleared")
+	if found.is_empty():
+		return
+	var steps := found[0].steps(targets, d)
+	var report := SolvabilityCheck.report(d, available)
+	var twins := 0
+	for s in steps:
+		if s.kind == DisenchantStep.Kind.CUT:
+			check(report.contains(d.describe_step(s)), "the report lists " + d.describe_step(s))
+			if d.describe_step(s).contains("(line "):
+				twins += 1
+	check(twins == 2, "both lines between the same two nodes are cut, each named by its number")
+	for s in steps:
+		match s.kind:
+			DisenchantStep.Kind.DISSOLVE:
+				player.add_material(s.material, 1)
+				check(d.plan_dissolve(s.material) == "", "dissolve planned")
+			DisenchantStep.Kind.CUT:
+				check(d.plan_cut(DisenchantBoard.step_edge_key(s)) == "", "cut planned")
+			_:
+				check(d.plan_pull_out(d.find_carving(s.placement_id)) == "", "pull out planned")
+	check(d.check_commit() == "", "the plan commits: " + d.check_commit())
+	check(d.commit().size() == 1 and d.carvings().is_empty(), "Bastion is pulled out")
