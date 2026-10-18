@@ -105,6 +105,28 @@ func _ready() -> void:
 		]
 	)
 
+	# An example, not a real enchantment: one node covering 2x2 cells with two ports
+	var bastion := _pattern(
+		"bastion",
+		"Bastion",
+		"Example: a big node with two ports",
+		[
+			_node(
+				Vector2i(0, 0),
+				1,
+				[],
+				[Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)],
+				[Vector2i(0, 0), Vector2i(1, 1)]
+			),
+			_node(Vector2i(-2, 0)),
+			_node(Vector2i(3, 1)),
+		],
+		[
+			_line(1, 0, [Vector2i(-1, 0)]),
+			_line(0, 2, [Vector2i(2, 1)], 1, 0),
+		]
+	)
+
 	# Three swords of different sizes. Every row is centred, so the edges are clean and the
 	# silhouette is symmetric: even rows have an odd number of cells and odd rows an even number.
 	var dagger := _sword(
@@ -183,7 +205,7 @@ func _ready() -> void:
 	setup.materials = {fire: 3, water: 3, red: 3, blue: 3, yellow: 1}
 	setup.items = [dagger, short_sword, long_sword]
 	setup.carved_items = [load("res://inscribing/demo/carved_demo_sword.tres")]
-	setup.enchantments = [kindle, glow, keen, ward]
+	setup.enchantments = [kindle, glow, keen, ward, bastion]
 	setup.day_length_seconds = 3600.0
 	_save(setup, "res://inscribing/demo/demo_setup.tres")
 	print("Demo content written")
@@ -347,17 +369,25 @@ func _pattern(
 	return load(path)
 
 
-func _line(from: int, to: int, cells: Array[Vector2i]) -> EnchantmentPatternLine:
+func _line(
+	from: int, to: int, cells: Array[Vector2i], from_port := 0, to_port := 0
+) -> EnchantmentPatternLine:
 	var l := EnchantmentPatternLine.new()
 	l.from_node = from
 	l.to_node = to
+	l.from_port = from_port
+	l.to_port = to_port
 	l.cells = cells
 	return l
 
 
-func _node(offset: Vector2i, tier := 1, attributes: Array = []) -> EnchantmentPatternNode:
+func _node(
+	offset: Vector2i, tier := 1, attributes: Array = [], extra: Array = [], ports: Array = []
+) -> EnchantmentPatternNode:
 	var n := EnchantmentPatternNode.new()
 	n.offset = offset
+	n.extra_cells.assign(extra)
+	n.ports.assign(ports)
 	n.tier_requirement = tier
 	var reqs: Array[MaterialCondition] = []
 	for a in attributes:

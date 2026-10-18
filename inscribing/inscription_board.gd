@@ -12,6 +12,8 @@ The rules of carving on one item's hex map. Pure logic, no drawing, so it can be
 - Positions are in unit hex space (hex size 1); views scale them
 - Lines run cell by cell between two nodes and fill every cell between them,
   so "lines can't cross" means "no two lines share a cell"
+- A node can cover several cells. Lines attach only at its ports (its own cell unless the
+  enchantment says otherwise), and all its lines count together: it's still one node
 - Every check_* returns "" when allowed, or a player-facing reason when not
 - Planned materials stay with the item: inserting one into a draft node takes it out of the
   inventory, and taking it back out (or swapping it) returns it
@@ -25,11 +27,11 @@ var inventory: Player
 
 var _cells: Dictionary = {}  ## Vector2i -> true
 var _magic_cells: Array[Vector2i] = []
-var _nodes: Dictionary = {}  ## key -> {kind, cell, placement, index}
-var _cell_to_node: Dictionary = {}  ## Vector2i -> key
+var _nodes: Dictionary = {}  ## key -> {kind, cell, cells, placement, index}
+var _cell_to_node: Dictionary = {}  ## Vector2i -> key, for every port cell (where lines attach)
 var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
 var _occupied: Dictionary = {}  ## Vector2i -> LineState, or PlacementState for its fixed lines
-var _extra_cells: Dictionary = {}  ## Vector2i -> key of the multi-cell node covering it
+var _extra_cells: Dictionary = {}  ## Vector2i -> key of the node covering it, where it isn't a port
 var _magic_extra_cells: Dictionary[Vector2i, Vector2i] = {}  ## covered cell -> magic node cell
 
 
@@ -83,11 +85,12 @@ func has_node(key: String) -> bool:
 	return _nodes.has(key)
 
 
+## The node with a port (where lines attach) in `cell`, or ""
 func node_at(cell: Vector2i) -> String:
 	return _cell_to_node.get(cell, "")
 
 
-## The node covering `cell`, by its own cell or one of its extra cells, or ""
+## The node covering `cell`, by any of its cells, or ""
 func node_covering(cell: Vector2i) -> String:
 	return _cell_to_node.get(cell, _extra_cells.get(cell, ""))
 
@@ -98,15 +101,29 @@ func node_cell(key: String) -> Vector2i:
 
 ## Every cell the node covers: its own cell first, then its extra cells
 func node_cells(key: String) -> Array[Vector2i]:
-	var out: Array[Vector2i] = [_nodes[key].cell]
-	for c in _extra_cells:
-		if _extra_cells[c] == key:
+	var out: Array[Vector2i] = []
+	out.assign(_nodes[key].cells)
+	return out
+
+
+## The cells where lines attach to the node
+func node_ports(key: String) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for c in _nodes[key].cells:
+		if _cell_to_node.get(c, "") == key:
 			out.append(c)
 	return out
 
 
+## Where the node is drawn, in unit hex space: a magic node at its own cell, an enchantment node
+## in the middle of the cells it covers
 func node_position(key: String) -> Vector2:
-	return Hex.to_pixel(_nodes[key].cell, 1.0)
+	if is_magic(key):
+		return Hex.to_pixel(_nodes[key].cell, 1.0)
+	var sum := Vector2.ZERO
+	for c in _nodes[key].cells:
+		sum += Hex.to_pixel(c, 1.0)
+	return sum / _nodes[key].cells.size()
 
 
 func is_magic(key: String) -> bool:
@@ -147,15 +164,22 @@ func node_extra_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> 
 	return out
 
 
-## Each fixed line of an enchantment placed this way, as its full cell path from node to node
+## The cell of port `port` of node `index` of an enchantment placed this way
+func port_cell(
+	e: Enchantment, origin: Vector2i, rotation_steps: int, index: int, port: int
+) -> Vector2i:
+	var n: EnchantmentPatternNode = e.nodes[index]
+	return origin + Hex.rotate(n.offset + n.port_offsets()[port], rotation_steps)
+
+
+## Each fixed line of an enchantment placed this way, as its full cell path from port to port
 func pattern_line_paths(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array:
-	var nodes := placement_cells(e, origin, rotation_steps)
 	var out := []
 	for l in e.lines:
-		var path: Array[Vector2i] = [nodes[l.from_node]]
+		var path: Array[Vector2i] = [port_cell(e, origin, rotation_steps, l.from_node, l.from_port)]
 		for c in l.cells:
 			path.append(origin + Hex.rotate(c, rotation_steps))
-		path.append(nodes[l.to_node])
+		path.append(port_cell(e, origin, rotation_steps, l.to_node, l.to_port))
 		out.append(path)
 	return out
 
@@ -335,6 +359,8 @@ func remove_carving(p: PlacementState) -> void:
 func check_line_start(cell: Vector2i) -> String:
 	var key := node_at(cell)
 	if key == "":
+		if node_covering(cell) != "":
+			return "Lines attach to this node at its ports"
 		return "Lines start on a node"
 	if is_node_committed(key):
 		return "That node is part of a committed carving"
@@ -583,13 +609,17 @@ static func check_shape(e: Enchantment) -> String:
 	var taken := {}  ## Vector2i -> what takes it, for messages
 	for i in e.nodes.size():
 		var n: EnchantmentPatternNode = e.nodes[i]
-		var cells: Array[Vector2i] = [n.offset]
-		for c in n.extra_cells:
-			cells.append(n.offset + c)
-		for c in cells:
-			if taken.has(c):
-				return "Node %d overlaps %s" % [i, taken[c]]
-			taken[c] = "node %d" % i
+		for c in n.covered_offsets():
+			if taken.has(n.offset + c):
+				return "Node %d overlaps %s" % [i, taken[n.offset + c]]
+			taken[n.offset + c] = "node %d" % i
+		var seen := {}
+		for port in n.ports:
+			if port not in n.covered_offsets():
+				return "Node %d: its port %s isn't one of its cells" % [i, port]
+			if seen.has(port):
+				return "Node %d: the port %s is listed twice" % [i, port]
+			seen[port] = true
 	var joined := {}
 	for i in e.lines.size():
 		var err := _check_shape_line(e, i, taken, joined)
@@ -607,13 +637,19 @@ static func _check_shape_line(
 		return "it has to join two of the enchantment's nodes"
 	if l.from_node == l.to_node:
 		return "it has to join two different nodes"
+	var from: EnchantmentPatternNode = e.nodes[l.from_node]
+	var to: EnchantmentPatternNode = e.nodes[l.to_node]
+	if l.from_port < 0 or l.from_port >= from.port_offsets().size():
+		return "node %d has no port %d" % [l.from_node, l.from_port]
+	if l.to_port < 0 or l.to_port >= to.port_offsets().size():
+		return "node %d has no port %d" % [l.to_node, l.to_port]
 	var pair := Vector2i(mini(l.from_node, l.to_node), maxi(l.from_node, l.to_node))
 	if joined.has(pair):
 		return "nodes %d and %d are already joined" % [pair.x, pair.y]
 	joined[pair] = true
-	var path: Array[Vector2i] = [e.nodes[l.from_node].offset]
+	var path: Array[Vector2i] = [from.offset + from.port_offsets()[l.from_port]]
 	path.append_array(l.cells)
-	path.append(e.nodes[l.to_node].offset)
+	path.append(to.offset + to.port_offsets()[l.to_port])
 	for j in range(1, path.size()):
 		if Hex.distance(path[j - 1], path[j]) != 1:
 			return "its cells have to run from node to node, each next to the one before"
@@ -631,21 +667,20 @@ func _rebuild() -> void:
 	_nodes.clear()
 	_cell_to_node.clear()
 	_adjacency.clear()
+	_extra_cells.clear()
 	for c in _magic_cells:
 		var k := magic_key(c)
-		_nodes[k] = {"kind": "magic", "cell": c, "placement": null, "index": -1}
+		var cells: Array[Vector2i] = [c]
+		_nodes[k] = {"kind": "magic", "cell": c, "cells": cells, "placement": null, "index": -1}
 		_cell_to_node[c] = k
-	_extra_cells.clear()
 	for c in _magic_extra_cells:
-		_extra_cells[c] = magic_key(_magic_extra_cells[c])
+		var k := magic_key(_magic_extra_cells[c])
+		if _nodes.has(k):
+			_nodes[k].cells.append(c)
+			_extra_cells[c] = k
 	for p in state.placements:
-		var cells := placement_cells(p.enchantment, p.origin, p.rotation_steps)
-		for i in cells.size():
-			var k := enchantment_key(p.id, i)
-			_nodes[k] = {"kind": "enchantment", "cell": cells[i], "placement": p, "index": i}
-			_cell_to_node[cells[i]] = k
-			for c in p.enchantment.nodes[i].extra_cells:
-				_extra_cells[p.origin + Hex.rotate(p.enchantment.nodes[i].offset + c, p.rotation_steps)] = k
+		for i in p.enchantment.nodes.size():
+			_add_enchantment_node(p, i)
 	for l in state.lines:
 		if not _adjacency.has(l.a):
 			_adjacency[l.a] = []
@@ -661,6 +696,23 @@ func _rebuild() -> void:
 		for l in p.enchantment.lines:
 			for c in l.cells:
 				_occupied[p.origin + Hex.rotate(c, p.rotation_steps)] = p
+
+
+func _add_enchantment_node(p: PlacementState, i: int) -> void:
+	var k := enchantment_key(p.id, i)
+	var n: EnchantmentPatternNode = p.enchantment.nodes[i]
+	var cells: Array[Vector2i] = []
+	for c in n.covered_offsets():
+		cells.append(p.origin + Hex.rotate(n.offset + c, p.rotation_steps))
+	_nodes[k] = {
+		"kind": "enchantment", "cell": cells[0], "cells": cells, "placement": p, "index": i
+	}
+	var ports := n.port_offsets()
+	for j in cells.size():
+		if n.covered_offsets()[j] in ports:
+			_cell_to_node[cells[j]] = k
+		else:
+			_extra_cells[cells[j]] = k
 
 
 func _erase_placement(p: PlacementState) -> void:

@@ -277,8 +277,13 @@ func check_cut(key: String) -> String:
 func plan_cut(key: String) -> String:
 	var err := check_cut(key)
 	if err == "":
-		state.disenchant_plan.append(DisenchantStep.cut(_edges[key].a, _edges[key].b))
+		state.disenchant_plan.append(cut_step(key))
 	return err
+
+
+## A new step that cuts the line `key`
+func cut_step(key: String) -> DisenchantStep:
+	return DisenchantStep.cut(_edges[key].a, _edges[key].b)
 
 
 func check_dissolve(m: EnchantmentMaterialDefinition) -> String:

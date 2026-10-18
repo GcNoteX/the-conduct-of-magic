@@ -12,6 +12,8 @@ const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.t
 const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
 const RED := preload("res://items/enchantment_materials/red_stone/red_stone.tres")
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
+const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+const PortBoard := preload("res://tests/fixtures/port_board.gd")
 
 var _failures := 0
 var _checks := 0
@@ -25,6 +27,7 @@ func _ready() -> void:
 	test_pull_out_and_commit()
 	test_no_partial_commits()
 	test_planned_dissolves_stay_with_the_item()
+	test_big_node_with_ports()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -289,3 +292,37 @@ func test_planned_dissolves_stay_with_the_item() -> void:
 		"clearing the plan gives everything back"
 	)
 	check(d.check_dissolve(BLUE).begins_with("You don't have"), "can't dissolve what you lack")
+
+
+## A big node is one node: its lines at both ports are its edges, and it's freed (paying its harvest
+## once) when the last of them is cut
+func test_big_node_with_ports() -> void:
+	var player := Player.new()
+	for mat in [FIRE, YELLOW]:
+		player.add_material(mat, 3)
+	var b := PortBoard.board(player)
+	var o := PortBoard.ORIGIN
+	var p := b.place(PortBoard.BASTION, o, 0)
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	b.insert_material(big, FIRE)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 1), YELLOW)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 2), YELLOW)
+	b.add_line(PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(4, 2), o]))
+	b.add_line(PortBoard.path([o + Vector2i(1, 1), Vector2i(5, 5), PortBoard.MAGIC_BELOW]))
+	check(b.commit().size() == 1, "Bastion commits: " + b.check_commit())
+	var d := DisenchantBoard.new(b)
+	check(d.node_edges(big).size() == 4, "the big node's 2 fixed and 2 drawn lines are all its own")
+	check(d.chain(p).size() == 4, "Bastion's chain is its 4 lines")
+	var steps: Array[DisenchantStep] = []
+	for i in 3:
+		steps.append(DisenchantStep.dissolve(FIRE))
+	steps.append(DisenchantStep.dissolve(YELLOW))
+	for k in d.node_edges(big):
+		steps.append(d.cut_step(k))
+	var outs := d.replay(steps)
+	var freed_at := -1
+	for i in outs.size():
+		check(outs[i].error == "", "step %d can be done: %s" % [i, outs[i].error])
+		if big in outs[i].freed:
+			freed_at = i
+	check(freed_at == outs.size() - 1, "the big node is freed by the cut of its last line")

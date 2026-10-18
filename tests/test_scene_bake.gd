@@ -15,7 +15,7 @@ const SWORD_MAP := preload("res://inscribing/demo/long_sword_map.tres")
 const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
 const DEMO_SETUP := preload("res://inscribing/demo/demo_setup.tres")
 const TABLE := preload("res://inscribing/inscribing_table.tscn")
-const ENCHANTMENTS := ["kindle", "glow", "keen", "ward"]
+const ENCHANTMENTS := ["kindle", "glow", "keen", "ward", "bastion"]
 const CELL_SOURCE := 0
 const MAGIC_SOURCE := 1
 const CELL_TILE := Vector2i(0, 0)
@@ -61,6 +61,7 @@ func _ready() -> void:
 	test_enchantment_scene_warnings()
 	test_enchantment_scene_lines()
 	test_enchantment_scene_extra_cells()
+	test_enchantment_scene_ports()
 	test_bake_reads_tile_runes()
 	test_magic_node_tiles()
 	test_magic_node_scene_tile()
@@ -374,6 +375,30 @@ func test_enchantment_scene_extra_cells() -> void:
 		"an extra cell can't sit on the node's own line"
 	)
 	check(scene.overlapping_cells().has(Vector2i(1, 0)), "the extra cell overlap is drawn")
+	scene.free()
+
+
+## Bastion's lines end on the big node's ports, which bake with it
+func test_enchantment_scene_ports() -> void:
+	var scene := new_enchantment_scene("bastion")
+	var big: EnchantmentNodeComponent = scene.node_components()[0]
+	var right: EnchantmentLineComponent = scene.line_components()[1]
+	check(big.port_cell(1) == Vector2i(1, 1), "port 1 is the big node's bottom right cell")
+	check(right.points[0] == big.port_position(1), "a line snaps to its port")
+	check(right.path_cells()[0] == Vector2i(1, 1), "and runs from it")
+	var built := scene.build_enchantment()
+	check(built.nodes[0].ports == big.ports and built.lines[1].from_port == 1, "ports bake")
+	right.from_port = 3
+	check(
+		scene.check_shape() == "LineRight: BigNode has no port 3 (set From Port)",
+		"a line naming a missing port warns"
+	)
+	right.from_port = 1
+	big.ports = [Vector2i(0, 0), Vector2i(2, 2)] as Array[Vector2i]
+	check(
+		scene.check_shape() == "Node 0: its port (2, 2) isn't one of its cells",
+		"a port off the node warns"
+	)
 	scene.free()
 
 

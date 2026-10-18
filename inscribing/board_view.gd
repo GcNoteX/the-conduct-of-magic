@@ -179,10 +179,11 @@ func _set_mouse(local: Vector2) -> void:
 ## The node under the mouse; in Disenchant mode, a line's edge key when the mouse is on a line
 ## rather than on a node's circle
 func _update_hover() -> void:
-	var k := board.node_at(cell_under_mouse())
+	var cell := cell_under_mouse()
+	var k := board.node_covering(cell)
 	if disenchant:
 		var radius := 0.3 if board.is_magic(k) else 0.45
-		if k == "" or _mouse_unit.distance_to(board.node_position(k)) > radius:
+		if k == "" or _mouse_unit.distance_to(Hex.to_pixel(cell, 1.0)) > radius:
 			k = _line_near_mouse()
 	if k != _hover_key:
 		_hover_key = k
@@ -631,6 +632,10 @@ func _draw_enchantment_node(k: String) -> void:
 	var p := board.node_placement(k)
 	var def := board.node_definition(k)
 	var mat := board.node_material(k)
+	var cells := board.node_cells(k)
+	if cells.size() > 1:
+		_draw_big_node_body(k, cells, mat.color if mat else COLOR_EMPTY_NODE)
+		radius = hex_size * 0.5
 	draw_circle(pos, radius, mat.color if mat else COLOR_EMPTY_NODE, true, -1.0, true)
 	var ring := COLOR_COMMITTED if p.committed else COLOR_FIXED_LINE
 	if mat and not p.committed:
@@ -650,6 +655,19 @@ func _draw_enchantment_node(k: String) -> void:
 		if _dragging_material:
 			col = COLOR_ACTIVE if board.check_insert(k, _dragging_material) == "" else COLOR_UNMET
 		draw_arc(pos, radius + 8.0, 0, TAU, 32, col, 2.0, true)
+
+
+## A node covering several cells: its cells joined into one body, with a ring on each port
+func _draw_big_node_body(k: String, cells: Array[Vector2i], fill: Color) -> void:
+	var edge := COLOR_COMMITTED if board.node_placement(k).committed else COLOR_FIXED_LINE
+	for c in cells:
+		var pts := Hex.corners(cell_screen(c), hex_size * 0.9)
+		draw_colored_polygon(pts, fill.darkened(0.45))
+		pts.append(pts[0])
+		draw_polyline(pts, edge, 1.5, true)
+	for c in board.node_ports(k):
+		draw_circle(cell_screen(c), hex_size * 0.22, COLOR_EMPTY_NODE, true, -1.0, true)
+		draw_arc(cell_screen(c), hex_size * 0.22, 0, TAU, 24, COLOR_ACTIVE, 2.0, true)
 
 
 func _requirement_label(def: EnchantmentPatternNode) -> String:
@@ -702,6 +720,8 @@ func _draw_ghost(e: Enchantment) -> void:
 	var col := COLOR_VALID if ok else COLOR_INVALID
 	for cells in board.pattern_line_paths(e, origin, held_rotation):
 		_draw_path(cells, col, 0.4)
+	for c in board.node_extra_cells(e, origin, held_rotation):
+		draw_colored_polygon(Hex.corners(cell_screen(c), hex_size * 0.8), col)
 	for c in board.placement_cells(e, origin, held_rotation):
 		draw_circle(cell_screen(c), hex_size * 0.42, col, true, -1.0, true)
 

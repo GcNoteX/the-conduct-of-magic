@@ -14,6 +14,7 @@ const WARD := preload("res://enchantments/patterns/ward.tres")
 const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
 const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
+const PortBoard := preload("res://tests/fixtures/port_board.gd")
 const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
 
 var _failures := 0
@@ -31,6 +32,8 @@ func _ready() -> void:
 	test_planned_materials_stay_with_the_item()
 	test_multi_cell_nodes()
 	test_bigger_magic_nodes()
+	test_big_nodes_with_ports()
+	test_port_shape_checks()
 	test_shape_check()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -383,6 +386,96 @@ func test_bigger_magic_nodes() -> void:
 		"a line can't run through the extra cell"
 	)
 	check(b.check_place(KINDLE, extra, 0) == "It overlaps another node", "nothing sits on it")
+
+
+## Bastion's big node covers four cells and takes lines only at its two ports; it's one node,
+## so lines at both ports count together for its material
+func test_big_nodes_with_ports() -> void:
+	var b := PortBoard.board(new_board().inventory)
+	var o := PortBoard.ORIGIN
+	check(b.check_place(PortBoard.BASTION, o, 0) == "", "Bastion fits on the open map")
+	var p := b.place(PortBoard.BASTION, o, 0)
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	var corner := o + Vector2i(1, 1)
+	check(b.node_at(o) == big and b.node_at(corner) == big, "both ports attach lines to the node")
+	check(b.node_ports(big) == path([o, corner]), "the node lists its two ports")
+	for c in [o + Vector2i(1, 0), o + Vector2i(0, 1)]:
+		check(b.node_at(c) == "" and b.node_covering(c) == big, "a cell that isn't a port")
+	check(b.node_cells(big).size() == 4, "the big node covers four cells")
+	check(
+		b.check_line_start(o + Vector2i(1, 0)) == "Lines attach to this node at its ports",
+		"a line can't start on a cell that isn't a port"
+	)
+	check(
+		(
+			b.check_step(path([PortBoard.MAGIC_SIDE]), o + Vector2i(1, 0))
+			== "An enchantment node covers this cell"
+		),
+		"a line can't end on a cell that isn't a port"
+	)
+	var fixed := b.fixed_lines()
+	check(fixed[1].cells[0] == corner, "a fixed line starts at its port")
+	check(fixed[0].cells.back() == o, "and ends at its port")
+	var above := PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(4, 2), o])
+	var below := PortBoard.path([corner, Vector2i(5, 5), PortBoard.MAGIC_BELOW])
+	check(b.check_line(above) == "", "a drawn line can end at port 0")
+	b.add_line(above)
+	check(b.check_line(below) == "", "a drawn line can start at port 1")
+	b.add_line(below)
+	b.insert_material(big, FIRE)
+	check(b.line_count(big) == 2, "lines at both ports count for the one node")
+	check(b.is_node_active(big), "fire's 2 lines are met across two ports")
+	check(
+		b.check_line(PortBoard.path([corner, Vector2i(6, 3), PortBoard.MAGIC_SIDE])) == "",
+		"another line can share a port"
+	)
+	check(
+		(
+			b.check_line(
+				PortBoard.path([corner, Vector2i(4, 5), Vector2i(3, 5), Vector2i(3, 4), o])
+			)
+			== "Draw from one node to another"
+		),
+		"a line can't run from one port of the node to another"
+	)
+	var turned := PortBoard.board(new_board().inventory)
+	var at := Vector2i(-99, -99)
+	for c in turned.get_cells():
+		if at.x == -99 and turned.check_place(PortBoard.BASTION, c, 1) == "":
+			at = c
+	var q := turned.place(PortBoard.BASTION, at, 1)
+	check(q != null, "Bastion places turned")
+	if q:
+		var k := InscriptionBoard.enchantment_key(q.id, 0)
+		check(
+			turned.node_ports(k) == path([at, at + Hex.rotate(Vector2i(1, 1), 1)]),
+			"ports turn with the enchantment"
+		)
+
+
+func test_port_shape_checks() -> void:
+	check(InscriptionBoard.check_shape(PortBoard.BASTION) == "", "Bastion has a sound shape")
+	var e: Enchantment = PortBoard.BASTION.duplicate(true)
+	e.nodes[0].ports = path([Vector2i(0, 0), Vector2i(2, 0)])
+	check(
+		InscriptionBoard.check_shape(e) == "Node 0: its port (2, 0) isn't one of its cells",
+		"a port has to be one of the node's cells"
+	)
+	e.nodes[0].ports = path([Vector2i(1, 1), Vector2i(1, 1)])
+	check(
+		InscriptionBoard.check_shape(e) == "Node 0: the port (1, 1) is listed twice",
+		"a port is listed once"
+	)
+	e.nodes[0].ports = path([Vector2i(0, 0), Vector2i(1, 1)])
+	e.lines[1].from_port = 2
+	check(
+		InscriptionBoard.check_shape(e) == "Line 1: node 0 has no port 2", "the port has to exist"
+	)
+	e.lines[1].from_port = 0
+	check(
+		InscriptionBoard.check_shape(e).begins_with("Line 1: its cells"),
+		"a line runs from the port it names"
+	)
 
 
 func test_shape_check() -> void:
