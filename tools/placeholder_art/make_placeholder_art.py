@@ -325,16 +325,16 @@ def rune_line():
     w, h = 64, 16
     img = canvas(w, h)
     glow = Image.new("RGBA", img.size, (0, 0, 0, 0))
-    ImageDraw.Draw(glow).rectangle([-10 * SS, 4 * SS, (w + 10) * SS, 12 * SS], fill=(150, 130, 255, 200))
-    glow = glow.filter(ImageFilter.GaussianBlur(2.2 * SS))
+    ImageDraw.Draw(glow).rectangle([-10 * SS, 2 * SS, (w + 10) * SS, 14 * SS], fill=(150, 130, 255, 210))
+    glow = glow.filter(ImageFilter.GaussianBlur(1.6 * SS))
     img.alpha_composite(glow)
     d = ImageDraw.Draw(img)
-    d.rectangle([-SS, 6.2 * SS, (w + 1) * SS, 9.8 * SS], fill=(214, 204, 255, 255))
-    d.rectangle([-SS, 7.3 * SS, (w + 1) * SS, 8.7 * SS], fill=(255, 255, 255, 255))
+    d.rectangle([-SS, 4.5 * SS, (w + 1) * SS, 11.5 * SS], fill=(196, 182, 255, 255))
+    d.rectangle([-SS, 6.5 * SS, (w + 1) * SS, 9.5 * SS], fill=(255, 255, 255, 255))
     for x in (16, 48):  # rune marks along the line
         cx, cy = x * SS, 8 * SS
-        d.regular_polygon((cx, cy, 4.2 * SS), 4, fill=(120, 96, 230, 255))
-        d.regular_polygon((cx, cy, 2.4 * SS), 4, fill=(255, 255, 255, 255))
+        d.regular_polygon((cx, cy, 6.5 * SS), 4, fill=(110, 84, 225, 255))
+        d.regular_polygon((cx, cy, 3.6 * SS), 4, fill=(255, 255, 255, 255))
     return finish(img, "rune_line.png")
 
 

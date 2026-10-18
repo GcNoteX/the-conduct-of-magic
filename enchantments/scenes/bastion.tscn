@@ -44,7 +44,7 @@ texture = ExtResource("6_socket")
 [node name="LineLeft" type="Line2D" parent="." node_paths=PackedStringArray("from_node", "to_node")]
 texture_repeat = 2
 points = PackedVector2Array(-110.85125, 0, 0, 0)
-width = 12.0
+width = 14.0
 texture = ExtResource("7_line")
 texture_mode = 1
 joint_mode = 2
@@ -57,7 +57,7 @@ to_node = NodePath("../BigNode")
 [node name="LineRight" type="Line2D" parent="." node_paths=PackedStringArray("from_node", "to_node")]
 texture_repeat = 2
 points = PackedVector2Array(83.13844, 48, 193.98969, 48)
-width = 12.0
+width = 14.0
 texture = ExtResource("7_line")
 texture_mode = 1
 joint_mode = 2
@@ -71,7 +71,7 @@ from_port = 1
 [node name="LineLeftTop" type="Line2D" parent="." node_paths=PackedStringArray("from_node", "to_node")]
 texture_repeat = 2
 points = PackedVector2Array(-110.85125, 0, -83.13844, -48, -27.71281, -48, 0, 0)
-width = 12.0
+width = 14.0
 texture = ExtResource("7_line")
 texture_mode = 1
 joint_mode = 2
