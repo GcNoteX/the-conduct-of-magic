@@ -28,34 +28,40 @@ func _ready() -> void:
 	view = table._view
 	_shot("01_empty")
 
-	# Place Kindle with the mouse
-	table._enchantments.select(0)
-	table._on_enchantment_selected(0)
+	# Drag Kindle from the sidebar, rotating it once mid-drag to show the ghost turn
+	var kindle := _card(table.player.known_enchantments[0])
+	_start_drag(kindle)
 	_move(_cell(Vector2i(1, 5)))
+	_key(KEY_R)
+	_move(_cell(Vector2i(1, 5)) + Vector2(1, 0))
 	await _frames(2)
-	_shot("02_ghost")
-	_click(_cell(Vector2i(1, 5)), MOUSE_BUTTON_LEFT)
+	_shot("02_dragging_rotated")
+	for i in 5:
+		_key(KEY_R)
+	_move(_cell(Vector2i(1, 5)))
+	_release(_cell(Vector2i(1, 5)))
 	await _frames(2)
 	var p: PlacementState = table.board.state.placements[0]
 	var e0 := InscriptionBoard.enchantment_key(p.id, 0)
 	var e1 := InscriptionBoard.enchantment_key(p.id, 1)
-	print("placed: ", table.board.state.placements.size())
-	_move(_cell(Vector2i(3, 5)))
-	await _frames(2)
-	_shot("03_requirements")
+	print("placed: ", table.board.state.placements.size(), " rotation: ", p.rotation_steps)
 
 	# Drag fire onto the flame node, showing the drop preview first
-	var mats: Array[EnchantmentMaterialDefinition] = table._materials.materials
-	table._on_material_drag_started(mats[0])
-	table._board_area._can_drop_data(_area(Vector2i(1, 5)), mats[0])
+	var mats: Array[EnchantmentMaterialDefinition] = table._material_order()
+	table._layout.set_open(true)
+	await _frames(15)
+	_start_drag(_card(mats[0]))
+	_move(_cell(Vector2i(1, 5)))
+	await _frames(15)
+	_shot("03_drop_preview")
+	_release(_cell(Vector2i(1, 5)))
 	await _frames(2)
-	_shot("04_drop_preview")
-	table._board_area._drop_data(_area(Vector2i(1, 5)), mats[0])
-	table._board_area._drop_data(_area(Vector2i(3, 5)), mats[3])
-	await _frames(2)
+	_start_drag(_card(mats[3]))
+	_move(_cell(Vector2i(3, 5)))
+	_release(_cell(Vector2i(3, 5)))
 	_move(_cell(Vector2i(1, 5)))
 	await _frames(2)
-	_shot("04b_inserted")
+	_shot("04_inserted")
 	print("materials: ", table.board.node_material(e0), " ", table.board.node_material(e1))
 
 	# Draw lines cell by cell, with a wobble back along the first one
@@ -89,6 +95,33 @@ func _ready() -> void:
 
 	await _disenchant()
 
+	# The other layouts, for comparison, back in Carve mode
+	_click(table._carve_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	# The other layouts, for comparison
+	_key(KEY_TAB)
+	await _frames(20)
+	_shot("16_sidebar_closed")
+	table._set_layout(table.Layout.BOTTOM_TRAY)
+	await _frames(3)
+	_shot("17_bottom_tray")
+	table._set_layout(table.Layout.QUICK_PALETTE)
+	await _frames(2)
+	_move(_cell(Vector2i(0, 9)))
+	_key(KEY_SPACE, true)
+	await _frames(3)
+	_shot("18_quick_palette")
+	_key(KEY_SPACE, false)
+	table._set_layout(table.Layout.LISTS)
+	await _frames(3)
+	_shot("19_lists")
+	# The original lists in Disenchant mode: enchantments dimmed, double-click a row to dissolve
+	table._item_picker.select(table.player.items.size() - 1)
+	table._open_item(table.player.items.size() - 1)
+	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(3)
+	_shot("20_lists_disenchant")
+
 	table.time_left = 0.01
 	await _frames(3)
 	_shot("08_day_over")
@@ -99,7 +132,7 @@ func _ready() -> void:
 ## planning every cut of Kindle, pulling it out and committing
 func _disenchant() -> void:
 	var carved: int = table.player.items.size() - 1
-	table._items.select(carved)
+	table._item_picker.select(carved)
 	table._open_item(carved)
 	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
 	await _frames(2)
@@ -120,9 +153,20 @@ func _disenchant() -> void:
 	_click(_edge_point("e:1:0", "m:1,7"), MOUSE_BUTTON_RIGHT)
 	await _frames(1)
 
-	var mats: Array[EnchantmentMaterialDefinition] = table._materials.materials
-	table._on_material_activated(mats.find(FIRE))
-	table._on_material_activated(mats.find(YELLOW))
+	# Dissolve by double-clicking the material cards (the cards are rebuilt after each one)
+	_double_click(_card(FIRE))
+	await _frames(1)
+	_double_click(_card(YELLOW))
+	await _frames(1)
+	print("planned fire: ", table.board.planned_count(FIRE), " card: ", _card(FIRE).subtitle)
+	table._layout.set_open(true)
+	var tabs: TabContainer = table._layout.find_children("*", "TabContainer", true, false)[0]
+	tabs.current_tab = 1
+	await _frames(15)
+	_shot("11a_sidebar_dissolved")
+	tabs.current_tab = 0
+	table._layout.set_open(false)
+	await _frames(15)
 	for ends in [["e:1:0", "m:1,7"], ["e:1:0", "m:0,4"]]:
 		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
 	await _frames(2)
@@ -167,7 +211,7 @@ func _disenchant() -> void:
 	_shot("14_committed")
 
 	# Disenchant mode works on the sword carved earlier in this run too
-	table._items.select(0)
+	table._item_picker.select(0)
 	table._open_item(0)
 	await _frames(2)
 	_shot("15_own_carving")
@@ -176,6 +220,39 @@ func _disenchant() -> void:
 func _edge_point(a: String, b: String) -> Vector2:
 	var mid := view._edge_middle(DisenchantBoard.edge_key(a, b))
 	return view.get_global_transform_with_canvas() * mid
+
+
+func _card(payload: Resource) -> PaletteCard:
+	for c in table.find_children("*", "PaletteCard", true, false):
+		if c.payload == payload and not c.is_queued_for_deletion():
+			return c
+	return null
+
+
+func _start_drag(card: PaletteCard) -> void:
+	card.force_drag(card.payload, card.make_preview())
+	table._on_card_drag_started(card.payload)
+
+
+func _key(code: Key, pressed := true) -> void:
+	var ev := InputEventKey.new()
+	ev.keycode = code
+	ev.physical_keycode = code
+	ev.pressed = pressed
+	Input.parse_input_event(ev)
+	Input.flush_buffered_events()
+	if code != KEY_SPACE and pressed:
+		_key(code, false)
+
+
+## A double-click on a card, sent straight to it
+func _double_click(card: PaletteCard) -> void:
+	for pressed in [true, false]:
+		var ev := InputEventMouseButton.new()
+		ev.button_index = MOUSE_BUTTON_LEFT
+		ev.pressed = pressed
+		ev.double_click = pressed
+		card._gui_input(ev)
 
 
 func _cell(c: Vector2i) -> Vector2:

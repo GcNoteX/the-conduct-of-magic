@@ -75,6 +75,7 @@ var _path: Array[Vector2i] = []  ## The line being drawn, from its start node
 var _blocked_cell := Vector2i.ZERO
 var _blocked_reason := ""  ## Why the line being drawn can't go further; "" when it isn't blocked
 var _dragging_material: EnchantmentMaterialDefinition = null
+var _dragging_enchantment: Enchantment = null
 
 
 #
@@ -187,7 +188,7 @@ func _update_hover() -> void:
 
 
 func _rotate_held(steps: int) -> void:
-	if held_enchantment:
+	if held_enchantment or _dragging_enchantment:
 		held_rotation = posmod(held_rotation + steps, 6)
 		queue_redraw()
 
@@ -439,8 +440,35 @@ func drop_material(m: EnchantmentMaterialDefinition, local: Vector2) -> void:
 	_changed()
 
 
+## Why `e` can't be dropped with its origin at `local` right now, or "" when it can.
+## Also shows the placement ghost, which R or the mouse wheel rotates during the drag.
+func check_enchantment_drop(e: Enchantment, local: Vector2) -> String:
+	if board == null:
+		return "Open an item first"
+	if disenchant:
+		return "Switch to Carve to place enchantments"
+	_set_mouse(local)
+	_dragging_enchantment = e
+	queue_redraw()
+	return board.check_place(e, cell_under_mouse(), held_rotation)
+
+
+func drop_enchantment(e: Enchantment, local: Vector2) -> void:
+	var err := check_enchantment_drop(e, local)
+	end_drop_preview()
+	if err != "":
+		message.emit(err)
+		return
+	board.place(e, cell_under_mouse(), held_rotation)
+	message.emit(
+		"Placed %s. Right click it to take it back while it's a draft." % e.enchantment_name
+	)
+	_changed()
+
+
 func end_drop_preview() -> void:
 	_dragging_material = null
+	_dragging_enchantment = null
 	queue_redraw()
 
 
@@ -491,8 +519,10 @@ func _draw() -> void:
 
 	if disenchant:
 		_draw_disenchant_overlay(outs)
-	if held_enchantment:
-		_draw_ghost()
+	if _dragging_enchantment:
+		_draw_ghost(_dragging_enchantment)
+	elif held_enchantment:
+		_draw_ghost(held_enchantment)
 
 
 ## Planned cuts drawn over their lines: grey when the step can be done, red when it can't
@@ -656,13 +686,13 @@ func _draw_path(cells: Array[Vector2i], col: Color, width: float) -> void:
 		draw_circle(pt, w / 2.0, col, true, -1.0, true)
 
 
-func _draw_ghost() -> void:
+func _draw_ghost(e: Enchantment) -> void:
 	var origin := cell_under_mouse()
-	var ok := board.check_place(held_enchantment, origin, held_rotation) == ""
+	var ok := board.check_place(e, origin, held_rotation) == ""
 	var col := COLOR_VALID if ok else COLOR_INVALID
-	for cells in board.pattern_line_paths(held_enchantment, origin, held_rotation):
+	for cells in board.pattern_line_paths(e, origin, held_rotation):
 		_draw_path(cells, col, 0.4)
-	for c in board.placement_cells(held_enchantment, origin, held_rotation):
+	for c in board.placement_cells(e, origin, held_rotation):
 		draw_circle(cell_screen(c), hex_size * 0.42, col, true, -1.0, true)
 
 
