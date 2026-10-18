@@ -75,6 +75,7 @@ var _disenchant_button: Button
 var _rune_bar: RuneBar
 var _plan_panel: DisenchantPlanPanel
 var _legend: RichTextLabel
+var _overview: ItemOverview
 
 
 func _ready() -> void:
@@ -83,6 +84,7 @@ func _ready() -> void:
 	PlayerManager.set_player(player)
 	time_left = setup.day_length_seconds
 	_build_ui()
+	_build_overview()
 	_set_layout(Layout.SIDEBAR)
 	_refresh_items()
 	if not player.items.is_empty():
@@ -217,6 +219,8 @@ func _on_card_drag_started(payload: Resource) -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if _handle_overview_key(event as InputEventKey):
+		return
 	if _layout and not _day_over.visible and _layout.handle_key(event as InputEventKey):
 		get_viewport().set_input_as_handled()
 
@@ -648,6 +652,48 @@ func _fit_board() -> void:
 		return
 	_view.hex_size = clampf(minf(area.x / unit.x, area.y / unit.y), 8.0, 48.0)
 	_view.position = area / 2.0
+
+
+#
+# ── Item overview ────────────────────────────────
+#
+## The Items button beside the item picker, and the overview under the day-over screen
+func _build_overview() -> void:
+	var button := Button.new()
+	button.text = ItemOverview.OPEN_TEXT
+	button.focus_mode = Control.FOCUS_NONE
+	button.pressed.connect(_open_overview)
+	_item_picker.get_parent().add_child(button)
+	_overview = ItemOverview.new()
+	_overview.item_chosen.connect(_on_overview_item_chosen)
+	_overview.close_requested.connect(_overview.close)
+	add_child(_overview)
+	move_child(_overview, _day_over.get_index())
+
+
+func _open_overview() -> void:
+	var names: Array[String] = []
+	for inst in player.items:
+		names.append(_item_name(inst))
+	_tooltip.visible = false
+	_overview.open(player.items, names)
+
+
+## Opens the chosen item the same way the item picker does
+func _on_overview_item_chosen(index: int) -> void:
+	_overview.close()
+	_item_picker.select(index)
+	_on_item_picked(index)
+
+
+func _handle_overview_key(event: InputEventKey) -> bool:
+	if _day_over.visible or not event.pressed or event.echo:
+		return false
+	if event.keycode != ItemOverview.OPEN_KEY:
+		return false
+	_open_overview()
+	get_viewport().set_input_as_handled()
+	return true
 
 
 #

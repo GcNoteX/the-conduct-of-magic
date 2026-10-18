@@ -10,6 +10,8 @@ const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_s
 ## The long sword's place in the demo player's items (dagger, short sword, long sword, carved)
 const LONG_SWORD := 2
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
+## Seconds to hover before a card's tooltip shows (the default tooltip delay is half a second)
+const TOOLTIP_WAIT := 1.0
 
 var out_dir := "user://"
 var table: Control
@@ -96,6 +98,7 @@ func _ready() -> void:
 	_move(_cell(Vector2i(1, 5)))
 	await _frames(2)
 	_shot("06_active")
+	await _overview()
 
 	# The unconnected chain blocks the commit until it's removed
 	print("commit button: ", table._commit_button.text)
@@ -140,6 +143,31 @@ func _ready() -> void:
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()
+
+
+## The item overview while the long sword holds planned materials: open it with I, hover the
+## long sword's card for its tooltip, click the short sword's card, then go back to the long sword
+func _overview() -> void:
+	_key(ItemOverview.OPEN_KEY)
+	await _frames(3)
+	_shot("21_overview")
+	var cards: Array[ItemCard] = table._overview.cards()
+	_move(cards[LONG_SWORD].get_global_rect().get_center())
+	await get_tree().create_timer(TOOLTIP_WAIT).timeout
+	await _frames(2)
+	_shot("22_overview_tooltip")
+	_click(cards[1].get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print(
+		"overview open: ",
+		table._overview.visible,
+		" opened: ",
+		table._item_picker.get_item_text(table._item_picker.selected)
+	)
+	_shot("23_overview_chose_short_sword")
+	table._item_picker.select(LONG_SWORD)
+	table._open_item(LONG_SWORD)
+	await _frames(2)
 
 
 ## Tries to drag a material the player has none of: no drag starts, and the table says why
