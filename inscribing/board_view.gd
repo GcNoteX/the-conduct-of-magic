@@ -12,10 +12,17 @@ extends Node2D
 ## In Disenchant mode (when `disenchant` is set) each committed line shows its rune cost. Left
 ## click a line to plan cutting it, left click a committed enchantment node to plan pulling the
 ## enchantment out, and right click to undo the last planned step.
+## With a `skin` set, cells, nodes, lines and the item's outline are drawn with its art (see
+## BoardSkin); without one, or for art the skin leaves empty, they're drawn as flat shapes. The
+## highlights (ghosts, rings, rune chips, labels and step numbers) are always drawn on top.
 
 signal message(text: String)
 signal changed
 signal hovered(key: String)
+
+## How a line looks: an enchantment's own line while drafted, a drawn line while drafted, a
+## committed line, or a drafted line whose chain reaches no enchantment
+enum LineLook { FIXED, DRAFTED, TAKEN, DEAD }
 
 const COLOR_CELL := Color("2b2a33")
 const COLOR_CELL_EDGE := Color("45434f")
@@ -42,6 +49,15 @@ const COLOR_PLANNED_CUT := Color(0.45, 0.45, 0.52, 0.9)
 const COLOR_PULLED_OUT := Color(0.09, 0.09, 0.11, 0.75)
 ## How close (in hexes) the mouse has to be to a line to pick it in Disenchant mode
 const LINE_PICK_DISTANCE := 0.5
+## Flat line widths in hexes: an enchantment's own lines, and lines the player draws
+const FIXED_LINE_WIDTH := 0.4
+const DRAWN_LINE_WIDTH := 0.32
+## Flat node radii in hexes
+const MAGIC_RADIUS := 0.3
+const ENCHANTMENT_RADIUS := 0.42
+const BIG_NODE_RADIUS := 0.5
+## Flat line colours, by LineLook
+const LINE_COLORS: Array[Color] = [COLOR_FIXED_LINE, COLOR_DRAFT_LINE, COLOR_COMMITTED, COLOR_DEAD]
 
 var board: InscriptionBoard:
 	set(b):
@@ -55,6 +71,11 @@ var hex_size: float = 26.0:
 		hex_size = s
 		queue_redraw()
 
+## The art the board is drawn with; null draws flat shapes
+var skin: BoardSkin = null:
+	set(value):
+		skin = value
+		queue_redraw()
 var held_enchantment: Enchantment = null:
 	set(e):
 		held_enchantment = e
@@ -76,6 +97,10 @@ var _blocked_cell := Vector2i.ZERO
 var _blocked_reason := ""  ## Why the line being drawn can't go further; "" when it isn't blocked
 var _dragging_material: EnchantmentMaterialDefinition = null
 var _dragging_enchantment: Enchantment = null
+
+
+func _ready() -> void:
+	texture_repeat = CanvasItem.TEXTURE_REPEAT_ENABLED  # Line and outline art repeats along them
 
 
 #
@@ -482,25 +507,23 @@ func _draw() -> void:
 	if board == null:
 		return
 	for c in board.get_cells():
-		var pts := Hex.corners(cell_screen(c), hex_size * 0.96)
-		draw_colored_polygon(pts, COLOR_CELL)
-		pts.append(pts[0])
-		draw_polyline(pts, COLOR_CELL_EDGE, 1.0, true)
+		_draw_cell(c)
+	_draw_outline()
 
 	if disenchant and disenchant.has_edge(_hover_key):
 		_draw_path(disenchant.edge_cells(_hover_key), Color(1, 1, 1, 0.5), 0.62)
 
 	for f in board.fixed_lines():
 		var p: PlacementState = f.placement
-		_draw_path(f.cells, COLOR_COMMITTED if p.committed else COLOR_FIXED_LINE, 0.4)
+		_draw_line(f.cells, LineLook.TAKEN if p.committed else LineLook.FIXED, true)
 
 	for l in board.state.lines:
-		var col := COLOR_DRAFT_LINE
+		var look := LineLook.DRAFTED
 		if l.committed:
-			col = COLOR_COMMITTED
+			look = LineLook.TAKEN
 		elif board.is_line_dead(l):
-			col = COLOR_DEAD
-		_draw_path(l.cells, col, 0.32)
+			look = LineLook.DEAD
+		_draw_line(l.cells, look, false)
 
 	if is_drawing():
 		_draw_path(_path, COLOR_DRAWING, 0.32)
@@ -569,8 +592,7 @@ func _draw_disenchant_overlay(outs: Array[DisenchantBoard.Outcome]) -> void:
 				COLOR_ACTIVE if pulled[p.id] else COLOR_UNMET
 			)
 		elif freed.has(k):
-			var radius := hex_size * (0.3 if board.is_magic(k) else 0.42)
-			draw_arc(_screen(k), radius + 4.0, 0, TAU, 32, COLOR_ACTIVE, 2.5, true)
+			draw_arc(_screen(k), _node_radius(k) + 4.0, 0, TAU, 32, COLOR_ACTIVE, 2.5, true)
 	for k in disenchant.edges():
 		var mid := _edge_middle(k)
 		if step_of.has(k):
@@ -612,35 +634,82 @@ func _edge_middle(k: String) -> Vector2:
 
 func _draw_magic_node(k: String) -> void:
 	var pos := _screen(k)
-	var radius := hex_size * 0.3
-	var col := COLOR_DEAD if board.line_count(k) > 0 and board.is_dead(k) else COLOR_MAGIC
-	if board.is_node_committed(k):
-		col = COLOR_COMMITTED
-	# A bigger magic node: its other cells are shaded and joined to its own cell
-	for c in board.node_cells(k).slice(1):
-		draw_colored_polygon(Hex.corners(cell_screen(c), hex_size * 0.82), Color(col, 0.35))
-		draw_line(pos, cell_screen(c), Color(col, 0.6), hex_size * 0.22, true)
-	draw_circle(pos, radius, col, true, -1.0, true)
-	draw_arc(pos, radius, 0, TAU, 24, Color.BLACK, 1.5, true)
+	var radius := _node_radius(k)
+	var dead := board.line_count(k) > 0 and board.is_dead(k)
+	var committed := board.is_node_committed(k)
+	if not _draw_magic_node_art(k, committed, dead):
+		var col := COLOR_DEAD if dead else COLOR_MAGIC
+		if committed:
+			col = COLOR_COMMITTED
+		# A bigger magic node: its other cells are shaded and joined to its own cell
+		for c in board.node_cells(k).slice(1):
+			draw_colored_polygon(Hex.corners(cell_screen(c), hex_size * 0.82), Color(col, 0.35))
+			draw_line(pos, cell_screen(c), Color(col, 0.6), hex_size * 0.22, true)
+		draw_circle(pos, radius, col, true, -1.0, true)
+		draw_arc(pos, radius, 0, TAU, 24, Color.BLACK, 1.5, true)
 	if disenchant:
 		# "M4": the name the plan, tooltips and solvability check use for it
 		_draw_tag(pos, board.node_tag(k), Color(0.1, 0.1, 0.12, 0.85))
 	if k == _hover_key:
-		draw_arc(pos, hex_size * 0.48, 0, TAU, 32, Color(1, 1, 1, 0.6), 1.5, true)
+		var hover := maxf(hex_size * 0.48, radius + 3.0)
+		draw_arc(pos, hover, 0, TAU, 32, Color(1, 1, 1, 0.6), 1.5, true)
+
+
+## Draws a magic node with the skin's art, tinted for its state. Returns false when the skin has
+## no art for it.
+func _draw_magic_node_art(k: String, committed: bool, dead: bool) -> bool:
+	if skin == null:
+		return false
+	var cells := board.node_cells(k)
+	var big := cells.size() > 1
+	var tex := (
+		skin.big_magic_node
+		if big
+		else skin.magic_node_texture(board.map.edge_runes_at(board.node_cell(k)))
+	)
+	if tex == null:
+		return false
+	var tint := skin.magic_free_tint
+	if committed:
+		tint = skin.magic_taken_tint
+	elif dead:
+		tint = skin.magic_dead_tint
+	var pos := _screen(k)
+	if big:
+		# Drawn across its cells, turned so its other cells lie where the art has them (right)
+		var centre := _cells_centre(cells)
+		_draw_art(tex, centre, (centre - pos).angle(), tint)
+	else:
+		_draw_art(tex, pos, 0.0, tint)
+	return true
 
 
 ## Empty nodes show what they accept; filled nodes show their material and condition progress
 func _draw_enchantment_node(k: String) -> void:
 	var pos := _screen(k)
-	var radius := hex_size * 0.42
+	var radius := _node_radius(k)
 	var p := board.node_placement(k)
 	var def := board.node_definition(k)
 	var mat := board.node_material(k)
 	var cells := board.node_cells(k)
-	if cells.size() > 1:
+	var tint := Color.WHITE
+	if skin:
+		tint = skin.enchantment_taken_tint if p.committed else skin.enchantment_drafted_tint
+	var art: Texture2D = null
+	if skin:
+		art = skin.big_enchantment_node if cells.size() > 1 else skin.enchantment_node
+	if art and cells.size() > 1:
+		_draw_big_node_art(k, cells, art, tint)
+	elif cells.size() > 1:
 		_draw_big_node_body(k, cells, mat.color if mat else COLOR_EMPTY_NODE)
-		radius = hex_size * 0.5
-	draw_circle(pos, radius, mat.color if mat else COLOR_EMPTY_NODE, true, -1.0, true)
+	if art == null:
+		draw_circle(pos, radius, mat.color if mat else COLOR_EMPTY_NODE, true, -1.0, true)
+	else:
+		if cells.size() == 1:
+			var corner := Vector2(radius, radius)
+			draw_texture_rect(art, Rect2(pos - corner, corner * 2.0), false, tint)
+		if mat:
+			draw_circle(pos, radius * skin.material_fill, mat.color, true, -1.0, true)
 	var ring := COLOR_COMMITTED if p.committed else COLOR_FIXED_LINE
 	if mat and not p.committed:
 		ring = COLOR_ACTIVE if board.is_node_active(k) else COLOR_UNMET
@@ -673,9 +742,119 @@ func _draw_big_node_body(k: String, cells: Array[Vector2i], fill: Color) -> void
 		draw_colored_polygon(pts, fill.darkened(0.45))
 		pts.append(pts[0])
 		draw_polyline(pts, edge, 1.5, true)
+	_draw_ports(k)
+
+
+## A node covering several cells drawn with the skin's art across them, turned with its
+## enchantment, with a ring on each port
+func _draw_big_node_art(k: String, cells: Array[Vector2i], art: Texture2D, tint: Color) -> void:
+	var def := board.node_definition(k)
+	var shape := Vector2.ZERO  ## The middle of its cells unturned, from its own cell (unit space)
+	for c in def.covered_offsets():
+		shape += Hex.to_pixel(c, 1.0)
+	shape /= def.covered_offsets().size()
+	var centre := _cells_centre(cells)
+	var turned := centre - cell_screen(board.node_cell(k))
+	_draw_art(art, centre, turned.angle() - shape.angle(), tint)
+	_draw_ports(k)
+
+
+func _draw_ports(k: String) -> void:
 	for c in board.node_ports(k):
 		draw_circle(cell_screen(c), hex_size * 0.22, COLOR_EMPTY_NODE, true, -1.0, true)
 		draw_arc(cell_screen(c), hex_size * 0.22, 0, TAU, 24, COLOR_ACTIVE, 2.0, true)
+
+
+## How far from its centre a node is drawn, in pixels: its rings and highlights go around this
+func _node_radius(k: String) -> float:
+	if board.is_magic(k):
+		return hex_size * (skin.magic_node_radius if skin else MAGIC_RADIUS)
+	if board.node_cells(k).size() > 1:
+		return hex_size * BIG_NODE_RADIUS
+	return hex_size * (skin.enchantment_node_radius if skin else ENCHANTMENT_RADIUS)
+
+
+func _cells_centre(cells: Array[Vector2i]) -> Vector2:
+	var sum := Vector2.ZERO
+	for c in cells:
+		sum += cell_screen(c)
+	return sum / cells.size()
+
+
+## A cell: the skin's cell art, or a flat hex
+func _draw_cell(c: Vector2i) -> void:
+	if skin and skin.cell:
+		_draw_art(skin.cell, cell_screen(c), 0.0, skin.cell_tint)
+		return
+	var pts := Hex.corners(cell_screen(c), hex_size * 0.96)
+	draw_colored_polygon(pts, COLOR_CELL)
+	pts.append(pts[0])
+	draw_polyline(pts, COLOR_CELL_EDGE, 1.0, true)
+
+
+## The skin's outline art along every edge where the item's cells end (nothing when flat)
+func _draw_outline() -> void:
+	if skin == null or skin.outline == null:
+		return
+	var tex := skin.outline
+	var width := hex_size * skin.outline_width
+	var art_scale := width / tex.get_height()
+	for c in board.get_cells():
+		var centre := Hex.to_pixel(c, 1.0)
+		var corners := Hex.corners(centre, 1.0)
+		for i in corners.size():
+			var a := corners[i]
+			var b := corners[(i + 1) % corners.size()]
+			var out := (a + b) / 2.0 - centre  ## Half way to the neighbour across this edge
+			if board.has_cell(Hex.from_pixel(centre + out * 2.0, 1.0)):
+				continue
+			# Run the strip so its top faces out of the item
+			if (b - a).orthogonal().dot(out) < 0.0:
+				var swap := a
+				a = b
+				b = swap
+			var from := to_screen(a)
+			var length := from.distance_to(to_screen(b))
+			draw_set_transform(from, (to_screen(b) - from).angle(), Vector2(art_scale, art_scale))
+			var rect := Rect2(
+				-width / 2.0, -tex.get_height() / 2.0, length + width, tex.get_height()
+			)
+			rect.position.x /= art_scale
+			rect.size.x /= art_scale
+			draw_texture_rect(tex, rect, true, skin.outline_tint)
+	draw_set_transform(Vector2.ZERO)
+
+
+## A line between nodes: the skin's line art tinted for how it looks, or a flat line
+func _draw_line(cells: Array[Vector2i], look: LineLook, fixed: bool) -> void:
+	if skin == null or skin.line == null:
+		_draw_path(cells, LINE_COLORS[look], FIXED_LINE_WIDTH if fixed else DRAWN_LINE_WIDTH)
+		return
+	var tints: Array[Color] = [
+		skin.line_fixed_tint, skin.line_drafted_tint, skin.line_taken_tint, skin.line_dead_tint
+	]
+	var width := skin.fixed_line_width if fixed else skin.drawn_line_width
+	# A plain line underneath fills the joints between the straight pieces of art
+	_draw_path(cells, LINE_COLORS[look].darkened(0.3), width * 0.8)
+	var tex := skin.line
+	var w := hex_size * width
+	var art_scale := w / tex.get_height()
+	for i in range(1, cells.size()):
+		var from := cell_screen(cells[i - 1])
+		var to := cell_screen(cells[i])
+		draw_set_transform(from, (to - from).angle(), Vector2(art_scale, art_scale))
+		var length := from.distance_to(to) / art_scale
+		var rect := Rect2(0.0, -tex.get_height() / 2.0, length, tex.get_height())
+		draw_texture_rect(tex, rect, true, tints[look])
+	draw_set_transform(Vector2.ZERO)
+
+
+## `tex` at the art's own size for this board's hexes, centred on `centre` and turned by `angle`
+func _draw_art(tex: Texture2D, centre: Vector2, angle: float, tint: Color) -> void:
+	var art_scale := BoardSkin.art_scale(hex_size)
+	draw_set_transform(centre, angle, Vector2(art_scale, art_scale))
+	draw_texture(tex, -tex.get_size() / 2.0, tint)
+	draw_set_transform(Vector2.ZERO)
 
 
 func _requirement_label(def: EnchantmentPatternNode) -> String:

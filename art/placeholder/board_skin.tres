@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="BoardSkin" format=3]
+
+[ext_resource type="Script" path="res://inscribing/board_skin.gd" id="1_skin"]
+[ext_resource type="Texture2D" path="res://art/placeholder/cell_steel.png" id="2_cell"]
+[ext_resource type="Texture2D" path="res://art/placeholder/item_outline.png" id="3_outline"]
+[ext_resource type="Texture2D" path="res://art/placeholder/magic_node_tiles.png" id="4_magic"]
+[ext_resource type="Texture2D" path="res://art/placeholder/ember_well.png" id="5_well"]
+[ext_resource type="Texture2D" path="res://art/placeholder/enchantment_socket.png" id="6_socket"]
+[ext_resource type="Texture2D" path="res://art/placeholder/enchantment_big_node_2x2.png" id="7_big"]
+[ext_resource type="Texture2D" path="res://art/placeholder/rune_line.png" id="8_line"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_water"]
+atlas = ExtResource("4_magic")
+region = Rect2(0, 0, 56, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fire"]
+atlas = ExtResource("4_magic")
+region = Rect2(56, 0, 56, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wind"]
+atlas = ExtResource("4_magic")
+region = Rect2(112, 0, 56, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_stone"]
+atlas = ExtResource("4_magic")
+region = Rect2(168, 0, 56, 64)
+
+[resource]
+script = ExtResource("1_skin")
+cell = ExtResource("2_cell")
+outline = ExtResource("3_outline")
+magic_nodes = Array[Texture2D]([SubResource("AtlasTexture_water"), SubResource("AtlasTexture_fire"), SubResource("AtlasTexture_wind"), SubResource("AtlasTexture_stone")])
+big_magic_node = ExtResource("5_well")
+enchantment_node = ExtResource("6_socket")
+big_enchantment_node = ExtResource("7_big")
+line = ExtResource("8_line")

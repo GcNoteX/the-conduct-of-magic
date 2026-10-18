@@ -338,6 +338,34 @@ def rune_line():
     return finish(img, "rune_line.png")
 
 
+def item_outline():
+    """The rim around an item's silhouette on the inscribing table: 64x12, tiles along each outer
+    cell edge (texture repeat). Its top edge faces out of the item, its bottom edge sits on the cell."""
+    w, h = 64, 12
+    img = canvas(w, h)
+    rim = vertical_gradient(img.size, (176, 184, 196), (52, 56, 66))
+    rd = ImageDraw.Draw(rim)
+    rnd = random.Random(11)
+    for _ in range(40):  # brushed streaks, wrapped so the strip tiles
+        y = rnd.uniform(2 * SS, (h - 2) * SS)
+        x0 = rnd.uniform(0, w * SS)
+        length = rnd.uniform(10, 40) * SS
+        shade = rnd.randint(-20, 20)
+        base = 120 + shade
+        for dx in (0, -w * SS):
+            rd.line([(x0 + dx, y), (x0 + dx + length, y)], fill=(base, base + 5, base + 12, 60), width=SS)
+    img.alpha_composite(rim)
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, 0, w * SS, 1.2 * SS], fill=(230, 236, 244, 255))  # bright outer edge
+    d.rectangle([0, (h - 1.5) * SS, w * SS, h * SS], fill=(24, 26, 32, 255))  # dark seam on the cell
+    for x in (16, 48):  # rivets
+        cx, cy = x * SS, h / 2 * SS
+        r = 2.2 * SS
+        d.ellipse([cx - r, cy - r + SS * 0.6, cx + r, cy + r + SS * 0.6], fill=(20, 20, 26, 200))
+        d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(214, 220, 230, 255), outline=(40, 42, 50, 255), width=SS)
+    return finish(img, "item_outline.png")
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     steel_cell()
@@ -346,3 +374,4 @@ if __name__ == "__main__":
     socket()
     big_socket()
     rune_line()
+    item_outline()

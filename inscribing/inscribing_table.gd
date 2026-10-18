@@ -46,6 +46,14 @@ const LAYOUT_NAMES: Array[String] = [
 @export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
 ## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
 @export var solvability_check: SolvabilityCheck
+## The art the board is drawn with (sheet 0006)
+@export var board_skin: BoardSkin = preload("res://art/placeholder/board_skin.tres")
+## Draw the board with board_skin's art; untick to compare with the flat drawing
+@export var use_art: bool = true:
+	set(value):
+		use_art = value
+		if _view:
+			_view.skin = board_skin if use_art else null
 
 var player: Player
 var board: InscriptionBoard
@@ -765,6 +773,7 @@ func _build_ui() -> void:
 	_board_area.resized.connect(_fit_board)
 	board_stack.add_child(_board_area)
 	_view = BoardView.new()
+	_view.skin = board_skin if use_art else null
 	_board_area.view = _view
 	_view.message.connect(_set_message)
 	_view.changed.connect(_on_board_changed)
