@@ -11,6 +11,8 @@ const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_s
 const LONG_SWORD := 2
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
 const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
+## Seconds to hover before a card's tooltip shows (the default tooltip delay is half a second)
+const TOOLTIP_WAIT := 1.0
 
 var out_dir := "user://"
 var table: Control
@@ -97,6 +99,7 @@ func _ready() -> void:
 	_move(_cell(Vector2i(1, 5)))
 	await _frames(2)
 	_shot("06_active")
+	await _overview()
 
 	# The unconnected chain blocks the commit until it's removed
 	print("commit button: ", table._commit_button.text)
@@ -139,11 +142,42 @@ func _ready() -> void:
 
 	await _replay_checker_plans()
 	await _bastion_ports()
+	_key(ItemOverview.OPEN_KEY)
+	await _frames(3)
+	_shot("28_overview_bastion")
+	_key(KEY_ESCAPE)
+	await _frames(2)
+	await _bastion_parallel_cut()
 
 	table.time_left = 0.01
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()
+
+
+## The item overview while the long sword holds planned materials: open it with I, hover the
+## long sword's card for its tooltip, click the short sword's card, then go back to the long sword
+func _overview() -> void:
+	_key(ItemOverview.OPEN_KEY)
+	await _frames(3)
+	_shot("21_overview")
+	var cards: Array[ItemCard] = table._overview.cards()
+	_move(cards[LONG_SWORD].get_global_rect().get_center())
+	await get_tree().create_timer(TOOLTIP_WAIT).timeout
+	await _frames(2)
+	_shot("22_overview_tooltip")
+	_click(cards[1].get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print(
+		"overview open: ",
+		table._overview.visible,
+		" opened: ",
+		table._item_picker.get_item_text(table._item_picker.selected)
+	)
+	_shot("23_overview_chose_short_sword")
+	table._item_picker.select(LONG_SWORD)
+	table._open_item(LONG_SWORD)
+	await _frames(2)
 
 
 ## Tries to drag a material the player has none of: no drag starts, and the table says why
@@ -294,7 +328,7 @@ func _replay_checker_plans() -> void:
 		var available: Dictionary = table.player.material_inventory.duplicate()
 		if c[0] == "kindle":
 			report_text = SolvabilityCheck.report(d, available)
-			_shot("21_labelled_board")
+			_shot("24_labelled_board")
 		var steps := SolvabilityChecker.new(d).solve(targets, available)[0].steps(targets, d)
 		for s in steps:
 			await _do_step(s, d)
@@ -317,7 +351,7 @@ func _replay_checker_plans() -> void:
 			print(
 				"  plan row 5: ", d.describe_step(d.state.disenchant_plan[4]), " | ", d.edge_name(k)
 			)
-		_shot("22_%s_planned" % c[0])
+		_shot("25_%s_planned" % c[0])
 		var before: int = d.carvings().size()
 		_click(table._commit_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
 		await _frames(3)
@@ -334,7 +368,7 @@ func _replay_checker_plans() -> void:
 			" message: ",
 			table._message_label.text
 		)
-		_shot("23_%s_committed" % c[0])
+		_shot("26_%s_committed" % c[0])
 	var f := FileAccess.open(out_dir.path_join("solvability_report.txt"), FileAccess.WRITE)
 	f.store_string(report_text)
 	f.close()
@@ -405,7 +439,54 @@ func _bastion_ports() -> void:
 	table._on_board_changed()
 	_move(Vector2(1300, 900))  # Off the board, so no tooltip hides the lines
 	await _frames(2)
-	_shot("21_bastion_ports")
+	_shot("27_bastion_ports")
+
+
+## Bastion, placed by _bastion_ports, filled and committed, then in Disenchant mode the second of
+## the two lines joining its left node to its big node planned cut: the plan names it "line 2"
+func _bastion_parallel_cut() -> void:
+	var b: InscriptionBoard = table.board
+	if (
+		b.state.placements.is_empty()
+		or b.state.placements.back().enchantment.enchantment_name != "Bastion"
+	):
+		return
+	var p: PlacementState = b.state.placements.back()
+	_refill_materials()
+	# As in test_disenchant_board: fire in the big node (its two lines meet fire's condition) and
+	# yellow, which always activates, in the two small ones
+	table.player.add_material(YELLOW, 2)
+	for i in p.enchantment.nodes.size():
+		b.insert_material(InscriptionBoard.enchantment_key(p.id, i), FIRE if i == 0 else YELLOW)
+	table._on_board_changed()
+	_click(table._commit_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print("bastion committed: ", p.committed, " ", table._message_label.text)
+	_refill_materials()
+	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	for m in [FIRE, YELLOW, BLUE]:
+		_double_click(_card(m))
+		await _frames(1)
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	var left := InscriptionBoard.enchantment_key(p.id, 1)
+	_click(_edge_point(left, big, 1), MOUSE_BUTTON_LEFT)
+	await _frames(1)
+	var d: DisenchantBoard = table.disenchant
+	for s in d.state.disenchant_plan:
+		print("  bastion plan: ", d.describe_step(s))
+	_move(_edge_point(left, big, 1))
+	await _frames(3)
+	print("  tooltip: ", table._tooltip_label.get_parsed_text().get_slice("\n", 0))
+	_shot("29_bastion_parallel_cut")
+
+
+## Gives the player the demo's starting materials again
+func _refill_materials() -> void:
+	table.player.material_inventory.clear()
+	for m: EnchantmentMaterialDefinition in table.setup.materials:
+		table.player.add_material(m, table.setup.materials[m])
+	table._refresh_cards()
 
 
 ## Places Bastion where both its big node's ports can reach a magic node; returns the two routes
