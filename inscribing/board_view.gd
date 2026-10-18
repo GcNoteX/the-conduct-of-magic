@@ -561,7 +561,12 @@ func _draw_disenchant_overlay(outs: Array[DisenchantBoard.Outcome]) -> void:
 		var p := board.node_placement(k)
 		if p and pulled.has(p.id):
 			draw_circle(_screen(k), hex_size * 0.5, COLOR_PULLED_OUT, true, -1.0, true)
-			_draw_label(_screen(k), "out", hex_size, COLOR_ACTIVE if pulled[p.id] else COLOR_UNMET)
+			_draw_tag(
+				_screen(k),
+				"%s out" % board.node_tag(k),
+				Color(0.1, 0.1, 0.12, 0.9),
+				COLOR_ACTIVE if pulled[p.id] else COLOR_UNMET
+			)
 		elif freed.has(k):
 			var radius := hex_size * (0.3 if board.is_magic(k) else 0.42)
 			draw_arc(_screen(k), radius + 4.0, 0, TAU, 32, COLOR_ACTIVE, 2.5, true)
@@ -613,9 +618,8 @@ func _draw_magic_node(k: String) -> void:
 	draw_circle(pos, radius, col, true, -1.0, true)
 	draw_arc(pos, radius, 0, TAU, 24, Color.BLACK, 1.5, true)
 	if disenchant:
-		# The magic node's number, as the solvability check names it
-		var number := board.map.magic_node_number(board.node_cell(k))
-		_draw_label(pos, "%d" % number, radius * 2.0, Color.BLACK, false)
+		# "M4": the name the plan, tooltips and solvability check use for it
+		_draw_tag(pos, board.node_tag(k), Color(0.1, 0.1, 0.12, 0.85))
 	if k == _hover_key:
 		draw_arc(pos, hex_size * 0.48, 0, TAU, 32, Color(1, 1, 1, 0.6), 1.5, true)
 
@@ -632,7 +636,11 @@ func _draw_enchantment_node(k: String) -> void:
 	if mat and not p.committed:
 		ring = COLOR_ACTIVE if board.is_node_active(k) else COLOR_UNMET
 	draw_arc(pos, radius, 0, TAU, 32, ring, 3.0 if mat else 2.0, true)
-	_draw_label(pos, _progress_label(k) if mat else _requirement_label(def), radius * 1.9)
+	if disenchant:
+		# "Keen B": the name the plan, tooltips and solvability check use for it
+		_draw_tag(pos, board.node_tag(k), Color(0.1, 0.1, 0.12, 0.85))
+	else:
+		_draw_label(pos, _progress_label(k) if mat else _requirement_label(def), radius * 1.9)
 	if def.tier_requirement > 1 and mat == null:
 		var badge := pos + Vector2(radius * 0.8, -radius * 0.8)
 		draw_circle(badge, radius * 0.42, COLOR_COMMITTED, true, -1.0, true)
@@ -676,6 +684,19 @@ func _draw_label(
 			font, at, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, 3, Color.BLACK
 		)
 	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_CENTER, width, size, col)
+
+
+## A node's name on a dark pill centred on `centre`, so it reads over lines and node colours
+func _draw_tag(centre: Vector2, text: String, bg: Color, col := COLOR_LABEL) -> void:
+	var font := ThemeDB.fallback_font
+	var size := maxi(8, int(hex_size * 0.36))
+	var text_size := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size)
+	var box := Rect2(centre - Vector2(text_size.x / 2.0 + 4.0, size * 0.62), Vector2.ZERO)
+	box.size = Vector2(text_size.x + 8.0, size * 1.24)
+	draw_rect(box, bg, true)
+	draw_rect(box, Color(1, 1, 1, 0.35), false, 1.0)
+	var at := Vector2(centre.x - text_size.x / 2.0, centre.y + size * 0.36)
+	draw_string(font, at, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, col)
 
 
 ## A line through cell centres, `width` in hexes, with rounded joints

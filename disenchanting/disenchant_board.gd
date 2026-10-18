@@ -134,52 +134,46 @@ func find_carving(placement_id: int) -> PlacementState:
 	return null
 
 
-## A short player-facing name for a node, like "Kindle's Fire stone" or "magic node 3"
+## A node's name, the same one drawn on the board in Disenchant mode: "M4" for magic node 4,
+## "Keen B" for Keen's second node (see InscriptionBoard.node_tag)
 func node_label(node_key: String) -> String:
-	if board.is_magic(node_key):
-		return "magic node %d" % board.map.magic_node_number(board.node_cell(node_key))
-	var p := board.node_placement(node_key)
-	return (
-		"%s's %s"
-		% [
-			p.enchantment.enchantment_name,
-			InscriptionBoard.material_name(board.node_material(node_key))
-		]
-	)
+	return board.node_tag(node_key)
 
 
-## A full name for a node, like "Kindle node 1 (Fire stone)" or "magic node 3". Enchantment nodes
-## count from 1 in the enchantment's own order; magic nodes use the numbers drawn on the board.
+## A node's name with what it holds, like "Keen B (Blue stone)" or "M4 (magic node 4)"
 func node_name(node_key: String) -> String:
 	if board.is_magic(node_key):
-		return node_label(node_key)
-	var p := board.node_placement(node_key)
+		return (
+			"%s (magic node %d)"
+			% [node_label(node_key), board.map.magic_node_number(board.node_cell(node_key))]
+		)
 	return (
-		"%s node %d (%s)"
-		% [
-			p.enchantment.enchantment_name,
-			node_key.get_slice(":", 2).to_int() + 1,
-			InscriptionBoard.material_name(board.node_material(node_key))
-		]
+		"%s (%s)"
+		% [node_label(node_key), InscriptionBoard.material_name(board.node_material(node_key))]
 	)
 
 
-## A full name for a line, like "Kindle node 1 (Fire stone) to magic node 3"
+## A line's name, from one end node to the other, like "Keen B – M10"
 func edge_name(key: String) -> String:
 	var ends := edge_ends(key)
-	return "%s to %s" % [node_name(ends[0]), node_name(ends[1])]
+	return "%s – %s" % [node_label(ends[0]), node_label(ends[1])]
 
 
-## A short player-facing description of a step, like "Cut Kindle's Fire stone to magic node"
+## What a carving's enchantment is called on this item ("Kindle", or "Kindle #2" for a second one)
+func carving_name(p: PlacementState) -> String:
+	return board.placement_name(p)
+
+
+## A short player-facing description of a step, like "Cut Keen B – M10"
 func describe_step(s: DisenchantStep) -> String:
 	match s.kind:
 		DisenchantStep.Kind.CUT:
-			return "Cut %s to %s" % [node_label(s.a), node_label(s.b)]
+			return "Cut %s – %s" % [node_label(s.a), node_label(s.b)]
 		DisenchantStep.Kind.DISSOLVE:
 			return "Dissolve %s" % InscriptionBoard.material_name(s.material)
 		_:
 			var p := find_carving(s.placement_id)
-			return "Pull out %s" % (p.enchantment.enchantment_name if p else "an enchantment")
+			return "Pull out %s" % (carving_name(p) if p else "an enchantment")
 
 
 #

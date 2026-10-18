@@ -47,6 +47,7 @@ func _init(item_instance: ItemInstance, player_inventory: Player) -> void:
 	for c in map.get_cells():
 		_cells[c] = true
 	_magic_cells = map.get_magic_nodes()
+	_fit_to_patterns()
 	_rebuild()
 
 
@@ -118,6 +119,33 @@ func node_material(key: String) -> EnchantmentMaterialDefinition:
 func node_definition(key: String) -> EnchantmentPatternNode:
 	var p := node_placement(key)
 	return p.enchantment.nodes[node_index(key)] if p else null
+
+
+## The name a node goes by everywhere a player reads it (board labels, plan, tooltips and the
+## solvability report): "M4" for magic node 4, "Keen B" for Keen's second node. Letters follow
+## the enchantment's own node order, so they can't be mistaken for magic node numbers.
+func node_tag(key: String) -> String:
+	if is_magic(key):
+		return "M%d" % map.magic_node_number(node_cell(key))
+	var p := node_placement(key)
+	if p == null:
+		return key
+	return "%s %s" % [placement_name(p), node_letter(node_index(key))]
+
+
+## A, B, C... for an enchantment's first, second, third... node
+static func node_letter(index: int) -> String:
+	return String.chr(65 + index) if index < 26 else str(index + 1)
+
+
+## The enchantment's name, numbered ("Kindle #2") only when the item has more than one of it
+func placement_name(p: PlacementState) -> String:
+	var n := p.enchantment.enchantment_name
+	var same: Array[PlacementState] = []
+	for other in state.placements:
+		if other.enchantment and other.enchantment.enchantment_name == n:
+			same.append(other)
+	return n if same.size() < 2 else "%s #%d" % [n, same.find(p) + 1]
 
 
 func placement_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
@@ -550,6 +578,18 @@ func committed_placements() -> Array[PlacementState]:
 	return out
 
 
+## An item's name as the item picker shows it, like "Long sword #4"
+static func item_name(inst: ItemInstance) -> String:
+	if inst.definition == null:
+		return str(inst.id)
+	var n := inst.definition.display_name
+	if n == "":
+		n = str(inst.definition.id)
+	var id := str(inst.id)
+	var number := id.get_slice("_", id.get_slice_count("_") - 1)
+	return "%s #%s" % [n, number] if number.is_valid_int() else n
+
+
 static func material_name(m: EnchantmentMaterialDefinition) -> String:
 	if m == null:
 		return "nothing"
@@ -648,6 +688,41 @@ func _rebuild() -> void:
 		for l in p.enchantment.lines:
 			for c in l.cells:
 				_occupied[p.origin + Hex.rotate(c, p.rotation_steps)] = p
+
+
+## Fits saved placements to their enchantments' current shapes. An enchantment re-baked with more
+## or fewer nodes leaves older carvings and plans (like the demo's pre-carved sword) with one
+## material slot per old node: this gives each node exactly one slot, returns a draft's extra
+## materials to the inventory, and drops lines and planned cuts at nodes that no longer exist.
+func _fit_to_patterns() -> void:
+	var gone := {}  ## node keys that no longer exist
+	for p in state.placements:
+		var count := p.enchantment.nodes.size() if p.enchantment else 0
+		if p.materials.size() == count:
+			continue
+		push_warning(
+			(
+				"%s changed shape since it was planned on %s: %d nodes now, %d saved"
+				% [_placement_name(p), item.definition.display_name, count, p.materials.size()]
+			)
+		)
+		for i in range(count, p.materials.size()):
+			gone[enchantment_key(p.id, i)] = true
+			if p.materials[i] and not p.committed and inventory:
+				inventory.add_material(p.materials[i])
+		p.materials.resize(count)
+	if gone.is_empty():
+		return
+	for l in state.lines.duplicate():
+		if gone.has(l.a) or gone.has(l.b):
+			state.lines.erase(l)
+	for s in state.disenchant_plan.duplicate():
+		if s.kind == DisenchantStep.Kind.CUT and (gone.has(s.a) or gone.has(s.b)):
+			state.disenchant_plan.erase(s)
+
+
+static func _placement_name(p: PlacementState) -> String:
+	return p.enchantment.enchantment_name if p.enchantment else "An enchantment"
 
 
 func _erase_placement(p: PlacementState) -> void:

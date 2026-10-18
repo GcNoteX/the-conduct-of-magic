@@ -10,6 +10,7 @@ const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_s
 ## The long sword's place in the demo player's items (dagger, short sword, long sword, carved)
 const LONG_SWORD := 2
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
+const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
 
 var out_dir := "user://"
 var table: Control
@@ -135,6 +136,8 @@ func _ready() -> void:
 	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
 	await _frames(3)
 	_shot("20_lists_disenchant")
+
+	await _replay_checker_plans()
 
 	table.time_left = 0.01
 	await _frames(3)
@@ -263,6 +266,118 @@ func _disenchant() -> void:
 	table._open_item(LONG_SWORD)
 	await _frames(2)
 	_shot("15_own_carving")
+
+
+## The solvability check's plans, done by hand on a fresh pre-carved sword: Kindle alone (sidebar
+## cards), Keen alone (the original lists, double-clicking rows) and both (bottom tray). Each
+## dissolves the named materials, clicks the named lines in order, clicks a node to pull out and
+## presses Commit, then checks the table pulled out exactly what the report said it would.
+func _replay_checker_plans() -> void:
+	var cases := [
+		["kindle", [0], table.Layout.SIDEBAR],
+		["keen", [1], table.Layout.LISTS],
+		["both", [0, 1], table.Layout.BOTTOM_TRAY],
+	]
+	var report_text := ""
+	for c: Array in cases:
+		var carved := _fresh_carved_sword()
+		table._set_layout(c[2])
+		table._item_picker.select(carved)
+		table._open_item(carved)
+		_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+		await _frames(3)
+		var d: DisenchantBoard = table.disenchant
+		var targets: Array[PlacementState] = []
+		for i: int in c[1]:
+			targets.append(d.carvings()[i])
+		var available: Dictionary = table.player.material_inventory.duplicate()
+		if c[0] == "kindle":
+			report_text = SolvabilityCheck.report(d, available)
+			_shot("21_labelled_board")
+		var steps := SolvabilityChecker.new(d).solve(targets, available)[0].steps(targets, d)
+		for s in steps:
+			await _do_step(s, d)
+		var planned: Array[String] = []
+		for s in d.state.disenchant_plan:
+			planned.append(d.describe_step(s))
+		var wanted: Array[String] = []
+		for s in steps:
+			wanted.append(d.describe_step(s))
+		var labels := " and ".join(targets.map(func(p: PlacementState): return d.carving_name(p)))
+		print("checker plan (", labels, ") planned as reported: ", planned == wanted)
+		if planned != wanted:
+			print("  wanted: ", wanted, "\n  got:    ", planned)
+		print("  blocked step: ", d.first_blocked(), " commit check: '", d.check_commit(), "'")
+		if c[0] == "kindle":
+			var k := DisenchantBoard.edge_key(steps[4].a, steps[4].b)
+			_move(_edge_point(steps[4].a, steps[4].b))
+			await _frames(3)
+			print("  tooltip: ", table._tooltip_label.get_parsed_text().get_slice("\n", 0))
+			print(
+				"  plan row 5: ", d.describe_step(d.state.disenchant_plan[4]), " | ", d.edge_name(k)
+			)
+		_shot("22_%s_planned" % c[0])
+		var before: int = d.carvings().size()
+		_click(table._commit_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+		await _frames(3)
+		var left: Array[String] = []
+		for p in table.disenchant.carvings():
+			left.append(table.disenchant.carving_name(p))
+		print(
+			"  committed: pulled out ",
+			before - table.disenchant.carvings().size(),
+			" of ",
+			targets.size(),
+			", still carved: ",
+			left,
+			" message: ",
+			table._message_label.text
+		)
+		_shot("23_%s_committed" % c[0])
+	var f := FileAccess.open(out_dir.path_join("solvability_report.txt"), FileAccess.WRITE)
+	f.store_string(report_text)
+	f.close()
+
+
+## Puts a fresh copy of the pre-carved sword in its slot and the demo materials back. Returns its
+## index.
+func _fresh_carved_sword() -> int:
+	var index: int = table.player.items.size() - 1
+	var fresh: ItemInstance = CARVED.duplicate(true)
+	fresh.id = table.player.items[index].id
+	table.player.items[index] = fresh
+	table.player.material_inventory.clear()
+	for m: EnchantmentMaterialDefinition in table.setup.materials:
+		table.player.add_material(m, table.setup.materials[m])
+	table._refresh_cards()
+	return index
+
+
+## Does one planned step the way a player would: double-click the material (its card, or its row
+## in the original lists), click the line, or click one of the enchantment's nodes
+func _do_step(s: DisenchantStep, d: DisenchantBoard) -> void:
+	match s.kind:
+		DisenchantStep.Kind.DISSOLVE:
+			var lists := table.find_children("*", "MaterialList", true, false).filter(
+				func(n: Node): return not n.is_queued_for_deletion()
+			)
+			if table._layout_picker.selected == table.Layout.LISTS and not lists.is_empty():
+				var list: MaterialList = lists[0]
+				list.item_activated.emit(list.materials.find(s.material))
+			else:
+				_double_click(_card(s.material))
+		DisenchantStep.Kind.CUT:
+			_click(_edge_point(s.a, s.b), MOUSE_BUTTON_LEFT)
+		_:
+			var key := InscriptionBoard.enchantment_key(s.placement_id, 0)
+			_click(
+				(
+					view.get_global_transform_with_canvas()
+					* view.to_screen(d.board.node_position(key))
+				),
+				MOUSE_BUTTON_LEFT
+			)
+	await _frames(1)
 
 
 func _edge_point(a: String, b: String) -> Vector2:
