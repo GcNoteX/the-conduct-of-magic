@@ -8,10 +8,27 @@ Editing the generated .tres files in the editor is fine; rerunning this overwrit
 
 const STONES := "res://items/enchantment_materials/%s/%s.tres"
 const A := EnchantmentMaterialDefinition.MATERIAL_ATTRIBUTES
-const R := RuneSet.Rune
 const TILES := preload("res://inscribing/tiles/hex_map_tiles.tres")
+## The tile set's sources: plain cells, and magic nodes (one tile per rune kind, in RuneSet.Rune
+## order, each carrying its runes as custom data)
+const CELL_SOURCE := 0
+const MAGIC_SOURCE := 1
 const CELL_TILE := Vector2i(0, 0)
-const MAGIC_TILE := Vector2i(1, 0)
+## Placeholder magic node kinds, to tune: the magic nodes of each sword in reading order get
+## these tiles in turn. A magic node tile puts 1 rune of its kind on each line and gives back 1 of
+## its kind and 1 of the next kind when freed (see hex_map_tiles.tres).
+const MAGIC_KINDS: Array[RuneSet.Rune] = [
+	RuneSet.Rune.WIND,
+	RuneSet.Rune.WATER,
+	RuneSet.Rune.FIRE,
+	RuneSet.Rune.STONE,
+	RuneSet.Rune.FIRE,
+	RuneSet.Rune.WATER,
+	RuneSet.Rune.STONE,
+	RuneSet.Rune.WIND,
+	RuneSet.Rune.STONE,
+	RuneSet.Rune.WATER,
+]
 
 
 func _ready() -> void:
@@ -225,23 +242,16 @@ func _carved_sword(
 	return inst
 
 
-## Writes a sword's map (with placeholder runes), its map scene and its item definition
+## Writes a sword's map scene (cells and magic node tiles painted from `layout`), bakes it into
+## the sword's map, and writes the item definition
 func _sword(file: String, display: String, layout: PackedStringArray) -> EnchantableItemDefinition:
-	var map := HexMapDefinition.new()
+	var map_path := "res://inscribing/demo/%s_map.tres" % file
+	var map: HexMapDefinition = (
+		load(map_path) if ResourceLoader.exists(map_path) else HexMapDefinition.new()
+	)
 	map.map_name = display
 	map.layout = layout
-	# Placeholder rune numbers, to tune: each magic node (in reading order) puts 1 rune of its
-	# kind on its lines and gives back 1 of its kind and 1 of the next kind when freed
-	var kinds: Array[R] = [
-		R.WIND, R.WATER, R.FIRE, R.STONE, R.FIRE, R.WATER, R.STONE, R.WIND, R.STONE, R.WATER
-	]
-	for i in map.get_magic_nodes().size():
-		var k: R = kinds[i % kinds.size()]
-		map.magic_edge_runes.append(_one(k, 1))
-		map.magic_harvest_runes.append(_one(k, 1).plus(_one(posmod(k + 1, 4), 1)))
-	var map_path := "res://inscribing/demo/%s_map.tres" % file
-	_save(map, map_path)
-	_map_scene(load(map_path), "res://inscribing/demo/%s_map.tscn" % file)
+	_map_scene(map, map_path, "res://inscribing/demo/%s_map.tscn" % file)
 	var item := EnchantableItemDefinition.new()
 	item.id = StringName(file)
 	item.display_name = display
@@ -251,21 +261,39 @@ func _sword(file: String, display: String, layout: PackedStringArray) -> Enchant
 	return load(path)
 
 
-## Writes the scene a map is painted in, with the map's cells already painted
-func _map_scene(map: HexMapDefinition, path: String) -> void:
+## Writes the scene a map is painted in, painted from the map's layout, and bakes it into the map
+func _map_scene(map: HexMapDefinition, map_path: String, path: String) -> void:
 	var root := ItemMapScene.new()
-	root.name = map.resource_path.get_file().get_basename().to_pascal_case()
-	var layer := TileMapLayer.new()
-	layer.name = "Cells"
-	layer.tile_set = TILES
-	root.add_child(layer)
-	layer.owner = root
-	var magic := map.get_magic_nodes()
+	root.name = path.get_file().get_basename().to_pascal_case()
+	var cells := TileMapLayer.new()
+	cells.name = "Cells"
+	cells.tile_set = TILES
+	root.add_child(cells)
+	cells.owner = root
+	var magic := TileMapLayer.new()
+	magic.name = "MagicNodes"
+	magic.tile_set = TILES
+	root.add_child(magic)
+	magic.owner = root
 	for a in map.get_cells():
-		layer.set_cell(Hex.axial_to_offset(a), 0, MAGIC_TILE if a in magic else CELL_TILE)
+		cells.set_cell(Hex.axial_to_offset(a), CELL_SOURCE, CELL_TILE)
+	var nodes := map.get_magic_nodes()
+	for i in nodes.size():
+		var kind := MAGIC_KINDS[i % MAGIC_KINDS.size()]
+		magic.set_cell(Hex.axial_to_offset(nodes[i]), MAGIC_SOURCE, Vector2i(kind, 0))
 	root.map_definition = map
-	root.cells_layer = layer
-	assert(root.is_baked(), "The %s scene doesn't match its map" % path)
+	root.cells_layer = cells
+	root.magic_layer = magic
+	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(path.get_base_dir()))
+	var uid := (
+		ResourceLoader.get_resource_uid(map_path)
+		if ResourceLoader.exists(map_path)
+		else ResourceUID.INVALID_ID
+	)
+	var err := root.bake_into(map, map_path)
+	assert(err == OK and root.is_baked(), "The %s scene doesn't bake" % path)
+	if uid != ResourceUID.INVALID_ID:
+		ResourceSaver.set_uid(map_path, uid)
 	var scene := PackedScene.new()
 	scene.pack(root)
 	_save(scene, path)
@@ -287,12 +315,6 @@ func _runes(
 	m.harvest_runes = harvest
 	m.dissolve_runes = dissolve
 	_save(m, m.resource_path)
-
-
-func _one(rune: int, count: int) -> RuneSet:
-	var counts := [0, 0, 0, 0]
-	counts[rune] = count
-	return RuneSet.of(counts[0], counts[1], counts[2], counts[3])
 
 
 func _pattern(

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://is6b7fg7wstq"
-path="res://.godot/imported/hex_map_tiles.png-d46ee20754810778381eef1c5e97a4a6.ctex"
+uid="uid://cqbg2gwu8yecy"
+path="res://.godot/imported/cell_steel.png-97422434a47f2fcc4546317ecad6f1c2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://inscribing/tiles/hex_map_tiles.png"
-dest_files=["res://.godot/imported/hex_map_tiles.png-d46ee20754810778381eef1c5e97a4a6.ctex"]
+source_file="res://art/placeholder/cell_steel.png"
+dest_files=["res://.godot/imported/cell_steel.png-97422434a47f2fcc4546317ecad6f1c2.ctex"]
 
 [params]
 
