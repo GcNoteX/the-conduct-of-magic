@@ -24,6 +24,8 @@ func _ready() -> void:
 	test_against_every_cut_order()
 	test_unsolvable_and_empty()
 	test_component_toggle()
+	test_plans_commit()
+	test_report_matches_the_plan_list()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -70,9 +72,14 @@ func test_whole_board() -> void:
 	for s in found:
 		check(replays_cleanly(d, s, all), "solution %s replays through the rules" % names(s))
 	var report := SolvabilityCheck.report(d, demo_inventory())
-	check(report.contains("Everything: can be cleared"), "the report says the board clears")
-	check(report.contains("Kindle node 1 (Fire stone)"), "the report names enchantment nodes")
-	check(report.contains("magic node 2"), "the report numbers magic nodes")
+	check(
+		report.contains("Kindle and Keen together: can be cleared"),
+		"the report says the board clears"
+	)
+	check(report.contains("Kindle A (Fire stone)"), "the report says what each node holds")
+	check(report.contains("Keen C (Red stone)"), "Keen's nodes are lettered")
+	check(report.contains("Cut Kindle A – M2"), "cuts name nodes by their board labels")
+	check(not report.contains("node 1"), "no enchantment node numbers to mix up with magic ones")
 	var raw_key := RegEx.create_from_string("[em]:-?\\d")
 	check(raw_key.search(report) == null, "the report has no raw node keys")
 
@@ -171,3 +178,47 @@ func test_component_toggle() -> void:
 	bare.definition = SWORD
 	check(component.check_item(bare, player) == "", "an item with no carvings is skipped")
 	component.free()
+
+
+## Kindle alone, Keen alone and both: the checker's plan, planned step by step on the board the
+## way the table plans it, commits and pulls out exactly those enchantments
+func test_plans_commit() -> void:
+	for which in [[0], [1], [0, 1]]:
+		var player := Player.new()
+		for mat: EnchantmentMaterialDefinition in demo_inventory():
+			player.add_material(mat, demo_inventory()[mat])
+		var d := DisenchantBoard.new(InscriptionBoard.new(CARVED.duplicate(true), player))
+		var targets: Array[PlacementState] = []
+		for i: int in which:
+			targets.append(d.carvings()[i])
+		var label := " and ".join(targets.map(func(p: PlacementState): return d.carving_name(p)))
+		var found := SolvabilityChecker.new(d).solve(targets, demo_inventory())
+		check(not found.is_empty(), "%s can be cleared" % label)
+		if found.is_empty():
+			continue
+		var ok := true
+		for s in found[0].steps(targets, d):
+			match s.kind:
+				DisenchantStep.Kind.DISSOLVE:
+					ok = ok and d.plan_dissolve(s.material) == ""
+				DisenchantStep.Kind.CUT:
+					ok = ok and d.plan_cut(DisenchantBoard.edge_key(s.a, s.b)) == ""
+				_:
+					ok = ok and d.plan_pull_out(d.find_carving(s.placement_id)) == ""
+		check(ok, "%s: every step of the plan can be planned" % label)
+		check(d.check_commit() == "", "%s: the plan commits (%s)" % [label, d.check_commit()])
+		var pulled := d.commit()
+		check(pulled.size() == targets.size(), "%s: the commit pulls out %s" % [label, label])
+		check(d.carvings().size() == 2 - targets.size(), "%s: only the others stay carved" % label)
+
+
+## Every planned step reads in the report exactly as the table's plan list shows it
+func test_report_matches_the_plan_list() -> void:
+	var d := carved_board()
+	var report := SolvabilityCheck.report(d, demo_inventory())
+	var all := d.carvings()
+	var steps := SolvabilityChecker.new(d).solve(all, demo_inventory())[0].steps(all, d)
+	for i in steps.size():
+		if steps[i].kind != DisenchantStep.Kind.DISSOLVE:
+			var row := "%d. %s  (" % [i + 1, d.describe_step(steps[i])]
+			check(report.contains(row), "the report has step %s" % row)

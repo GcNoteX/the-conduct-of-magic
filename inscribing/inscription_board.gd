@@ -121,6 +121,33 @@ func node_definition(key: String) -> EnchantmentPatternNode:
 	return p.enchantment.nodes[node_index(key)] if p else null
 
 
+## The name a node goes by everywhere a player reads it (board labels, plan, tooltips and the
+## solvability report): "M4" for magic node 4, "Keen B" for Keen's second node. Letters follow
+## the enchantment's own node order, so they can't be mistaken for magic node numbers.
+func node_tag(key: String) -> String:
+	if is_magic(key):
+		return "M%d" % map.magic_node_number(node_cell(key))
+	var p := node_placement(key)
+	if p == null:
+		return key
+	return "%s %s" % [placement_name(p), node_letter(node_index(key))]
+
+
+## A, B, C... for an enchantment's first, second, third... node
+static func node_letter(index: int) -> String:
+	return String.chr(65 + index) if index < 26 else str(index + 1)
+
+
+## The enchantment's name, numbered ("Kindle #2") only when the item has more than one of it
+func placement_name(p: PlacementState) -> String:
+	var n := p.enchantment.enchantment_name
+	var same: Array[PlacementState] = []
+	for other in state.placements:
+		if other.enchantment and other.enchantment.enchantment_name == n:
+			same.append(other)
+	return n if same.size() < 2 else "%s #%d" % [n, same.find(p) + 1]
+
+
 func placement_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
 	var out: Array[Vector2i] = []
 	for n in e.nodes:
@@ -549,6 +576,18 @@ func committed_placements() -> Array[PlacementState]:
 		if p.committed:
 			out.append(p)
 	return out
+
+
+## An item's name as the item picker shows it, like "Long sword #4"
+static func item_name(inst: ItemInstance) -> String:
+	if inst.definition == null:
+		return str(inst.id)
+	var n := inst.definition.display_name
+	if n == "":
+		n = str(inst.definition.id)
+	var id := str(inst.id)
+	var number := id.get_slice("_", id.get_slice_count("_") - 1)
+	return "%s #%s" % [n, number] if number.is_valid_int() else n
 
 
 static func material_name(m: EnchantmentMaterialDefinition) -> String:

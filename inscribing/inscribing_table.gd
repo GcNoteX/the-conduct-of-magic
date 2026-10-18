@@ -36,7 +36,7 @@ const DISENCHANT_LEGEND := (
 	+ "[color=#ff7a3d]fire[/color], [color=#bfeccb]wind[/color] and "
 	+ "[color=#b49a74]stone[/color] runes. Planned cuts show their step number, red when "
 	+ "you can't afford them. A green ring marks a node that pays out in the plan. "
-	+ "Magic nodes show their number.\n"
+	+ "Nodes show their names: M4 is magic node 4, Keen B is Keen's second node.\n"
 	+ "Hover a node or line for its runes."
 )
 const LAYOUT_NAMES: Array[String] = [
@@ -75,6 +75,8 @@ var _disenchant_button: Button
 var _rune_bar: RuneBar
 var _plan_panel: DisenchantPlanPanel
 var _legend: RichTextLabel
+## The Disenchant-mode key to node names, above the board
+var _name_key: Label
 
 
 func _ready() -> void:
@@ -307,8 +309,8 @@ func _commit_disenchant() -> void:
 	_set_message(
 		(
 			(
-				"Pulled out %s. Its cells are free again, the dissolved materials are used up and "
-				% ", ".join(names)
+				"Pulled out %s. %s cells are free again, the dissolved materials are used up and "
+				% [" and ".join(names), "Its" if names.size() == 1 else "Their"]
 			)
 			+ "leftover runes disperse."
 		)
@@ -348,6 +350,8 @@ func _refresh_all() -> void:
 func _refresh_mode() -> void:
 	var on := is_disenchanting()
 	_rune_bar.visible = on
+	_name_key.visible = on
+	_name_key.text = _name_key_text()
 	_plan_panel.visible = on
 	var texts := [DISENCHANT_LEGEND, DISENCHANT_HELP] if on else [CARVE_LEGEND, CARVE_HELP]
 	_legend.text = "%s\n\n[b]Working[/b]\n%s" % texts
@@ -536,7 +540,8 @@ func _disenchant_tooltip(key: String) -> String:
 	if disenchant.has_edge(key):
 		var ends := disenchant.edge_ends(key)
 		var text := (
-			"[b]Line[/b] of %s\n" % disenchant.edge_placement(key).enchantment.enchantment_name
+			"[b]Line %s[/b] (part of %s)\n"
+			% [disenchant.edge_name(key), disenchant.carving_name(disenchant.edge_placement(key))]
 		)
 		text += "Cutting costs %s\n" % disenchant.edge_cost(key).describe()
 		for n in ends:
@@ -553,8 +558,7 @@ func _disenchant_tooltip(key: String) -> String:
 		return text
 	if not board.has_node(key) or disenchant.node_edges(key).is_empty():
 		return ""
-	var label := disenchant.node_label(key)
-	var text := "[b]%s%s[/b]\n" % [label.left(1).to_upper(), label.substr(1)]
+	var text := "[b]%s[/b]\n" % disenchant.node_name(key)
 	text += "Puts %s on each of its lines\n" % disenchant.node_edge_runes(key).describe()
 	text += (
 		"Gives back %s when its last line is cut\n" % disenchant.node_harvest_runes(key).describe()
@@ -564,7 +568,7 @@ func _disenchant_tooltip(key: String) -> String:
 	if p:
 		text += (
 			"\nClick to pull %s out once all %d lines of its chain are planned cut."
-			% [p.enchantment.enchantment_name, disenchant.chain(p).size()]
+			% [disenchant.carving_name(p), disenchant.chain(p).size()]
 		)
 	return text
 
@@ -598,12 +602,15 @@ func _material_order() -> Array[EnchantmentMaterialDefinition]:
 
 
 func _item_name(inst: ItemInstance) -> String:
-	var n := (
-		inst.definition.display_name
-		if inst.definition.display_name != ""
-		else str(inst.definition.id)
-	)
-	return "%s #%s" % [n, str(inst.id).get_slice("_", str(inst.id).get_slice_count("_") - 1)]
+	return InscriptionBoard.item_name(inst)
+
+
+## "Labels: M4 = magic node 4 · Keen B = Keen's second node", naming one of this item's carvings
+func _name_key_text() -> String:
+	var example := "Keen"
+	if disenchant and not disenchant.carvings().is_empty():
+		example = disenchant.carving_name(disenchant.carvings().back())
+	return "Labels: M4 = magic node 4 · %s B = %s's second node" % [example, example]
 
 
 func _item_effects(inst: ItemInstance) -> String:
@@ -692,6 +699,11 @@ func _build_ui() -> void:
 	top.add_child(gap)
 	_rune_bar = RuneBar.new()
 	top.add_child(_rune_bar)
+	_name_key = Label.new()
+	_name_key.add_theme_color_override("font_color", Color("b8b4c4"))
+	_name_key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_name_key.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	top.add_child(_name_key)
 	var board_stack := Control.new()  # The board, with the overlay layouts on top of it
 	board_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	board_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
