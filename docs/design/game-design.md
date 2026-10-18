@@ -356,11 +356,14 @@ Why you first rather than the mentor first:
 - **Blame is clear.** If you approve a bad commission and the mentor takes it on your word, docking your pay at the end of the day follows naturally.
 - **Clean handover.** As you earn trust, the mentor stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
 
-### 9.2.2 End states in the mentor's workshop
-- The game keeps progressing day to day.
-- **Running out of money** leads to different endings.
-- **Not having enough money to progress to the next game stage** also leads to different endings.
-- Death or similar may come later, but in the mentor's workshop these money endings are the end states.
+### 9.2.2 End of the workshop year
+- The game keeps progressing day to day across the year.
+- Near the end of the year is **application day** for the university, which costs money. Getting in needs both a **total amount of money** and **Mr. Leywin's recommendation**.
+- The year has a closing and ends with a **letter** saying whether the player got into the university.
+- The patron and the recruiter each give the player a **business-card-like item** that fits who they are.
+- The player then chooses from the routes open to them (§9.3).
+- **Fail state: no route out of the workshop.** The player can't go to the university (not enough money, or no recommendation) and impressed neither the recruiter nor the patron.
+- **Running out of money** also leads to different endings. Death or similar may come later.
 
 ### 9.3 Progression routes
 After a year-long apprenticeship in the mentor's shop, across four seasons, the player moves on. The game has four location streams: the **shop** (the mentor's workshop, where it starts), then one of three routes. Reputation here means the player's relationship with particular people. If the player qualifies for more than one route, they choose. Story details are in the [story bible](../story/story-bible.md).
@@ -460,6 +463,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-17 | **The uncle becomes the mentor** (Mr. Leywin, placeholder). He isn't related to the player. Story details live in the [story bible](../story/story-bible.md). Earlier log entries keep the old name. |
 | 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
 | 2026-10-18 | The mentor's-workshop chapter is a **one-year apprenticeship** with **four seasons**. How play days spread across the year is still open. Story details are in the [story bible](../story/story-bible.md). |
+| 2026-10-18 | **End of the workshop year** (§9.2.2): application day costs money; the university needs money plus Mr. Leywin's recommendation; a closing letter decides the university; the patron and recruiter give business-card-like items; the fail state is no route out of the workshop. |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
