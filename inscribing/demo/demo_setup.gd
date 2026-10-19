@@ -1,13 +1,11 @@
 class_name DemoSetup
 extends Resource
 
-## What a test player starts the inscribing table with
+## What a test player starts the game with
 
 @export var materials: Dictionary[EnchantmentMaterialDefinition, int] = {}
 @export var items: Array[EnchantableItemDefinition] = []
 @export var enchantments: Array[Enchantment] = []
-## Length of the enchanting day for playtesting
-@export var day_length_seconds: float = 3600.0
 
 
 func create_player() -> Player:

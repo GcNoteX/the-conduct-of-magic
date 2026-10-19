@@ -139,7 +139,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if key.keycode == KEY_R:
 		_rotate_held(-1 if key.shift_pressed else 1)
 	elif key.keycode == KEY_ESCAPE:
-		_cancel()
+		cancel()
 
 
 func mouse_left() -> void:
@@ -163,7 +163,7 @@ func _rotate_held(steps: int) -> void:
 		queue_redraw()
 
 
-func _cancel() -> void:
+func cancel() -> void:
 	held_enchantment = null
 	_path.clear()
 	_blocked_reason = ""
@@ -246,7 +246,7 @@ func _finish_path() -> void:
 
 func _on_right_pressed() -> void:
 	if held_enchantment or is_drawing():
-		_cancel()
+		cancel()
 		return
 	var key := _hover_key
 	if key != "" and board.node_material(key) and not board.node_placement(key).committed:

@@ -1,12 +1,13 @@
 extends Node
 
 """
-Drives the inscribing table with simulated mouse input and saves screenshots.
+Drives the inscribing table, inside a Day, with simulated mouse input and saves screenshots.
 Run (needs a display): godot --path . res://tests/drive_table.tscn -- <output_dir>
 """
 
 var out_dir := "user://"
-var table: Control
+var day: Day
+var table: InscribingTable
 var view: BoardView
 
 
@@ -19,8 +20,10 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():
 		out_dir = args[0]
-	table = preload("res://inscribing/inscribing_table.tscn").instantiate()
-	add_child(table)
+	day = preload("res://day/day.tscn").instantiate()
+	add_child(day)
+	day.switch_to(Day.ShopSide.INSCRIBING)
+	table = day.table
 	await _frames(5)
 	view = table._view
 	_shot("01_empty")
@@ -84,7 +87,7 @@ func _ready() -> void:
 	print("committed: ", p.committed, " message: ", table._message_label.text)
 	_shot("07_committed")
 
-	table.time_left = 0.01
+	day.time_left[Day.ShopSide.INSCRIBING] = 0.01
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()

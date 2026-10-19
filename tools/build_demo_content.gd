@@ -113,7 +113,6 @@ func _ready() -> void:
 	setup.materials = {fire: 3, water: 3, red: 3, blue: 3, yellow: 1}
 	setup.items = [saved_sword, saved_sword]
 	setup.enchantments = [kindle, glow, keen, ward]
-	setup.day_length_seconds = 3600.0
 	_save(setup, "res://inscribing/demo/demo_setup.tres")
 	print("Demo content written")
 	get_tree().quit()

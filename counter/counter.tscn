@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://counter/counter.gd" id="1_counter"]
+[ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="2_def"]
+[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="3_sword"]
+
+[node name="Counter" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_counter")
+demo_items = Array[ExtResource("2_def")]([ExtResource("3_sword")])
