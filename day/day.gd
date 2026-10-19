@@ -25,8 +25,6 @@ var side: ShopSide = ShopSide.COUNTER
 var plan: DayPlan
 ## Seconds left today on each side
 var time_left: Dictionary[ShopSide, float] = {}
-## Items accepted at the counter today, for the end-of-day summary
-var accepted_today: Array[ItemInstance] = []
 
 var _clock_label: Label
 var _day_over: PanelContainer
@@ -41,7 +39,7 @@ func _ready() -> void:
 	player = setup.create_player()
 	PlayerManager.set_player(player)
 	_build_ui()
-	counter.item_accepted.connect(_on_item_accepted)
+	counter.visit_decided.connect(_on_visit_decided)
 	var shown: Array[EnchantmentMaterialDefinition] = []
 	shown.assign(setup.materials.keys())
 	table.open(player, shown)
@@ -103,8 +101,8 @@ func _start_day() -> void:
 		ShopSide.COUNTER: plan.counter_seconds,
 		ShopSide.INSCRIBING: plan.inscribing_seconds,
 	}
-	accepted_today.clear()
 	_day_over.visible = false
+	counter.open_day(day_number)
 	switch_to(ShopSide.COUNTER if plan.counter_seconds > 0.0 else ShopSide.INSCRIBING)
 	if time_left[side] <= 0.0:
 		_end_day()
@@ -117,7 +115,10 @@ func _on_side_time_up() -> void:
 		_end_day()
 
 
-func _on_item_accepted(definition: EnchantableItemDefinition) -> void:
+func _on_visit_decided(visit: CustomerVisit, accepted: bool) -> void:
+	var definition := visit.slip.item
+	if not accepted or definition == null:
+		return
 	var count := 0
 	for inst in player.items:
 		if inst.definition == definition:
@@ -126,16 +127,15 @@ func _on_item_accepted(definition: EnchantableItemDefinition) -> void:
 	inst.definition = definition
 	inst.id = StringName("%s_%d" % [definition.id, count + 1])
 	player.items.append(inst)
-	accepted_today.append(inst)
 
 
 func _end_day() -> void:
 	_suspend(side)
-	var text := "[b]Day %d is over.[/b]\n\nAccepted at the counter:\n" % day_number
-	if accepted_today.is_empty():
-		text += "• nothing\n"
-	for inst in accepted_today:
-		text += "• %s\n" % inst.display_name()
+	var text := "[b]Day %d is over.[/b]\n\nAt the counter:\n" % day_number
+	if counter.decisions.is_empty():
+		text += "• no one was served\n"
+	for d in counter.decisions:
+		text += "• %s\n" % _describe(d)
 	text += "\nYour items:\n"
 	for inst in player.items:
 		text += "• %s: %s\n" % [inst.display_name(), inst.carved_effects()]
@@ -147,6 +147,22 @@ func _end_day() -> void:
 	_day_over_text.text = text
 	_day_over.visible = true
 	_refresh_clock()
+
+
+func _describe(d: CounterDecision) -> String:
+	var call := (
+		"%s %s's %s"
+		% [
+			"Accepted" if d.accepted else "Refused",
+			d.visit.slip.customer_name,
+			d.visit.slip.enchantment.enchantment_name,
+		]
+	)
+	if d.is_right():
+		return "[color=#7ee08a]✓[/color] %s. The rulebook agrees." % call
+	if d.accepted:
+		return "[color=#f06060]✗[/color] %s. The rulebook says: %s." % [call, "; ".join(d.problems)]
+	return "[color=#f06060]✗[/color] %s, though the rulebook allowed it." % call
 
 
 func _suspend(s: ShopSide) -> void:
@@ -197,7 +213,7 @@ func _build_ui() -> void:
 	var centre := CenterContainer.new()
 	_day_over.add_child(centre)
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(480, 420)
+	card.custom_minimum_size = Vector2(600, 560)
 	var card_style := StyleBoxFlat.new()
 	card_style.bg_color = Color("24232b")
 	card_style.set_corner_radius_all(8)
@@ -208,7 +224,7 @@ func _build_ui() -> void:
 	card.add_child(box)
 	_day_over_text = RichTextLabel.new()
 	_day_over_text.bbcode_enabled = true
-	_day_over_text.custom_minimum_size.y = 320
+	_day_over_text.custom_minimum_size.y = 460
 	box.add_child(_day_over_text)
 	var next := Button.new()
 	next.text = "Start the next day"

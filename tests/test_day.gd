@@ -2,7 +2,7 @@ extends Node
 
 """
 Headless checks for the day: which side is active, freezing the other side, and items handed
-over from the counter.
+over from the counter, and the demo rulebook.
 Run: godot --headless --path . res://tests/test_day.tscn
 Exits with code 1 if any check fails.
 """
@@ -17,6 +17,7 @@ func _ready() -> void:
 	test_split_day()
 	test_freeze_and_dev_switch()
 	test_counter_hands_over_items()
+	test_rulebook()
 	test_counter_only_and_inscribing_only_days()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -86,9 +87,16 @@ func test_freeze_and_dev_switch() -> void:
 func test_counter_hands_over_items() -> void:
 	var day := _make_day([_plan(10.0, 20.0)])
 	var before := day.player.items.size()
-	day.counter.accept_next()
+	var first := day.counter.current_visit()
+	check(first != null and first.day == 1, "the first customer of day 1 is waiting")
+	day.counter.accept()
 	check(day.player.items.size() == before + 1, "an accepted commission's item joins the items")
-	check(day.accepted_today.size() == 1, "the day remembers what was accepted")
+	check(day.counter.current_visit() != first, "the next customer steps up")
+	day.counter.refuse()
+	check(day.player.items.size() == before + 1, "a refused customer's item is handed back")
+	check(day.counter.decisions.size() == 2, "the counter remembers both calls")
+	check(day.counter.decisions[0].is_right(), "accepting a clean commission agrees with the rules")
+	check(day.counter.decisions[1].is_right(), "refusing a tier-1 Keen agrees with the rules")
 	var ids: Array[StringName] = []
 	for inst in day.player.items:
 		check(inst.id not in ids, "item ids stay unique (%s)" % inst.id)
@@ -99,6 +107,27 @@ func test_counter_hands_over_items() -> void:
 		"the table lists the new item when it opens"
 	)
 	day.queue_free()
+
+
+func test_rulebook() -> void:
+	var book: Rulebook = load("res://counter/demo/demo_rulebook.tres")
+	var expected := {
+		"01_elsa": "",
+		"02_bram": "Keen needs tier 2, but the ID is tier 1",
+		"03_ines": "",
+		"04_oskar": "No permit shown for Kindle",
+		"05_rhea": "The ID ran out on day 1",
+		"06_tomas": "",
+		"07_wil": "The ID is in the name of Wil Hartley",
+	}
+	for key: String in expected:
+		var visit: CustomerVisit = load("res://counter/demo/visit_%s.tres" % key)
+		var found := book.problems(visit, visit.day)
+		var want: String = expected[key]
+		if want == "":
+			check(found.is_empty(), "%s breaks no rule (got %s)" % [key, found])
+		else:
+			check(found == [want], "%s: %s (got %s)" % [key, want, found])
 
 
 func test_counter_only_and_inscribing_only_days() -> void:

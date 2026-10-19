@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="CustomerVisit" format=3]
+
+[ext_resource type="Script" path="res://counter/papers/adventurer_id.gd" id="1_pf1qm"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="2_iwh73"]
+[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="3_jqcn5"]
+[ext_resource type="Script" path="res://counter/papers/permit.gd" id="4_h7442"]
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="5_knqkv"]
+[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="6_4eswc"]
+[ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="7_53rw4"]
+
+[sub_resource type="Resource" id="Resource_gt0ls"]
+script = ExtResource("1_pf1qm")
+holder_name = "Ines Calder"
+tier = 3
+kingdom = "Astren"
+expires_day = 30
+
+[sub_resource type="Resource" id="Resource_8p6q2"]
+script = ExtResource("4_h7442")
+holder_name = "Ines Calder"
+issuer = "League of the Three Crowns"
+covers = Array[ExtResource("2_iwh73")]([ExtResource("3_jqcn5")])
+kingdoms = Array[String](["Astren", "Velmor"])
+expires_day = 30
+
+[sub_resource type="Resource" id="Resource_cbhlp"]
+script = ExtResource("7_53rw4")
+customer_name = "Ines Calder"
+kingdom = "Astren"
+enchantment = ExtResource("3_jqcn5")
+item = ExtResource("6_4eswc")
+payment = 150
+
+[resource]
+script = ExtResource("5_knqkv")
+slip = SubResource("Resource_cbhlp")
+adventurer_id = SubResource("Resource_gt0ls")
+permit = SubResource("Resource_8p6q2")

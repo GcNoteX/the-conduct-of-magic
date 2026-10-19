@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="Rulebook" format=3]
+
+[ext_resource type="Script" path="res://counter/rules/counter_rule.gd" id="1_xvvjl"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="2_05nj6"]
+[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="3_v1dnh"]
+[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="4_xtluq"]
+[ext_resource type="Script" path="res://counter/rules/id_required_rule.gd" id="5_n5mlf"]
+[ext_resource type="Script" path="res://counter/rules/tier_rule.gd" id="6_u5y7m"]
+[ext_resource type="Script" path="res://counter/rules/permit_rule.gd" id="7_lfxas"]
+[ext_resource type="Script" path="res://counter/rules/papers_valid_rule.gd" id="8_dhiqa"]
+[ext_resource type="Script" path="res://counter/rules/rulebook.gd" id="9_tqytn"]
+
+[sub_resource type="Resource" id="Resource_farpu"]
+script = ExtResource("5_n5mlf")
+enchantments = Array[ExtResource("2_05nj6")]([ExtResource("3_v1dnh"), ExtResource("4_xtluq")])
+description = "Keen and Kindle are weapon enchantments. Only sell them to customers who show an adventurer ID."
+
+[sub_resource type="Resource" id="Resource_xpjhr"]
+script = ExtResource("6_u5y7m")
+min_tiers = Dictionary[ExtResource("2_05nj6"), int]({
+ExtResource("3_v1dnh"): 2,
+ExtResource("4_xtluq"): 3
+})
+description = "Keen needs an adventurer of tier 2 or higher. Kindle needs tier 3 or higher."
+
+[sub_resource type="Resource" id="Resource_qte15"]
+script = ExtResource("7_lfxas")
+controlled = Array[ExtResource("2_05nj6")]([ExtResource("4_xtluq")])
+description = "Kindle is controlled. The customer must show a permit that covers Kindle and is valid in their home kingdom."
+
+[sub_resource type="Resource" id="Resource_07ais"]
+script = ExtResource("8_dhiqa")
+description = "Any ID or permit must be in date and in the customer's own name."
+
+[resource]
+script = ExtResource("9_tqytn")
+rules = Array[ExtResource("1_xvvjl")]([SubResource("Resource_farpu"), SubResource("Resource_xpjhr"), SubResource("Resource_qte15"), SubResource("Resource_07ais")])

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CustomerVisit" format=3]
+
+[ext_resource type="Script" path="res://counter/papers/adventurer_id.gd" id="1_s0pmd"]
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_fj48q"]
+[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="3_2lur0"]
+[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="4_iw3bh"]
+[ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="5_3ktfv"]
+
+[sub_resource type="Resource" id="Resource_nf66g"]
+script = ExtResource("1_s0pmd")
+holder_name = "Oskar Fenn"
+tier = 3
+kingdom = "Velmor"
+expires_day = 30
+
+[sub_resource type="Resource" id="Resource_wwqnp"]
+script = ExtResource("5_3ktfv")
+customer_name = "Oskar Fenn"
+kingdom = "Velmor"
+enchantment = ExtResource("3_2lur0")
+item = ExtResource("4_iw3bh")
+payment = 160
+
+[resource]
+script = ExtResource("2_fj48q")
+slip = SubResource("Resource_wwqnp")
+adventurer_id = SubResource("Resource_nf66g")

@@ -1,8 +1,15 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://counter/counter.gd" id="1_counter"]
-[ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="2_def"]
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="3_sword"]
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_visit"]
+[ext_resource type="Resource" path="res://counter/demo/demo_rulebook.tres" id="3_rulebook"]
+[ext_resource type="Resource" path="res://counter/demo/visit_01_elsa.tres" id="v1"]
+[ext_resource type="Resource" path="res://counter/demo/visit_02_bram.tres" id="v2"]
+[ext_resource type="Resource" path="res://counter/demo/visit_03_ines.tres" id="v3"]
+[ext_resource type="Resource" path="res://counter/demo/visit_04_oskar.tres" id="v4"]
+[ext_resource type="Resource" path="res://counter/demo/visit_05_rhea.tres" id="v5"]
+[ext_resource type="Resource" path="res://counter/demo/visit_06_tomas.tres" id="v6"]
+[ext_resource type="Resource" path="res://counter/demo/visit_07_wil.tres" id="v7"]
 
 [node name="Counter" type="Control"]
 layout_mode = 3
@@ -12,4 +19,5 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_counter")
-demo_items = Array[ExtResource("2_def")]([ExtResource("3_sword")])
+visits = Array[ExtResource("2_visit")]([ExtResource("v1"), ExtResource("v2"), ExtResource("v3"), ExtResource("v4"), ExtResource("v5"), ExtResource("v6"), ExtResource("v7")])
+rulebook = ExtResource("3_rulebook")
