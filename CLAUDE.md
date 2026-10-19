@@ -37,7 +37,7 @@ Gavin tests features when he gets back to the project, so every batch of work le
 - Write a **test report** for the batch from [docs/test-reports/TEMPLATE.md](docs/test-reports/TEMPLATE.md). For each branch to test, it lists what to test, how, and the acceptance criteria. This applies even when the batch is a single feature.
 - Commit the report to `docs/test-reports/YYYY-MM-DD-short-title.md` on the combined branch.
 - Open the PR from the combined branch, or one PR per branch that couldn't be combined. The PR description repeats the test report. When either one changes, update the other.
-- Once a batch is merged, delete its remote branches: the combined branch and every feature branch in it. Also delete any other branch whose PR has been merged. Keep any branch that still has an open PR, or commits that aren't in a merged PR.
+- Once a batch is merged, delete its remote branches: the combined branch and every feature branch in it. Also delete any other branch whose PR has been merged. Keep any branch that still has an open PR, or commits that aren't in a merged PR. If you can't delete them yourself, list them for Gavin, and remind him that turning on "Automatically delete head branches" (Settings → General) would do it for him.
 
 ## Coding style
 
