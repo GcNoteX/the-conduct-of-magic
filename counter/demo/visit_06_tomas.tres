@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="1_ccfmd"]
 [ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="2_qermq"]
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="3_qbyw4"]
+[ext_resource type="Resource" path="res://inscribing/demo/dagger.tres" id="3_qbyw4"]
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="4_1grt6"]
 
 [sub_resource type="Resource" id="Resource_1r5mq"]

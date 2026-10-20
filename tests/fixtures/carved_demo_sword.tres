@@ -1,0 +1,106 @@
+[gd_resource type="Resource" script_class="ItemInstance" format=3]
+
+[ext_resource type="Resource" path="res://tests/fixtures/items/long_sword.tres" id="1_jhkf7"]
+[ext_resource type="Script" path="res://disenchanting/disenchant_step.gd" id="2_uj54f"]
+[ext_resource type="Script" path="res://enchantments/line_state.gd" id="3_tdtn5"]
+[ext_resource type="Script" path="res://enchantments/placement_state.gd" id="4_frvhv"]
+[ext_resource type="Resource" path="res://tests/fixtures/enchantments/kindle.tres" id="5_du0kh"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="6_h1mpx"]
+[ext_resource type="Resource" path="res://tests/fixtures/materials/fire_stone.tres" id="7_d1suw"]
+[ext_resource type="Resource" path="res://tests/fixtures/materials/water_stone.tres" id="8_eegbs"]
+[ext_resource type="Resource" path="res://tests/fixtures/enchantments/keen.tres" id="9_7ouwi"]
+[ext_resource type="Resource" path="res://tests/fixtures/materials/red_stone.tres" id="10_magv2"]
+[ext_resource type="Resource" path="res://tests/fixtures/materials/blue_stone.tres" id="11_fdci4"]
+[ext_resource type="Script" path="res://enchantments/graph_state.gd" id="12_oxj7j"]
+[ext_resource type="Script" path="res://items/data/item_instance.gd" id="13_o8fh5"]
+
+[sub_resource type="Resource" id="Resource_jjh3q"]
+script = ExtResource("3_tdtn5")
+a = "e:1:0"
+b = "m:-1,6"
+committed = true
+cells = Array[Vector2i]([Vector2i(1, 5), Vector2i(0, 6), Vector2i(-1, 6)])
+
+[sub_resource type="Resource" id="Resource_kionn"]
+script = ExtResource("3_tdtn5")
+a = "e:1:0"
+b = "m:0,8"
+committed = true
+cells = Array[Vector2i]([Vector2i(1, 5), Vector2i(1, 6), Vector2i(0, 7), Vector2i(0, 8)])
+
+[sub_resource type="Resource" id="Resource_v1gye"]
+script = ExtResource("3_tdtn5")
+a = "e:1:1"
+b = "m:3,6"
+committed = true
+cells = Array[Vector2i]([Vector2i(3, 5), Vector2i(3, 6)])
+
+[sub_resource type="Resource" id="Resource_fmcm5"]
+script = ExtResource("3_tdtn5")
+a = "m:3,6"
+b = "m:0,8"
+committed = true
+cells = Array[Vector2i]([Vector2i(3, 6), Vector2i(2, 7), Vector2i(1, 8), Vector2i(0, 8)])
+
+[sub_resource type="Resource" id="Resource_cmg3q"]
+script = ExtResource("3_tdtn5")
+a = "e:2:0"
+b = "m:-7,14"
+committed = true
+cells = Array[Vector2i]([Vector2i(-5, 13), Vector2i(-6, 14), Vector2i(-7, 14)])
+
+[sub_resource type="Resource" id="Resource_j5ylx"]
+script = ExtResource("3_tdtn5")
+a = "e:2:0"
+b = "m:-2,12"
+committed = true
+cells = Array[Vector2i]([Vector2i(-5, 13), Vector2i(-4, 12), Vector2i(-3, 12), Vector2i(-2, 12)])
+
+[sub_resource type="Resource" id="Resource_uky4g"]
+script = ExtResource("3_tdtn5")
+a = "e:2:1"
+b = "m:-4,16"
+committed = true
+cells = Array[Vector2i]([Vector2i(-3, 13), Vector2i(-3, 14), Vector2i(-3, 15), Vector2i(-4, 16)])
+
+[sub_resource type="Resource" id="Resource_u83ak"]
+script = ExtResource("3_tdtn5")
+a = "e:2:2"
+b = "m:-2,12"
+committed = true
+cells = Array[Vector2i]([Vector2i(-1, 13), Vector2i(-1, 12), Vector2i(-2, 12)])
+
+[sub_resource type="Resource" id="Resource_o2t72"]
+script = ExtResource("3_tdtn5")
+a = "e:2:2"
+b = "m:1,14"
+committed = true
+cells = Array[Vector2i]([Vector2i(-1, 13), Vector2i(0, 13), Vector2i(0, 14), Vector2i(1, 14)])
+
+[sub_resource type="Resource" id="Resource_cs6e3"]
+script = ExtResource("4_frvhv")
+id = 1
+enchantment = ExtResource("5_du0kh")
+origin = Vector2i(1, 5)
+materials = Array[ExtResource("6_h1mpx")]([ExtResource("7_d1suw"), ExtResource("8_eegbs")])
+committed = true
+
+[sub_resource type="Resource" id="Resource_7wpwc"]
+script = ExtResource("4_frvhv")
+id = 2
+enchantment = ExtResource("9_7ouwi")
+origin = Vector2i(-5, 13)
+materials = Array[ExtResource("6_h1mpx")]([ExtResource("10_magv2"), ExtResource("11_fdci4"), ExtResource("10_magv2")])
+committed = true
+
+[sub_resource type="Resource" id="Resource_87rrm"]
+script = ExtResource("12_oxj7j")
+placements = Array[ExtResource("4_frvhv")]([SubResource("Resource_cs6e3"), SubResource("Resource_7wpwc")])
+lines = Array[ExtResource("3_tdtn5")]([SubResource("Resource_jjh3q"), SubResource("Resource_kionn"), SubResource("Resource_v1gye"), SubResource("Resource_fmcm5"), SubResource("Resource_cmg3q"), SubResource("Resource_j5ylx"), SubResource("Resource_uky4g"), SubResource("Resource_u83ak"), SubResource("Resource_o2t72")])
+next_placement_id = 3
+
+[resource]
+script = ExtResource("13_o8fh5")
+id = &"carved_demo_sword"
+definition = ExtResource("1_jhkf7")
+enchantment_graph_state = SubResource("Resource_87rrm")

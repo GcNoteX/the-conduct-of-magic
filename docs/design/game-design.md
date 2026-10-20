@@ -5,7 +5,7 @@
 
 ## 1. Pitch
 
-A shop-management, inspection and crafting game about a young enchanter learning the trade in their uncle's workshop. By day you serve customers at the counter: you sell enchanted goods, take commissions and inspect what people bring you. At night you enchant items by laying enchantment patterns onto them and powering those patterns with materials. Who you choose to help, and how well you do the work, decides where your life goes next.
+A shop-management, inspection and crafting game about a young enchanter learning the trade as an apprentice in their mentor's workshop. By day you serve customers at the counter: you sell enchanted goods, take commissions and inspect what people bring you. At night you enchant items by laying enchantment patterns onto them and powering those patterns with materials. Who you choose to help, and how well you do the work, decides where your life goes next.
 
 **Theme.** The title, *The Conduct of Magic*, is the question the game asks. You've been given a rare gift. Enchanting can help a great many people, and it can also make you rich. How you conduct yourself with it is up to you.
 
@@ -31,7 +31,7 @@ A shop-management, inspection and crafting game about a young enchanter learning
 │ Inspect documents, ID, items, materials   │ ◄─── │ Finished commissions wait for pickup       │
 │ Accept or decline                         │      │                                            │
 └───────────────────────────────────────────┘      └────────────────────────────────────────────┘
-        End of day: the uncle settles the books → money · reputation · plot flags
+        End of day: the mentor settles the books → money · reputation · plot flags
 ```
 
 ## 4. The shop day
@@ -87,11 +87,11 @@ How the player gets materials changes as the game goes on:
 
 | Phase | Source | Notes |
 |---|---|---|
-| **Start** | **The uncle's stock** | Given at the start of the game, and the uncle **restocks it early on** |
+| **Start** | **The mentor's stock** | Given at the start of the game, and the mentor **restocks it early on** |
 | **Later** | **Catalogue** | The player manages stock themselves and orders from a catalogue |
 | **Any time** | **Customers in the store** | Chatting with customers, or asking whether they have anything to sell besides their commission. These are random encounters |
 | **Any time** | **Contacts** | Unique or cheaper materials (§4.3) |
-| **Fallback** | **The uncle's store** | **Expedited materials at a surcharge**, for when you forgot something or run short |
+| **Fallback** | **The mentor's store** | **Expedited materials at a surcharge**, for when you forgot something or run short |
 
 ## 5. Commissions
 
@@ -113,7 +113,7 @@ Consequences mostly land **when the commission is completed or due**, not when i
 
 | What went wrong | Possible consequence |
 |---|---|
-| Couldn't deliver (customer lied, or you overreached) | Lost payment, refund, reputation damage, the uncle docks your income |
+| Couldn't deliver (customer lied, or you overreached) | Lost payment, refund, reputation damage, the mentor docks your income |
 | Cursed item | Strange effects in the shop, harm to you or the stock; you can only shed it by finding the right customer, cleansing it or giving it up |
 | Faulty materials | They **blow up** when used or at the end of the market day. Recovering costs money, and in severe cases it's game over |
 | Breaking guild or legal rules | Fines, investigation, loss of standing with a faction |
@@ -136,19 +136,22 @@ Options ranked from simplest to most complex, with **when in the game** each cou
 
 | # | Mechanic | How it works | Complexity | When to introduce |
 |---|---|---|---|---|
-| 1 | **Fixed deadline** | Each commission type has a set turnaround, for example 3 days | Very low | Day 1. It's the uncle's shop rule while you learn |
+| 1 | **Fixed deadline** | Each commission type has a set turnaround, for example 3 days | Very low | Day 1. It's the mentor's shop rule while you learn |
 | 2 | **Customer-set deadline** | The deadline is written on the commission slip, and you take it or leave it | Low | First week. It adds a reason to reject ("I can't make that date") |
-| 3 | **Preset options** | The customer offers two or three choices, such as "2 days for 150g or 4 days for 100g" | Low to medium | Late in the uncle's-workshop chapter, once you have overlapping commissions |
+| 3 | **Preset options** | The customer offers two or three choices, such as "2 days for 150g or 4 days for 100g" | Low to medium | Late in the mentor's-workshop chapter, once you have overlapping commissions |
 | 4 | **Calendar pick** *(Gavin's idea)* | A calendar is laid out on the counter. The customer proposes a date and you drag a marker to counter. Earlier dates pay more and later dates pay less. Each customer has a **patience window**, and pushing past it makes them leave or sour | Medium | When the player runs the counter on their own. The same calendar can double as the commission schedule on the enchanting day |
 | 5 | **Pay in materials (simple)** | The customer offers some or all of the payment as materials, and you accept or decline | Low to medium | Early to mid. It's a natural fit because customers already bring materials |
 | 6 | **Price haggling** | A back-and-forth offer meter, in the style of Potion Craft | Medium | Mid. Possibly combined with the calendar so you trade time against money |
-| 7 | **Full bartering** | Both sides put goods on the counter until the trade balances. Needs an item-valuation system | High | Late, or a macro-level special such as the Black Market |
+| 7 | **Full bartering** | Both sides put goods on the counter until the trade balances. Needs an item-valuation system | High | Late, or a special for a later location |
 | 8 | **Renegotiation on return** | The customer comes back early or late. They ask for an extension, you ask for one, partial delivery, late penalties | Medium to high | Late, once relationships carry weight |
 | 9 | **Relationship and faction modifiers** | Trust and allegiance change patience, discounts and willingness to barter | Medium (a layer over the rest) | Grows alongside the relationship system |
 
 **Patience** is shown in two ways: the customer's **reactions** (expressions, dialogue, body language) and, for now, a **patience bar** at the side. The bar may be removed later so players have to read the customer.
 
 **Proposed path:** start with #1, then #2, then make **#4 (calendar pick)** the first real negotiation mechanic, with #5 alongside it. Hold #7 and #8 for later macro levels. Bartering is only overcomplicated in its full form (#7). The simple accept-or-decline version (#5) is cheap and fits the game.
+
+### 5.7 Items you can give back
+Gifts are **not a system of their own**. Sometimes the player gets an item that they can **give to another character**, and it may or may not be something they can inscribe. These are added for **particular storylines and characters**, not as a general gift mechanic.
 
 ## 6. Rules you inspect against
 
@@ -169,7 +172,7 @@ When the shop closes, the player moves to enchanting:
 2. **Choose an item** you received from a customer or bought yourself.
 3. **Enchant it** (see below).
 
-**Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else.
+**Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else. That amount of time is the player's **stamina** (§9.6).
 
 **For playtesting**, the timer just runs continuously, set to about **an hour** for now.
 
@@ -280,10 +283,12 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Inserted materials are used up.** They can never be taken back out or recycled.
 - **Lines are part of planning.** You plan enchantments, materials and lines, then **commit** one or more connected enchantments together.
 - **Disenchanting means cutting all of an enchantment's lines, then pulling the enchantment out.** How to make that a game is still open.
+  - **The lines to cut are the enchantment's whole chain:** its own lines, its lines to magic nodes, and the magic-to-magic lines in that chain.
+  - **Pulled-out cells are free again**, as if the enchantment was never there.
 - **Disenchanting also uses planning.** There are **no waiting or quick-time mechanics**, because time is already the limit.
 - **Lines must be cut in an order**, and finding that order involves some kind of calculation. It may be solved in **one pass**, working out the correct order as you go (like Minesweeper). The exact system is to be experimented with.
 
-- **Every disenchant board must be solvable**, whatever layout the player made when enchanting.
+- **Every disenchant board must be solvable**, whatever layout the player made when enchanting. For now this is **checked with a dev tool**; the in-game guarantee waits for real numbers.
 - **Disenchanting follows the same plan, then commit to execute** flow as enchanting.
 - **Materials can optionally influence disenchanting**, and **some disenchants may require materials**.
 
@@ -292,7 +297,7 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Materials can be dissolved** to give you runes.
 - You keep cutting, spending runes as needed. **When you are blocked, a material is needed** to get the runes to continue. That is how you solve the board.
 - **The material inserted defines the runes** on the lines at its node, and they are visible when viewed. ~~Lines leaving in different directions (top left, bottom right) give different runes.~~ Superseded: **a material puts the same cost on all its edges**.
-- **Runes are an inverse representation of the material.**
+- ~~**Runes are an inverse representation of the material.**~~ Superseded: **no inverses. A material's runes are its own kind.** A Fire stone puts fire runes on its edges (1 per edge for now) and gives fire runes back when its node is freed. The same goes for every material, to encourage using different materials.
 - **An edge's cost is determined by the nodes it's attached to: it costs whatever is connected to it, added together.** This applies to every kind of edge: enchantment node to enchantment node, enchantment node to magic node, and magic node to magic node. **Magic nodes have their own fixed set of runes.**
 - **Cutting a line costs the runes it displays** (not their inverse), so it's easy to read. Cutting is not a simple swap of one rune for another.
 - **What a cut gives back is deterministic**, not random.
@@ -304,10 +309,14 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Runes don't carry over** to another session with the item or to another item. They're "hot", live material that disperses if not reused straight away. That is why runes aren't materials themselves.
 - **No par** is shown on the board.
 - **You start with 0 runes.** Dissolving a material gives you your starting runes, then cutting lines takes and gives runes.
-- **4 rune types** for now.
-- What a material gives is **deterministic**. A material could give any number of runes, but **1** for now.
+- **4 rune types** for now: **water, fire, wind and stone**.
+- What a material gives is **deterministic**. ~~A material could give any number of runes, but **1** for now.~~ Superseded: **each material has its own dissolve result**, 1 or more runes of 1 or more types, and you get all of it.
 - **Dissolving is planned too.** Nothing is dissolved until you commit, just as with enchanting.
-- **Edge case:** if you plan a disenchant, use that material somewhere else, then come back, the **commit is highlighted red**. You can carry on if you like, or undo until that use of the material is gone.
+- ~~**Edge case:** if you plan a disenchant, use that material somewhere else, then come back, the **commit is highlighted red**. You can carry on if you like, or undo until that use of the material is gone.~~ Superseded: **planned materials stay with the item.** Putting a material into a plan, for carving or disenchanting, takes it out of your inventory and holds it in that item. Taking it out of the plan gives it back, so commits never clash across items. A later feature will let you browse your items and see what each plan holds.
+- **A node pays out once,** when its last line is cut, so cutting order decides when you get the runes.
+- **No order rule** beyond being able to afford a cut.
+- **No partial commits:** every enchantment in a plan must be fully cut and pulled out.
+- **Prototype:** a **pre-carved demo sword** to practise on, plus a **Disenchant mode** for any item you carved.
 - This grew from the idea of symbols and numbers on each line, where cutting a line gives you its set of symbols and the next cut must share at least one of them.
 
 **Direction:** disenchanting may play like **defusing a bomb**.
@@ -338,46 +347,75 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 Characters, setting, chapters and endings are developed in the [story bible](../story/story-bible.md). This section keeps the progression rules.
 
 ### 9.1 Premise
-The main character has the gift of enchanting. They start out working in their **uncle's workshop**.
+The main character has the gift of enchanting. They start out as an apprentice in their **mentor's workshop**. The mentor isn't related to them; earlier drafts called him the uncle.
 
-### 9.2 The uncle
-The uncle owns the shop and settles the books at the end of each day. He's the immediate feedback for bad decisions: taking bad commissions means **lower income** that day. This makes consequences felt early without needing a game over.
+### 9.2 The mentor
+The mentor owns the shop and settles the books at the end of each day. He's the immediate feedback for bad decisions: taking bad commissions means **lower income** that day. This makes consequences felt early without needing a game over.
 
-### 9.2.1 Working the counter with the uncle (tutorial phase)
-At first the **uncle runs the business**, and the player is his apprentice.
+### 9.2.1 Working the counter with the mentor (tutorial phase)
+At first the **mentor runs the business**, and the player is his apprentice.
 
 **Proposed flow:** the customer comes to **you first**.
 1. The customer arrives with a **commission sheet** already filled in.
 2. You read what they want made and **check it against the rules**. You also inspect any goods they brought.
-3. You pass the sheet to the uncle, either approved or flagged with a concern.
-4. **The uncle negotiates**, setting a **fixed deadline** (negotiation option #1) and the price, and makes the final call.
+3. You pass the sheet to the mentor, either approved or flagged with a concern.
+4. **The mentor negotiates**, setting a **fixed deadline** (negotiation option #1) and the price, and makes the final call.
 5. At night you do the enchanting.
 
-Why you first rather than the uncle first:
+Why you first rather than the mentor first:
 - **You stay the checkpoint.** Inspection is the core verb, and it stays in your hands from day 1, as in Papers, Please.
-- **Blame is clear.** If you approve a bad commission and the uncle takes it on your word, docking your pay at the end of the day follows naturally.
-- **Clean handover.** As you earn trust, the uncle stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
+- **Blame is clear.** If you approve a bad commission and the mentor takes it on your word, docking your pay at the end of the day follows naturally.
+- **Clean handover.** As you earn trust, the mentor stops doing the negotiation and you take over, starting with customer-set deadlines and then the calendar pick (§5.6). That's progression without a separate tutorial.
 
-### 9.2.2 End states in the uncle's workshop
-- The game keeps progressing day to day.
-- **Running out of money** leads to different endings.
-- **Not having enough money to progress to the next game stage** also leads to different endings.
-- Death or similar may come later, but in the uncle's workshop these money endings are the end states.
+### 9.2.2 End of the workshop year
+- The game keeps progressing day to day across the year.
+- Near the end of the year is **application day** for the university, which costs money. Getting in needs three things: a **total amount of money**, **Mr. Leywin's recommendation** and a **resume** (§9.6).
+- **One place decides pass or fail.** It reads the player's state and Mr. Leywin's state and makes the call, separate from the systems that feed it (money, relationships, resume).
+- The year has a closing and ends with a **letter** saying whether the player got into the university.
+- The patron and the recruiter each give the player a **business-card-like item** that fits who they are.
+- The player then chooses from the routes open to them (§9.3).
+- **Fail state: no route out of the workshop.** The player can't go to the university (not enough money, no recommendation or too thin a resume) and impressed neither the recruiter nor the patron.
+- **Running out of money** also leads to different endings. Death or similar may come later.
 
 ### 9.3 Progression routes
-After a few days or weeks in the uncle's shop, the player moves on. **Where they go depends on performance, money and choices:**
+After a year-long apprenticeship in the mentor's shop, across four seasons, the player moves on. The game has four location streams: the **shop** (the mentor's workshop, where it starts), then one of three routes. Reputation here means the player's relationship with particular people. If the player qualifies for more than one route, they choose. Story details are in the [story bible](../story/story-bible.md).
 
-| Route | How you get there | What it means |
+| Route | What it is | How you get there |
 |---|---|---|
-| **University** | A near-perfect run with enough money | The respectable, scholarly path |
-| **Adventurers' Guild** | Not enough money for the university | Practical, dangerous work |
-| **Black Market** | *(Proposed: reached through shady commissions or allegiances)* | High reward, high risk, and early game overs (death) are possible |
+| **University** | The job by its nature. A prestigious school for young adults in many professions; the player's dream goal | Mr. Leywin's recommendation; costs money and a good reputation |
+| **Luxury shop** *(temporary name)* | The money side: a fancier workshop that caters to luxuries | A nouveau riche patron's taxing but well-paid tasks |
+| **Guild** (Adventurers' Guild) | The practical, people side | A guild recruiter, if the player is generally reputable with townsfolk or adventurers |
+
+The Black Market is archived (A.13).
 
 ### 9.4 Macro levels (later)
 Each route is a **macro level**: a new place with slightly different mechanics and new kinds of customers. This will be developed later.
 
 ### 9.5 Example items
 - **Father's Sword**: an example item from the prototype, not a story commitment.
+
+### 9.6 The player's own life
+**Rent.** The player lives in a rented apartment and pays rent **each week**. Money comes from an **allowance** from his parents, which arrives by the mailman with their letters, plus his **pay** from Mr. Leywin's books. Missing rent once brings a warning; missing it twice leads to the **running out of money** ending (§9.2.2).
+
+**University side tasks.** A book (from the bookstore, the peddler or the writer) sets a **technical task**, such as making a cup that stays cold. The player gets the materials, attempts it, and finishing it adds a **resume entry**. The resume is one of the three university requirements (§9.2.2).
+
+**Stamina.** Stamina is the night's time budget, and it **replaces a separate night timer**: one budget that commissions and study both draw from.
+- Its **upper limit reflects the night**: the cap is limited by the number of night hours before the next day.
+- **A day that ends customer work earlier starts the night with more stamina.**
+- **For the spike**, stamina is shown as a **yellow progress bar**. The final display is still open (Q15).
+
+**Home projects.** Room builds are folded into practical inscribing (Q14). Personal home projects **upgrade certain things or unlock certain views**. The game stays very much **not stat-focused**.
+
+**Memory aids.** The player keeps a **resume sheet** and a **letters drawer** that holds what people have said. Neither shows scores.
+
+**Pacing.** Pressures come in **a season at a time**: commissions, time and rules first, rent from the second week, and side tasks from the second season.
+### 9.7 The wall calendar
+The player keeps a **personal wall calendar** for the apprenticeship year. Planning sheet: [0007](../plans/0007-in-game-calendar.md).
+- It follows the **2026 calendar** with real month names and **no leap years**. The year runs from 1 March 2026 to 28 February 2027.
+- Seasons are **northern-hemisphere**: Spring is March to May, Summer June to August, Autumn September to November, and Winter December to February.
+- It shows **seasonal events**, **application day** and the **acceptance letter**, plus **commission deadlines** and the days **customers said they'd come back**. Character visits don't go on it.
+- It's **not the source of truth**. It shows plans and expectations for the player to look over, and customers and events follow their own rules, so a customer can come back on a different day.
+- Later it may be where the player changes the **work schedule**: how much of a day goes to the workshop and how much to inscribing.
 
 ## 10. Open questions
 
@@ -387,20 +425,22 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 3. Can you return or refuse an item *after* accepting, for example once you discover it's cursed? What does that cost?
 
 **Rules and factions**
-4. Which guilds and factions exist in the uncle's town, and which of them later lead to the University, Adventurers' Guild and Black Market?
-5. How does the player learn the rules: from the uncle, guild notices or books?
+4. Which guilds and factions exist in the mentor's town, and which of them later lead to the university, the luxury shop and the guild?
+5. How does the player learn the rules: from the mentor, guild notices or books?
 
 **Story**
 6. Is the main character's gift rare or unique, and who knows about it?
-7. What is the uncle like? Does he have an agenda of his own, or is he a mentor?
+7. What is the mentor like? See the [story bible](../story/story-bible.md): a kind, honest mentor, Mr. Leywin (placeholder name), not related to the player.
 8. Does the player choose a route, or does the game assign one from their results?
-9. How many days or weeks does the uncle's-workshop chapter last?
+9. The mentor's-workshop chapter lasts one year. How are play days spread across it: spaced-out days, or inscribing jobs that take several days?
 
 **Shop and enchanting**
 10. How much does the player control the shop floor? Can they arrange displays and set prices, or only serve at the counter?
 11. Is there time pressure during the shop day?
-12. When does the uncle stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
+12. When does the mentor stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
 13. Disenchanting balance: how do we decide which runes a material puts on the edges it touches, and what it returns when freed?
+14. Which practical inscriptions exist for inspections, the shop, the player's own items and home projects, and what does each upgrade or unlock?
+15. How is stamina shown so the player can count it easily, and are night hours spent per action or do they run down in real time?
 
 ## 11. Decision log
 
@@ -444,11 +484,11 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | **Requirement:** every enchantment's disenchant board must be **solvable** for any player-made layout (§7.6). |
 | 2026-10-15 | Disenchanting uses **plan, then commit to execute**. Materials can optionally influence disenchanting, and some disenchants may require materials. The system to build on is **runes**: cutting lines consumes and gives runes, materials can be dissolved for runes, and when you're blocked a material is needed (§7.6). |
 | 2026-10-15 | Countdown nodes feel like just counting numbers. The **tension and scaffolding** idea for high-level enchantments is archived for when more difficulty is needed (Appendix A.7). |
-| 2026-10-15 | The runes a line gives are **defined by the material inserted** (for example by the direction the line leaves the node), and runes are an **inverse representation of the material** (§7.6). |
+| 2026-10-15 | The runes a line gives are **defined by the material inserted** (for example by the direction the line leaves the node), ~~and runes are an **inverse representation of the material**~~ (superseded 2026-10-17: no inverses) (§7.6). |
 | 2026-10-15 | **First prototype is the enchanting part**: a player set up with materials and demo items, about 5 materials, 3 or 4 enchantment shapes and one item map. The playtest timer runs continuously, set to about an hour (§7, §7.7). |
 | 2026-10-15 | **Done means the end of the day.** Finished items go to the inventory, and customers can evidently tell whether an enchantment works. |
 | 2026-10-15 | You **can't commit an unactivated enchantment**, but can commit one and come back to add another. **Drafts are saved** (now if easy, otherwise eventually). |
-| 2026-10-15 | Runes: start at **0**, dissolving a material gives starting runes, **4 rune types** for now, a material gives **1 rune** for now, deterministically. Dissolving happens only on commit. A plan whose material was used elsewhere shows a **red commit** (continue, or undo). **No durability for now**, since there are no mistakes (§7.6). |
+| 2026-10-15 | Runes: start at **0**, dissolving a material gives starting runes, **4 rune types** for now, ~~a material gives **1 rune** for now~~ (superseded 2026-10-17: each material has its own dissolve result), deterministically. Dissolving happens only on commit. ~~A plan whose material was used elsewhere shows a **red commit** (continue, or undo).~~ (Superseded 2026-10-17: planned materials stay with the item.) **No durability for now**, since there are no mistakes (§7.6). |
 | 2026-10-15 | **Enchantments can't share magic nodes** for now, and magic nodes are 1 cell. |
 | 2026-10-15 | In the uncle's workshop, the end states are **running out of money** and **not having enough money for the next game stage**, each with different endings (§9.2.2). |
 | 2026-10-15 | Players can draw **as many lines as they like**. Node acceptance uses the prototype's **tier and attribute** requirements. A **focus** limit on dangling lines is archived for later (A.8). |
@@ -458,6 +498,15 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | First build is **carving only**, with **no condition cells** (condition nodes are fine). **Magic-to-magic lines** are drawn while enchanting to chain into enchantment nodes. Nodes that don't chain to an enchantment node are **dead** and ignored on commit (§7.7). |
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
 | 2026-10-17 | **Commit needs a clean board:** every planned enchantment must be fully active and every line must chain to an enchantment, so a half-done enchantment or a dead chain blocks the commit (§7.7, replacing "dead chains are ignored on commit"). Lines run **cell by cell** and fill their cells, including an enchantment's own lines. |
+| 2026-10-17 | Disenchanting: runes are **water, fire, wind and stone** for now. **No inverses:** a material's runes are its own kind (1 per edge for now), replacing "runes are an inverse representation". **Each material has its own dissolve result** (1 or more runes of 1 or more types), replacing "1 for now". **Planned materials stay with the item**, for carving and disenchanting, so commits never clash across items (replacing the red-commit edge case). The lines to cut are the enchantment's **whole chain**. **A node pays out once**, when its last line is cut. **No order rule** beyond affording a cut. **No partial commits.** A **pre-carved demo sword** plus a **Disenchant mode** for any carved item. **Solvability** is checked with a dev tool for now. **Pulled-out cells are free again** (§7.6). |
+| 2026-10-17 | **The uncle becomes the mentor** (Mr. Leywin, placeholder). He isn't related to the player. Story details live in the [story bible](../story/story-bible.md). Earlier log entries keep the old name. |
+| 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
+| 2026-10-18 | The mentor's-workshop chapter is a **one-year apprenticeship** with **four seasons**. How play days spread across the year is still open. Story details are in the [story bible](../story/story-bible.md). |
+| 2026-10-18 | **End of the workshop year** (§9.2.2): application day costs money; the university needs money plus Mr. Leywin's recommendation; a closing letter decides the university; the patron and recruiter give business-card-like items; the fail state is no route out of the workshop. |
+| 2026-10-20 | **Rent** is paid weekly from the allowance plus pay (§9.6). **University side tasks** from books add **resume entries**, and the resume becomes a **third university requirement**, judged in one place from the player's and Mr. Leywin's state (§9.2.2). Gifts are **not a system**: items to give back are added per storyline (§5.7). Stamina tonics from the potion maker are archived (A.14). |
+| 2026-10-20 | **Stamina** is the night's time budget and replaces a separate night timer. Its cap is the night hours before the next day, and ending customer work earlier starts the night with more. **Room builds** fold into practical inscribing as **home projects** that upgrade things or unlock views, not stats. A **resume sheet** and **letters drawer** carry what the player must remember. Pressures are introduced **a season at a time** (§9.6). |
+| 2026-10-20 | For the spike, stamina shows as a **yellow progress bar** (§9.6). |
+| 2026-10-20 | A personal **wall calendar** (§9.7) follows the 2026 calendar with northern seasons and no leap years. It shows seasonal events, application day, the letter, deadlines and expected customer returns, but it isn't the source of truth. It may later hold the work schedule. |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -652,3 +701,9 @@ Lines carved by someone else may come with **added effects** when you disenchant
 
 ### A.12 Rune-pool materials
 Maybe some **stable materials** that are just **rune pools**, unlike live runes, which disperse.
+
+### A.13 Black Market
+Archived as a route. Something black-market in style could be reached from any route: the things you would do for money, knowledge or reputation.
+
+### A.14 Stamina tonics
+Buying extra stamina as tonics from the potion maker. Archived until stamina itself is decided (§9.6).

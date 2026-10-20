@@ -104,7 +104,7 @@ func test_counter_hands_over_items() -> void:
 		ids.append(inst.id)
 	day.switch_to(Day.ShopSide.INSCRIBING)
 	check(
-		day.table._items.item_count == day.player.items.size(),
+		day.table._item_picker.item_count == day.player.items.size(),
 		"the table lists the new item when it opens"
 	)
 	day.queue_free()

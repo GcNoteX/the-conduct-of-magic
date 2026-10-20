@@ -1,12 +1,13 @@
-[gd_resource type="Resource" script_class="Enchantment" format=3]
+[gd_resource type="Resource" script_class="Enchantment" format=3 uid="uid://d0h363rybm8yo"]
 
-[ext_resource type="Script" path="res://enchantments/enchantment_pattern_line.gd" id="1_bdtwr"]
-[ext_resource type="Script" path="res://enchantments/enchantment_pattern_node.gd" id="2_v27wd"]
-[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="3_iubnr"]
-[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="4_ch3an"]
+[ext_resource type="Script" uid="uid://b75h3rc0c0lcw" path="res://enchantments/enchantment_pattern_line.gd" id="1_bdtwr"]
+[ext_resource type="Script" uid="uid://crxe5hi2fk1t1" path="res://enchantments/enchantment_pattern_node.gd" id="2_v27wd"]
+[ext_resource type="Script" uid="uid://d035ytq6cyi6r" path="res://enchantments/material_condition.gd" id="3_iubnr"]
+[ext_resource type="Script" uid="uid://baq4xd8gsuw7w" path="res://enchantments/enchantment.gd" id="4_ch3an"]
 
 [sub_resource type="Resource" id="Resource_chsyh"]
 script = ExtResource("1_bdtwr")
+to_node = 2
 cells = Array[Vector2i]([Vector2i(1, 0)])
 
 [sub_resource type="Resource" id="Resource_kci4w"]
@@ -17,7 +18,16 @@ attribute = 3
 script = ExtResource("2_v27wd")
 material_requirements = Array[ExtResource("3_iubnr")]([SubResource("Resource_kci4w")])
 
+[sub_resource type="Resource" id="Resource_bdtwr"]
+script = ExtResource("3_iubnr")
+attribute = 3
+
 [sub_resource type="Resource" id="Resource_mkr7t"]
+script = ExtResource("2_v27wd")
+offset = Vector2i(2, -2)
+material_requirements = Array[ExtResource("3_iubnr")]([SubResource("Resource_bdtwr")])
+
+[sub_resource type="Resource" id="Resource_v27wd"]
 script = ExtResource("2_v27wd")
 offset = Vector2i(2, 0)
 
@@ -25,5 +35,5 @@ offset = Vector2i(2, 0)
 script = ExtResource("4_ch3an")
 enchantment_name = "Kindle"
 effect_description = "Warm to the touch"
-nodes = Array[ExtResource("2_v27wd")]([SubResource("Resource_s4ltt"), SubResource("Resource_mkr7t")])
+nodes = Array[ExtResource("2_v27wd")]([SubResource("Resource_s4ltt"), SubResource("Resource_mkr7t"), SubResource("Resource_v27wd")])
 lines = Array[ExtResource("1_bdtwr")]([SubResource("Resource_chsyh")])

@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://counter/papers/adventurer_id.gd" id="1_380wj"]
 [ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_rkeoc"]
 [ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="3_quwp8"]
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="4_2l8wq"]
+[ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="4_2l8wq"]
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="5_2tvdu"]
 
 [sub_resource type="Resource" id="Resource_aod14"]

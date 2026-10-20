@@ -67,3 +67,15 @@ jobs:
             echo "::error::Script errors found, see the log above."
             exit 1
           fi
+      - name: Run rule tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_inscription_board.tscn
+      - name: Run item overview tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_item_overview.tscn
+      - name: Run disenchant tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_disenchant_board.tscn
+      - name: Run solvability checker tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_solvability_checker.tscn
+      - name: Run scene bake tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_scene_bake.tscn
+      - name: Run day and counter tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_day.tscn

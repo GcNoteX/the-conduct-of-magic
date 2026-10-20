@@ -1,0 +1,19 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://inscribing/item_map_scene.gd" id="1_6f3ra"]
+[ext_resource type="Resource" path="res://tests/fixtures/items/dagger_map.tres" id="2_ewwoq"]
+[ext_resource type="TileSet" path="res://tests/fixtures/tiles/hex_map_tiles.tres" id="3_yox5i"]
+
+[node name="DaggerMap" type="Node2D" unique_id=1224947688 node_paths=PackedStringArray("cells_layer", "magic_layer")]
+script = ExtResource("1_6f3ra")
+map_definition = ExtResource("2_ewwoq")
+cells_layer = NodePath("Cells")
+magic_layer = NodePath("MagicNodes")
+
+[node name="Cells" type="TileMapLayer" parent="." unique_id=1074549219]
+tile_map_data = PackedByteArray("AAADAAAAAAAAAAAAAAACAAEAAAAAAAAAAAADAAEAAAAAAAAAAAACAAIAAAAAAAAAAAADAAIAAAAAAAAAAAAEAAIAAAAAAAAAAAACAAMAAAAAAAAAAAADAAMAAAAAAAAAAAACAAQAAAAAAAAAAAADAAQAAAAAAAAAAAAEAAQAAAAAAAAAAAACAAUAAAAAAAAAAAADAAUAAAAAAAAAAAACAAYAAAAAAAAAAAADAAYAAAAAAAAAAAAEAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAABAAcAAAAAAAAAAAACAAcAAAAAAAAAAAADAAcAAAAAAAAAAAAEAAcAAAAAAAAAAAAFAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAABAAgAAAAAAAAAAAACAAgAAAAAAAAAAAADAAgAAAAAAAAAAAAEAAgAAAAAAAAAAAAFAAgAAAAAAAAAAAAGAAgAAAAAAAAAAAACAAkAAAAAAAAAAAADAAkAAAAAAAAAAAACAAoAAAAAAAAAAAADAAoAAAAAAAAAAAAEAAoAAAAAAAAAAAA=")
+tile_set = ExtResource("3_yox5i")
+
+[node name="MagicNodes" type="TileMapLayer" parent="." unique_id=607442783]
+tile_map_data = PackedByteArray("AAADAAIAAQACAAAAAAADAAQAAQAAAAAAAAADAAYAAQABAAAAAAAAAAgAAQADAAAAAAAGAAgAAQABAAAAAAADAAoAAQAAAAAAAAA=")
+tile_set = ExtResource("3_yox5i")

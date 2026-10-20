@@ -42,9 +42,7 @@ func _ready() -> void:
 	PlayerManager.set_player(player)
 	_build_ui()
 	counter.visit_decided.connect(_on_visit_decided)
-	var shown: Array[EnchantmentMaterialDefinition] = []
-	shown.assign(setup.materials.keys())
-	table.open(player, shown)
+	table.open(player, setup.shown_materials())
 	_start_day()
 
 
@@ -136,18 +134,21 @@ func _on_visit_decided(visit: CustomerVisit, accepted: bool) -> void:
 	var definition := visit.slip.item
 	if not accepted or definition == null:
 		return
-	var count := 0
-	for inst in player.items:
-		if inst.definition == definition:
-			count += 1
+	var taken: Array[StringName] = []
+	for held in player.items:
+		taken.append(held.id)
+	var number := player.items.size() + 1
+	while StringName("%s_%d" % [definition.id, number]) in taken:
+		number += 1
 	var inst := ItemInstance.new()
 	inst.definition = definition
-	inst.id = StringName("%s_%d" % [definition.id, count + 1])
+	inst.id = StringName("%s_%d" % [definition.id, number])
 	player.items.append(inst)
 
 
 func _end_day() -> void:
 	_suspend(side)
+	_side_node(side).process_mode = Node.PROCESS_MODE_DISABLED
 	var text := "[b]Day %d is over.[/b]\n\nAt the counter:\n" % day_number
 	if counter.decisions.is_empty():
 		text += "• no one was served\n"
@@ -155,11 +156,9 @@ func _end_day() -> void:
 		text += "• %s\n" % _describe(d)
 	text += "\nYour items:\n"
 	for inst in player.items:
-		text += "• %s: %s\n" % [inst.display_name(), inst.carved_effects()]
+		text += "• %s: %s\n" % [InscriptionBoard.item_name(inst), inst.carved_effects()]
 	text += "\nMaterials left:\n"
-	var shown: Array[EnchantmentMaterialDefinition] = []
-	shown.assign(setup.materials.keys())
-	for m in player.materials_in_order(shown):
+	for m in player.materials_in_order(setup.shown_materials()):
 		text += "• %s ×%d\n" % [InscriptionBoard.material_name(m), player.get_material_count(m)]
 	_day_over_text.text = text
 	_day_over.visible = true

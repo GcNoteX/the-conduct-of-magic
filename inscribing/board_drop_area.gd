@@ -1,8 +1,8 @@
 class_name BoardDropArea
 extends Control
 
-## The area the board is drawn in. Passes mouse input down to its BoardView and accepts materials
-## dragged from a MaterialList, so drag and drop lands on the node under the mouse.
+## The area the board is drawn in. Passes mouse input down to its BoardView and accepts dragged
+## materials and enchantments, so a drop lands on the cell under the mouse.
 
 var view: BoardView
 
@@ -20,14 +20,22 @@ func _gui_input(event: InputEvent) -> void:
 
 
 func _can_drop_data(at_position: Vector2, data: Variant) -> bool:
-	if view == null or not data is EnchantmentMaterialDefinition:
+	if view == null:
 		return false
-	view.check_drop(data, _to_view(at_position))
-	return true
+	if data is EnchantmentMaterialDefinition:
+		view.check_drop(data, _to_view(at_position))
+		return true
+	if data is Enchantment:
+		view.check_enchantment_drop(data, _to_view(at_position))
+		return true
+	return false
 
 
 func _drop_data(at_position: Vector2, data: Variant) -> void:
-	view.drop_material(data, _to_view(at_position))
+	if data is Enchantment:
+		view.drop_enchantment(data, _to_view(at_position))
+	else:
+		view.drop_material(data, _to_view(at_position))
 
 
 func _notification(what: int) -> void:

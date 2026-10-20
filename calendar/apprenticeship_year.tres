@@ -1,0 +1,59 @@
+[gd_resource type="Resource" script_class="CalendarDefinition" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://calendar/calendar_definition.gd" id="1_def"]
+[ext_resource type="Script" path="res://calendar/calendar_entry_definition.gd" id="2_entry"]
+
+[sub_resource type="Resource" id="entry_0"]
+script = ExtResource("2_entry")
+kind = 0
+title = "Spring market"
+details = "Stalls fill the square. Sample event: replace with the real one."
+month = 4
+day = 18
+
+[sub_resource type="Resource" id="entry_1"]
+script = ExtResource("2_entry")
+kind = 0
+title = "Midsummer festival"
+details = "The longest day of the year. Sample event: replace with the real one."
+month = 6
+day = 21
+
+[sub_resource type="Resource" id="entry_2"]
+script = ExtResource("2_entry")
+kind = 0
+title = "Harvest fair"
+details = "Farmers bring in the harvest. Sample event: replace with the real one."
+month = 9
+day = 26
+
+[sub_resource type="Resource" id="entry_3"]
+script = ExtResource("2_entry")
+kind = 0
+title = "Winter lights"
+details = "Lanterns along the streets. Sample event: replace with the real one."
+month = 12
+day = 19
+
+[sub_resource type="Resource" id="entry_4"]
+script = ExtResource("2_entry")
+kind = 1
+title = "Application day"
+details = "Last day to apply to the university. It costs money to apply."
+month = 2
+day = 1
+cost = 500
+
+[sub_resource type="Resource" id="entry_5"]
+script = ExtResource("2_entry")
+kind = 2
+title = "Acceptance letter"
+details = "The letter from the university arrives."
+month = 2
+day = 28
+
+[resource]
+script = ExtResource("1_def")
+start_year = 2026
+start_month = 3
+entries = Array[ExtResource("2_entry")]([SubResource("entry_0"), SubResource("entry_1"), SubResource("entry_2"), SubResource("entry_3"), SubResource("entry_4"), SubResource("entry_5")])

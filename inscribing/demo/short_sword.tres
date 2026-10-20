@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EnchantableItemDefinition" format=3]
+
+[ext_resource type="Resource" path="res://inscribing/demo/short_sword_map.tres" id="1_awhvb"]
+[ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="2_fnax2"]
+
+[resource]
+script = ExtResource("2_fnax2")
+map_template = ExtResource("1_awhvb")
+id = &"short_sword"
+display_name = "Short sword"
