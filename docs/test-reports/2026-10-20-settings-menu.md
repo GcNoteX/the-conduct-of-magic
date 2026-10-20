@@ -12,6 +12,8 @@
 
 It's one feature, so the feature branch is also the combined branch.
 
+Merge #24 first. After that, this can merge before or after #28 (music) and #31 (UI theme) with no conflict. With #29 (menus), whichever merges second has a small conflict in `project.godot` and `checks.yml`; keep both sides.
+
 ## What to test
 
 ### Settings menu
@@ -33,9 +35,8 @@ Acceptance criteria:
 - [ ] Fullscreen switches the window between fullscreen and windowed.
 - [ ] After quitting and restarting, every setting is as you left it (they're kept in `user://settings.cfg`).
 
-Screenshots are in the project files under `prototype/settings/`.
+Screenshots are in the project files under `prototype/settings/`. The `_with_ui_theme` ones show it merged with #31.
 
 ## Known gaps
 - F10 is a stand-in until the main and pause menus land; they open the same menu scene.
-- A few labels set their own fixed font size (the day's top bar, the small hints on the table), so text size doesn't change them. The project-wide theme work should replace those overrides.
-- Volume and text size are applied to everything; there is no separate size for the board's node labels.
+- A few labels set their own fixed font size (the day's top bar, the small hints on the table), so text size doesn't change them. Moving them onto the theme will fix that.
