@@ -42,6 +42,7 @@ func _ready() -> void:
 	PlayerManager.set_player(player)
 	_build_ui()
 	counter.visit_decided.connect(_on_visit_decided)
+	counter.open(player)
 	var shown: Array[EnchantmentMaterialDefinition] = []
 	shown.assign(setup.materials.keys())
 	table.open(player, shown)
@@ -144,6 +145,7 @@ func _on_visit_decided(visit: CustomerVisit, accepted: bool) -> void:
 	inst.definition = definition
 	inst.id = StringName("%s_%d" % [definition.id, count + 1])
 	player.items.append(inst)
+	player.commissions.append(Commission.create(visit, inst, day_number))
 
 
 func _end_day() -> void:
@@ -153,6 +155,27 @@ func _end_day() -> void:
 		text += "• no one was served\n"
 	for d in counter.decisions:
 		text += "• %s\n" % _describe(d)
+	var earned := 0
+	if not counter.collections.is_empty():
+		text += "\nCollected:\n"
+	for c in counter.collections:
+		earned += c.paid
+		text += (
+			"• %s paid %dg for %d of %d enchantments\n"
+			% [
+				c.visit.slip.customer_name,
+				c.paid,
+				c.fulfilled_count(),
+				c.visit.slip.enchantments.size(),
+			]
+		)
+	text += "\nEarned today: %dg. Money: %dg.\n" % [earned, player.money]
+	var waiting: Array[String] = []
+	for c in player.commissions:
+		if not c.collected:
+			waiting.append(c.visit.slip.customer_name)
+	if not waiting.is_empty():
+		text += "Coming back tomorrow: %s.\n" % ", ".join(waiting)
 	text += "\nYour items:\n"
 	for inst in player.items:
 		text += "• %s: %s\n" % [inst.display_name(), inst.carved_effects()]
@@ -172,7 +195,7 @@ func _describe(d: CounterDecision) -> String:
 		% [
 			"Accepted" if d.accepted else "Refused",
 			d.visit.slip.customer_name,
-			d.visit.slip.enchantment.enchantment_name,
+			d.visit.slip.enchantment_names(),
 		]
 	)
 	if d.is_right():
@@ -196,7 +219,8 @@ func _side_node(s: ShopSide) -> Control:
 func _refresh_clock() -> void:
 	var secs := int(ceil(time_left.get(side, 0.0)))
 	var text := (
-		"Day %d · %s · %02d:%02d left" % [day_number, SIDE_NAMES[side], secs / 60, secs % 60]
+		"Day %d · %s · %02d:%02d left · %dg"
+		% [day_number, SIDE_NAMES[side], secs / 60, secs % 60, player.money]
 	)
 	if side == ShopSide.COUNTER and time_left.get(ShopSide.INSCRIBING, 0.0) > 0.0:
 		text += " · then inscribing"
@@ -215,7 +239,7 @@ func _build_ui() -> void:
 	bar.add_theme_stylebox_override("panel", bar_style)
 	add_child(bar)
 	_clock_label = Label.new()
-	_clock_label.add_theme_font_size_override("font_size", 18)
+	_clock_label.add_theme_font_size_override("font_size", 20)
 	bar.add_child(_clock_label)
 
 	# Day-over screen: a dimmer that blocks both sides, with a summary panel on top
@@ -230,7 +254,7 @@ func _build_ui() -> void:
 	var centre := CenterContainer.new()
 	_day_over.add_child(centre)
 	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(600, 560)
+	card.custom_minimum_size = Vector2(820, 760)
 	var card_style := StyleBoxFlat.new()
 	card_style.bg_color = Color("24232b")
 	card_style.set_corner_radius_all(8)
@@ -241,9 +265,13 @@ func _build_ui() -> void:
 	card.add_child(box)
 	_day_over_text = RichTextLabel.new()
 	_day_over_text.bbcode_enabled = true
-	_day_over_text.custom_minimum_size.y = 460
+	_day_over_text.custom_minimum_size.y = 640
+	_day_over_text.add_theme_font_size_override("normal_font_size", 22)
+	_day_over_text.add_theme_font_size_override("bold_font_size", 26)
 	box.add_child(_day_over_text)
 	var next := Button.new()
 	next.text = "Start the next day"
+	next.custom_minimum_size.y = 56
+	next.add_theme_font_size_override("font_size", 24)
 	next.pressed.connect(start_next_day)
 	box.add_child(next)

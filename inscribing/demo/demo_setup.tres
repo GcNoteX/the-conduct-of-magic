@@ -17,6 +17,7 @@
 
 [resource]
 script = ExtResource("14_it10v")
+money = 50
 materials = Dictionary[ExtResource("8_borej"), int]({
 ExtResource("9_xnjl6"): 3,
 ExtResource("10_f6r6g"): 3,

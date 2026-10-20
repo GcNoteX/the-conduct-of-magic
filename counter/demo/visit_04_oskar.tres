@@ -5,6 +5,7 @@
 [ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="3_2lur0"]
 [ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="4_iw3bh"]
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="5_3ktfv"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="ench_script"]
 
 [sub_resource type="Resource" id="Resource_nf66g"]
 script = ExtResource("1_s0pmd")
@@ -17,7 +18,7 @@ expires_day = 30
 script = ExtResource("5_3ktfv")
 customer_name = "Oskar Fenn"
 kingdom = "Velmor"
-enchantment = ExtResource("3_2lur0")
+enchantments = Array[ExtResource("ench_script")]([ExtResource("3_2lur0")])
 item = ExtResource("4_iw3bh")
 payment = 160
 

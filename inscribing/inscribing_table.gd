@@ -42,9 +42,14 @@ func open(p: Player, shown_materials: Array[EnchantmentMaterialDefinition]) -> v
 
 
 ## Called when the table becomes the active side again: picks up items that arrived meanwhile
+## and drops any that customers collected
 func resume() -> void:
 	if player == null:
 		return
+	if board != null and board.item not in player.items:
+		board = null
+		_view.board = null
+		_items.deselect_all()
 	_refresh_lists()
 	if board == null and not player.items.is_empty():
 		_items.select(0)
@@ -127,12 +132,14 @@ func _refresh_all() -> void:
 func _refresh_lists() -> void:
 	if player == null:
 		return
-	var selected_item := _items.get_selected_items()
 	_items.clear()
 	for inst in player.items:
-		_items.add_item(inst.display_name())
-	if not selected_item.is_empty():
-		_items.select(selected_item[0])
+		var commission := _commission_for(inst)
+		var for_whom := " (%s)" % commission.visit.slip.customer_name if commission else ""
+		_items.add_item(inst.display_name() + for_whom)
+	var open_index := player.items.find(board.item) if board else -1
+	if open_index >= 0:
+		_items.select(open_index)
 
 	if _enchantments.item_count != player.known_enchantments.size():
 		_enchantments.clear()
@@ -153,10 +160,25 @@ func _refresh_lists() -> void:
 		_materials.set_item_tooltip(idx, _material_tooltip(m))
 
 
+## The open commission this item was left for, or null for the player's own items
+func _commission_for(inst: ItemInstance) -> Commission:
+	for c in player.commissions:
+		if c.item == inst and not c.collected:
+			return c
+	return null
+
+
 func _refresh_item_panel() -> void:
 	if board == null:
 		return
 	var text := "[b]%s[/b]\n" % board.item.display_name()
+	var commission := _commission_for(board.item)
+	if commission != null:
+		var slip := commission.visit.slip
+		text += (
+			"For %s, who wants %s (%dg)\n"
+			% [slip.customer_name, slip.enchantment_names(), slip.payment]
+		)
 	text += "Carved: %s\n" % board.item.carved_effects()
 	var drafts: Array[String] = []
 	for p in board.state.placements:
@@ -313,7 +335,7 @@ func _build_ui() -> void:
 	add_child(root)
 
 	var left := _panel(root, 300)
-	_items = _list(left, "Items", 2)
+	_items = _list(left, "Items", 6)
 	_items.item_selected.connect(_open_item)
 	_enchantments = _list(left, "Enchantments", 4)
 	_enchantments.item_selected.connect(_on_enchantment_selected)

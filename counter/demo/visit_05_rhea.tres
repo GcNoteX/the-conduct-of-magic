@@ -5,6 +5,7 @@
 [ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="3_6lrkd"]
 [ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="4_tmwmh"]
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="5_q4sps"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="ench_script"]
 
 [sub_resource type="Resource" id="Resource_sbe80"]
 script = ExtResource("1_sqtjv")
@@ -16,7 +17,7 @@ kingdom = "Astren"
 script = ExtResource("5_q4sps")
 customer_name = "Rhea Vance"
 kingdom = "Astren"
-enchantment = ExtResource("3_6lrkd")
+enchantments = Array[ExtResource("ench_script")]([ExtResource("3_6lrkd")])
 item = ExtResource("4_tmwmh")
 payment = 95
 
