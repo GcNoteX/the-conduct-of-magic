@@ -1,7 +1,7 @@
 # 0007: In-game calendar
 
 **Status:** Approved (2026-10-20)
-**Design doc:** §9.6 The wall calendar; §9.2.2 End of the workshop year (on PR #9)
+**Design doc:** §9.7 The wall calendar; §9.2.2 End of the workshop year
 **Story:** Year calendar (draft) in the story bible
 **PRs:** the in-game calendar PR
 
@@ -76,4 +76,4 @@ None yet. When saving exists, the calendar adds the current day number and the l
 Run `calendar/calendar_demo.tscn`. The calendar opens on Sunday 1 March 2026 in Spring. Press "Next day" and today moves. After 31 May the season turns to Summer. Add a test deadline and a test customer return and check they show on the right days with tooltips. Page to February and check that application day shows its cost and days left. Run `tests/test_game_calendar.tscn` headless for the checks.
 
 ## Steps
-1. One PR: the autoload, the Resources and `CalendarNote`, the year data, the panel, the demo scene, the tests, this sheet and a test report. It also adds the design doc entry for the in-game calendar (§9.6).
+1. One PR: the autoload, the Resources and `CalendarNote`, the year data, the panel, the demo scene, the tests, this sheet and a test report. It also adds the design doc entry for the in-game calendar (§9.7).

@@ -1,0 +1,82 @@
+[gd_scene format=3 uid="uid://cq57fety58ack"]
+
+[ext_resource type="Script" uid="uid://b0sbcur5pbafi" path="res://enchantments/enchantment_scene.gd" id="1_scene"]
+[ext_resource type="Resource" uid="uid://c5fc0aqp8r0qr" path="res://enchantments/patterns/bastion.tres" id="2_res"]
+[ext_resource type="Script" uid="uid://djftiv6fnv7ue" path="res://enchantments/enchantment_node_component.gd" id="3_node"]
+[ext_resource type="Script" uid="uid://lr8mwsri512j" path="res://enchantments/enchantment_line_component.gd" id="4_line"]
+[ext_resource type="Texture2D" uid="uid://ipxiodcflups" path="res://art/placeholder/enchantment_big_node_2x2.png" id="5_big"]
+[ext_resource type="Texture2D" uid="uid://bdv2o0p56cvwu" path="res://art/placeholder/enchantment_socket.png" id="6_socket"]
+[ext_resource type="Texture2D" uid="uid://csvp6udih5nqt" path="res://art/placeholder/rune_line.png" id="7_line"]
+
+[node name="Bastion" type="Node2D" unique_id=1465992525]
+script = ExtResource("1_scene")
+enchantment = ExtResource("2_res")
+
+[node name="BigNode" type="Node2D" parent="." unique_id=1095130068]
+z_index = 1
+script = ExtResource("3_node")
+extra_cells = Array[Vector2i]([Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)])
+ports = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 1)])
+
+[node name="Art" type="Sprite2D" parent="BigNode" unique_id=1334116596]
+show_behind_parent = true
+position = Vector2(41.569, 24)
+texture = ExtResource("5_big")
+
+[node name="NodeLeft" type="Node2D" parent="." unique_id=534960928]
+z_index = 1
+position = Vector2(-110.85125, 0)
+script = ExtResource("3_node")
+
+[node name="Art" type="Sprite2D" parent="NodeLeft" unique_id=1485840814]
+show_behind_parent = true
+texture = ExtResource("6_socket")
+
+[node name="NodeRight" type="Node2D" parent="." unique_id=839115039]
+z_index = 1
+position = Vector2(193.98969, 48)
+script = ExtResource("3_node")
+
+[node name="Art" type="Sprite2D" parent="NodeRight" unique_id=506607791]
+show_behind_parent = true
+texture = ExtResource("6_socket")
+
+[node name="LineLeft" type="Line2D" parent="." unique_id=1388127120 node_paths=PackedStringArray("from_node", "to_node")]
+texture_repeat = 2
+points = PackedVector2Array(-110.85125, 0, 0, 0)
+width = 14.0
+texture = ExtResource("7_line")
+texture_mode = 1
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("4_line")
+from_node = NodePath("../NodeLeft")
+to_node = NodePath("../BigNode")
+
+[node name="LineRight" type="Line2D" parent="." unique_id=2130155809 node_paths=PackedStringArray("from_node", "to_node")]
+texture_repeat = 2
+points = PackedVector2Array(83.138435, 48, 193.98969, 48)
+width = 14.0
+texture = ExtResource("7_line")
+texture_mode = 1
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("4_line")
+from_node = NodePath("../BigNode")
+to_node = NodePath("../NodeRight")
+from_port = 1
+
+[node name="LineLeftTop" type="Line2D" parent="." unique_id=891817510 node_paths=PackedStringArray("from_node", "to_node")]
+texture_repeat = 2
+points = PackedVector2Array(-110.85125, 0, -83.138435, -48, -27.712812, -48, 0, 0)
+width = 14.0
+texture = ExtResource("7_line")
+texture_mode = 1
+joint_mode = 2
+begin_cap_mode = 2
+end_cap_mode = 2
+script = ExtResource("4_line")
+from_node = NodePath("../NodeLeft")
+to_node = NodePath("../BigNode")

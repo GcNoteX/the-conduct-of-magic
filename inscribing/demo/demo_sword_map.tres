@@ -1,8 +1,0 @@
-[gd_resource type="Resource" script_class="HexMapDefinition" format=3]
-
-[ext_resource type="Script" path="res://inscribing/hex_map_definition.gd" id="1_vdga2"]
-
-[resource]
-script = ExtResource("1_vdga2")
-map_name = "Demo sword"
-layout = PackedStringArray("....#....", "...###...", "...#M#...", "..#####..", "..M###M..", "..#####..", "..#####..", "..##M##..", "..#####..", "..#####..", "..M###M..", "..#####..", "..#####..", "#########", "M###M###M", "...###...", "...##....", "...###...", "...#M#...")

@@ -1,9 +1,9 @@
-[gd_resource type="Resource" script_class="Enchantment" format=3]
+[gd_resource type="Resource" script_class="Enchantment" format=3 uid="uid://dtbby1xtjxff5"]
 
-[ext_resource type="Script" path="res://enchantments/enchantment_pattern_line.gd" id="1_57m0y"]
-[ext_resource type="Script" path="res://enchantments/enchantment_pattern_node.gd" id="2_bpe1w"]
-[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="3_0up1f"]
-[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="4_upocd"]
+[ext_resource type="Script" uid="uid://b75h3rc0c0lcw" path="res://enchantments/enchantment_pattern_line.gd" id="1_57m0y"]
+[ext_resource type="Script" uid="uid://crxe5hi2fk1t1" path="res://enchantments/enchantment_pattern_node.gd" id="2_bpe1w"]
+[ext_resource type="Script" uid="uid://d035ytq6cyi6r" path="res://enchantments/material_condition.gd" id="3_0up1f"]
+[ext_resource type="Script" uid="uid://baq4xd8gsuw7w" path="res://enchantments/enchantment.gd" id="4_upocd"]
 
 [sub_resource type="Resource" id="Resource_7vxpw"]
 script = ExtResource("1_57m0y")

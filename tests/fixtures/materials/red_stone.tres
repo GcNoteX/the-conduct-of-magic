@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_dsjdc"]
+[ext_resource type="Script" path="res://enchantments/enchantment_conditions/number_of_lines_condition.gd" id="2_atkc2"]
+[ext_resource type="Texture2D" path="res://placeholder_assets/circle.png" id="3_atkc2"]
+[ext_resource type="Script" path="res://disenchanting/rune_set.gd" id="3_c2tdp"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="3_ipdwk"]
+
+[sub_resource type="Resource" id="Resource_c2tdp"]
+script = ExtResource("2_atkc2")
+number_of_lines = 2
+
+[sub_resource type="Resource" id="Resource_uvk8c"]
+script = ExtResource("3_c2tdp")
+fire = 1
+wind = 2
+
+[sub_resource type="Resource" id="Resource_ksp28"]
+script = ExtResource("3_c2tdp")
+wind = 1
+
+[sub_resource type="Resource" id="Resource_i7dat"]
+script = ExtResource("3_c2tdp")
+wind = 2
+
+[resource]
+script = ExtResource("3_ipdwk")
+enchantment_sprite_normal = ExtResource("3_atkc2")
+color = Color(0.78431374, 0.19607843, 0.29411766, 1)
+material_attributes = Array[int]([0, 2])
+activation_conditions = Array[ExtResource("1_dsjdc")]([SubResource("Resource_c2tdp")])
+edge_runes = SubResource("Resource_ksp28")
+harvest_runes = SubResource("Resource_i7dat")
+dissolve_runes = SubResource("Resource_uvk8c")
+id = &"red_stone"
+display_name = "Red stone"

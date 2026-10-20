@@ -1,0 +1,34 @@
+[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_8tme3"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="2_1isl3"]
+[ext_resource type="Script" path="res://enchantments/enchantment_conditions/number_of_lines_condition.gd" id="2_nut4d"]
+[ext_resource type="Script" path="res://disenchanting/rune_set.gd" id="3_nut4d"]
+
+[sub_resource type="Resource" id="Resource_nut4d"]
+script = ExtResource("2_nut4d")
+number_of_lines = 2
+
+[sub_resource type="Resource" id="Resource_iv7jg"]
+script = ExtResource("3_nut4d")
+fire = 3
+
+[sub_resource type="Resource" id="Resource_5rbcd"]
+script = ExtResource("3_nut4d")
+fire = 1
+
+[sub_resource type="Resource" id="Resource_t7b6i"]
+script = ExtResource("3_nut4d")
+fire = 2
+
+[resource]
+script = ExtResource("2_1isl3")
+color = Color(0.9098039, 0.39215687, 0.17254902, 1)
+material_attributes = Array[int]([3])
+activation_conditions = Array[ExtResource("1_8tme3")]([SubResource("Resource_nut4d")])
+edge_runes = SubResource("Resource_5rbcd")
+harvest_runes = SubResource("Resource_t7b6i")
+dissolve_runes = SubResource("Resource_iv7jg")
+id = &"fire_stone"
+display_name = "Fire stone"
+metadata/_custom_type_script = "uid://dnrj7bcgrqnhu"

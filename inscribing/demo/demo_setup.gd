@@ -5,6 +5,8 @@ extends Resource
 
 @export var materials: Dictionary[EnchantmentMaterialDefinition, int] = {}
 @export var items: Array[EnchantableItemDefinition] = []
+## Items that arrive already carved. The player gets a copy of each.
+@export var carved_items: Array[ItemInstance] = []
 @export var enchantments: Array[Enchantment] = []
 ## Length of the enchanting day for playtesting
 @export var day_length_seconds: float = 3600.0
@@ -18,6 +20,10 @@ func create_player() -> Player:
 		var inst := ItemInstance.new()
 		inst.id = StringName("%s_%d" % [items[i].id, i + 1])
 		inst.definition = items[i]
+		p.items.append(inst)
+	for carved in carved_items:
+		var inst: ItemInstance = carved.duplicate(true)
+		inst.id = StringName("%s_%d" % [carved.id, p.items.size() + 1])
 		p.items.append(inst)
 	p.known_enchantments = enchantments.duplicate()
 	return p
