@@ -280,10 +280,12 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Inserted materials are used up.** They can never be taken back out or recycled.
 - **Lines are part of planning.** You plan enchantments, materials and lines, then **commit** one or more connected enchantments together.
 - **Disenchanting means cutting all of an enchantment's lines, then pulling the enchantment out.** How to make that a game is still open.
+  - **The lines to cut are the enchantment's whole chain:** its own lines, its lines to magic nodes, and the magic-to-magic lines in that chain.
+  - **Pulled-out cells are free again**, as if the enchantment was never there.
 - **Disenchanting also uses planning.** There are **no waiting or quick-time mechanics**, because time is already the limit.
 - **Lines must be cut in an order**, and finding that order involves some kind of calculation. It may be solved in **one pass**, working out the correct order as you go (like Minesweeper). The exact system is to be experimented with.
 
-- **Every disenchant board must be solvable**, whatever layout the player made when enchanting.
+- **Every disenchant board must be solvable**, whatever layout the player made when enchanting. For now this is **checked with a dev tool**; the in-game guarantee waits for real numbers.
 - **Disenchanting follows the same plan, then commit to execute** flow as enchanting.
 - **Materials can optionally influence disenchanting**, and **some disenchants may require materials**.
 
@@ -292,7 +294,7 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Materials can be dissolved** to give you runes.
 - You keep cutting, spending runes as needed. **When you are blocked, a material is needed** to get the runes to continue. That is how you solve the board.
 - **The material inserted defines the runes** on the lines at its node, and they are visible when viewed. ~~Lines leaving in different directions (top left, bottom right) give different runes.~~ Superseded: **a material puts the same cost on all its edges**.
-- **Runes are an inverse representation of the material.**
+- ~~**Runes are an inverse representation of the material.**~~ Superseded: **no inverses. A material's runes are its own kind.** A Fire stone puts fire runes on its edges (1 per edge for now) and gives fire runes back when its node is freed. The same goes for every material, to encourage using different materials.
 - **An edge's cost is determined by the nodes it's attached to: it costs whatever is connected to it, added together.** This applies to every kind of edge: enchantment node to enchantment node, enchantment node to magic node, and magic node to magic node. **Magic nodes have their own fixed set of runes.**
 - **Cutting a line costs the runes it displays** (not their inverse), so it's easy to read. Cutting is not a simple swap of one rune for another.
 - **What a cut gives back is deterministic**, not random.
@@ -304,10 +306,14 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **Runes don't carry over** to another session with the item or to another item. They're "hot", live material that disperses if not reused straight away. That is why runes aren't materials themselves.
 - **No par** is shown on the board.
 - **You start with 0 runes.** Dissolving a material gives you your starting runes, then cutting lines takes and gives runes.
-- **4 rune types** for now.
-- What a material gives is **deterministic**. A material could give any number of runes, but **1** for now.
+- **4 rune types** for now: **water, fire, wind and stone**.
+- What a material gives is **deterministic**. ~~A material could give any number of runes, but **1** for now.~~ Superseded: **each material has its own dissolve result**, 1 or more runes of 1 or more types, and you get all of it.
 - **Dissolving is planned too.** Nothing is dissolved until you commit, just as with enchanting.
-- **Edge case:** if you plan a disenchant, use that material somewhere else, then come back, the **commit is highlighted red**. You can carry on if you like, or undo until that use of the material is gone.
+- ~~**Edge case:** if you plan a disenchant, use that material somewhere else, then come back, the **commit is highlighted red**. You can carry on if you like, or undo until that use of the material is gone.~~ Superseded: **planned materials stay with the item.** Putting a material into a plan, for carving or disenchanting, takes it out of your inventory and holds it in that item. Taking it out of the plan gives it back, so commits never clash across items. A later feature will let you browse your items and see what each plan holds.
+- **A node pays out once,** when its last line is cut, so cutting order decides when you get the runes.
+- **No order rule** beyond being able to afford a cut.
+- **No partial commits:** every enchantment in a plan must be fully cut and pulled out.
+- **Prototype:** a **pre-carved demo sword** to practise on, plus a **Disenchant mode** for any item you carved.
 - This grew from the idea of symbols and numbers on each line, where cutting a line gives you its set of symbols and the next cut must share at least one of them.
 
 **Direction:** disenchanting may play like **defusing a bomb**.
@@ -322,7 +328,9 @@ Difficulty comes from combining conditions. A formal ranking of enchantments wil
 - **No condition cells** in the first build (hard to test, a later feature). **Condition nodes** are fine, such as enchantment nodes that accept only certain materials.
 - One demo sword with one fixed node arrangement. Drafts are kept per item during the session. No art pass.
 
-**Magic node to magic node lines.** These happen while enchanting. The magic nodes come from the template you bind to the item, and to activate an enchantment you may need to chain **magic node → magic node → enchantment node** to complete a condition. The game tracks which nodes are connected but **don't chain to an enchantment node**. Those are effectively **dead**, and they're **ignored on commit**.
+**Magic node to magic node lines.** These happen while enchanting. The magic nodes come from the template you bind to the item, and to activate an enchantment you may need to chain **magic node → magic node → enchantment node** to complete a condition. The game tracks which nodes are connected but **don't chain to an enchantment node**. Those are effectively **dead**, and ~~they're **ignored on commit**~~ (superseded 2026-10-17) a dead chain **blocks the commit** until it's connected or removed.
+
+**Commit needs a clean board.** You can only commit when every planned enchantment is fully active and every drawn line chains to an enchantment. A half-done enchantment or a dead chain blocks the commit until it's finished or taken off.
 
 ## 8. Uses of enchanted items
 
@@ -447,11 +455,11 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-15 | **Requirement:** every enchantment's disenchant board must be **solvable** for any player-made layout (§7.6). |
 | 2026-10-15 | Disenchanting uses **plan, then commit to execute**. Materials can optionally influence disenchanting, and some disenchants may require materials. The system to build on is **runes**: cutting lines consumes and gives runes, materials can be dissolved for runes, and when you're blocked a material is needed (§7.6). |
 | 2026-10-15 | Countdown nodes feel like just counting numbers. The **tension and scaffolding** idea for high-level enchantments is archived for when more difficulty is needed (Appendix A.7). |
-| 2026-10-15 | The runes a line gives are **defined by the material inserted** (for example by the direction the line leaves the node), and runes are an **inverse representation of the material** (§7.6). |
+| 2026-10-15 | The runes a line gives are **defined by the material inserted** (for example by the direction the line leaves the node), ~~and runes are an **inverse representation of the material**~~ (superseded 2026-10-17: no inverses) (§7.6). |
 | 2026-10-15 | **First prototype is the enchanting part**: a player set up with materials and demo items, about 5 materials, 3 or 4 enchantment shapes and one item map. The playtest timer runs continuously, set to about an hour (§7, §7.7). |
 | 2026-10-15 | **Done means the end of the day.** Finished items go to the inventory, and customers can evidently tell whether an enchantment works. |
 | 2026-10-15 | You **can't commit an unactivated enchantment**, but can commit one and come back to add another. **Drafts are saved** (now if easy, otherwise eventually). |
-| 2026-10-15 | Runes: start at **0**, dissolving a material gives starting runes, **4 rune types** for now, a material gives **1 rune** for now, deterministically. Dissolving happens only on commit. A plan whose material was used elsewhere shows a **red commit** (continue, or undo). **No durability for now**, since there are no mistakes (§7.6). |
+| 2026-10-15 | Runes: start at **0**, dissolving a material gives starting runes, **4 rune types** for now, ~~a material gives **1 rune** for now~~ (superseded 2026-10-17: each material has its own dissolve result), deterministically. Dissolving happens only on commit. ~~A plan whose material was used elsewhere shows a **red commit** (continue, or undo).~~ (Superseded 2026-10-17: planned materials stay with the item.) **No durability for now**, since there are no mistakes (§7.6). |
 | 2026-10-15 | **Enchantments can't share magic nodes** for now, and magic nodes are 1 cell. |
 | 2026-10-15 | In the uncle's workshop, the end states are **running out of money** and **not having enough money for the next game stage**, each with different endings (§9.2.2). |
 | 2026-10-15 | Players can draw **as many lines as they like**. Node acceptance uses the prototype's **tier and attribute** requirements. A **focus** limit on dangling lines is archived for later (A.8). |
@@ -460,6 +468,8 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | Who drew a line doesn't matter once committed (free snapping of your own lines is dropped). Cutting costs runes; **freed nodes return runes**: magic nodes a deterministic set fixed by the chosen arrangement, enchantment nodes what their material sets. Runes **don't carry over** between sessions or items. **No par.** Foreign-line effects and rune-pool materials are archived (A.11, A.12). |
 | 2026-10-16 | First build is **carving only**, with **no condition cells** (condition nodes are fine). **Magic-to-magic lines** are drawn while enchanting to chain into enchantment nodes. Nodes that don't chain to an enchantment node are **dead** and ignored on commit (§7.7). |
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
+| 2026-10-17 | **Commit needs a clean board:** every planned enchantment must be fully active and every line must chain to an enchantment, so a half-done enchantment or a dead chain blocks the commit (§7.7, replacing "dead chains are ignored on commit"). Lines run **cell by cell** and fill their cells, including an enchantment's own lines. |
+| 2026-10-17 | Disenchanting: runes are **water, fire, wind and stone** for now. **No inverses:** a material's runes are its own kind (1 per edge for now), replacing "runes are an inverse representation". **Each material has its own dissolve result** (1 or more runes of 1 or more types), replacing "1 for now". **Planned materials stay with the item**, for carving and disenchanting, so commits never clash across items (replacing the red-commit edge case). The lines to cut are the enchantment's **whole chain**. **A node pays out once**, when its last line is cut. **No order rule** beyond affording a cut. **No partial commits.** A **pre-carved demo sword** plus a **Disenchant mode** for any carved item. **Solvability** is checked with a dev tool for now. **Pulled-out cells are free again** (§7.6). |
 | 2026-10-17 | **The uncle becomes the mentor** (Mr. Leywin, placeholder). He isn't related to the player. Story details live in the [story bible](../story/story-bible.md). Earlier log entries keep the old name. |
 | 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
 | 2026-10-18 | The mentor's-workshop chapter is a **one-year apprenticeship** with **four seasons**. How play days spread across the year is still open. Story details are in the [story bible](../story/story-bible.md). |

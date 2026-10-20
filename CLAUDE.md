@@ -8,7 +8,7 @@ Gavin is the designer. Only decisions he has confirmed go into documents, includ
 
 1. **Design doc.** Gameplay decisions come from the design doc. If a task needs a design decision the doc doesn't settle, ask Gavin rather than inventing one.
 2. **Planning sheet (macro work only).** Before writing any code for macro work, draft a planning sheet (format below) and get Gavin's approval.
-3. **Branch and draft PR.** One branch per piece of work. Open the PR as a draft.
+3. **Branch and draft PR.** One branch per piece of work, with a readable name that says what it is (`map-editor`, `disenchanting-rules`). Open the PR as a draft.
 4. **Checks.** The PR must pass the automatic checks (see "Checks").
 5. **Review and merge.** Gavin reviews and merges. Claude never merges.
 
@@ -58,4 +58,4 @@ Run these locally before pushing. CI runs the same on every PR.
 
 - **Lint and format**: `pip install gdtoolkit==4.5.0`, then `gdformat --check <files>` and `gdlint <files>` on the `.gd` files you changed. CI only checks changed files, so a file you touch is brought up to style as part of that change.
 - **Script check**: Godot 4.7.2 headless. `godot --headless --path . --import`, then `godot --headless --path . res://tools/ci/check_scripts.tscn`. It loads every project script (skipping `addons/` and `demo/`) and fails if any doesn't compile.
-- Unit tests (GUT) will be added once an item owns its enchantment map.
+- **Rule tests**: `godot --headless --path . res://tests/test_inscription_board.tscn`. It exits with an error if any check fails. Add checks there when you change the inscribing rules.

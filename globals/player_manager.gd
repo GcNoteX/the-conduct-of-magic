@@ -9,19 +9,27 @@ extends Node
 # Internal player instance (do not access directly outside this class)
 var _player: Player = null
 
+
 func _ready() -> void:
 	if Mocker.is_mocking:
 		_player = Mocker.player
 
+
 # ────────────────────────────────────────────────
 # 🧍 PLAYER MANAGEMENT
 # ────────────────────────────────────────────────
+
 
 ## Creates a new player instance.
 ## This is typically called when starting a new game or loading a save file.
 func new_player() -> void:
 	_player = Player.new()
 	print("✅ New player created.")
+
+
+## Uses an existing player instance (e.g. one built from a DemoSetup).
+func set_player(p: Player) -> void:
+	_player = p
 
 
 ## Returns the current player instance.
@@ -39,6 +47,7 @@ func has_player() -> bool:
 # 💎 MATERIAL INVENTORY OPERATIONS
 # ────────────────────────────────────────────────
 
+
 ## Safely adds a given amount of material to the player's inventory.
 ## If no player exists, prints an error.
 func add_material(material: EnchantmentMaterialDefinition, amount: int = 1) -> void:
@@ -52,6 +61,7 @@ func add_material(material: EnchantmentMaterialDefinition, amount: int = 1) -> v
 	_player.material_inventory[material] += amount
 	#print("Added %d × %s" % [amount, str(material.material_id)])
 	#print(get_inventory())
+
 
 ## Removes a given amount of material from the player's inventory.
 ## If the amount exceeds what is owned, it will clamp to 0 and issue a warning.
@@ -69,9 +79,10 @@ func remove_material(material: EnchantmentMaterialDefinition, amount: int = 1) -
 
 	if new_amount < 0:
 		push_warning(
-			"⚠️ Tried to remove more '%s' than available (%d > %d). Clamping to 0." % [
-				str(material), amount, current_amount
-			]
+			(
+				"⚠️ Tried to remove more '%s' than available (%d > %d). Clamping to 0."
+				% [str(material), amount, current_amount]
+			)
 		)
 		new_amount = 0
 
@@ -91,6 +102,7 @@ func get_inventory() -> Dictionary:
 # ────────────────────────────────────────────────
 # 🧹 UTILITY / DEBUG
 # ────────────────────────────────────────────────
+
 
 ## Clears the current player (for testing or resetting state).
 func clear_player() -> void:
