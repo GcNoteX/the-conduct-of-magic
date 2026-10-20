@@ -43,5 +43,6 @@ func test_variations() -> void:
 
 func test_tooltip_is_opaque() -> void:
 	var theme: Theme = load(THEME_PATH)
-	var panel := theme.get_stylebox("panel", "TooltipPanel") as StyleBoxFlat
-	check(panel != null and panel.bg_color.a == 1.0, "tooltip background is opaque")
+	for type_name in [&"TooltipPanel", UiStyles.DARK_TOOLTIP_PANEL]:
+		var panel := theme.get_stylebox("panel", type_name) as StyleBoxFlat
+		check(panel != null and panel.bg_color.a == 1.0, "%s background is opaque" % type_name)
