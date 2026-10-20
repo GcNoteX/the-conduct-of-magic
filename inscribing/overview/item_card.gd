@@ -8,13 +8,13 @@ extends PanelContainer
 
 signal pressed
 
-const COLOR_BG := Color("2b2a33")
-const COLOR_BG_HOVER := Color("35343f")
-const COLOR_BORDER := Color("45434f")
+const COLOR_BG := WorkshopPalette.CARD
+const COLOR_BG_HOVER := WorkshopPalette.CARD_HOVER
+const COLOR_BORDER := WorkshopPalette.BORDER
 ## The mark on a card whose item holds planned materials
-const COLOR_HOLDING := Color("f0d68a")
-const COLOR_TEXT := Color("e6e2d8")
-const COLOR_TEXT_DIM := Color("a8a4b0")
+const COLOR_HOLDING := WorkshopPalette.BRASS
+const COLOR_TEXT := WorkshopPalette.TEXT
+const COLOR_TEXT_DIM := WorkshopPalette.TEXT_DIM
 const CARD_WIDTH := 320.0
 const THUMBNAIL_SIZE := Vector2(304, 170)
 const BORDER_WIDTH := 2
@@ -22,6 +22,7 @@ const HOLDING_BORDER_WIDTH := 3
 const CORNER_RADIUS := 8
 const PADDING := 8
 const NAME_FONT_SIZE := 18
+const ICON_SIZE := Vector2(32, 32)
 const NOTHING := "nothing"
 const CARVED := "Carved: %s"
 const PLANNED := "Planned: %s"
@@ -30,7 +31,7 @@ const HELD_FOR_DISENCHANTING := "Held for disenchanting: %s"
 const HOLDING_MARK := "Holding materials"
 const NO_MATERIALS_YET := "no materials yet"
 const TOOLTIP_INDENT := "    "
-const COLOR_TOOLTIP := Color(0.1, 0.1, 0.12, 0.95)
+const COLOR_TOOLTIP := WorkshopPalette.TOOLTIP
 const TOOLTIP_PADDING := 10
 
 var item: ItemInstance
@@ -227,6 +228,15 @@ func _build() -> void:
 	var header := HBoxContainer.new()
 	header.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_child(header)
+	var art := item.definition.inventory_sprite_normal if item.definition else null
+	if art:
+		var icon := TextureRect.new()
+		icon.texture = art
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon.custom_minimum_size = ICON_SIZE
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		header.add_child(icon)
 	var title := _label(header, item_name)
 	title.add_theme_font_size_override("font_size", NAME_FONT_SIZE)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL

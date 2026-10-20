@@ -9,10 +9,10 @@ signal pressed(payload: Resource)
 ## A double-click; the table uses it to dissolve a material in Disenchant mode
 signal double_clicked(payload: Resource)
 
-const COLOR_BG := Color("2b2a33")
-const COLOR_BG_HOVER := Color("35343f")
+const COLOR_BG := WorkshopPalette.CARD
+const COLOR_BG_HOVER := WorkshopPalette.CARD_HOVER
 const COLOR_ENCHANTMENT := Color("9b8fd1")
-const COLOR_SUBTITLE := Color("a8a4b0")
+const COLOR_SUBTITLE := WorkshopPalette.TEXT_DIM
 
 ## The Enchantment or EnchantmentMaterialDefinition this card hands out
 var payload: Resource
@@ -54,12 +54,7 @@ func _init(
 	row.add_theme_constant_override("separation", 8)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(row)
-	var icon := PatternPreview.new()
-	icon.enchantment = payload as Enchantment
-	icon.color = accent()
-	icon.custom_minimum_size = Vector2(40, 40)
-	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	row.add_child(icon)
+	row.add_child(_make_icon())
 	var text := VBoxContainer.new()
 	text.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text.add_theme_constant_override("separation", 0)
@@ -74,6 +69,32 @@ func _init(
 	sub.add_theme_color_override("font_color", COLOR_SUBTITLE)
 	sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text.add_child(sub)
+
+
+## A material's own art when it has some, otherwise the enchantment's shape (or a colour swatch)
+func _make_icon() -> Control:
+	var art := _material_art()
+	var icon: Control
+	if art:
+		var rect := TextureRect.new()
+		rect.texture = art
+		rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon = rect
+	else:
+		var preview := PatternPreview.new()
+		preview.enchantment = payload as Enchantment
+		preview.color = accent()
+		icon = preview
+	icon.custom_minimum_size = Vector2(40, 40)
+	icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return icon
+
+
+func _material_art() -> Texture2D:
+	if payload is EnchantmentMaterialDefinition:
+		return (payload as EnchantmentMaterialDefinition).inventory_sprite_normal
+	return null
 
 
 func accent() -> Color:
@@ -108,7 +129,16 @@ func make_preview() -> Control:
 		else InscriptionBoard.material_name(payload as EnchantmentMaterialDefinition)
 	)
 	label.add_theme_color_override("font_color", Color.BLACK)
-	chip.add_child(label)
+	var row := HBoxContainer.new()
+	chip.add_child(row)
+	var art := _material_art()
+	if art:
+		var icon := TextureRect.new()
+		icon.texture = art
+		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon.custom_minimum_size = Vector2(24, 24)
+		row.add_child(icon)
+	row.add_child(label)
 	chip.position = Vector2(14, 14)
 	holder.add_child(chip)
 	return holder

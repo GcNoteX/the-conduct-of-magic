@@ -233,7 +233,9 @@ func _build_ui() -> void:
 	bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	bar.custom_minimum_size.y = BAR_HEIGHT
 	var bar_style := StyleBoxFlat.new()
-	bar_style.bg_color = Color("24232b")
+	bar_style.bg_color = WorkshopPalette.PANEL
+	bar_style.border_color = WorkshopPalette.BORDER
+	bar_style.border_width_bottom = 2
 	bar_style.set_content_margin_all(8)
 	bar.add_theme_stylebox_override("panel", bar_style)
 	add_child(bar)
@@ -246,7 +248,7 @@ func _build_ui() -> void:
 	_day_over.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_day_over.mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := StyleBoxFlat.new()
-	dim.bg_color = Color(0, 0, 0, 0.6)
+	dim.bg_color = WorkshopPalette.DIM
 	_day_over.add_theme_stylebox_override("panel", dim)
 	_day_over.visible = false
 	add_child(_day_over)
@@ -254,11 +256,9 @@ func _build_ui() -> void:
 	_day_over.add_child(centre)
 	var card := PanelContainer.new()
 	card.custom_minimum_size = Vector2(820, 760)
-	var card_style := StyleBoxFlat.new()
-	card_style.bg_color = Color("24232b")
-	card_style.set_corner_radius_all(8)
-	card_style.set_content_margin_all(20)
-	card.add_theme_stylebox_override("panel", card_style)
+	card.add_theme_stylebox_override(
+		"panel", WorkshopPalette.panel_style(WorkshopPalette.PANEL, 20.0)
+	)
 	centre.add_child(card)
 	var box := VBoxContainer.new()
 	card.add_child(box)

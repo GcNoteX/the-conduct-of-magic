@@ -18,8 +18,8 @@ const TITLE := "Your items"
 const CLOSE_TEXT := "Close (Esc)"
 const HINT := "Click an item to open it. Hover a card for everything on it."
 const COLOR_DIM := Color(0, 0, 0, 0.65)
-const COLOR_PANEL := Color("24232b")
-const COLOR_HINT := Color("a8a4b0")
+const COLOR_PANEL := WorkshopPalette.PANEL
+const COLOR_HINT := WorkshopPalette.TEXT_DIM
 const MAX_COLUMNS := 4
 const SEPARATION := 12
 const PANEL_MARGIN := 20
@@ -105,6 +105,8 @@ func _build() -> void:
 	var panel := PanelContainer.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = COLOR_PANEL
+	style.border_color = WorkshopPalette.BORDER
+	style.set_border_width_all(2)
 	style.set_corner_radius_all(CORNER_RADIUS)
 	style.set_content_margin_all(PANEL_MARGIN)
 	panel.add_theme_stylebox_override("panel", style)

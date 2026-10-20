@@ -2,9 +2,11 @@
 
 [ext_resource type="Resource" path="res://inscribing/demo/long_sword_map.tres" id="1_vmmij"]
 [ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="2_pjd4x"]
+[ext_resource type="Texture2D" path="res://art/placeholder/items/long_sword.png" id="art_icon"]
 
 [resource]
 script = ExtResource("2_pjd4x")
 map_template = ExtResource("1_vmmij")
 id = &"long_sword"
 display_name = "Long sword"
+inventory_sprite_normal = ExtResource("art_icon")

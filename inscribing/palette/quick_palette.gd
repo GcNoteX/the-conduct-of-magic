@@ -15,8 +15,8 @@ func _init() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	_panel = PanelContainer.new()
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.11, 0.105, 0.135, 0.96)
-	style.border_color = Color("9b8fd1")
+	style.bg_color = WorkshopPalette.PANEL_SEE_THROUGH
+	style.border_color = WorkshopPalette.BORDER
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(10)
 	style.set_content_margin_all(10)
@@ -32,7 +32,7 @@ func _init() -> void:
 	var hint := Label.new()
 	hint.text = "Hold Space for the workbench"
 	hint.add_theme_font_size_override("font_size", 13)
-	hint.add_theme_color_override("font_color", Color("a8a4b0"))
+	hint.add_theme_color_override("font_color", WorkshopPalette.TEXT_DIM)
 	hint.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
 	hint.offset_top = -28
 	hint.offset_left = -110

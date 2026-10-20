@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="2_1isl3"]
 [ext_resource type="Script" uid="uid://8lwxkf3xu56y" path="res://enchantments/enchantment_conditions/number_of_lines_condition.gd" id="2_nut4d"]
 [ext_resource type="Script" uid="uid://dli7lulxgf2hr" path="res://disenchanting/rune_set.gd" id="3_nut4d"]
+[ext_resource type="Texture2D" path="res://art/placeholder/stones/fire_stone.png" id="art_icon"]
 
 [sub_resource type="Resource" id="Resource_nut4d"]
 script = ExtResource("2_nut4d")
@@ -31,4 +32,5 @@ harvest_runes = SubResource("Resource_t7b6i")
 dissolve_runes = SubResource("Resource_iv7jg")
 id = &"fire_stone"
 display_name = "Fire stone"
+inventory_sprite_normal = ExtResource("art_icon")
 metadata/_custom_type_script = "uid://dnrj7bcgrqnhu"

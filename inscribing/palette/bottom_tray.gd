@@ -10,9 +10,9 @@ func _init() -> void:
 	custom_minimum_size.y = 96
 	var bg := PanelContainer.new()
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.11, 0.105, 0.135)
-	style.border_color = Color("45434f")
-	style.border_width_top = 1
+	style.bg_color = WorkshopPalette.PANEL
+	style.border_color = WorkshopPalette.BORDER
+	style.border_width_top = 2
 	style.set_content_margin_all(8)
 	bg.add_theme_stylebox_override("panel", style)
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
