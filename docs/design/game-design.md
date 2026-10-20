@@ -150,6 +150,9 @@ Options ranked from simplest to most complex, with **when in the game** each cou
 
 **Proposed path:** start with #1, then #2, then make **#4 (calendar pick)** the first real negotiation mechanic, with #5 alongside it. Hold #7 and #8 for later macro levels. Bartering is only overcomplicated in its full form (#7). The simple accept-or-decline version (#5) is cheap and fits the game.
 
+### 5.7 Items you can give back
+Gifts are **not a system of their own**. Sometimes the player gets an item that they can **give to another character**, and it may or may not be something they can inscribe. These are added for **particular storylines and characters**, not as a general gift mechanic.
+
 ## 6. Rules you inspect against
 
 What counts as acceptable work comes from several sources, which can conflict:
@@ -169,7 +172,7 @@ When the shop closes, the player moves to enchanting:
 2. **Choose an item** you received from a customer or bought yourself.
 3. **Enchant it** (see below).
 
-**Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else.
+**Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else. That amount of time is the player's **stamina** (§9.6).
 
 **For playtesting**, the timer just runs continuously, set to about **an hour** for now.
 
@@ -366,11 +369,12 @@ Why you first rather than the mentor first:
 
 ### 9.2.2 End of the workshop year
 - The game keeps progressing day to day across the year.
-- Near the end of the year is **application day** for the university, which costs money. Getting in needs both a **total amount of money** and **Mr. Leywin's recommendation**.
+- Near the end of the year is **application day** for the university, which costs money. Getting in needs three things: a **total amount of money**, **Mr. Leywin's recommendation** and a **resume** (§9.6).
+- **One place decides pass or fail.** It reads the player's state and Mr. Leywin's state and makes the call, separate from the systems that feed it (money, relationships, resume).
 - The year has a closing and ends with a **letter** saying whether the player got into the university.
 - The patron and the recruiter each give the player a **business-card-like item** that fits who they are.
 - The player then chooses from the routes open to them (§9.3).
-- **Fail state: no route out of the workshop.** The player can't go to the university (not enough money, or no recommendation) and impressed neither the recruiter nor the patron.
+- **Fail state: no route out of the workshop.** The player can't go to the university (not enough money, no recommendation or too thin a resume) and impressed neither the recruiter nor the patron.
 - **Running out of money** also leads to different endings. Death or similar may come later.
 
 ### 9.3 Progression routes
@@ -389,6 +393,22 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 
 ### 9.5 Example items
 - **Father's Sword**: an example item from the prototype, not a story commitment.
+
+### 9.6 The player's own life
+**Rent.** The player lives in a rented apartment and pays rent **each week**. Money comes from an **allowance** from his parents, which arrives by the mailman with their letters, plus his **pay** from Mr. Leywin's books. Missing rent once brings a warning; missing it twice leads to the **running out of money** ending (§9.2.2).
+
+**University side tasks.** A book (from the bookstore, the peddler or the writer) sets a **technical task**, such as making a cup that stays cold. The player gets the materials, attempts it, and finishing it adds a **resume entry**. The resume is one of the three university requirements (§9.2.2).
+
+**Stamina.** Stamina is the night's time budget, and it **replaces a separate night timer**: one budget that commissions and study both draw from.
+- Its **upper limit reflects the night**: the cap is limited by the number of night hours before the next day.
+- **A day that ends customer work earlier starts the night with more stamina.**
+- **For the spike**, stamina is shown as a **yellow progress bar**. The final display is still open (Q15).
+
+**Home projects.** Room builds are folded into practical inscribing (Q14). Personal home projects **upgrade certain things or unlock certain views**. The game stays very much **not stat-focused**.
+
+**Memory aids.** The player keeps a **resume sheet** and a **letters drawer** that holds what people have said. Neither shows scores.
+
+**Pacing.** Pressures come in **a season at a time**: commissions, time and rules first, rent from the second week, and side tasks from the second season.
 
 ## 10. Open questions
 
@@ -412,6 +432,8 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day?
 12. When does the mentor stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
 13. Disenchanting balance: how do we decide which runes a material puts on the edges it touches, and what it returns when freed?
+14. Which practical inscriptions exist for inspections, the shop, the player's own items and home projects, and what does each upgrade or unlock?
+15. How is stamina shown so the player can count it easily, and are night hours spent per action or do they run down in real time?
 
 ## 11. Decision log
 
@@ -474,6 +496,9 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
 | 2026-10-18 | The mentor's-workshop chapter is a **one-year apprenticeship** with **four seasons**. How play days spread across the year is still open. Story details are in the [story bible](../story/story-bible.md). |
 | 2026-10-18 | **End of the workshop year** (§9.2.2): application day costs money; the university needs money plus Mr. Leywin's recommendation; a closing letter decides the university; the patron and recruiter give business-card-like items; the fail state is no route out of the workshop. |
+| 2026-10-20 | **Rent** is paid weekly from the allowance plus pay (§9.6). **University side tasks** from books add **resume entries**, and the resume becomes a **third university requirement**, judged in one place from the player's and Mr. Leywin's state (§9.2.2). Gifts are **not a system**: items to give back are added per storyline (§5.7). Stamina tonics from the potion maker are archived (A.14). |
+| 2026-10-20 | **Stamina** is the night's time budget and replaces a separate night timer. Its cap is the night hours before the next day, and ending customer work earlier starts the night with more. **Room builds** fold into practical inscribing as **home projects** that upgrade things or unlock views, not stats. A **resume sheet** and **letters drawer** carry what the player must remember. Pressures are introduced **a season at a time** (§9.6). |
+| 2026-10-20 | For the spike, stamina shows as a **yellow progress bar** (§9.6). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -671,3 +696,6 @@ Maybe some **stable materials** that are just **rune pools**, unlike live runes,
 
 ### A.13 Black Market
 Archived as a route. Something black-market in style could be reached from any route: the things you would do for money, knowledge or reputation.
+
+### A.14 Stamina tonics
+Buying extra stamina as tonics from the potion maker. Archived until stamina itself is decided (§9.6).
