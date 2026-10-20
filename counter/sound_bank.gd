@@ -15,6 +15,7 @@ func _ready() -> void:
 		var p := AudioStreamPlayer.new()
 		p.stream = sounds[key]
 		p.volume_db = volume_db
+		p.bus = Settings.BUS_SFX
 		add_child(p)
 		_players[key] = p
 
