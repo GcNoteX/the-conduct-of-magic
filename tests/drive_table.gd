@@ -11,6 +11,13 @@ const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_s
 const LONG_SWORD := 2
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
 const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
+const KINDLE := preload("res://enchantments/patterns/kindle.tres")
+## Where Kindle is dropped on the long sword when it fits there (otherwise the first cell it fits)
+const KINDLE_CELL := Vector2i(1, 5)
+## The most lines drawn to one node while trying to make its material active
+const MAX_LINES_PER_NODE := 4
+## Somewhere off the board and the palettes, for ending drags that shouldn't drop anything
+const NOWHERE := Vector2(1300, 900)
 ## Seconds to hover before a card's tooltip shows (the default tooltip delay is half a second)
 const TOOLTIP_WAIT := 1.0
 
@@ -43,46 +50,62 @@ func _ready() -> void:
 	await _frames(2)
 	_shot("01_empty")
 
-	# Drag Kindle from the sidebar, rotating it once mid-drag to show the ghost turn
-	var kindle := _card(table.player.known_enchantments[0])
-	_start_drag(kindle)
-	_move(_cell(Vector2i(1, 5)))
+	# Drag Kindle from the sidebar, rotating it once mid-drag to show the ghost turn, then turning
+	# it the rest of the way round and dropping it unrotated where the plan says
+	var plan := _kindle_plan()
+	if plan.is_empty():
+		print("FAIL: Kindle can't be made active anywhere on the long sword")
+		get_tree().quit(1)
+		return
+	var origin: Vector2i = plan.origin
+	_start_drag(_card(KINDLE))
+	_move(_cell(origin))
 	_key(KEY_R)
-	_move(_cell(Vector2i(1, 5)) + Vector2(1, 0))
+	_move(_cell(origin) + Vector2(1, 0))
 	await _frames(2)
 	_shot("02_dragging_rotated")
-	for i in 5:
+	for i in Hex.DIRECTIONS.size() - 1:
 		_key(KEY_R)
-	_move(_cell(Vector2i(1, 5)))
-	_release(_cell(Vector2i(1, 5)))
+	_move(_cell(origin))
+	_release(_cell(origin))
 	await _frames(2)
 	var p: PlacementState = table.board.state.placements[0]
-	var e0 := InscriptionBoard.enchantment_key(p.id, 0)
-	var e1 := InscriptionBoard.enchantment_key(p.id, 1)
-	print("placed: ", table.board.state.placements.size(), " rotation: ", p.rotation_steps)
+	var keys := _node_keys(p)
+	print(
+		"placed: ",
+		table.board.state.placements.size(),
+		" rotation: ",
+		p.rotation_steps,
+		" nodes: ",
+		keys.size()
+	)
 
-	# Drag fire onto the flame node, showing the drop preview first
-	var mats: Array[EnchantmentMaterialDefinition] = table._material_order()
+	# Drag a material each node accepts onto it, showing the drop preview on the first
 	table._layout.set_open(true)
 	await _frames(15)
-	_start_drag(_card(mats[0]))
-	_move(_cell(Vector2i(1, 5)))
-	await _frames(15)
-	_shot("03_drop_preview")
-	_release(_cell(Vector2i(1, 5)))
-	await _frames(2)
-	_start_drag(_card(mats[3]))
-	_move(_cell(Vector2i(3, 5)))
-	_release(_cell(Vector2i(3, 5)))
-	_move(_cell(Vector2i(1, 5)))
+	for i in keys.size():
+		var m: EnchantmentMaterialDefinition = plan.materials[i]
+		var at := _cell(table.board.node_cell(keys[i]))
+		_start_drag(_card(m))
+		_move(at)
+		if i == 0:
+			await _frames(15)
+			_shot("03_drop_preview")
+		_release(at)
+		await _frames(2)
+	_move(_cell(table.board.node_cell(keys[0])))
 	await _frames(2)
 	_shot("04_inserted")
-	print("materials: ", table.board.node_material(e0), " ", table.board.node_material(e1))
+	var held: Array[String] = []
+	for k in keys:
+		held.append(InscriptionBoard.material_name(table.board.node_material(k)))
+	print("materials: ", held)
 
-	# Draw lines cell by cell, with a wobble back along the first one
-	_draw_path([Vector2i(1, 5), Vector2i(0, 6), Vector2i(0, 5), Vector2i(0, 6), Vector2i(-1, 6)])
-	_draw_path([Vector2i(1, 5), Vector2i(1, 6), Vector2i(0, 7), Vector2i(0, 8)])
-	_draw_path([Vector2i(3, 5), Vector2i(3, 6)])
+	# Draw the plan's lines cell by cell, with a wobble on the first one, then an unconnected chain
+	# of magic nodes
+	var routes: Array = plan.routes
+	for i in routes.size():
+		_draw_path(_with_wobble(routes[i]) if i == 0 else routes[i])
 	var guard: Array[Vector2i] = []
 	for q in range(-7, 2):
 		guard.append(Vector2i(q, 14))
@@ -92,11 +115,13 @@ func _ready() -> void:
 		"lines: ", table.board.state.lines.size(), " active: ", table.board.is_placement_active(p)
 	)
 	# Try to cross the first line and hold the mouse there
-	_draw_path([Vector2i(3, 5), Vector2i(2, 6), Vector2i(1, 6)], false)
-	await _frames(2)
-	_shot("05_blocked")
-	_release(_cell(Vector2i(1, 6)))
-	_move(_cell(Vector2i(1, 5)))
+	var cross := _crossing_path(keys, routes[0] if not routes.is_empty() else [])
+	if not cross.is_empty():
+		_draw_path(cross, false)
+		await _frames(2)
+		_shot("05_blocked")
+		_release(_cell(cross.back()))
+	_move(_cell(table.board.node_cell(keys[0])))
 	await _frames(2)
 	_shot("06_active")
 	await _overview()
@@ -113,32 +138,10 @@ func _ready() -> void:
 
 	await _disenchant()
 
-	# The other layouts, for comparison, back in Carve mode
+	# Both palettes, back in Carve mode
 	_click(table._carve_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
 	await _frames(2)
-	# The other layouts, for comparison
-	_key(KEY_TAB)
-	await _frames(20)
-	_shot("16_sidebar_closed")
-	table._set_layout(table.Layout.BOTTOM_TRAY)
-	await _frames(3)
-	_shot("17_bottom_tray")
-	table._set_layout(table.Layout.QUICK_PALETTE)
-	await _frames(2)
-	_move(_cell(Vector2i(0, 9)))
-	_key(KEY_SPACE, true)
-	await _frames(3)
-	_shot("18_quick_palette")
-	_key(KEY_SPACE, false)
-	table._set_layout(table.Layout.LISTS)
-	await _frames(3)
-	_shot("19_lists")
-	# The original lists in Disenchant mode: enchantments dimmed, double-click a row to dissolve
-	table._item_picker.select(table.player.items.size() - 1)
-	table._open_item(table.player.items.size() - 1)
-	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
-	await _frames(3)
-	_shot("20_lists_disenchant")
+	await _palettes()
 
 	await _replay_checker_plans()
 	await _bastion_ports()
@@ -162,6 +165,11 @@ func _overview() -> void:
 	_key(ItemOverview.OPEN_KEY)
 	await _frames(3)
 	_shot("21_overview")
+	# The overview keeps the palette's keys from reaching the table while it's open
+	var was_open: bool = table._layout.is_open
+	_key(KEY_TAB)
+	await _frames(2)
+	print("tab under the overview toggled the sidebar: ", table._layout.is_open != was_open)
 	var cards: Array[ItemCard] = table._overview.cards()
 	_move(cards[LONG_SWORD].get_global_rect().get_center())
 	await get_tree().create_timer(TOOLTIP_WAIT).timeout
@@ -202,39 +210,58 @@ func _drag_used_up() -> void:
 	await _frames(15)
 
 
-## Disenchant mode on the pre-carved demo sword: costs on lines, a cut you can't afford, dissolving,
-## planning every cut of Kindle, pulling it out and committing
+## Disenchant mode on the pre-carved demo sword: costs on lines, a cut you can't afford, then the
+## solvability check's way to clear Kindle done by hand (dissolving, cutting its chain, pulling it
+## out), Keen cut with what's left until a cut can't be afforded, and committing
 func _disenchant() -> void:
 	var carved: int = table.player.items.size() - 1
 	table._item_picker.select(carved)
 	table._open_item(carved)
 	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
 	await _frames(2)
-	print(
-		"disenchant mode: ",
-		table.is_disenchanting(),
-		" carvings: ",
-		table.disenchant.carvings().size()
-	)
-	_move(_edge_point("e:1:0", "m:0,8"))
+	var d: DisenchantBoard = table.disenchant
+	print("disenchant mode: ", table.is_disenchanting(), " carvings: ", d.carvings().size())
+	var kindle := _carving_of(d, KINDLE)
+	if kindle == null:
+		print("FAIL: the pre-carved sword has no Kindle")
+		return
+	var first: String = d.chain(kindle)[0]
+	_move(_edge_key_point(first))
 	await _frames(2)
 	_shot("09_disenchant_costs")
 
-	_click(_edge_point("e:1:0", "m:0,8"), MOUSE_BUTTON_LEFT)
+	_click(_edge_key_point(first), MOUSE_BUTTON_LEFT)
 	await _frames(2)
-	print("blocked step: ", table.disenchant.first_blocked(), " ", table._message_label.text)
+	print("blocked step: ", d.first_blocked(), " ", table._message_label.text)
 	_shot("10_cant_afford")
-	_click(_edge_point("e:1:0", "m:0,8"), MOUSE_BUTTON_RIGHT)
+	_click(_edge_key_point(first), MOUSE_BUTTON_RIGHT)
 	await _frames(1)
 
+	var targets: Array[PlacementState] = [kindle]
+	var available: Dictionary = table.player.material_inventory.duplicate()
+	var solutions := SolvabilityChecker.new(d).solve(targets, available)
+	if solutions.is_empty():
+		print("FAIL: Kindle can't be cleared with ", available)
+		return
+	var dissolves: Array[DisenchantStep] = []
+	var others: Array[DisenchantStep] = []
+	for step in solutions[0].steps(targets, d):
+		if step.kind == DisenchantStep.Kind.DISSOLVE:
+			dissolves.append(step)
+		else:
+			others.append(step)
 	# Dissolve by double-clicking the material cards (the cards are rebuilt after each one)
-	_double_click(_card(FIRE))
-	await _frames(1)
-	_double_click(_card(YELLOW))
-	await _frames(1)
-	_double_click(_card(BLUE))
-	await _frames(1)
-	print("planned fire: ", table.board.planned_count(FIRE), " card: ", _card(FIRE).subtitle)
+	for step in dissolves:
+		await _do_step(step, d)
+	var m: EnchantmentMaterialDefinition = dissolves[0].material
+	print(
+		"planned ",
+		InscriptionBoard.material_name(m),
+		": ",
+		table.board.planned_count(m),
+		" card: ",
+		_card(m).subtitle
+	)
 	table._layout.set_open(true)
 	var tabs: TabContainer = table._layout.find_children("*", "TabContainer", true, false)[0]
 	tabs.current_tab = 1
@@ -243,37 +270,26 @@ func _disenchant() -> void:
 	tabs.current_tab = 0
 	table._layout.set_open(false)
 	await _frames(15)
-	for ends in [["e:1:0", "m:0,8"], ["e:1:0", "m:-1,6"]]:
-		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
-	await _frames(2)
-	_move(_cell(Vector2i(-1, 6)))
+	for step in others.slice(0, 2):
+		await _do_step(step, d)
+	_move(NOWHERE)
 	await _frames(2)
 	_shot("11_planning")
+	for step in others.slice(2):
+		await _do_step(step, d)
 
-	for ends in [["e:1:0", "e:1:1"], ["m:0,8", "m:3,6"], ["e:1:1", "m:3,6"]]:
-		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
-	_click(_cell(Vector2i(1, 5)), MOUSE_BUTTON_LEFT)
 	# Keen cuts with what's left over until one can't be afforded, so it shows red
-	var keen_cuts := [
-		["e:2:1", "m:-4,16"],
-		["e:2:0", "m:-2,12"],
-		["e:2:2", "m:-2,12"],
-		["e:2:0", "m:-7,14"],
-		["e:2:2", "m:1,14"],
-	]
 	var added := 0
-	for ends in keen_cuts:
-		_click(_edge_point(ends[0], ends[1]), MOUSE_BUTTON_LEFT)
-		added += 1
-		if table.disenchant.first_blocked() >= 0:
-			break
+	for p in d.carvings():
+		if p == kindle or added > 0:
+			continue
+		for k in d.chain(p):
+			if d.is_cut_planned(k) or d.first_blocked() >= 0:
+				continue
+			_click(_edge_key_point(k), MOUSE_BUTTON_LEFT)
+			added += 1
 	await _frames(2)
-	print(
-		"plan: ",
-		table.disenchant.state.disenchant_plan.size(),
-		" blocked: ",
-		table.disenchant.first_blocked()
-	)
+	print("plan: ", d.state.disenchant_plan.size(), " blocked: ", d.first_blocked())
 	_shot("12_blocked_mid_plan")
 	for i in added:
 		table._on_undo_pressed()
@@ -289,12 +305,12 @@ func _disenchant() -> void:
 		" message: ",
 		table._message_label.text
 	)
-	print(
-		"fire left: ",
-		table.player.get_material_count(FIRE),
-		" yellow left: ",
-		table.player.get_material_count(YELLOW)
-	)
+	for step in dissolves:
+		print(
+			InscriptionBoard.material_name(step.material),
+			" left: ",
+			table.player.get_material_count(step.material)
+		)
 	_shot("14_committed")
 
 	# Disenchant mode works on the sword carved earlier in this run too
@@ -304,15 +320,84 @@ func _disenchant() -> void:
 	_shot("15_own_carving")
 
 
+## Both palette layouts: in Carve mode the sidebar closed with Tab, kept open through a drag by its
+## pin and put away by a drag without it, then the quick palette held open with Space and put away
+## by a drag. Then both in Disenchant mode, where enchantment cards can't be dragged.
+func _palettes() -> void:
+	_refill_materials()
+	table._layout.set_open(true)
+	await _frames(20)
+	_key(KEY_TAB)
+	await _frames(20)
+	print("sidebar open after Tab: ", table._layout.is_open)
+	_shot("16_sidebar_closed")
+	_key(KEY_TAB)
+	await _frames(20)
+	var pin: CheckBox = table._layout.find_children("*", "CheckBox", true, false)[0]
+	for pinned in [true, false]:
+		if pin.button_pressed != pinned:
+			_click(pin.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+		await _frames(2)
+		_start_drag(_card(FIRE))
+		_move(_cell(Vector2i(0, 9)))
+		await _frames(20)
+		print("sidebar open during a drag, pinned ", pinned, ": ", table._layout.is_open)
+		if pinned:
+			_shot("17_sidebar_pinned_drag")
+		_release(NOWHERE)
+		await _frames(2)
+		table._layout.set_open(true)
+		await _frames(20)
+
+	table._set_layout(table.Layout.QUICK_PALETTE)
+	await _frames(2)
+	_move(_cell(Vector2i(0, 9)))
+	_key(KEY_SPACE, true)
+	await _frames(3)
+	print("quick palette open with Space held: ", table._layout.is_open())
+	_shot("18_quick_palette")
+	_start_drag(_card(FIRE))
+	await _frames(3)
+	print("quick palette open during a drag: ", table._layout.is_open())
+	_shot("19_quick_palette_drag")
+	_release(NOWHERE)
+	_key(KEY_SPACE, false)
+	await _frames(2)
+
+	var carved := _fresh_carved_sword()
+	table._item_picker.select(carved)
+	table._open_item(carved)
+	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	# Space and Tab reach the palette after a click on the mode buttons, instead of pressing them
+	table._set_message("")
+	_move(_cell(Vector2i(0, 9)))
+	_key(KEY_SPACE, true)
+	await _frames(3)
+	_key(KEY_SPACE, false)
+	await _frames(2)
+	print("Space pressed a focused button: ", table._message_label.text != "")
+	_key(KEY_SPACE, true)
+	await _frames(3)
+	var data: Variant = _card(KINDLE)._get_drag_data(Vector2.ZERO)
+	await _frames(2)
+	print("disenchant enchantment drag data: ", data, " message: ", table._message_label.text)
+	_shot("20_quick_palette_disenchant")
+	_key(KEY_SPACE, false)
+	table._set_layout(table.Layout.SIDEBAR)
+	await _frames(20)
+	_shot("20b_sidebar_disenchant")
+
+
 ## The solvability check's plans, done by hand on a fresh pre-carved sword: Kindle alone (sidebar
-## cards), Keen alone (the original lists, double-clicking rows) and both (bottom tray). Each
+## cards), Keen alone and both (quick palette, held open with Space for each dissolve). Each
 ## dissolves the named materials, clicks the named lines in order, clicks a node to pull out and
 ## presses Commit, then checks the table pulled out exactly what the report said it would.
 func _replay_checker_plans() -> void:
 	var cases := [
 		["kindle", [0], table.Layout.SIDEBAR],
-		["keen", [1], table.Layout.LISTS],
-		["both", [0, 1], table.Layout.BOTTOM_TRAY],
+		["keen", [1], table.Layout.QUICK_PALETTE],
+		["both", [0, 1], table.Layout.QUICK_PALETTE],
 	]
 	var report_text := ""
 	for c: Array in cases:
@@ -345,12 +430,20 @@ func _replay_checker_plans() -> void:
 			print("  wanted: ", wanted, "\n  got:    ", planned)
 		print("  blocked step: ", d.first_blocked(), " commit check: '", d.check_commit(), "'")
 		if c[0] == "kindle":
-			var k := DisenchantBoard.step_edge_key(steps[4])
-			_move(_edge_point(steps[4].a, steps[4].b, steps[4].line))
+			# The last cut: its tooltip, plan row and line name all name it the same way
+			var row := -1
+			for i in steps.size():
+				if steps[i].kind == DisenchantStep.Kind.CUT:
+					row = i
+			var k := DisenchantBoard.step_edge_key(steps[row])
+			_move(_edge_key_point(k))
 			await _frames(3)
 			print("  tooltip: ", table._tooltip_label.get_parsed_text().get_slice("\n", 0))
 			print(
-				"  plan row 5: ", d.describe_step(d.state.disenchant_plan[4]), " | ", d.edge_name(k)
+				"  plan row %d: " % (row + 1),
+				d.describe_step(d.state.disenchant_plan[row]),
+				" | ",
+				d.edge_name(k)
 			)
 		_shot("25_%s_planned" % c[0])
 		var before: int = d.carvings().size()
@@ -389,19 +482,18 @@ func _fresh_carved_sword() -> int:
 	return index
 
 
-## Does one planned step the way a player would: double-click the material (its card, or its row
-## in the original lists), click the line, or click one of the enchantment's nodes
+## Does one planned step the way a player would: double-click the material's card (holding Space
+## for the quick palette), click the line, or click one of the enchantment's nodes
 func _do_step(s: DisenchantStep, d: DisenchantBoard) -> void:
 	match s.kind:
 		DisenchantStep.Kind.DISSOLVE:
-			var lists := table.find_children("*", "MaterialList", true, false).filter(
-				func(n: Node): return not n.is_queued_for_deletion()
-			)
-			if table._layout_picker.selected == table.Layout.LISTS and not lists.is_empty():
-				var list: MaterialList = lists[0]
-				list.item_activated.emit(list.materials.find(s.material))
-			else:
-				_double_click(_card(s.material))
+			var quick: bool = table._layout is QuickPalette
+			if quick:
+				_key(KEY_SPACE, true)
+				await _frames(1)
+			_double_click(_card(s.material))
+			if quick:
+				_key(KEY_SPACE, false)
 		DisenchantStep.Kind.CUT:
 			_click(_edge_point(s.a, s.b, s.line), MOUSE_BUTTON_LEFT)
 		_:
@@ -484,10 +576,11 @@ func _bastion_parallel_cut() -> void:
 
 ## The board with its art (sheet 0006) and flat, in both modes: the pre-carved sword in Carve mode
 ## while a material is dragged over it (green and red rings), then in Disenchant mode with the
-## solvability check's Kindle plan entered (step numbers, rune chips, labels and green rings)
+## solvability check's Kindle plan entered (step numbers, rune chips, labels and green rings).
+## The art pass drags from the sidebar, the flat one from the quick palette.
 func _art_on_and_off() -> void:
-	table._set_layout(table.Layout.SIDEBAR)
 	for art in [true, false]:
+		table._set_layout(table.Layout.SIDEBAR if art else table.Layout.QUICK_PALETTE)
 		table.use_art = art
 		var look := "art" if art else "flat"
 		var carved := _fresh_carved_sword()
@@ -510,6 +603,11 @@ func _art_on_and_off() -> void:
 		_shot("30_%s_carve" % look)
 		_release(_cell(node))
 		await _frames(2)
+		print(
+			look,
+			": dropped fire on Glow: ",
+			table.board.node_material(InscriptionBoard.enchantment_key(p.id, 0)) == FIRE
+		)
 		table._on_board_changed()
 		_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
 		await _frames(2)
@@ -523,6 +621,7 @@ func _art_on_and_off() -> void:
 		await _frames(3)
 		_shot("31_%s_disenchant" % look)
 	table.use_art = true
+	table._set_layout(table.Layout.SIDEBAR)
 
 
 ## Gives the player the demo's starting materials again
@@ -567,20 +666,146 @@ func _route_to_magic(start: Vector2i, taken: Array) -> Array:
 		for n in Hex.neighbours(at):
 			if prev.has(n) or used.has(n) or not b.has_cell(n):
 				continue
+			# A magic node is only ever an end, so a longer way to it is tried from every side
+			if b.is_magic(b.node_at(n)):
+				var route: Array[Vector2i] = [at, n]
+				while route[0] != start:
+					route.push_front(prev[route[0]])
+				if route.size() > 2 and b.check_line(route) == "":
+					return route
+				continue
 			prev[n] = at
-			var route: Array[Vector2i] = [n]
-			while route[0] != start:
-				route.push_front(prev[route[0]])
-			if route.size() > 2 and b.is_magic(b.node_at(n)) and b.check_line(route) == "":
-				return route
 			if b.node_covering(n) == "" and not b.is_occupied(n):
 				queue.append(n)
 	return []
 
 
 func _edge_point(a: String, b: String, which := 0) -> Vector2:
-	var mid := view._edge_middle(DisenchantBoard.edge_key(a, b, which))
-	return view.get_global_transform_with_canvas() * mid
+	return _edge_key_point(DisenchantBoard.edge_key(a, b, which))
+
+
+## The middle of a committed line, by its edge key
+func _edge_key_point(key: String) -> Vector2:
+	return view.get_global_transform_with_canvas() * view._edge_middle(key)
+
+
+## The committed placement of `e`, or null
+func _carving_of(d: DisenchantBoard, e: Enchantment) -> PlacementState:
+	for p in d.carvings():
+		if p.enchantment == e:
+			return p
+	return null
+
+
+## Where Kindle can go unrotated on the open item with a material in each node and lines to magic
+## nodes that make it active, trying KINDLE_CELL first. Each spot is tried on the board itself and
+## taken off again. Returns {origin, materials (one per node), routes (in drawing order)}, or {}.
+func _kindle_plan() -> Dictionary:
+	var b: InscriptionBoard = table.board
+	var next_id := b.state.next_placement_id
+	var spots: Array[Vector2i] = [KINDLE_CELL]
+	spots.append_array(b.get_cells())
+	for origin in spots:
+		if b.check_place(KINDLE, origin, 0) != "":
+			continue
+		var p := b.place(KINDLE, origin, 0)
+		var keys := _node_keys(p)
+		var materials: Array[EnchantmentMaterialDefinition] = []
+		for k in keys:
+			var m := _material_for(b.node_definition(k))
+			materials.append(m)
+			if m:
+				b.insert_material(k, m)
+		var routes := _activating_routes(keys)
+		var active := b.is_placement_active(p)
+		b.remove_placement(p)
+		b.state.next_placement_id = next_id
+		if active:
+			return {"origin": origin, "materials": materials, "routes": routes}
+	return {}
+
+
+## Adds lines from the nodes to magic nodes, one per node in turn, until every node's material is
+## active or no more fit. Returns the lines' cells in the order they were added.
+func _activating_routes(keys: Array[String]) -> Array:
+	var b: InscriptionBoard = table.board
+	var routes: Array = []
+	for i in MAX_LINES_PER_NODE:
+		for k in keys:
+			if b.node_material(k) == null or b.is_node_active(k):
+				continue
+			var route := _route_from_node(k)
+			if not route.is_empty():
+				b.add_line(route)
+				routes.append(route)
+	return routes
+
+
+## The node keys of a placement, in the enchantment's node order
+func _node_keys(p: PlacementState) -> Array[String]:
+	var out: Array[String] = []
+	for i in p.enchantment.nodes.size():
+		out.append(InscriptionBoard.enchantment_key(p.id, i))
+	return out
+
+
+## A material the node accepts and the player has, needing the fewest lines to activate (ties go
+## to the one listed first)
+func _material_for(def: EnchantmentPatternNode) -> EnchantmentMaterialDefinition:
+	var best: EnchantmentMaterialDefinition = null
+	for m in table._material_order():
+		if not def.accepts(m) or table.player.get_material_count(m) == 0:
+			continue
+		if best == null or _lines_needed(m) < _lines_needed(best):
+			best = m
+	return best
+
+
+## How many lines a material's conditions ask for at its node (one per magic node it has to reach)
+func _lines_needed(m: EnchantmentMaterialDefinition) -> int:
+	var n := 0
+	for c in m.activation_conditions:
+		if c is NumberOfLinesConditon:
+			n = maxi(n, (c as NumberOfLinesConditon).number_of_lines)
+		elif c is NumberOfConnectionsConditon:
+			n = maxi(n, (c as NumberOfConnectionsConditon).number_of_lines)
+	return n
+
+
+## The shortest free route from one of the node's ports to a magic node, or []
+func _route_from_node(key: String) -> Array:
+	for port in table.board.node_ports(key):
+		var route := _route_to_magic(port, [])
+		if not route.is_empty():
+			return route
+	return []
+
+
+## The route with a step off it and back after its first cell, to show undoing cells while drawing
+func _with_wobble(route: Array) -> Array:
+	var b: InscriptionBoard = table.board
+	for x in Hex.neighbours(route[1]):
+		if x in route or not b.has_cell(x) or b.is_occupied(x) or b.node_covering(x) != "":
+			continue
+		return route.slice(0, 2) + [x] + route.slice(1)
+	return route
+
+
+## A short path from a node's port onto a middle cell of `route`, which the board refuses, or []
+func _crossing_path(keys: Array[String], route: Array) -> Array:
+	var b: InscriptionBoard = table.board
+	var middle := route.slice(1, route.size() - 1)
+	for i in range(keys.size() - 1, -1, -1):
+		for port in b.node_ports(keys[i]):
+			for f in Hex.neighbours(port):
+				if not b.has_cell(f) or b.is_occupied(f) or b.node_covering(f) != "":
+					continue
+				if b.node_at(f) != "":
+					continue
+				for x in Hex.neighbours(f):
+					if x in middle:
+						return [port, f, x]
+	return []
 
 
 func _card(payload: Resource) -> PaletteCard:
