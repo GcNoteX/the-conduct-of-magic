@@ -26,6 +26,7 @@ Mocker="*res://mocking/mocker.tscn"
 PlayerManager="*res://globals/player_manager.gd"
 UtilityFunctions="*res://globals/UtilityFunctions.gd"
 EmapUpdateManager="*res://globals/emap_update_manager.gd"
+GameCalendar="*res://globals/game_calendar.gd"
 
 [display]
 

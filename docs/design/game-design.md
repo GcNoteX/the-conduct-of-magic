@@ -379,6 +379,14 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 ### 9.5 Example items
 - **Father's Sword**: an example item from the prototype, not a story commitment.
 
+### 9.6 The wall calendar
+The player keeps a **personal wall calendar** for the apprenticeship year. Planning sheet: [0007](../plans/0007-in-game-calendar.md).
+- It follows the **2026 calendar** with real month names and **no leap years**. The year runs from 1 March 2026 to 28 February 2027.
+- Seasons are **northern-hemisphere**: Spring is March to May, Summer June to August, Autumn September to November, and Winter December to February.
+- It shows **seasonal events**, **application day** and the **acceptance letter**, plus **commission deadlines** and the days **customers said they'd come back**. Character visits don't go on it.
+- It's **not the source of truth**. It shows plans and expectations for the player to look over, and customers and events follow their own rules, so a customer can come back on a different day.
+- Later it may be where the player changes the **work schedule**: how much of a day goes to the workshop and how much to inscribing.
+
 ## 10. Open questions
 
 **Commissions and inspection**
@@ -458,6 +466,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-16 | First build is **carving only**, with **no condition cells** (condition nodes are fine). **Magic-to-magic lines** are drawn while enchanting to chain into enchantment nodes. Nodes that don't chain to an enchantment node are **dead** and ignored on commit (§7.7). |
 | 2026-10-16 | **An edge costs whatever is connected to it, added together**, for every kind of edge (enchantment–enchantment, enchantment–magic, magic–magic). **A material puts the same cost on all its edges** (replacing direction-based runes). |
 | 2026-10-17 | **Commit needs a clean board:** every planned enchantment must be fully active and every line must chain to an enchantment, so a half-done enchantment or a dead chain blocks the commit (§7.7, replacing "dead chains are ignored on commit"). Lines run **cell by cell** and fill their cells, including an enchantment's own lines. |
+| 2026-10-20 | A personal **wall calendar** (§9.6) follows the 2026 calendar with northern seasons and no leap years. It shows seasonal events, application day, the letter, deadlines and expected customer returns, but it isn't the source of truth. It may later hold the work schedule. |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
