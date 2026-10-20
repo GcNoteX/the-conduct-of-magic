@@ -10,7 +10,9 @@ signal quit_to_main_menu_requested
 signal quit_game_requested
 
 const PAUSE_ACTION := &"pause_menu"
-const THEME := preload("res://counter/counter_theme.tres")
+## Borrowed until the project-wide theme replaces it; once that file is gone the menus fall
+## back to the project theme, which defines the same type variations
+const FALLBACK_THEME_PATH := "res://counter/counter_theme.tres"
 const BUTTON_SIZE := Vector2(420, 64)
 
 var _status_label: Label
@@ -19,7 +21,8 @@ var _settings_button: Button
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	theme = THEME
+	if ResourceLoader.exists(FALLBACK_THEME_PATH):
+		theme = load(FALLBACK_THEME_PATH)
 	visible = false
 	_build_ui()
 

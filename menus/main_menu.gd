@@ -3,7 +3,9 @@ extends Control
 
 ## The title screen: continue the saved run, start a new one, open settings or quit.
 
-const THEME := preload("res://counter/counter_theme.tres")
+## Borrowed until the project-wide theme replaces it; once that file is gone the menus fall
+## back to the project theme, which defines the same type variations
+const FALLBACK_THEME_PATH := "res://counter/counter_theme.tres"
 const WOOD_ART := preload("res://counter/art/counter_wood.png")
 const BUTTON_SIZE := Vector2(480, 72)
 const GAME_TITLE := "The Conduct of Magic"
@@ -16,7 +18,8 @@ var _confirm_new: ConfirmationDialog
 
 
 func _ready() -> void:
-	theme = THEME
+	if ResourceLoader.exists(FALLBACK_THEME_PATH):
+		theme = load(FALLBACK_THEME_PATH)
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	_build_ui()
 	refresh()
