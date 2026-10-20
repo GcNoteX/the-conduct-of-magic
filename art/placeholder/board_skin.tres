@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="BoardSkin" format=3]
+[gd_resource type="Resource" script_class="BoardSkin" format=3 uid="uid://bsgot8dr3882m"]
 
-[ext_resource type="Script" path="res://inscribing/board_skin.gd" id="1_skin"]
-[ext_resource type="Texture2D" path="res://art/placeholder/cell_steel.png" id="2_cell"]
-[ext_resource type="Texture2D" path="res://art/placeholder/item_outline.png" id="3_outline"]
-[ext_resource type="Texture2D" path="res://art/placeholder/magic_node_tiles.png" id="4_magic"]
-[ext_resource type="Texture2D" path="res://art/placeholder/ember_well.png" id="5_well"]
-[ext_resource type="Texture2D" path="res://art/placeholder/enchantment_socket.png" id="6_socket"]
-[ext_resource type="Texture2D" path="res://art/placeholder/enchantment_big_node_2x2.png" id="7_big"]
-[ext_resource type="Texture2D" path="res://art/placeholder/rune_line.png" id="8_line"]
+[ext_resource type="Script" uid="uid://flm0xtg7q61t" path="res://inscribing/board_skin.gd" id="1_skin"]
+[ext_resource type="Texture2D" uid="uid://cqbg2gwu8yecy" path="res://art/placeholder/cell_steel.png" id="2_cell"]
+[ext_resource type="Texture2D" uid="uid://bw4bdqje8x5be" path="res://art/placeholder/item_outline.png" id="3_outline"]
+[ext_resource type="Texture2D" uid="uid://cdlq8vhp44041" path="res://art/placeholder/magic_node_tiles.png" id="4_magic"]
+[ext_resource type="Texture2D" uid="uid://8dw6rmn1lnwn" path="res://art/placeholder/ember_well.png" id="5_well"]
+[ext_resource type="Texture2D" uid="uid://bdv2o0p56cvwu" path="res://art/placeholder/enchantment_socket.png" id="6_socket"]
+[ext_resource type="Texture2D" uid="uid://ipxiodcflups" path="res://art/placeholder/enchantment_big_node_2x2.png" id="7_big"]
+[ext_resource type="Texture2D" uid="uid://csvp6udih5nqt" path="res://art/placeholder/rune_line.png" id="8_line"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_water"]
 atlas = ExtResource("4_magic")

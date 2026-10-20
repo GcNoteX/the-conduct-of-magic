@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="HexMapDefinition" format=3 uid="uid://bv0xcetii5vlb"]
+
+[ext_resource type="Script" uid="uid://dli7lulxgf2hr" path="res://disenchanting/rune_set.gd" id="1_olx5x"]
+[ext_resource type="Script" uid="uid://mlcx5ldhi81m" path="res://inscribing/hex_map_definition.gd" id="2_oq1j0"]
+
+[sub_resource type="Resource" id="Resource_olx5x"]
+script = ExtResource("1_olx5x")
+water = 1
+
+[sub_resource type="Resource" id="Resource_oq1j0"]
+script = ExtResource("1_olx5x")
+water = 1
+
+[sub_resource type="Resource" id="Resource_tsubr"]
+script = ExtResource("1_olx5x")
+water = 1
+fire = 1
+
+[sub_resource type="Resource" id="Resource_hw2xf"]
+script = ExtResource("1_olx5x")
+water = 1
+fire = 1
+
+[resource]
+script = ExtResource("2_oq1j0")
+layout = PackedStringArray("########", "########", "#######M", "########", "########", "M#####..", "######..")
+magic_edge_runes = Array[ExtResource("1_olx5x")]([SubResource("Resource_olx5x"), SubResource("Resource_oq1j0")])
+magic_harvest_runes = Array[ExtResource("1_olx5x")]([SubResource("Resource_tsubr"), SubResource("Resource_hw2xf")])
+metadata/_custom_type_script = "uid://mlcx5ldhi81m"
