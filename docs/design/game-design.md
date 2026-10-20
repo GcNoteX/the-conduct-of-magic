@@ -150,10 +150,8 @@ Options ranked from simplest to most complex, with **when in the game** each cou
 
 **Proposed path:** start with #1, then #2, then make **#4 (calendar pick)** the first real negotiation mechanic, with #5 alongside it. Hold #7 and #8 for later macro levels. Bartering is only overcomplicated in its full form (#7). The simple accept-or-decline version (#5) is cheap and fits the game.
 
-### 5.7 Gifts at pickup
-When an NPC collects a commission, the player can **add an extra gift**, going above and beyond: an inscribed trinket, a book, or a small thing they found.
-- **Every gift has a small visible effect** on the NPC's mood or reputation.
-- **A gift that fits what that person is going through** also sets a **hidden** flag. Its reward stays hidden until it pays off later as a story beat, so a gift given out of care isn't shown as a transaction.
+### 5.7 Items you can give back
+Gifts are **not a system of their own**. Sometimes the player gets an item that they can **give to another character**, and it may or may not be something they can inscribe. These are added for **particular storylines and characters**, not as a general gift mechanic.
 
 ## 6. Rules you inspect against
 
@@ -174,7 +172,7 @@ When the shop closes, the player moves to enchanting:
 2. **Choose an item** you received from a customer or bought yourself.
 3. **Enchant it** (see below).
 
-**Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else.
+**Time is the main pressure.** The enchanting day has a **fixed amount of time** for all your enchanting, so being slow is already a cost. Mistakes cost time even when they cost nothing else. That amount of time is the player's **stamina** (§9.6).
 
 **For playtesting**, the timer just runs continuously, set to about **an hour** for now.
 
@@ -393,9 +391,16 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 
 **University side tasks.** A book (from the bookstore, the peddler or the writer) sets a **technical task**, such as making a cup that stays cold. The player gets the materials, attempts it, and finishing it adds a **resume entry**. The resume is one of the three university requirements (§9.2.2).
 
-**On hold** (to decide alongside the other pressures on the player):
-- **Stamina.** A fixed daily pool of **working and study hours** that sets how much of the day the player can use, with money buying longer days.
-- **Room builds.** Things the player builds for their room that give a boost.
+**Stamina.** Stamina is the night's time budget, and it **replaces a separate night timer**: one budget that commissions and study both draw from.
+- Its **upper limit reflects the night**: the cap is limited by the number of night hours before the next day.
+- **A day that ends customer work earlier starts the night with more stamina.**
+- How the game shows this so the player can count it easily is still open (Q15).
+
+**Home projects.** Room builds are folded into practical inscribing (Q14). Personal home projects **upgrade certain things or unlock certain views**. The game stays very much **not stat-focused**.
+
+**Memory aids.** The player keeps a **resume sheet** and a **letters drawer** that holds what people have said. Neither shows scores.
+
+**Pacing.** Pressures come in **a season at a time**: commissions, time and rules first, rent from the second week, and side tasks from the second season.
 
 ## 10. Open questions
 
@@ -419,7 +424,8 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day?
 12. When does the mentor stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
 13. Disenchanting balance: how do we decide which runes a material puts on the edges it touches, and what it returns when freed?
-14. How is inscribing used practically on the shop side (inspection consumables, shop items, the player's own items and home) without making the game stat-focused?
+14. Which practical inscriptions exist for inspections, the shop, the player's own items and home projects, and what does each upgrade or unlock?
+15. How is stamina shown so the player can count it easily, and are night hours spent per action or do they run down in real time?
 
 ## 11. Decision log
 
@@ -480,7 +486,8 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
 | 2026-10-18 | The mentor's-workshop chapter is a **one-year apprenticeship** with **four seasons**. How play days spread across the year is still open. Story details are in the [story bible](../story/story-bible.md). |
 | 2026-10-18 | **End of the workshop year** (§9.2.2): application day costs money; the university needs money plus Mr. Leywin's recommendation; a closing letter decides the university; the patron and recruiter give business-card-like items; the fail state is no route out of the workshop. |
-| 2026-10-20 | **Gifts at pickup** (§5.7): extra gifts to NPCs collecting commissions, with a visible effect and a hidden reward when the gift fits the person. **Rent** is paid weekly from the allowance plus pay (§9.6). **University side tasks** from books add **resume entries**, and the resume becomes a **third university requirement**, judged in one place from the player's and Mr. Leywin's state (§9.2.2). **Stamina** and **room builds** are on hold; stamina tonics from the potion maker are archived (A.14). |
+| 2026-10-20 | **Rent** is paid weekly from the allowance plus pay (§9.6). **University side tasks** from books add **resume entries**, and the resume becomes a **third university requirement**, judged in one place from the player's and Mr. Leywin's state (§9.2.2). Gifts are **not a system**: items to give back are added per storyline (§5.7). Stamina tonics from the potion maker are archived (A.14). |
+| 2026-10-20 | **Stamina** is the night's time budget and replaces a separate night timer. Its cap is the night hours before the next day, and ending customer work earlier starts the night with more. **Room builds** fold into practical inscribing as **home projects** that upgrade things or unlock views, not stats. A **resume sheet** and **letters drawer** carry what the player must remember. Pressures are introduced **a season at a time** (§9.6). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
