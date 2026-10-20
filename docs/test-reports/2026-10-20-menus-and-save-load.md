@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-20
 **Planning sheet:** None. Gavin asked for this overnight batch to go straight to a PR.
-**PR:** [#PR_NUMBER](https://github.com/GcNoteX/the-conduct-of-magic/pull/PR_NUMBER), stacked on #24 (End-to-end shop loop), which is stacked on #20
+**PR:** [#29](https://github.com/GcNoteX/the-conduct-of-magic/pull/29), stacked on #24 (End-to-end shop loop), which is stacked on #20
 
 ## Branches
 
