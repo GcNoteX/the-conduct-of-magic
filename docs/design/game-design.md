@@ -394,7 +394,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 **Stamina.** Stamina is the night's time budget, and it **replaces a separate night timer**: one budget that commissions and study both draw from.
 - Its **upper limit reflects the night**: the cap is limited by the number of night hours before the next day.
 - **A day that ends customer work earlier starts the night with more stamina.**
-- How the game shows this so the player can count it easily is still open (Q15).
+- **For the spike**, stamina is shown as a **yellow progress bar**. The final display is still open (Q15).
 
 **Home projects.** Room builds are folded into practical inscribing (Q14). Personal home projects **upgrade certain things or unlock certain views**. The game stays very much **not stat-focused**.
 
@@ -488,6 +488,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-18 | **End of the workshop year** (§9.2.2): application day costs money; the university needs money plus Mr. Leywin's recommendation; a closing letter decides the university; the patron and recruiter give business-card-like items; the fail state is no route out of the workshop. |
 | 2026-10-20 | **Rent** is paid weekly from the allowance plus pay (§9.6). **University side tasks** from books add **resume entries**, and the resume becomes a **third university requirement**, judged in one place from the player's and Mr. Leywin's state (§9.2.2). Gifts are **not a system**: items to give back are added per storyline (§5.7). Stamina tonics from the potion maker are archived (A.14). |
 | 2026-10-20 | **Stamina** is the night's time budget and replaces a separate night timer. Its cap is the night hours before the next day, and ending customer work earlier starts the night with more. **Room builds** fold into practical inscribing as **home projects** that upgrade things or unlock views, not stats. A **resume sheet** and **letters drawer** carry what the player must remember. Pressures are introduced **a season at a time** (§9.6). |
+| 2026-10-20 | For the spike, stamina shows as a **yellow progress bar** (§9.6). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
