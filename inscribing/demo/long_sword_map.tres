@@ -1,0 +1,101 @@
+[gd_resource type="Resource" script_class="HexMapDefinition" format=3 uid="uid://c25h00tujlydu"]
+
+[ext_resource type="Script" uid="uid://dli7lulxgf2hr" path="res://disenchanting/rune_set.gd" id="1_tgrye"]
+[ext_resource type="Script" uid="uid://mlcx5ldhi81m" path="res://inscribing/hex_map_definition.gd" id="2_xlbaf"]
+
+[sub_resource type="Resource" id="Resource_tgrye"]
+script = ExtResource("1_tgrye")
+wind = 1
+
+[sub_resource type="Resource" id="Resource_xlbaf"]
+script = ExtResource("1_tgrye")
+water = 1
+
+[sub_resource type="Resource" id="Resource_v85v2"]
+script = ExtResource("1_tgrye")
+fire = 1
+
+[sub_resource type="Resource" id="Resource_xnvx3"]
+script = ExtResource("1_tgrye")
+stone = 1
+
+[sub_resource type="Resource" id="Resource_2t2uh"]
+script = ExtResource("1_tgrye")
+fire = 1
+
+[sub_resource type="Resource" id="Resource_gbpot"]
+script = ExtResource("1_tgrye")
+water = 1
+
+[sub_resource type="Resource" id="Resource_l30pr"]
+script = ExtResource("1_tgrye")
+stone = 1
+
+[sub_resource type="Resource" id="Resource_qccac"]
+script = ExtResource("1_tgrye")
+wind = 1
+
+[sub_resource type="Resource" id="Resource_eqm4i"]
+script = ExtResource("1_tgrye")
+stone = 1
+
+[sub_resource type="Resource" id="Resource_nuwt4"]
+script = ExtResource("1_tgrye")
+water = 1
+
+[sub_resource type="Resource" id="Resource_60n5t"]
+script = ExtResource("1_tgrye")
+wind = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_4ywjw"]
+script = ExtResource("1_tgrye")
+water = 1
+fire = 1
+
+[sub_resource type="Resource" id="Resource_b1qeq"]
+script = ExtResource("1_tgrye")
+fire = 1
+wind = 1
+
+[sub_resource type="Resource" id="Resource_6l8ut"]
+script = ExtResource("1_tgrye")
+water = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_4wqvh"]
+script = ExtResource("1_tgrye")
+fire = 1
+wind = 1
+
+[sub_resource type="Resource" id="Resource_onp0y"]
+script = ExtResource("1_tgrye")
+water = 1
+fire = 1
+
+[sub_resource type="Resource" id="Resource_e4cs5"]
+script = ExtResource("1_tgrye")
+water = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_5v3p7"]
+script = ExtResource("1_tgrye")
+wind = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_amlp0"]
+script = ExtResource("1_tgrye")
+water = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_a7qth"]
+script = ExtResource("1_tgrye")
+water = 1
+fire = 1
+
+[resource]
+script = ExtResource("2_xlbaf")
+map_name = "Long sword"
+layout = PackedStringArray("....#....", "...##....", "...#M#...", "..####...", "..#####..", "..####...", "..M###M..", "..####...", "..##M##..", "..####...", "..M###M..", "..####...", "..##M##..", ".######..", "M#######M", "...##....", "...#M#...")
+magic_edge_runes = Array[ExtResource("1_tgrye")]([SubResource("Resource_tgrye"), SubResource("Resource_xlbaf"), SubResource("Resource_v85v2"), SubResource("Resource_xnvx3"), SubResource("Resource_2t2uh"), SubResource("Resource_gbpot"), SubResource("Resource_l30pr"), SubResource("Resource_qccac"), SubResource("Resource_eqm4i"), SubResource("Resource_nuwt4")])
+magic_harvest_runes = Array[ExtResource("1_tgrye")]([SubResource("Resource_60n5t"), SubResource("Resource_4ywjw"), SubResource("Resource_b1qeq"), SubResource("Resource_6l8ut"), SubResource("Resource_4wqvh"), SubResource("Resource_onp0y"), SubResource("Resource_e4cs5"), SubResource("Resource_5v3p7"), SubResource("Resource_amlp0"), SubResource("Resource_a7qth")])

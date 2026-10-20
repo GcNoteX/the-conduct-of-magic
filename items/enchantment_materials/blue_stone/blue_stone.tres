@@ -1,7 +1,33 @@
-[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" load_steps=3 format=3 uid="uid://edjx4fwr6cr8"]
+[gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" format=3 uid="uid://edjx4fwr6cr8"]
 
 [ext_resource type="Script" uid="uid://buedytf1h1hyg" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_mehnc"]
 [ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="2_3avrx"]
+[ext_resource type="Script" uid="uid://8lwxkf3xu56y" path="res://enchantments/enchantment_conditions/number_of_lines_condition.gd" id="2_pibh0"]
+[ext_resource type="Script" uid="uid://dli7lulxgf2hr" path="res://disenchanting/rune_set.gd" id="3_34hbu"]
+
+[sub_resource type="Resource" id="Resource_34hbu"]
+script = ExtResource("2_pibh0")
+number_of_lines = 1
+
+[sub_resource type="Resource" id="Resource_0yjvu"]
+script = ExtResource("3_34hbu")
+stone = 3
+
+[sub_resource type="Resource" id="Resource_f8f1c"]
+script = ExtResource("3_34hbu")
+stone = 1
+
+[sub_resource type="Resource" id="Resource_o4kp5"]
+script = ExtResource("3_34hbu")
+stone = 2
 
 [resource]
 script = ExtResource("2_3avrx")
+color = Color(0.29411766, 0.37254903, 0.78431374, 1)
+material_attributes = Array[int]([1])
+activation_conditions = Array[ExtResource("1_mehnc")]([SubResource("Resource_34hbu")])
+edge_runes = SubResource("Resource_f8f1c")
+harvest_runes = SubResource("Resource_o4kp5")
+dissolve_runes = SubResource("Resource_0yjvu")
+id = &"blue_stone"
+display_name = "Blue stone"

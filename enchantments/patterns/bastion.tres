@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="Enchantment" format=3 uid="uid://c5fc0aqp8r0qr"]
+
+[ext_resource type="Script" uid="uid://b75h3rc0c0lcw" path="res://enchantments/enchantment_pattern_line.gd" id="1_cy5od"]
+[ext_resource type="Script" uid="uid://crxe5hi2fk1t1" path="res://enchantments/enchantment_pattern_node.gd" id="2_leinb"]
+[ext_resource type="Script" uid="uid://d035ytq6cyi6r" path="res://enchantments/material_condition.gd" id="3_grt5c"]
+[ext_resource type="Script" uid="uid://baq4xd8gsuw7w" path="res://enchantments/enchantment.gd" id="4_hf10y"]
+
+[sub_resource type="Resource" id="Resource_4h8yy"]
+script = ExtResource("1_cy5od")
+from_node = 1
+to_node = 0
+cells = Array[Vector2i]([Vector2i(-1, 0)])
+
+[sub_resource type="Resource" id="Resource_3vqi5"]
+script = ExtResource("1_cy5od")
+to_node = 2
+from_port = 1
+cells = Array[Vector2i]([Vector2i(2, 1)])
+
+[sub_resource type="Resource" id="Resource_35onq"]
+script = ExtResource("1_cy5od")
+from_node = 1
+to_node = 0
+cells = Array[Vector2i]([Vector2i(-1, -1), Vector2i(0, -1)])
+
+[sub_resource type="Resource" id="Resource_ajxrh"]
+script = ExtResource("2_leinb")
+extra_cells = Array[Vector2i]([Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)])
+ports = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 1)])
+
+[sub_resource type="Resource" id="Resource_pbwxt"]
+script = ExtResource("2_leinb")
+offset = Vector2i(-2, 0)
+
+[sub_resource type="Resource" id="Resource_viqb4"]
+script = ExtResource("2_leinb")
+offset = Vector2i(3, 1)
+
+[resource]
+script = ExtResource("4_hf10y")
+enchantment_name = "Bastion"
+effect_description = "Example: a big node with two ports"
+nodes = Array[ExtResource("2_leinb")]([SubResource("Resource_ajxrh"), SubResource("Resource_pbwxt"), SubResource("Resource_viqb4")])
+lines = Array[ExtResource("1_cy5od")]([SubResource("Resource_4h8yy"), SubResource("Resource_3vqi5"), SubResource("Resource_35onq")])

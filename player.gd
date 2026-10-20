@@ -1,7 +1,10 @@
-extends Resource
 class_name Player
+extends Resource
 
 @export var material_inventory: Dictionary[EnchantmentMaterialDefinition, int] = {}
+@export var items: Array[ItemInstance] = []
+@export var known_enchantments: Array[Enchantment] = []
+
 
 func add_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if mat == null:
@@ -11,6 +14,7 @@ func add_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	material_inventory[mat] = material_inventory.get(mat, 0) + amount
 	if material_inventory[mat] <= 0:
 		material_inventory.erase(mat)
+
 
 func remove_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if mat == null:
@@ -24,6 +28,7 @@ func remove_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> voi
 	material_inventory[mat] -= amount
 	if material_inventory[mat] <= 0:
 		material_inventory.erase(mat)
+
 
 func get_material_count(mat: EnchantmentMaterialDefinition) -> int:
 	return material_inventory.get(mat, 0)

@@ -1,0 +1,898 @@
+# gdlint: disable=max-public-methods
+# A rules facade the view and tests query from many angles, so it keeps a wide public API.
+class_name InscriptionBoard
+extends RefCounted
+
+"""
+The rules of carving on one item's hex map. Pure logic, no drawing, so it can be tested headless.
+- Wraps an ItemInstance: its map comes from the definition,
+  its plan and carvings from its GraphState
+- Nodes are addressed by key: "m:q,r" for magic nodes,
+  "e:<placement id>:<node index>" for enchantment nodes
+- Positions are in unit hex space (hex size 1); views scale them
+- Lines run cell by cell between two nodes and fill every cell between them,
+  so "lines can't cross" means "no two lines share a cell"
+- A node can cover several cells. Lines attach only at its ports (its own cell unless the
+  enchantment says otherwise), and all its lines count together: it's still one node
+- Every check_* returns "" when allowed, or a player-facing reason when not
+- Planned materials stay with the item: inserting one into a draft node takes it out of the
+  inventory, and taking it back out (or swapping it) returns it
+"""
+
+var item: ItemInstance
+var map: HexMapDefinition
+var state: GraphState
+## The player's materials. Planning a material moves it from here into the item.
+var inventory: Player
+
+var _cells: Dictionary = {}  ## Vector2i -> true
+var _magic_cells: Array[Vector2i] = []
+var _nodes: Dictionary = {}  ## key -> {kind, cell, cells, placement, index}
+var _cell_to_node: Dictionary = {}  ## Vector2i -> key, for every port cell (where lines attach)
+var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
+var _occupied: Dictionary = {}  ## Vector2i -> LineState, or PlacementState for its fixed lines
+var _extra_cells: Dictionary = {}  ## Vector2i -> key of the node covering it, where it isn't a port
+var _magic_extra_cells: Dictionary[Vector2i, Vector2i] = {}  ## covered cell -> magic node cell
+
+
+func _init(item_instance: ItemInstance, player_inventory: Player) -> void:
+	item = item_instance
+	inventory = player_inventory
+	var def := item.definition as EnchantableItemDefinition
+	assert(
+		def and def.map_template,
+		"InscriptionBoard needs an EnchantableItemDefinition with a map_template"
+	)
+	map = def.map_template
+	if item.enchantment_graph_state == null:
+		item.enchantment_graph_state = GraphState.new()
+	state = item.enchantment_graph_state
+	for c in map.get_cells():
+		_cells[c] = true
+	_magic_cells = map.get_magic_nodes()
+	_magic_extra_cells = map.magic_node_extra_cells
+	_fit_to_patterns()
+	_rebuild()
+	if _fit_lines_to_ports():
+		_rebuild()
+
+
+#
+# ── Keys and lookups ─────────────────────────────
+#
+static func magic_key(cell: Vector2i) -> String:
+	return "m:%d,%d" % [cell.x, cell.y]
+
+
+static func enchantment_key(placement_id: int, index: int) -> String:
+	return "e:%d:%d" % [placement_id, index]
+
+
+func get_cells() -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	out.assign(_cells.keys())
+	return out
+
+
+func has_cell(c: Vector2i) -> bool:
+	return _cells.has(c)
+
+
+func get_node_keys() -> Array[String]:
+	var out: Array[String] = []
+	out.assign(_nodes.keys())
+	return out
+
+
+func has_node(key: String) -> bool:
+	return _nodes.has(key)
+
+
+## The node with a port (where lines attach) in `cell`, or ""
+func node_at(cell: Vector2i) -> String:
+	return _cell_to_node.get(cell, "")
+
+
+## The node covering `cell`, by any of its cells, or ""
+func node_covering(cell: Vector2i) -> String:
+	return _cell_to_node.get(cell, _extra_cells.get(cell, ""))
+
+
+func node_cell(key: String) -> Vector2i:
+	return _nodes[key].cell
+
+
+## Every cell the node covers: its own cell first, then its extra cells
+func node_cells(key: String) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	out.assign(_nodes[key].cells)
+	return out
+
+
+## The cells where lines attach to the node
+func node_ports(key: String) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for c in _nodes[key].cells:
+		if _cell_to_node.get(c, "") == key:
+			out.append(c)
+	return out
+
+
+## Where the node is drawn, in unit hex space: a magic node at its own cell, an enchantment node
+## in the middle of the cells it covers
+func node_position(key: String) -> Vector2:
+	if is_magic(key):
+		return Hex.to_pixel(_nodes[key].cell, 1.0)
+	var sum := Vector2.ZERO
+	for c in _nodes[key].cells:
+		sum += Hex.to_pixel(c, 1.0)
+	return sum / _nodes[key].cells.size()
+
+
+func is_magic(key: String) -> bool:
+	return _nodes.has(key) and _nodes[key].kind == "magic"
+
+
+func node_placement(key: String) -> PlacementState:
+	return _nodes[key].placement if _nodes.has(key) else null
+
+
+func node_index(key: String) -> int:
+	return _nodes[key].index if _nodes.has(key) else -1
+
+
+func node_material(key: String) -> EnchantmentMaterialDefinition:
+	var p := node_placement(key)
+	return p.materials[node_index(key)] if p else null
+
+
+func node_definition(key: String) -> EnchantmentPatternNode:
+	var p := node_placement(key)
+	return p.enchantment.nodes[node_index(key)] if p else null
+
+
+## The name a node goes by everywhere a player reads it (board labels, plan, tooltips and the
+## solvability report): "M4" for magic node 4, "Keen B" for Keen's second node. Letters follow
+## the enchantment's own node order, so they can't be mistaken for magic node numbers.
+func node_tag(key: String) -> String:
+	if is_magic(key):
+		return "M%d" % map.magic_node_number(node_cell(key))
+	var p := node_placement(key)
+	if p == null:
+		return key
+	return "%s %s" % [placement_name(p), node_letter(node_index(key))]
+
+
+## A, B, C... for an enchantment's first, second, third... node
+static func node_letter(index: int) -> String:
+	return String.chr(65 + index) if index < 26 else str(index + 1)
+
+
+## The enchantment's name, numbered ("Kindle #2") only when the item has more than one of it
+func placement_name(p: PlacementState) -> String:
+	var n := p.enchantment.enchantment_name
+	var same: Array[PlacementState] = []
+	for other in state.placements:
+		if other.enchantment and other.enchantment.enchantment_name == n:
+			same.append(other)
+	return n if same.size() < 2 else "%s #%d" % [n, same.find(p) + 1]
+
+
+func placement_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for n in e.nodes:
+		out.append(origin + Hex.rotate(n.offset, rotation_steps))
+	return out
+
+
+## The extra cells of an enchantment's multi-cell nodes placed this way
+func node_extra_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for n in e.nodes:
+		for c in n.extra_cells:
+			out.append(origin + Hex.rotate(n.offset + c, rotation_steps))
+	return out
+
+
+## The cell of port `port` of node `index` of an enchantment placed this way
+func port_cell(
+	e: Enchantment, origin: Vector2i, rotation_steps: int, index: int, port: int
+) -> Vector2i:
+	var n: EnchantmentPatternNode = e.nodes[index]
+	return origin + Hex.rotate(n.offset + n.port_offsets()[port], rotation_steps)
+
+
+## Each fixed line of an enchantment placed this way, as its full cell path from port to port
+func pattern_line_paths(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array:
+	var out := []
+	for l in e.lines:
+		var path: Array[Vector2i] = [port_cell(e, origin, rotation_steps, l.from_node, l.from_port)]
+		for c in l.cells:
+			path.append(origin + Hex.rotate(c, rotation_steps))
+		path.append(port_cell(e, origin, rotation_steps, l.to_node, l.to_port))
+		out.append(path)
+	return out
+
+
+## Every cell an enchantment placed this way covers: its nodes (with their extra cells)
+## and the cells of its fixed lines
+func footprint(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
+	var out := placement_cells(e, origin, rotation_steps)
+	out.append_array(node_extra_cells(e, origin, rotation_steps))
+	for l in e.lines:
+		for c in l.cells:
+			out.append(origin + Hex.rotate(c, rotation_steps))
+	return out
+
+
+## The placed enchantments' own fixed lines: [{a, b, cells, placement}]
+func fixed_lines() -> Array:
+	var out := []
+	for p in state.placements:
+		var paths := pattern_line_paths(p.enchantment, p.origin, p.rotation_steps)
+		for i in paths.size():
+			var l: EnchantmentPatternLine = p.enchantment.lines[i]
+			(
+				out
+				. append(
+					{
+						"a": enchantment_key(p.id, l.from_node),
+						"b": enchantment_key(p.id, l.to_node),
+						"cells": paths[i],
+						"placement": p,
+					}
+				)
+			)
+	return out
+
+
+## The drawn line filling `cell` (a cell between nodes), or null
+func line_at(cell: Vector2i) -> LineState:
+	return _occupied.get(cell) as LineState
+
+
+func is_occupied(cell: Vector2i) -> bool:
+	return _occupied.has(cell)
+
+
+#
+# ── Graph queries (drawn lines only) ─────────────
+#
+func line_count(key: String) -> int:
+	return _adjacency.get(key, []).size()
+
+
+## Every node reachable from `key` through drawn lines, including `key`
+func component(key: String) -> Array[String]:
+	var seen := {key: true}
+	var stack: Array[String] = [key]
+	while not stack.is_empty():
+		var k: String = stack.pop_back()
+		for n in _adjacency.get(k, []):
+			if not seen.has(n):
+				seen[n] = true
+				stack.append(n)
+	var out: Array[String] = []
+	out.assign(seen.keys())
+	return out
+
+
+func reachable_magic_nodes(key: String) -> Array[String]:
+	var out: Array[String] = []
+	for k in component(key):
+		if k != key and is_magic(k):
+			out.append(k)
+	return out
+
+
+## Placement ids an enchantment-node-free chain would bind to, plus the node's own placement
+func _bound_placements(key: String) -> Dictionary:
+	var out := {}
+	for k in component(key):
+		var p := node_placement(k)
+		if p:
+			out[p.id] = p
+	return out
+
+
+## A magic node (or line) that doesn't chain to any enchantment node is dead.
+## Dead draft lines block a commit.
+func is_dead(key: String) -> bool:
+	return _bound_placements(key).is_empty()
+
+
+func is_line_dead(l: LineState) -> bool:
+	return is_dead(l.a)
+
+
+func is_node_committed(key: String) -> bool:
+	var p := node_placement(key)
+	if p:
+		return p.committed
+	for bound in _bound_placements(key).values():
+		if bound.committed:
+			return true
+	return false
+
+
+#
+# ── Placing enchantments ─────────────────────────
+#
+func check_place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> String:
+	if e == null or e.nodes.is_empty():
+		return "That enchantment has no shape yet"
+	var seen := {}
+	for c in footprint(e, origin, rotation_steps):
+		if not _cells.has(c):
+			return "It doesn't fit inside the item"
+		if seen.has(c):
+			return "The enchantment's shape overlaps itself"
+		seen[c] = true
+		if node_covering(c) != "":
+			return "It overlaps another node"
+		if _occupied.has(c):
+			return "A line runs through there"
+	return ""
+
+
+func place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> PlacementState:
+	if check_place(e, origin, rotation_steps) != "":
+		return null
+	var p := PlacementState.new()
+	p.id = state.next_placement_id
+	state.next_placement_id += 1
+	p.enchantment = e
+	p.origin = origin
+	p.rotation_steps = posmod(rotation_steps, 6)
+	p.materials.resize(e.nodes.size())
+	state.placements.append(p)
+	_rebuild()
+	return p
+
+
+func check_remove_placement(p: PlacementState) -> String:
+	if p.committed:
+		return "Committed carvings are removed by disenchanting"
+	return ""
+
+
+## Takes a draft enchantment off the item, with its lines. Its planned materials go back to the
+## inventory.
+func remove_placement(p: PlacementState) -> String:
+	var err := check_remove_placement(p)
+	if err != "":
+		return err
+	for m in p.materials:
+		if m:
+			inventory.add_material(m)
+	_erase_placement(p)
+	return ""
+
+
+## Removes a committed enchantment and every line in its chain, leaving its cells free.
+## Its materials are used up. Only a committed disenchant does this (see DisenchantBoard).
+func remove_carving(p: PlacementState) -> void:
+	var chain := {}
+	for i in p.enchantment.nodes.size():
+		for k in component(enchantment_key(p.id, i)):
+			chain[k] = true
+	for l in state.lines.duplicate():
+		if chain.has(l.a) or chain.has(l.b):
+			state.lines.erase(l)
+	_erase_placement(p)
+
+
+#
+# ── Drawing lines ────────────────────────────────
+#
+## Whether a line may start on the node in `cell`
+func check_line_start(cell: Vector2i) -> String:
+	var key := node_at(cell)
+	if key == "":
+		if node_covering(cell) != "":
+			return "Lines attach to this node at its ports"
+		return "Lines start on a node"
+	if is_node_committed(key):
+		return "That node is part of a committed carving"
+	return ""
+
+
+## Whether a line being drawn along `path` (starting on a node) may step into `next`.
+## Stepping onto a node finishes the line, so the two end nodes are checked then.
+func check_step(path: Array[Vector2i], next: Vector2i) -> String:
+	if path.is_empty():
+		return "Lines start on a node"
+	var start_err := check_line_start(path[0])
+	if start_err != "":
+		return start_err
+	var last: Vector2i = path.back()
+	if path.size() > 1 and node_at(last) != "":
+		return "The line already ends on a node"
+	var cell_err := _check_step_cell(path, next)
+	if cell_err != "":
+		return cell_err
+	var end_key := node_at(next)
+	if end_key != "":
+		return _check_ends(node_at(path[0]), end_key)
+	return ""
+
+
+## Whether `cells` is a whole line: from one node, cell by cell, to another node
+func check_line(cells: Array[Vector2i]) -> String:
+	if cells.size() < 2:
+		return "Draw from one node to another"
+	var path: Array[Vector2i] = [cells[0]]
+	for i in range(1, cells.size()):
+		var err := check_step(path, cells[i])
+		if err != "":
+			return err
+		path.append(cells[i])
+	if node_at(cells.back()) == "":
+		return "Lines have to end on a node"
+	return ""
+
+
+func add_line(cells: Array[Vector2i]) -> LineState:
+	if check_line(cells) != "":
+		return null
+	var l := LineState.new()
+	l.a = node_at(cells[0])
+	l.b = node_at(cells.back())
+	l.cells.assign(cells)
+	state.lines.append(l)
+	_rebuild()
+	return l
+
+
+## The draft line most recently drawn onto a node, or null
+func last_draft_line(key: String) -> LineState:
+	for i in range(state.lines.size() - 1, -1, -1):
+		var l: LineState = state.lines[i]
+		if not l.committed and (l.a == key or l.b == key):
+			return l
+	return null
+
+
+func find_line(a: String, b: String) -> LineState:
+	for l in state.lines:
+		if (l.a == a and l.b == b) or (l.a == b and l.b == a):
+			return l
+	return null
+
+
+func remove_line(l: LineState) -> String:
+	if l.committed:
+		return "Committed lines are cut by disenchanting"
+	state.lines.erase(l)
+	_rebuild()
+	return ""
+
+
+#
+# ── Materials ────────────────────────────────────
+#
+func check_insert(key: String, m: EnchantmentMaterialDefinition) -> String:
+	var p := node_placement(key)
+	if p == null:
+		return "Materials go into enchantment nodes"
+	if p.committed:
+		return "That carving is already committed"
+	if not node_definition(key).accepts(m):
+		return "This node accepts %s" % node_definition(key).describe_requirements()
+	if node_material(key) != m and inventory.get_material_count(m) <= 0:
+		return "You don't have another %s" % material_name(m)
+	return ""
+
+
+## Moves `m` from the inventory into the draft node, returning any material it held
+func insert_material(key: String, m: EnchantmentMaterialDefinition) -> String:
+	var err := check_insert(key, m)
+	if err != "" or node_material(key) == m:
+		return err
+	remove_material(key)
+	inventory.remove_material(m)
+	node_placement(key).materials[node_index(key)] = m
+	return ""
+
+
+## Takes the material out of a draft node and returns it to the inventory
+func remove_material(key: String) -> EnchantmentMaterialDefinition:
+	var p := node_placement(key)
+	if p == null or p.committed:
+		return null
+	var m: EnchantmentMaterialDefinition = p.materials[node_index(key)]
+	p.materials[node_index(key)] = null
+	if m:
+		inventory.add_material(m)
+	return m
+
+
+## How many of a material this item's plans hold (carving drafts and planned dissolves)
+func planned_count(m: EnchantmentMaterialDefinition) -> int:
+	return state.planned_materials().get(m, 0)
+
+
+#
+# ── Activation ───────────────────────────────────
+#
+func is_node_active(key: String) -> bool:
+	var m := node_material(key)
+	if m == null:
+		return false
+	var ctx := MaterialActivationContext.for_board(self, key)
+	for c in m.activation_conditions:
+		if c and not c.is_fulfilled(ctx):
+			return false
+	return true
+
+
+## [[description, fulfilled, progress], ...] for the material in the node
+func condition_status(key: String) -> Array:
+	var out := []
+	var m := node_material(key)
+	if m == null:
+		return out
+	var ctx := MaterialActivationContext.for_board(self, key)
+	for c in m.activation_conditions:
+		if c:
+			out.append([c.describe(), c.is_fulfilled(ctx), c.progress(ctx)])
+	return out
+
+
+func is_placement_active(p: PlacementState) -> bool:
+	for i in p.enchantment.nodes.size():
+		if not is_node_active(enchantment_key(p.id, i)):
+			return false
+	return true
+
+
+#
+# ── Commit ───────────────────────────────────────
+#
+## Draft enchantments that are fully activated and would be committed now
+func commit_candidates() -> Array[PlacementState]:
+	var out: Array[PlacementState] = []
+	for p in state.placements:
+		if not p.committed and is_placement_active(p):
+			out.append(p)
+	return out
+
+
+## Draft enchantments that aren't fully activated yet. Any of these blocks a commit.
+func inactive_drafts() -> Array[PlacementState]:
+	var out: Array[PlacementState] = []
+	for p in state.placements:
+		if not p.committed and not is_placement_active(p):
+			out.append(p)
+	return out
+
+
+## Draft lines in chains that don't reach an enchantment node. Any of these blocks a commit.
+func dead_lines() -> Array[LineState]:
+	var out: Array[LineState] = []
+	for l in state.lines:
+		if not l.committed and is_line_dead(l):
+			out.append(l)
+	return out
+
+
+## You can only commit a clean board: every draft enchantment active and every line connected
+func check_commit() -> String:
+	if not dead_lines().is_empty():
+		return "Some magic nodes aren't connected to an enchantment. Connect or remove them first"
+	var inactive := inactive_drafts()
+	if not inactive.is_empty():
+		var names: Array[String] = []
+		for p in inactive:
+			names.append(p.enchantment.enchantment_name)
+		return "Every planned enchantment has to be active to commit. Not yet: " + ", ".join(names)
+	if commit_candidates().is_empty():
+		return "Plan and activate an enchantment before committing"
+	return ""
+
+
+## Commits every draft enchantment (all must be active) with the lines chained to it.
+## Its materials, already held by the item, are used up.
+func commit() -> Array[PlacementState]:
+	var done: Array[PlacementState] = []
+	if check_commit() != "":
+		return done
+	done = commit_candidates()
+	var ids := {}
+	for p in done:
+		p.committed = true
+		ids[p.id] = true
+	for l in state.lines:
+		for bound in _bound_placements(l.a):
+			if ids.has(bound):
+				l.committed = true
+	return done
+
+
+func committed_placements() -> Array[PlacementState]:
+	var out: Array[PlacementState] = []
+	for p in state.placements:
+		if p.committed:
+			out.append(p)
+	return out
+
+
+## An item's name as the item picker shows it, like "Long sword #4"
+static func item_name(inst: ItemInstance) -> String:
+	if inst.definition == null:
+		return str(inst.id)
+	var n := inst.definition.display_name
+	if n == "":
+		n = str(inst.definition.id)
+	var id := str(inst.id)
+	var number := id.get_slice("_", id.get_slice_count("_") - 1)
+	return "%s #%s" % [n, number] if number.is_valid_int() else n
+
+
+static func material_name(m: EnchantmentMaterialDefinition) -> String:
+	if m == null:
+		return "nothing"
+	if m.display_name != "":
+		return m.display_name
+	return str(m.id) if m.id != &"" else m.resource_path.get_file().get_basename()
+
+
+#
+# ── Enchantment shapes ───────────────────────────
+#
+## Why an enchantment's own shape is broken, or "" when it's sound. Checked unrotated at the origin:
+## the first node sits on the origin, no two cells overlap, each port is one of its node's cells,
+## and each fixed line runs cell by cell between ports of two different nodes. Unlike drawn lines,
+## a shape may join the same two nodes more than once, as long as each line takes its own cells.
+static func check_shape(e: Enchantment) -> String:
+	if e == null or e.nodes.is_empty():
+		return "That enchantment has no shape yet"
+	if e.nodes[0].offset != Vector2i.ZERO:
+		return "The first node has to sit on the origin cell"
+	var taken := {}  ## Vector2i -> what takes it, for messages
+	for i in e.nodes.size():
+		var n: EnchantmentPatternNode = e.nodes[i]
+		for c in n.covered_offsets():
+			if taken.has(n.offset + c):
+				return "Node %d overlaps %s" % [i, taken[n.offset + c]]
+			taken[n.offset + c] = "node %d" % i
+		var seen := {}
+		for port in n.ports:
+			if port not in n.covered_offsets():
+				return "Node %d: its port %s isn't one of its cells" % [i, port]
+			if seen.has(port):
+				return "Node %d: the port %s is listed twice" % [i, port]
+			seen[port] = true
+	var joined := {}
+	for i in e.lines.size():
+		var err := _check_shape_line(e, i, taken, joined)
+		if err != "":
+			return "Line %d: %s" % [i, err]
+	return ""
+
+
+static func _check_shape_line(
+	e: Enchantment, i: int, taken: Dictionary, joined: Dictionary
+) -> String:
+	var l: EnchantmentPatternLine = e.lines[i]
+	var count := e.nodes.size()
+	if l.from_node < 0 or l.from_node >= count or l.to_node < 0 or l.to_node >= count:
+		return "it has to join two of the enchantment's nodes"
+	if l.from_node == l.to_node:
+		return "it has to join two different nodes"
+	var from: EnchantmentPatternNode = e.nodes[l.from_node]
+	var to: EnchantmentPatternNode = e.nodes[l.to_node]
+	if l.from_port < 0 or l.from_port >= from.port_offsets().size():
+		return "node %d has no port %d" % [l.from_node, l.from_port]
+	if l.to_port < 0 or l.to_port >= to.port_offsets().size():
+		return "node %d has no port %d" % [l.to_node, l.to_port]
+	var path: Array[Vector2i] = [from.offset + from.port_offsets()[l.from_port]]
+	path.append_array(l.cells)
+	path.append(to.offset + to.port_offsets()[l.to_port])
+	# Two nodes can be joined by more than one line, each through its own cells. Lines with no
+	# cells between the same two ports would be the same line.
+	if l.cells.is_empty():
+		var ends := [path[0], path.back()]
+		ends.sort()
+		if joined.has(ends):
+			return "it runs the same way as line %d" % joined[ends]
+		joined[ends] = i
+	for j in range(1, path.size()):
+		if Hex.distance(path[j - 1], path[j]) != 1:
+			return "its cells have to run from node to node, each next to the one before"
+	for c in l.cells:
+		if taken.has(c):
+			return "it runs over %s" % taken[c]
+		taken[c] = "line %d" % i
+	return ""
+
+
+#
+# ── Internals ────────────────────────────────────
+#
+func _rebuild() -> void:
+	_nodes.clear()
+	_cell_to_node.clear()
+	_adjacency.clear()
+	_extra_cells.clear()
+	for c in _magic_cells:
+		var k := magic_key(c)
+		var cells: Array[Vector2i] = [c]
+		_nodes[k] = {"kind": "magic", "cell": c, "cells": cells, "placement": null, "index": -1}
+		_cell_to_node[c] = k
+	for c in _magic_extra_cells:
+		var k := magic_key(_magic_extra_cells[c])
+		if _nodes.has(k):
+			_nodes[k].cells.append(c)
+			_extra_cells[c] = k
+	for p in state.placements:
+		for i in p.enchantment.nodes.size():
+			_add_enchantment_node(p, i)
+	for l in state.lines:
+		if not _adjacency.has(l.a):
+			_adjacency[l.a] = []
+		if not _adjacency.has(l.b):
+			_adjacency[l.b] = []
+		_adjacency[l.a].append(l.b)
+		_adjacency[l.b].append(l.a)
+	_occupied.clear()
+	for l in state.lines:
+		for i in range(1, l.cells.size() - 1):
+			_occupied[l.cells[i]] = l
+	for p in state.placements:
+		for l in p.enchantment.lines:
+			for c in l.cells:
+				_occupied[p.origin + Hex.rotate(c, p.rotation_steps)] = p
+
+
+## Fits saved placements to their enchantments' current shapes. An enchantment re-baked with more
+## or fewer nodes leaves older carvings and plans (like the demo's pre-carved sword) with one
+## material slot per old node: this gives each node exactly one slot, returns a draft's extra
+## materials to the inventory, and drops lines and planned cuts at nodes that no longer exist.
+func _fit_to_patterns() -> void:
+	var gone := {}  ## node keys that no longer exist
+	for p in state.placements:
+		var count := p.enchantment.nodes.size() if p.enchantment else 0
+		if p.materials.size() == count:
+			continue
+		push_warning(
+			(
+				"%s changed shape since it was planned on %s: %d nodes now, %d saved"
+				% [_placement_name(p), item.definition.display_name, count, p.materials.size()]
+			)
+		)
+		for i in range(count, p.materials.size()):
+			gone[enchantment_key(p.id, i)] = true
+			if p.materials[i] and not p.committed and inventory:
+				inventory.add_material(p.materials[i])
+		p.materials.resize(count)
+	if gone.is_empty():
+		return
+	for l in state.lines.duplicate():
+		if gone.has(l.a) or gone.has(l.b):
+			state.lines.erase(l)
+	for s in state.disenchant_plan.duplicate():
+		if s.kind == DisenchantStep.Kind.CUT and (gone.has(s.a) or gone.has(s.b)):
+			state.disenchant_plan.erase(s)
+
+
+## The second half of fitting saved placements, once the nodes are built: drops drawn lines that
+## no longer end at their nodes' ports or that now run through a node (an enchantment re-baked
+## with bigger nodes or moved ports), and planned cuts of lines that no
+## longer exist (like a second line between two nodes the shape no longer has). Returns true when
+## anything was dropped.
+func _fit_lines_to_ports() -> bool:
+	var dropped := false
+	for l in state.lines.duplicate():
+		if _line_fits(l):
+			continue
+		push_warning(
+			(
+				"A line from %s to %s on %s no longer fits its nodes' ports, so it was taken off"
+				% [node_tag(l.a), node_tag(l.b), item.definition.display_name]
+			)
+		)
+		state.lines.erase(l)
+		dropped = true
+	var counts := {}  ## edge key (first line) -> number of committed lines between its two nodes
+	for f in fixed_lines():
+		if f.placement.committed:
+			var k := DisenchantBoard.edge_key(f.a, f.b)
+			counts[k] = counts.get(k, 0) + 1
+	for l in state.lines:
+		if l.committed:
+			var k := DisenchantBoard.edge_key(l.a, l.b)
+			counts[k] = counts.get(k, 0) + 1
+	for s in state.disenchant_plan.duplicate():
+		if s.kind == DisenchantStep.Kind.CUT:
+			if s.line >= counts.get(DisenchantBoard.edge_key(s.a, s.b), 0):
+				state.disenchant_plan.erase(s)
+				dropped = true
+	return dropped
+
+
+## Whether a saved drawn line still ends at a port of each of its nodes and runs between them
+## without crossing a node. Ends at nodes the map no longer has are left alone, so a map that
+## isn't baked yet doesn't lose an item's lines.
+func _line_fits(l: LineState) -> bool:
+	if l.cells.size() < 2:
+		return false
+	for end in [[l.a, l.cells[0]], [l.b, l.cells.back()]]:
+		if _nodes.has(end[0]) and _cell_to_node.get(end[1], "") != end[0]:
+			return false
+	for i in range(1, l.cells.size() - 1):
+		if node_covering(l.cells[i]) != "":
+			return false
+	return true
+
+
+static func _placement_name(p: PlacementState) -> String:
+	return p.enchantment.enchantment_name if p.enchantment else "An enchantment"
+
+
+func _add_enchantment_node(p: PlacementState, i: int) -> void:
+	var k := enchantment_key(p.id, i)
+	var n: EnchantmentPatternNode = p.enchantment.nodes[i]
+	var cells: Array[Vector2i] = []
+	for c in n.covered_offsets():
+		cells.append(p.origin + Hex.rotate(n.offset + c, p.rotation_steps))
+	_nodes[k] = {
+		"kind": "enchantment", "cell": cells[0], "cells": cells, "placement": p, "index": i
+	}
+	var ports := n.port_offsets()
+	for j in cells.size():
+		if n.covered_offsets()[j] in ports:
+			_cell_to_node[cells[j]] = k
+		else:
+			_extra_cells[cells[j]] = k
+
+
+func _erase_placement(p: PlacementState) -> void:
+	var prefix := "e:%d:" % p.id
+	for l in state.lines.duplicate():
+		if l.a.begins_with(prefix) or l.b.begins_with(prefix):
+			state.lines.erase(l)
+	state.placements.erase(p)
+	_rebuild()
+
+
+func _check_step_cell(path: Array[Vector2i], next: Vector2i) -> String:
+	var last: Vector2i = path.back()
+	if Hex.distance(last, next) != 1:
+		return "Lines go from a cell to its neighbour"
+	if not _cells.has(next):
+		return "Lines have to stay inside the item"
+	if next in path:
+		return "A line can't cross itself"
+	return _taken_reason(next)
+
+
+## Why a line can't run through `cell` because something already takes it, or ""
+func _taken_reason(cell: Vector2i) -> String:
+	if _extra_cells.has(cell):
+		if is_magic(_extra_cells[cell]):
+			return "A magic node covers this cell"
+		return "An enchantment node covers this cell"
+	var owner: Variant = _occupied.get(cell)
+	if owner is LineState:
+		return "Another line runs through here"
+	if owner is PlacementState:
+		return "An enchantment's own line runs through here"
+	return ""
+
+
+func _check_ends(a: String, b: String) -> String:
+	if a == b:
+		return "Draw from one node to another"
+	if find_line(a, b):
+		return "Those nodes are already connected"
+	for f in fixed_lines():
+		if (f.a == a and f.b == b) or (f.a == b and f.b == a):
+			return "Those nodes are already connected"
+	if is_node_committed(b):
+		return "That node is part of a committed carving"
+	var bound := _bound_placements(a)
+	bound.merge(_bound_placements(b))
+	if bound.size() > 1:
+		return "Enchantments can't share magic nodes"
+	return ""
