@@ -9,10 +9,9 @@ signal pressed(payload: Resource)
 ## A double-click; the table uses it to dissolve a material in Disenchant mode
 signal double_clicked(payload: Resource)
 
-const COLOR_BG := WorkshopPalette.CARD
-const COLOR_BG_HOVER := WorkshopPalette.CARD_HOVER
 const COLOR_ENCHANTMENT := Color("9b8fd1")
-const COLOR_SUBTITLE := WorkshopPalette.TEXT_DIM
+## How wide the accent stripe down a card's left edge is
+const ACCENT_WIDTH := 4
 
 ## The Enchantment or EnchantmentMaterialDefinition this card hands out
 var payload: Resource
@@ -24,7 +23,8 @@ var draggable := true:
 	set(value):
 		draggable = value
 		mouse_default_cursor_shape = Control.CURSOR_DRAG if value else Control.CURSOR_ARROW
-var _style := StyleBoxFlat.new()
+var _style: StyleBox
+var _hover_style: StyleBox
 var _dragging := false
 
 
@@ -39,16 +39,13 @@ func _init(
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	mouse_default_cursor_shape = Control.CURSOR_DRAG
 	custom_minimum_size = Vector2(150, 56)
-	_style.bg_color = COLOR_BG
-	_style.border_color = accent()
-	_style.border_width_left = 4
-	_style.set_corner_radius_all(6)
-	_style.set_content_margin_all(8)
+	_style = _accented(UiStyles.CARD_PANEL)
+	_hover_style = _accented(UiStyles.CARD_PANEL_HOVER)
 	add_theme_stylebox_override("panel", _style)
 	if is_dimmed:
 		modulate = Color(1, 1, 1, 0.45)
-	mouse_entered.connect(func(): _style.bg_color = COLOR_BG_HOVER)
-	mouse_exited.connect(func(): _style.bg_color = COLOR_BG)
+	mouse_entered.connect(func(): add_theme_stylebox_override("panel", _hover_style))
+	mouse_exited.connect(func(): add_theme_stylebox_override("panel", _style))
 
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 8)
@@ -65,10 +62,20 @@ func _init(
 	text.add_child(name_label)
 	var sub := Label.new()
 	sub.text = subtitle_text
-	sub.add_theme_font_size_override("font_size", 12)
-	sub.add_theme_color_override("font_color", COLOR_SUBTITLE)
+	sub.theme_type_variation = UiStyles.CAPTION_LABEL
 	sub.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text.add_child(sub)
+
+
+## The theme's card style with this card's accent colour down its left edge
+func _accented(type_name: StringName) -> StyleBox:
+	var style := WorkshopPalette.theme_stylebox(type_name)
+	var flat := style as StyleBoxFlat
+	if flat:
+		flat.set_border_width_all(0)
+		flat.border_width_left = ACCENT_WIDTH
+		flat.border_color = accent()
+	return style
 
 
 ## A material's own art when it has some, otherwise the enchantment's shape (or a colour swatch)

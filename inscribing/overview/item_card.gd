@@ -8,19 +8,11 @@ extends PanelContainer
 
 signal pressed
 
-const COLOR_BG := WorkshopPalette.CARD
-const COLOR_BG_HOVER := WorkshopPalette.CARD_HOVER
-const COLOR_BORDER := WorkshopPalette.BORDER
 ## The mark on a card whose item holds planned materials
-const COLOR_HOLDING := WorkshopPalette.BRASS
-const COLOR_TEXT := WorkshopPalette.TEXT
-const COLOR_TEXT_DIM := WorkshopPalette.TEXT_DIM
+const COLOR_HOLDING := Color(0.96, 0.82, 0.46)
 const CARD_WIDTH := 320.0
 const THUMBNAIL_SIZE := Vector2(304, 170)
-const BORDER_WIDTH := 2
 const HOLDING_BORDER_WIDTH := 3
-const CORNER_RADIUS := 8
-const PADDING := 8
 const NAME_FONT_SIZE := 18
 const ICON_SIZE := Vector2(32, 32)
 const NOTHING := "nothing"
@@ -31,13 +23,12 @@ const HELD_FOR_DISENCHANTING := "Held for disenchanting: %s"
 const HOLDING_MARK := "Holding materials"
 const NO_MATERIALS_YET := "no materials yet"
 const TOOLTIP_INDENT := "    "
-const COLOR_TOOLTIP := WorkshopPalette.TOOLTIP
-const TOOLTIP_PADDING := 10
 
 var item: ItemInstance
 var item_name: String
 
-var _style := StyleBoxFlat.new()
+var _style: StyleBox
+var _hover_style: StyleBox
 
 
 func _init(inst: ItemInstance, display_name: String) -> void:
@@ -47,14 +38,11 @@ func _init(inst: ItemInstance, display_name: String) -> void:
 	mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	custom_minimum_size.x = CARD_WIDTH
 	tooltip_text = tooltip()
-	_style.bg_color = COLOR_BG
-	_style.border_color = COLOR_HOLDING if is_holding() else COLOR_BORDER
-	_style.set_border_width_all(HOLDING_BORDER_WIDTH if is_holding() else BORDER_WIDTH)
-	_style.set_corner_radius_all(CORNER_RADIUS)
-	_style.set_content_margin_all(PADDING)
+	_style = _card_style(UiStyles.CARD_PANEL)
+	_hover_style = _card_style(UiStyles.CARD_PANEL_HOVER)
 	add_theme_stylebox_override("panel", _style)
-	mouse_entered.connect(func() -> void: _style.bg_color = COLOR_BG_HOVER)
-	mouse_exited.connect(func() -> void: _style.bg_color = COLOR_BG)
+	mouse_entered.connect(func() -> void: add_theme_stylebox_override("panel", _hover_style))
+	mouse_exited.connect(func() -> void: add_theme_stylebox_override("panel", _style))
 	_build()
 
 
@@ -78,7 +66,8 @@ func summary() -> Array[String]:
 	return out
 
 
-## [[text, colour], ...]: carvings and plans dimmed when there are none, held materials marked
+## [[text, theme type variation], ...]: carvings and plans dimmed when there are none, held
+## materials marked
 func _summary_rows() -> Array:
 	var rows := []
 	for pair in [[CARVED, carved_enchantments(item)], [PLANNED, planned_enchantments(item)]]:
@@ -86,7 +75,7 @@ func _summary_rows() -> Array:
 		rows.append(
 			[
 				pair[0] % describe_enchantments(list),
-				COLOR_TEXT_DIM if list.is_empty() else COLOR_TEXT
+				UiStyles.CAPTION_LABEL if list.is_empty() else &""
 			]
 		)
 	for pair in [
@@ -95,7 +84,7 @@ func _summary_rows() -> Array:
 	]:
 		var held: Dictionary[EnchantmentMaterialDefinition, int] = pair[1]
 		if not held.is_empty():
-			rows.append([pair[0] % describe_materials(held), COLOR_HOLDING])
+			rows.append([pair[0] % describe_materials(held), UiStyles.TAG_LABEL])
 	return rows
 
 
@@ -131,13 +120,7 @@ func tooltip() -> String:
 ## The tooltip in the table's tooltip style, with the item's name in bold
 func _make_custom_tooltip(for_text: String) -> Object:
 	var panel := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = COLOR_TOOLTIP
-	style.border_color = COLOR_BORDER
-	style.set_border_width_all(1)
-	style.set_corner_radius_all(CORNER_RADIUS)
-	style.set_content_margin_all(TOOLTIP_PADDING)
-	panel.add_theme_stylebox_override("panel", style)
+	panel.theme_type_variation = UiStyles.DARK_TOOLTIP_PANEL
 	var label := RichTextLabel.new()
 	label.bbcode_enabled = true
 	label.fit_content = true
@@ -221,6 +204,16 @@ static func _enchantments(placements: Array[PlacementState]) -> Array[Enchantmen
 	return out
 
 
+## The theme's card style, edged in brass when the item holds planned materials
+func _card_style(type_name: StringName) -> StyleBox:
+	var style := WorkshopPalette.theme_stylebox(type_name)
+	var flat := style as StyleBoxFlat
+	if flat and is_holding():
+		flat.border_color = COLOR_HOLDING
+		flat.set_border_width_all(HOLDING_BORDER_WIDTH)
+	return style
+
+
 func _build() -> void:
 	var box := VBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -242,7 +235,7 @@ func _build() -> void:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	if is_holding():
 		var mark := _label(header, HOLDING_MARK)
-		mark.add_theme_color_override("font_color", COLOR_HOLDING)
+		mark.theme_type_variation = UiStyles.TAG_LABEL
 	var thumbnail := ItemThumbnail.new()
 	thumbnail.item = item
 	thumbnail.custom_minimum_size = THUMBNAIL_SIZE
@@ -251,7 +244,7 @@ func _build() -> void:
 	for row in _summary_rows():
 		var l := _label(box, row[0])
 		l.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		l.add_theme_color_override("font_color", row[1])
+		l.theme_type_variation = row[1]
 
 
 func _label(parent: Control, text: String) -> Label:

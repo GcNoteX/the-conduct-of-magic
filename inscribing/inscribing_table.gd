@@ -764,7 +764,6 @@ func _build_ui() -> void:
 	_rune_bar = RuneBar.new()
 	top.add_child(_rune_bar)
 	_name_key = Label.new()
-	_name_key.add_theme_color_override("font_color", WorkshopPalette.TEXT)
 	_name_key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name_key.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	top.add_child(_name_key)
@@ -816,7 +815,7 @@ func _build_ui() -> void:
 	_message_label = Label.new()
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message_label.custom_minimum_size.y = 60
-	_message_label.add_theme_color_override("font_color", WorkshopPalette.BRASS)
+	_message_label.theme_type_variation = UiStyles.TAG_LABEL
 	right.add_child(_message_label)
 	_plan_panel = DisenchantPlanPanel.new()
 	_plan_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -833,7 +832,7 @@ func _build_ui() -> void:
 	_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tooltip.top_level = true
 	_tooltip.visible = false
-	_tooltip.add_theme_stylebox_override("panel", WorkshopPalette.tooltip_style())
+	_tooltip.theme_type_variation = UiStyles.DARK_TOOLTIP_PANEL
 	_tooltip_label = RichTextLabel.new()
 	_tooltip_label.bbcode_enabled = true
 	_tooltip_label.fit_content = true
@@ -846,9 +845,6 @@ func _build_ui() -> void:
 func _panel(parent: Control, width: float) -> VBoxContainer:
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = width
-	panel.add_theme_stylebox_override(
-		"panel", WorkshopPalette.panel_style(WorkshopPalette.PANEL, 12.0, 0)
-	)
 	parent.add_child(panel)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)

@@ -232,12 +232,7 @@ func _build_ui() -> void:
 	var bar := PanelContainer.new()
 	bar.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	bar.custom_minimum_size.y = BAR_HEIGHT
-	var bar_style := StyleBoxFlat.new()
-	bar_style.bg_color = WorkshopPalette.PANEL
-	bar_style.border_color = WorkshopPalette.BORDER
-	bar_style.border_width_bottom = 2
-	bar_style.set_content_margin_all(8)
-	bar.add_theme_stylebox_override("panel", bar_style)
+	bar.theme_type_variation = UiStyles.BAR_PANEL
 	add_child(bar)
 	_clock_label = Label.new()
 	_clock_label.add_theme_font_size_override("font_size", 20)
@@ -248,7 +243,7 @@ func _build_ui() -> void:
 	_day_over.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_day_over.mouse_filter = Control.MOUSE_FILTER_STOP
 	var dim := StyleBoxFlat.new()
-	dim.bg_color = WorkshopPalette.DIM
+	dim.bg_color = Color(0, 0, 0, 0.6)
 	_day_over.add_theme_stylebox_override("panel", dim)
 	_day_over.visible = false
 	add_child(_day_over)
@@ -256,9 +251,6 @@ func _build_ui() -> void:
 	_day_over.add_child(centre)
 	var card := PanelContainer.new()
 	card.custom_minimum_size = Vector2(820, 760)
-	card.add_theme_stylebox_override(
-		"panel", WorkshopPalette.panel_style(WorkshopPalette.PANEL, 20.0)
-	)
 	centre.add_child(card)
 	var box := VBoxContainer.new()
 	card.add_child(box)

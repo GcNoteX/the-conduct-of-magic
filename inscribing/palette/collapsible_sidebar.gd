@@ -23,12 +23,6 @@ func _init() -> void:
 	custom_minimum_size.x = WIDTH + HANDLE_WIDTH
 
 	_panel = PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = WorkshopPalette.PANEL_SEE_THROUGH
-	style.border_color = WorkshopPalette.BORDER
-	style.border_width_right = 2
-	style.set_content_margin_all(10)
-	_panel.add_theme_stylebox_override("panel", style)
 	_panel.anchor_bottom = 1.0
 	_panel.offset_right = WIDTH
 	add_child(_panel)
