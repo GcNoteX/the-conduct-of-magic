@@ -4,7 +4,7 @@ extends RefCounted
 ## Opens the settings menu over another menu, once a settings scene exists at SCENE_PATH.
 ## The settings scene closes itself with a `closed` signal, or by hiding.
 
-const SCENE_PATH := "res://menus/settings_menu.tscn"
+const SCENE_PATH := "res://settings/settings_menu.tscn"
 const CLOSED_SIGNAL := &"closed"
 
 

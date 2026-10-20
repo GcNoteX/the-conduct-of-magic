@@ -42,7 +42,7 @@ Acceptance criteria:
 - [ ] `tests/test_save_load.tscn` passes 46 checks.
 
 ## Known gaps
-- **Settings:** the Settings button appears on both menus once the Settings menu thread adds `res://menus/settings_menu.tscn`. Until then it is hidden.
+- **Settings:** the Settings button appears on both menus once the Settings menu thread adds `res://settings/settings_menu.tscn`. Until then it is hidden.
 - **One save slot.** New game replaces it.
 - **Not saved:** which item the table had open (it reopens on the first item), anything held in the hand, and the wall calendar's date and notes. The calendar isn't driven by the day loop yet, so there's nothing to keep in step.
 - **Where the save lives:** `user://saves/run.tres`. On Windows that's `%APPDATA%\Godot\app_userdata\The Conduct of Magic\saves\`. Delete it to get a fresh start.
