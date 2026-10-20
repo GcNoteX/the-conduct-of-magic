@@ -58,9 +58,16 @@ func _init(inscription_board: InscriptionBoard) -> void:
 #
 # ── Lines and their runes ────────────────────────
 #
-## The key of the line between two nodes, the same whichever end comes first
-static func edge_key(a: String, b: String) -> String:
-	return "%s|%s" % [a, b] if a < b else "%s|%s" % [b, a]
+## The key of the line between two nodes, the same whichever end comes first. `which` tells apart
+## lines joining the same two nodes (an enchantment's shape can have more than one), from 0.
+static func edge_key(a: String, b: String, which := 0) -> String:
+	var key := "%s|%s" % [a, b] if a < b else "%s|%s" % [b, a]
+	return key if which == 0 else "%s#%d" % [key, which]
+
+
+## The key of the line a CUT step cuts
+static func step_edge_key(s: DisenchantStep) -> String:
+	return edge_key(s.a, s.b, s.line)
 
 
 ## Every committed line, by edge key
@@ -134,52 +141,48 @@ func find_carving(placement_id: int) -> PlacementState:
 	return null
 
 
-## A short player-facing name for a node, like "Kindle's Fire stone" or "magic node 3"
+## A node's name, the same one drawn on the board in Disenchant mode: "M4" for magic node 4,
+## "Keen B" for Keen's second node (see InscriptionBoard.node_tag)
 func node_label(node_key: String) -> String:
-	if board.is_magic(node_key):
-		return "magic node %d" % board.map.magic_node_number(board.node_cell(node_key))
-	var p := board.node_placement(node_key)
-	return (
-		"%s's %s"
-		% [
-			p.enchantment.enchantment_name,
-			InscriptionBoard.material_name(board.node_material(node_key))
-		]
-	)
+	return board.node_tag(node_key)
 
 
-## A full name for a node, like "Kindle node 1 (Fire stone)" or "magic node 3". Enchantment nodes
-## count from 1 in the enchantment's own order; magic nodes use the numbers drawn on the board.
+## A node's name with what it holds, like "Keen B (Blue stone)" or "M4 (magic node 4)"
 func node_name(node_key: String) -> String:
 	if board.is_magic(node_key):
-		return node_label(node_key)
-	var p := board.node_placement(node_key)
+		return (
+			"%s (magic node %d)"
+			% [node_label(node_key), board.map.magic_node_number(board.node_cell(node_key))]
+		)
 	return (
-		"%s node %d (%s)"
-		% [
-			p.enchantment.enchantment_name,
-			node_key.get_slice(":", 2).to_int() + 1,
-			InscriptionBoard.material_name(board.node_material(node_key))
-		]
+		"%s (%s)"
+		% [node_label(node_key), InscriptionBoard.material_name(board.node_material(node_key))]
 	)
 
 
-## A full name for a line, like "Kindle node 1 (Fire stone) to magic node 3"
+## A line's name, from one end node to the other, like "Keen B – M10". When an enchantment's
+## shape joins the same two nodes more than once, each says which it is: "Bastion A – Bastion B
+## (line 2)".
 func edge_name(key: String) -> String:
 	var ends := edge_ends(key)
-	return "%s to %s" % [node_name(ends[0]), node_name(ends[1])]
+	return _line_name(ends[0], ends[1], _edges[key].which)
 
 
-## A short player-facing description of a step, like "Cut Kindle's Fire stone to magic node"
+## What a carving's enchantment is called on this item ("Kindle", or "Kindle #2" for a second one)
+func carving_name(p: PlacementState) -> String:
+	return board.placement_name(p)
+
+
+## A short player-facing description of a step, like "Cut Keen B – M10"
 func describe_step(s: DisenchantStep) -> String:
 	match s.kind:
 		DisenchantStep.Kind.CUT:
-			return "Cut %s to %s" % [node_label(s.a), node_label(s.b)]
+			return "Cut %s" % _line_name(s.a, s.b, s.line)
 		DisenchantStep.Kind.DISSOLVE:
 			return "Dissolve %s" % InscriptionBoard.material_name(s.material)
 		_:
 			var p := find_carving(s.placement_id)
-			return "Pull out %s" % (p.enchantment.enchantment_name if p else "an enchantment")
+			return "Pull out %s" % (carving_name(p) if p else "an enchantment")
 
 
 #
@@ -252,7 +255,7 @@ func is_cut_planned(key: String) -> bool:
 func planned_step_of_edge(key: String) -> int:
 	var plan := state.disenchant_plan
 	for i in plan.size():
-		if plan[i].kind == DisenchantStep.Kind.CUT and edge_key(plan[i].a, plan[i].b) == key:
+		if plan[i].kind == DisenchantStep.Kind.CUT and step_edge_key(plan[i]) == key:
 			return i
 	return -1
 
@@ -277,8 +280,13 @@ func check_cut(key: String) -> String:
 func plan_cut(key: String) -> String:
 	var err := check_cut(key)
 	if err == "":
-		state.disenchant_plan.append(DisenchantStep.cut(_edges[key].a, _edges[key].b))
+		state.disenchant_plan.append(cut_step(key))
 	return err
+
+
+## A new step that cuts the line `key`
+func cut_step(key: String) -> DisenchantStep:
+	return DisenchantStep.cut(_edges[key].a, _edges[key].b, _edges[key].which)
 
 
 func check_dissolve(m: EnchantmentMaterialDefinition) -> String:
@@ -364,7 +372,7 @@ func check_commit() -> String:
 	for s in state.disenchant_plan:
 		if s.kind != DisenchantStep.Kind.CUT:
 			continue
-		var p := edge_placement(edge_key(s.a, s.b))
+		var p := edge_placement(step_edge_key(s))
 		if p == null:
 			continue
 		var n := p.enchantment.enchantment_name
@@ -396,7 +404,7 @@ func commit() -> Array[PlacementState]:
 # ── Internals ────────────────────────────────────
 #
 func _replay_cut(o: Outcome, runes: RuneSet, cut: Dictionary, left: Dictionary) -> void:
-	var key := edge_key(o.step.a, o.step.b)
+	var key := step_edge_key(o.step)
 	if not _edges.has(key):
 		o.error = "That line isn't part of a committed carving"
 		return
@@ -461,9 +469,20 @@ func _rebuild() -> void:
 		_chains[p.id] = keys
 
 
+## "Keen B – M10", with "(line 2)" when more than one line joins the two nodes
+func _line_name(a: String, b: String, which: int) -> String:
+	var text := "%s – %s" % [node_label(a), node_label(b)]
+	if which > 0 or _edges.has(edge_key(a, b, 1)):
+		text += " (line %d)" % (which + 1)
+	return text
+
+
 func _add_edge(a: String, b: String, cells: Array[Vector2i]) -> void:
-	var key := edge_key(a, b)
-	_edges[key] = {"a": a, "b": b, "cells": cells, "placement": null}
+	var which := 0
+	while _edges.has(edge_key(a, b, which)):
+		which += 1
+	var key := edge_key(a, b, which)
+	_edges[key] = {"a": a, "b": b, "which": which, "cells": cells, "placement": null}
 	for n in [a, b]:
 		if not _node_edges.has(n):
 			_node_edges[n] = []

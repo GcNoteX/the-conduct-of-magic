@@ -36,7 +36,7 @@ const DISENCHANT_LEGEND := (
 	+ "[color=#ff7a3d]fire[/color], [color=#bfeccb]wind[/color] and "
 	+ "[color=#b49a74]stone[/color] runes. Planned cuts show their step number, red when "
 	+ "you can't afford them. A green ring marks a node that pays out in the plan. "
-	+ "Magic nodes show their number.\n"
+	+ "Nodes show their names: M4 is magic node 4, Keen B is Keen's second node.\n"
 	+ "Hover a node or line for its runes."
 )
 const LAYOUT_NAMES: Array[String] = [
@@ -46,6 +46,14 @@ const LAYOUT_NAMES: Array[String] = [
 @export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
 ## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
 @export var solvability_check: SolvabilityCheck
+## The art the board is drawn with (sheet 0006)
+@export var board_skin: BoardSkin = preload("res://art/placeholder/board_skin.tres")
+## Draw the board with board_skin's art; untick to compare with the flat drawing
+@export var use_art: bool = true:
+	set(value):
+		use_art = value
+		if _view:
+			_view.skin = board_skin if use_art else null
 
 var player: Player
 var board: InscriptionBoard
@@ -75,6 +83,9 @@ var _disenchant_button: Button
 var _rune_bar: RuneBar
 var _plan_panel: DisenchantPlanPanel
 var _legend: RichTextLabel
+## The Disenchant-mode key to node names, above the board
+var _name_key: Label
+var _overview: ItemOverview
 
 
 func _ready() -> void:
@@ -83,8 +94,15 @@ func _ready() -> void:
 	PlayerManager.set_player(player)
 	time_left = setup.day_length_seconds
 	_build_ui()
+	_build_overview()
 	_set_layout(Layout.SIDEBAR)
 	_refresh_items()
+	# Opening an item fits its saved carvings to the enchantments' current shapes. Doing it for
+	# every item now hands any extra planned materials back to the player, and the item overview
+	# then shows each item as it will open.
+	for inst in player.items:
+		if inst.enchantment_graph_state:
+			InscriptionBoard.new(inst, player)
 	if not player.items.is_empty():
 		_item_picker.select(0)
 		_open_item(0)
@@ -217,6 +235,8 @@ func _on_card_drag_started(payload: Resource) -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if _handle_overview_key(event as InputEventKey):
+		return
 	if _layout and not _day_over.visible and _layout.handle_key(event as InputEventKey):
 		get_viewport().set_input_as_handled()
 
@@ -307,8 +327,8 @@ func _commit_disenchant() -> void:
 	_set_message(
 		(
 			(
-				"Pulled out %s. Its cells are free again, the dissolved materials are used up and "
-				% ", ".join(names)
+				"Pulled out %s. %s cells are free again, the dissolved materials are used up and "
+				% [" and ".join(names), "Its" if names.size() == 1 else "Their"]
 			)
 			+ "leftover runes disperse."
 		)
@@ -348,6 +368,8 @@ func _refresh_all() -> void:
 func _refresh_mode() -> void:
 	var on := is_disenchanting()
 	_rune_bar.visible = on
+	_name_key.visible = on
+	_name_key.text = _name_key_text()
 	_plan_panel.visible = on
 	var texts := [DISENCHANT_LEGEND, DISENCHANT_HELP] if on else [CARVE_LEGEND, CARVE_HELP]
 	_legend.text = "%s\n\n[b]Working[/b]\n%s" % texts
@@ -536,7 +558,8 @@ func _disenchant_tooltip(key: String) -> String:
 	if disenchant.has_edge(key):
 		var ends := disenchant.edge_ends(key)
 		var text := (
-			"[b]Line[/b] of %s\n" % disenchant.edge_placement(key).enchantment.enchantment_name
+			"[b]Line %s[/b] (part of %s)\n"
+			% [disenchant.edge_name(key), disenchant.carving_name(disenchant.edge_placement(key))]
 		)
 		text += "Cutting costs %s\n" % disenchant.edge_cost(key).describe()
 		for n in ends:
@@ -553,8 +576,7 @@ func _disenchant_tooltip(key: String) -> String:
 		return text
 	if not board.has_node(key) or disenchant.node_edges(key).is_empty():
 		return ""
-	var label := disenchant.node_label(key)
-	var text := "[b]%s%s[/b]\n" % [label.left(1).to_upper(), label.substr(1)]
+	var text := "[b]%s[/b]\n" % disenchant.node_name(key)
 	text += "Puts %s on each of its lines\n" % disenchant.node_edge_runes(key).describe()
 	text += (
 		"Gives back %s when its last line is cut\n" % disenchant.node_harvest_runes(key).describe()
@@ -564,7 +586,7 @@ func _disenchant_tooltip(key: String) -> String:
 	if p:
 		text += (
 			"\nClick to pull %s out once all %d lines of its chain are planned cut."
-			% [p.enchantment.enchantment_name, disenchant.chain(p).size()]
+			% [disenchant.carving_name(p), disenchant.chain(p).size()]
 		)
 	return text
 
@@ -598,12 +620,15 @@ func _material_order() -> Array[EnchantmentMaterialDefinition]:
 
 
 func _item_name(inst: ItemInstance) -> String:
-	var n := (
-		inst.definition.display_name
-		if inst.definition.display_name != ""
-		else str(inst.definition.id)
-	)
-	return "%s #%s" % [n, str(inst.id).get_slice("_", str(inst.id).get_slice_count("_") - 1)]
+	return InscriptionBoard.item_name(inst)
+
+
+## "Labels: M4 = magic node 4 · Keen B = Keen's second node", naming one of this item's carvings
+func _name_key_text() -> String:
+	var example := "Keen"
+	if disenchant and not disenchant.carvings().is_empty():
+		example = disenchant.carving_name(disenchant.carvings().back())
+	return "Labels: M4 = magic node 4 · %s B = %s's second node" % [example, example]
 
 
 func _item_effects(inst: ItemInstance) -> String:
@@ -651,6 +676,48 @@ func _fit_board() -> void:
 
 
 #
+# ── Item overview ────────────────────────────────
+#
+## The Items button beside the item picker, and the overview under the day-over screen
+func _build_overview() -> void:
+	var button := Button.new()
+	button.text = ItemOverview.OPEN_TEXT
+	button.focus_mode = Control.FOCUS_NONE
+	button.pressed.connect(_open_overview)
+	_item_picker.get_parent().add_child(button)
+	_overview = ItemOverview.new()
+	_overview.item_chosen.connect(_on_overview_item_chosen)
+	_overview.close_requested.connect(_overview.close)
+	add_child(_overview)
+	move_child(_overview, _day_over.get_index())
+
+
+func _open_overview() -> void:
+	var names: Array[String] = []
+	for inst in player.items:
+		names.append(_item_name(inst))
+	_tooltip.visible = false
+	_overview.open(player.items, names)
+
+
+## Opens the chosen item the same way the item picker does
+func _on_overview_item_chosen(index: int) -> void:
+	_overview.close()
+	_item_picker.select(index)
+	_on_item_picked(index)
+
+
+func _handle_overview_key(event: InputEventKey) -> bool:
+	if _day_over.visible or not event.pressed or event.echo:
+		return false
+	if event.keycode != ItemOverview.OPEN_KEY:
+		return false
+	_open_overview()
+	get_viewport().set_input_as_handled()
+	return true
+
+
+#
 # ── UI construction ──────────────────────────────
 #
 func _build_ui() -> void:
@@ -692,6 +759,11 @@ func _build_ui() -> void:
 	top.add_child(gap)
 	_rune_bar = RuneBar.new()
 	top.add_child(_rune_bar)
+	_name_key = Label.new()
+	_name_key.add_theme_color_override("font_color", Color("b8b4c4"))
+	_name_key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_name_key.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	top.add_child(_name_key)
 	var board_stack := Control.new()  # The board, with the overlay layouts on top of it
 	board_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	board_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -701,6 +773,7 @@ func _build_ui() -> void:
 	_board_area.resized.connect(_fit_board)
 	board_stack.add_child(_board_area)
 	_view = BoardView.new()
+	_view.skin = board_skin if use_art else null
 	_board_area.view = _view
 	_view.message.connect(_set_message)
 	_view.changed.connect(_on_board_changed)

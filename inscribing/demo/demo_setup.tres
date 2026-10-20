@@ -7,6 +7,7 @@
 [ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="5_xnjl6"]
 [ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="6_f6r6g"]
 [ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="7_15xsu"]
+[ext_resource type="Resource" path="res://enchantments/patterns/bastion.tres" id="19_bastn"]
 [ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="8_fggba"]
 [ext_resource type="Resource" path="res://inscribing/demo/dagger.tres" id="9_5x2an"]
 [ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="10_it10v"]
@@ -30,4 +31,4 @@ ExtResource("17_r54lt"): 1
 })
 items = Array[ExtResource("8_fggba")]([ExtResource("9_5x2an"), ExtResource("10_it10v"), ExtResource("11_iclr1")])
 carved_items = Array[ExtResource("1_ndyfw")]([ExtResource("2_o50qw")])
-enchantments = Array[ExtResource("3_fq3d4")]([ExtResource("4_borej"), ExtResource("5_xnjl6"), ExtResource("6_f6r6g"), ExtResource("7_15xsu")])
+enchantments = Array[ExtResource("3_fq3d4")]([ExtResource("4_borej"), ExtResource("5_xnjl6"), ExtResource("6_f6r6g"), ExtResource("7_15xsu"), ExtResource("19_bastn")])

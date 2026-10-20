@@ -7,11 +7,13 @@ Exits with code 1 if any check fails.
 """
 
 const SWORD := preload("res://tests/fixtures/test_sword.tres")
-const KINDLE := preload("res://enchantments/patterns/kindle.tres")
-const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
-const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
-const RED := preload("res://items/enchantment_materials/red_stone/red_stone.tres")
-const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
+const KINDLE := preload("res://tests/fixtures/enchantments/kindle.tres")
+const FIRE := preload("res://tests/fixtures/materials/fire_stone.tres")
+const WATER := preload("res://tests/fixtures/materials/water_stone.tres")
+const RED := preload("res://tests/fixtures/materials/red_stone.tres")
+const BLUE := preload("res://tests/fixtures/materials/blue_stone.tres")
+const YELLOW := preload("res://tests/fixtures/materials/yellow_stone.tres")
+const PortBoard := preload("res://tests/fixtures/port_board.gd")
 
 var _failures := 0
 var _checks := 0
@@ -25,6 +27,9 @@ func _ready() -> void:
 	test_pull_out_and_commit()
 	test_no_partial_commits()
 	test_planned_dissolves_stay_with_the_item()
+	test_big_node_with_ports()
+	test_parallel_line_names()
+	test_saved_plans_fit_changed_ports()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -289,3 +294,135 @@ func test_planned_dissolves_stay_with_the_item() -> void:
 		"clearing the plan gives everything back"
 	)
 	check(d.check_dissolve(BLUE).begins_with("You don't have"), "can't dissolve what you lack")
+
+
+## A big node is one node: its lines at both ports are its edges, and it's freed (paying its harvest
+## once) when the last of them is cut
+func test_big_node_with_ports() -> void:
+	var player := Player.new()
+	for mat in [FIRE, YELLOW]:
+		player.add_material(mat, 3)
+	var b := PortBoard.board(player)
+	var o := PortBoard.ORIGIN
+	var p := b.place(PortBoard.BASTION, o, 0)
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	b.insert_material(big, FIRE)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 1), YELLOW)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 2), YELLOW)
+	b.add_line(PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(5, 2), o]))
+	b.add_line(PortBoard.path([o + Vector2i(1, 1), Vector2i(5, 5), PortBoard.MAGIC_BELOW]))
+	check(b.commit().size() == 1, "Bastion commits: " + b.check_commit())
+	var d := DisenchantBoard.new(b)
+	check(d.node_edges(big).size() == 5, "the big node's 3 fixed and 2 drawn lines are all its own")
+	check(d.chain(p).size() == 5, "Bastion's chain is its 5 lines")
+	var left := InscriptionBoard.enchantment_key(p.id, 1)
+	var first := DisenchantBoard.edge_key(left, big)
+	var second := DisenchantBoard.edge_key(left, big, 1)
+	check(
+		d.has_edge(first) and d.has_edge(second),
+		"the two lines between the same nodes are two edges"
+	)
+	check(d.edge_cells(first) != d.edge_cells(second), "each with its own cells")
+	check(d.edge_cost(second).equals(d.edge_cost(first)), "and each with its own cost")
+	check(d.plan_cut(second) == "", "the second line can be planned on its own")
+	check(not d.is_cut_planned(first), "without planning the first")
+	check(d.planned_step_of_edge(second) == 0, "the plan finds the right line")
+	check(d.cut_step(second).line == 1, "its step names which of the two lines it cuts")
+	d.undo_last()
+	var steps: Array[DisenchantStep] = []
+	for i in 4:
+		steps.append(DisenchantStep.dissolve(FIRE))
+	steps.append(DisenchantStep.dissolve(YELLOW))
+	steps.append(DisenchantStep.dissolve(YELLOW))
+	for k in d.node_edges(big):
+		steps.append(d.cut_step(k))
+	var outs := d.replay(steps)
+	var freed_at := -1
+	for i in outs.size():
+		check(outs[i].error == "", "step %d can be done: %s" % [i, outs[i].error])
+		if big in outs[i].freed:
+			freed_at = i
+	check(freed_at == outs.size() - 1, "the big node is freed by the cut of its last line")
+
+
+## Bastion committed on the open port board, with a line drawn from each of its big node's ports
+func committed_bastion(player: Player) -> InscriptionBoard:
+	for mat in [FIRE, YELLOW]:
+		player.add_material(mat, 3)
+	var b := PortBoard.board(player)
+	var o := PortBoard.ORIGIN
+	var p := b.place(PortBoard.BASTION, o, 0)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 0), FIRE)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 1), YELLOW)
+	b.insert_material(InscriptionBoard.enchantment_key(p.id, 2), YELLOW)
+	b.add_line(PortBoard.path([PortBoard.MAGIC_ABOVE, Vector2i(5, 2), o]))
+	b.add_line(PortBoard.path([o + Vector2i(1, 1), Vector2i(5, 5), PortBoard.MAGIC_BELOW]))
+	b.commit()
+	return b
+
+
+## Two lines between the same nodes read as "line 1" and "line 2" in the plan and tooltips; a line
+## with no twin keeps its plain name
+func test_parallel_line_names() -> void:
+	var b := committed_bastion(Player.new())
+	var d := DisenchantBoard.new(b)
+	var p := d.carvings()[0]
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	var left := InscriptionBoard.enchantment_key(p.id, 1)
+	var right := InscriptionBoard.enchantment_key(p.id, 2)
+	var first := DisenchantBoard.edge_key(left, big)
+	var second := DisenchantBoard.edge_key(left, big, 1)
+	check(
+		d.edge_name(first).ends_with(" (line 1)"), "the first twin is line 1: " + d.edge_name(first)
+	)
+	check(
+		d.edge_name(second).ends_with(" (line 2)"), "the second is line 2: " + d.edge_name(second)
+	)
+	check(
+		d.describe_step(d.cut_step(second)) == "Cut %s" % d.edge_name(second),
+		"its plan step reads like its name: " + d.describe_step(d.cut_step(second))
+	)
+	check(
+		(
+			d.describe_step(d.cut_step(second)).contains("Bastion A")
+			and d.describe_step(d.cut_step(second)).contains("Bastion B")
+		),
+		"and names both ends by their labels"
+	)
+	var single := DisenchantBoard.edge_key(big, right)
+	check(not d.edge_name(single).contains("(line"), "a single line has no number")
+
+
+## A saved plan made before Bastion's shape changed: its big node's second port moved and one of
+## its two lines to the left node went. Opening the item drops the drawn line that no longer ends
+## at a port and the planned cuts of lines that are gone, and keeps the rest.
+func test_saved_plans_fit_changed_ports() -> void:
+	var player := Player.new()
+	var b := committed_bastion(player)
+	var d := DisenchantBoard.new(b)
+	var p := d.carvings()[0]
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	var left := InscriptionBoard.enchantment_key(p.id, 1)
+	var above := DisenchantBoard.edge_key(InscriptionBoard.magic_key(PortBoard.MAGIC_ABOVE), big)
+	var below := DisenchantBoard.edge_key(big, InscriptionBoard.magic_key(PortBoard.MAGIC_BELOW))
+	for k in [above, below, DisenchantBoard.edge_key(left, big, 1)]:
+		b.state.disenchant_plan.append(d.cut_step(k))
+	var kept := d.cut_step(DisenchantBoard.edge_key(left, big))
+	b.state.disenchant_plan.append(kept)
+	var changed: Enchantment = PortBoard.BASTION.duplicate(true)
+	changed.nodes[0].ports = [Vector2i.ZERO, Vector2i(1, 0)] as Array[Vector2i]
+	changed.lines.remove_at(2)
+	p.enchantment = changed
+	var again := InscriptionBoard.new(b.item, player)
+	check(again.state.lines.size() == 1, "the line at the moved port is taken off")
+	check(
+		again.state.lines[0].cells[0] == PortBoard.MAGIC_ABOVE,
+		"the line at the port that stayed is kept"
+	)
+	var plan := again.state.disenchant_plan
+	check(plan.size() == 2, "the cuts of the two lines that are gone are dropped: %d" % plan.size())
+	var d2 := DisenchantBoard.new(again)
+	var ok := true
+	for s in plan:
+		ok = ok and d2.has_edge(DisenchantBoard.step_edge_key(s))
+	check(ok, "every cut left in the plan names a line that exists")

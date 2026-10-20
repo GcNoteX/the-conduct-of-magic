@@ -10,6 +10,9 @@ const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_s
 ## The long sword's place in the demo player's items (dagger, short sword, long sword, carved)
 const LONG_SWORD := 2
 const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
+const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
+## Seconds to hover before a card's tooltip shows (the default tooltip delay is half a second)
+const TOOLTIP_WAIT := 1.0
 
 var out_dir := "user://"
 var table: Control
@@ -96,6 +99,7 @@ func _ready() -> void:
 	_move(_cell(Vector2i(1, 5)))
 	await _frames(2)
 	_shot("06_active")
+	await _overview()
 
 	# The unconnected chain blocks the commit until it's removed
 	print("commit button: ", table._commit_button.text)
@@ -136,10 +140,45 @@ func _ready() -> void:
 	await _frames(3)
 	_shot("20_lists_disenchant")
 
+	await _replay_checker_plans()
+	await _bastion_ports()
+	_key(ItemOverview.OPEN_KEY)
+	await _frames(3)
+	_shot("28_overview_bastion")
+	_key(KEY_ESCAPE)
+	await _frames(2)
+	await _bastion_parallel_cut()
+	await _art_on_and_off()
+
 	table.time_left = 0.01
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()
+
+
+## The item overview while the long sword holds planned materials: open it with I, hover the
+## long sword's card for its tooltip, click the short sword's card, then go back to the long sword
+func _overview() -> void:
+	_key(ItemOverview.OPEN_KEY)
+	await _frames(3)
+	_shot("21_overview")
+	var cards: Array[ItemCard] = table._overview.cards()
+	_move(cards[LONG_SWORD].get_global_rect().get_center())
+	await get_tree().create_timer(TOOLTIP_WAIT).timeout
+	await _frames(2)
+	_shot("22_overview_tooltip")
+	_click(cards[1].get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print(
+		"overview open: ",
+		table._overview.visible,
+		" opened: ",
+		table._item_picker.get_item_text(table._item_picker.selected)
+	)
+	_shot("23_overview_chose_short_sword")
+	table._item_picker.select(LONG_SWORD)
+	table._open_item(LONG_SWORD)
+	await _frames(2)
 
 
 ## Tries to drag a material the player has none of: no drag starts, and the table says why
@@ -265,8 +304,282 @@ func _disenchant() -> void:
 	_shot("15_own_carving")
 
 
-func _edge_point(a: String, b: String) -> Vector2:
-	var mid := view._edge_middle(DisenchantBoard.edge_key(a, b))
+## The solvability check's plans, done by hand on a fresh pre-carved sword: Kindle alone (sidebar
+## cards), Keen alone (the original lists, double-clicking rows) and both (bottom tray). Each
+## dissolves the named materials, clicks the named lines in order, clicks a node to pull out and
+## presses Commit, then checks the table pulled out exactly what the report said it would.
+func _replay_checker_plans() -> void:
+	var cases := [
+		["kindle", [0], table.Layout.SIDEBAR],
+		["keen", [1], table.Layout.LISTS],
+		["both", [0, 1], table.Layout.BOTTOM_TRAY],
+	]
+	var report_text := ""
+	for c: Array in cases:
+		var carved := _fresh_carved_sword()
+		table._set_layout(c[2])
+		table._item_picker.select(carved)
+		table._open_item(carved)
+		_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+		await _frames(3)
+		var d: DisenchantBoard = table.disenchant
+		var targets: Array[PlacementState] = []
+		for i: int in c[1]:
+			targets.append(d.carvings()[i])
+		var available: Dictionary = table.player.material_inventory.duplicate()
+		if c[0] == "kindle":
+			report_text = SolvabilityCheck.report(d, available)
+			_shot("24_labelled_board")
+		var steps := SolvabilityChecker.new(d).solve(targets, available)[0].steps(targets, d)
+		for s in steps:
+			await _do_step(s, d)
+		var planned: Array[String] = []
+		for s in d.state.disenchant_plan:
+			planned.append(d.describe_step(s))
+		var wanted: Array[String] = []
+		for s in steps:
+			wanted.append(d.describe_step(s))
+		var labels := " and ".join(targets.map(func(p: PlacementState): return d.carving_name(p)))
+		print("checker plan (", labels, ") planned as reported: ", planned == wanted)
+		if planned != wanted:
+			print("  wanted: ", wanted, "\n  got:    ", planned)
+		print("  blocked step: ", d.first_blocked(), " commit check: '", d.check_commit(), "'")
+		if c[0] == "kindle":
+			var k := DisenchantBoard.step_edge_key(steps[4])
+			_move(_edge_point(steps[4].a, steps[4].b, steps[4].line))
+			await _frames(3)
+			print("  tooltip: ", table._tooltip_label.get_parsed_text().get_slice("\n", 0))
+			print(
+				"  plan row 5: ", d.describe_step(d.state.disenchant_plan[4]), " | ", d.edge_name(k)
+			)
+		_shot("25_%s_planned" % c[0])
+		var before: int = d.carvings().size()
+		_click(table._commit_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+		await _frames(3)
+		var left: Array[String] = []
+		for p in table.disenchant.carvings():
+			left.append(table.disenchant.carving_name(p))
+		print(
+			"  committed: pulled out ",
+			before - table.disenchant.carvings().size(),
+			" of ",
+			targets.size(),
+			", still carved: ",
+			left,
+			" message: ",
+			table._message_label.text
+		)
+		_shot("26_%s_committed" % c[0])
+	var f := FileAccess.open(out_dir.path_join("solvability_report.txt"), FileAccess.WRITE)
+	f.store_string(report_text)
+	f.close()
+
+
+## Puts a fresh copy of the pre-carved sword in its slot and the demo materials back. Returns its
+## index.
+func _fresh_carved_sword() -> int:
+	var index: int = table.player.items.size() - 1
+	var fresh: ItemInstance = CARVED.duplicate(true)
+	fresh.id = table.player.items[index].id
+	table.player.items[index] = fresh
+	table.player.material_inventory.clear()
+	for m: EnchantmentMaterialDefinition in table.setup.materials:
+		table.player.add_material(m, table.setup.materials[m])
+	table._refresh_cards()
+	return index
+
+
+## Does one planned step the way a player would: double-click the material (its card, or its row
+## in the original lists), click the line, or click one of the enchantment's nodes
+func _do_step(s: DisenchantStep, d: DisenchantBoard) -> void:
+	match s.kind:
+		DisenchantStep.Kind.DISSOLVE:
+			var lists := table.find_children("*", "MaterialList", true, false).filter(
+				func(n: Node): return not n.is_queued_for_deletion()
+			)
+			if table._layout_picker.selected == table.Layout.LISTS and not lists.is_empty():
+				var list: MaterialList = lists[0]
+				list.item_activated.emit(list.materials.find(s.material))
+			else:
+				_double_click(_card(s.material))
+		DisenchantStep.Kind.CUT:
+			_click(_edge_point(s.a, s.b, s.line), MOUSE_BUTTON_LEFT)
+		_:
+			var key := InscriptionBoard.enchantment_key(s.placement_id, 0)
+			_click(
+				(
+					view.get_global_transform_with_canvas()
+					* view.to_screen(d.board.node_position(key))
+				),
+				MOUSE_BUTTON_LEFT
+			)
+	await _frames(1)
+
+
+## Bastion (the example big node) on the first sword it fits on with room to reach a magic node
+## from each of its big node's two ports, with those two lines drawn by mouse
+func _bastion_ports() -> void:
+	table._set_layout(table.Layout.SIDEBAR)
+	table._set_disenchanting(false)
+	var found := []
+	for item in [1, 2, 0]:
+		if found.is_empty():
+			table._item_picker.select(item)
+			table._open_item(item)
+			await _frames(2)
+			found = _place_bastion()
+	print("bastion placed: ", not found.is_empty())
+	if found.is_empty():
+		return
+	for route in found:
+		_draw_path(route)
+		await _frames(1)
+	var b: InscriptionBoard = table.board
+	var big_key := InscriptionBoard.enchantment_key(b.state.placements.back().id, 0)
+	print("lines at the big node: ", b.line_count(big_key))
+	table._on_board_changed()
+	_move(Vector2(1300, 900))  # Off the board, so no tooltip hides the lines
+	await _frames(2)
+	_shot("27_bastion_ports")
+
+
+## Bastion, placed by _bastion_ports, filled and committed, then in Disenchant mode the second of
+## the two lines joining its left node to its big node planned cut: the plan names it "line 2"
+func _bastion_parallel_cut() -> void:
+	var b: InscriptionBoard = table.board
+	if (
+		b.state.placements.is_empty()
+		or b.state.placements.back().enchantment.enchantment_name != "Bastion"
+	):
+		return
+	var p: PlacementState = b.state.placements.back()
+	_refill_materials()
+	# As in test_disenchant_board: fire in the big node (its two lines meet fire's condition) and
+	# yellow, which always activates, in the two small ones
+	table.player.add_material(YELLOW, 2)
+	for i in p.enchantment.nodes.size():
+		b.insert_material(InscriptionBoard.enchantment_key(p.id, i), FIRE if i == 0 else YELLOW)
+	table._on_board_changed()
+	_click(table._commit_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	print("bastion committed: ", p.committed, " ", table._message_label.text)
+	_refill_materials()
+	_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+	await _frames(2)
+	for m in [FIRE, YELLOW, BLUE]:
+		_double_click(_card(m))
+		await _frames(1)
+	var big := InscriptionBoard.enchantment_key(p.id, 0)
+	var left := InscriptionBoard.enchantment_key(p.id, 1)
+	_click(_edge_point(left, big, 1), MOUSE_BUTTON_LEFT)
+	await _frames(1)
+	var d: DisenchantBoard = table.disenchant
+	for s in d.state.disenchant_plan:
+		print("  bastion plan: ", d.describe_step(s))
+	_move(_edge_point(left, big, 1))
+	await _frames(3)
+	print("  tooltip: ", table._tooltip_label.get_parsed_text().get_slice("\n", 0))
+	_shot("29_bastion_parallel_cut")
+
+
+## The board with its art (sheet 0006) and flat, in both modes: the pre-carved sword in Carve mode
+## while a material is dragged over it (green and red rings), then in Disenchant mode with the
+## solvability check's Kindle plan entered (step numbers, rune chips, labels and green rings)
+func _art_on_and_off() -> void:
+	table._set_layout(table.Layout.SIDEBAR)
+	for art in [true, false]:
+		table.use_art = art
+		var look := "art" if art else "flat"
+		var carved := _fresh_carved_sword()
+		table._set_disenchanting(false)
+		table._item_picker.select(carved)
+		table._open_item(carved)
+		var glow: Enchantment = load("res://enchantments/patterns/glow.tres")
+		var at := Vector2i(-99, -99)
+		for c in table.board.get_cells():
+			if at.x == -99 and table.board.check_place(glow, c, 0) == "":
+				at = c
+		var p: PlacementState = table.board.place(glow, at, 0)
+		print(look, ": placed Glow for the drop rings: ", p != null)
+		table._on_board_changed()
+		var node: Vector2i = table.board.node_cell(InscriptionBoard.enchantment_key(p.id, 0))
+		_start_drag(_card(FIRE))
+		await _frames(2)
+		_move(_cell(node))
+		await _frames(3)
+		_shot("30_%s_carve" % look)
+		_release(_cell(node))
+		await _frames(2)
+		table._on_board_changed()
+		_click(table._disenchant_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT)
+		await _frames(2)
+		var d: DisenchantBoard = table.disenchant
+		var targets: Array[PlacementState] = [d.carvings()[0]]
+		var available: Dictionary = table.player.material_inventory.duplicate()
+		var steps := SolvabilityChecker.new(d).solve(targets, available)[0].steps(targets, d)
+		for s in steps.slice(0, steps.size() - 2):
+			await _do_step(s, d)
+		_move(Vector2(1300, 900))
+		await _frames(3)
+		_shot("31_%s_disenchant" % look)
+	table.use_art = true
+
+
+## Gives the player the demo's starting materials again
+func _refill_materials() -> void:
+	table.player.material_inventory.clear()
+	for m: EnchantmentMaterialDefinition in table.setup.materials:
+		table.player.add_material(m, table.setup.materials[m])
+	table._refresh_cards()
+
+
+## Places Bastion where both its big node's ports can reach a magic node; returns the two routes
+func _place_bastion() -> Array:
+	var bastion: Enchantment = load("res://enchantments/patterns/bastion.tres")
+	var b: InscriptionBoard = table.board
+	for c in b.get_cells():
+		for r in 6:
+			if b.check_place(bastion, c, r) != "":
+				continue
+			var p := b.place(bastion, c, r)
+			var paths := []
+			for port in b.node_ports(InscriptionBoard.enchantment_key(p.id, 0)):
+				var route := _route_to_magic(port, paths)
+				if not route.is_empty():
+					paths.append(route)
+			if paths.size() == 2:
+				return paths
+			b.remove_placement(p)
+	return []
+
+
+## The shortest free route from `start` to a magic node not used by `taken` routes, or []
+func _route_to_magic(start: Vector2i, taken: Array) -> Array:
+	var b: InscriptionBoard = table.board
+	var used := {}
+	for t in taken:
+		for c in t:
+			used[c] = true
+	var prev := {start: start}
+	var queue: Array[Vector2i] = [start]
+	while not queue.is_empty():
+		var at: Vector2i = queue.pop_front()
+		for n in Hex.neighbours(at):
+			if prev.has(n) or used.has(n) or not b.has_cell(n):
+				continue
+			prev[n] = at
+			var route: Array[Vector2i] = [n]
+			while route[0] != start:
+				route.push_front(prev[route[0]])
+			if route.size() > 2 and b.is_magic(b.node_at(n)) and b.check_line(route) == "":
+				return route
+			if b.node_covering(n) == "" and not b.is_occupied(n):
+				queue.append(n)
+	return []
+
+
+func _edge_point(a: String, b: String, which := 0) -> Vector2:
+	var mid := view._edge_middle(DisenchantBoard.edge_key(a, b, which))
 	return view.get_global_transform_with_canvas() * mid
 
 
