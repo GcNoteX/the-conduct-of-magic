@@ -5,11 +5,11 @@ extends Node
 ## Run: godot --headless --path . res://tests/test_item_overview.tscn
 ## Exits with code 1 if any check fails.
 
-const SETUP := preload("res://inscribing/demo/demo_setup.tres")
+const SETUP := preload("res://tests/fixtures/demo_setup.tres")
 const TABLE := preload("res://inscribing/inscribing_table.tscn")
-const KINDLE := preload("res://enchantments/patterns/kindle.tres")
-const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
-## The demo player's items: dagger, short sword, long sword, then the pre-carved long sword
+const KINDLE := preload("res://tests/fixtures/enchantments/kindle.tres")
+const BLUE := preload("res://tests/fixtures/materials/blue_stone.tres")
+## The fixture demo player's items: dagger, short sword, long sword, then the pre-carved long sword
 const DAGGER := 0
 const SHORT_SWORD := 1
 const CARVED := 3

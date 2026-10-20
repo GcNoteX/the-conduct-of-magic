@@ -4,7 +4,7 @@ extends RefCounted
 ## three magic nodes around its big node. Bastion's big node covers ORIGIN, +(1, 0), +(0, 1) and
 ## +(1, 1), with ports at ORIGIN and +(1, 1).
 
-const BASTION := preload("res://enchantments/patterns/bastion.tres")
+const BASTION := preload("res://tests/fixtures/enchantments/bastion.tres")
 const ORIGIN := Vector2i(4, 3)
 ## Two cells up and right of port 0, two cells below port 1, and next to the big node's top
 ## right cell

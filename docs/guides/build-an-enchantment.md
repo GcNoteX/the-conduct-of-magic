@@ -115,4 +115,4 @@ The game reads the baked resource, not the scene. To try a new enchantment on th
 
 ## Check it headless
 
-`godot --headless --path . res://tests/test_scene_bake.tscn` checks that each demo scene (Bastion included) bakes to its shipped resource in `enchantments/patterns/`. `tools/build_demo_content.tscn` regenerates the shipped resources, so a shape changed by hand there has to be baked again from its scene.
+`godot --headless --path . res://tests/test_scene_bake.tscn` checks that each enchantment scene in `enchantments/scenes/` (Bastion included) is baked into its shipped resource in `enchantments/patterns/`. The rule checks use frozen copies in `tests/fixtures/`, so reshaping a demo enchantment never breaks them. `tools/build_demo_content.tscn` regenerates the shipped resources, so a shape changed by hand there has to be baked again from its scene.

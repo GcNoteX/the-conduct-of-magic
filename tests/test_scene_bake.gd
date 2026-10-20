@@ -3,18 +3,26 @@
 extends Node
 
 """
-Headless checks for the authoring scenes: each demo scene bakes to the resource the game ships.
+Headless checks for the authoring scenes: each scene bakes to the resource it belongs to.
+The rule checks run on frozen copies of the demo scenes in tests/fixtures/; the shipped checks
+only check that whatever the demo is now is consistent (each scene bakes to its shipped resource).
 Run: godot --headless --path . res://tests/test_scene_bake.tscn
 Exits with code 1 if any check fails. Bakes go to user://, never over the shipped files.
 """
 
-const TILES := preload("res://inscribing/tiles/hex_map_tiles.tres")
-## The demo swords, smallest first. Each has a map scene and the map resource it bakes to.
+const TILES := preload("res://tests/fixtures/tiles/hex_map_tiles.tres")
+## The fixture swords, smallest first. Each has a map scene and the map resource it bakes to.
 const SWORDS := ["dagger", "short_sword", "long_sword"]
-const SWORD_MAP := preload("res://inscribing/demo/long_sword_map.tres")
-const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
-const DEMO_SETUP := preload("res://inscribing/demo/demo_setup.tres")
+const SWORD_MAP := preload("res://tests/fixtures/items/long_sword_map.tres")
+const CARVED := preload("res://tests/fixtures/carved_demo_sword.tres")
+const DEMO_SETUP := preload("res://tests/fixtures/demo_setup.tres")
 const TABLE := preload("res://inscribing/inscribing_table.tscn")
+## The demo as it ships: the shipped checks read whatever it is now
+const SHIPPED_SETUP := preload("res://inscribing/demo/demo_setup.tres")
+const SHIPPED_MAP_DIRS := ["res://inscribing/demo", "res://items/maps"]
+const SHIPPED_ENCHANTMENT_DIR := "res://enchantments/scenes"
+## Warnings the table gives when it fits a carving saved with an enchantment's older shape
+const FITTING_WARNINGS := ["changed shape", "no longer fits its nodes' ports"]
 const ENCHANTMENTS := ["kindle", "glow", "keen", "ward", "bastion"]
 const CELL_SOURCE := 0
 const MAGIC_SOURCE := 1
@@ -68,6 +76,10 @@ func _ready() -> void:
 	await test_painted_map_runs_on_the_table()
 	await test_empty_map_runs_on_the_table()
 	await test_rebaked_enchantments_run_on_the_table()
+	test_shipped_map_scenes_are_baked()
+	test_shipped_enchantment_scenes_are_baked()
+	test_shipped_enchantments_fit()
+	await test_shipped_demo_runs_on_the_table()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -80,14 +92,14 @@ func check(cond: bool, what: String) -> void:
 
 
 func new_map_scene(file := "long_sword") -> ItemMapScene:
-	var packed: PackedScene = load("res://inscribing/demo/%s_map.tscn" % file)
+	var packed: PackedScene = load("res://tests/fixtures/items/%s_map.tscn" % file)
 	var scene: ItemMapScene = packed.instantiate()
 	add_child(scene)
 	return scene
 
 
 func shipped_map(file: String) -> HexMapDefinition:
-	return load("res://inscribing/demo/%s_map.tres" % file)
+	return load("res://tests/fixtures/items/%s_map.tres" % file)
 
 
 ## A painted tile at (col, row) has to be the game's cell at odd-r offset (col, row)
@@ -246,14 +258,14 @@ func test_map_scene_warnings() -> void:
 
 
 func new_enchantment_scene(file: String) -> EnchantmentScene:
-	var packed: PackedScene = load("res://enchantments/scenes/%s.tscn" % file)
+	var packed: PackedScene = load("res://tests/fixtures/enchantments/scenes/%s.tscn" % file)
 	var scene: EnchantmentScene = packed.instantiate()
 	add_child(scene)
 	return scene
 
 
 func shipped(file: String) -> Enchantment:
-	return load("res://enchantments/patterns/%s.tres" % file)
+	return load("res://tests/fixtures/enchantments/%s.tres" % file)
 
 
 func test_enchantment_scenes_bake() -> void:
@@ -455,7 +467,7 @@ func test_magic_node_tiles() -> void:
 ## The Ember Well is a 2-cell fire magic node scene tile on the short sword: Bake reads its runes
 ## and extra cell from the MagicNodeTile at the scene's root
 func test_magic_node_scene_tile() -> void:
-	var well: MagicNodeTile = load("res://items/maps/magic_nodes/ember_well.tscn").instantiate()
+	var well: MagicNodeTile = load("res://tests/fixtures/tiles/ember_well.tscn").instantiate()
 	check(well.edge_runes.equals(RuneSet.of(0, 1, 0, 0)), "the Ember Well puts 1 fire on its lines")
 	check(well.harvest_runes.equals(RuneSet.of(0, 1, 1, 0)), "and gives back 1 fire and 1 wind")
 	check(well.extra_cells == ([Vector2i(1, 0)] as Array[Vector2i]), "and covers the next cell")
@@ -544,6 +556,11 @@ func run_table(map: HexMapDefinition, carved_item: ItemInstance = null) -> Array
 	setup.items = [item] as Array[EnchantableItemDefinition]
 	setup.carved_items = [carved] as Array[ItemInstance]
 	setup.enchantments = DEMO_SETUP.enchantments
+	return await run_setup(setup)
+
+
+## Opens every item of a setup on the table, as run_table does, and returns the errors raised
+func run_setup(setup: DemoSetup) -> Array[String]:
 	var catcher := ErrorCatcher.new()
 	OS.add_logger(catcher)
 	var table: Control = TABLE.instantiate()
@@ -618,3 +635,109 @@ func test_rebaked_enchantments_run_on_the_table() -> void:
 	for l in gs.lines:
 		dangling = dangling or l.a.begins_with("e:2:2") or l.b.begins_with("e:2:2")
 	check(not dangling, "lines at Keen's removed node are gone")
+
+
+## The .tscn files in a folder (not its subfolders)
+func scenes_in(dir: String) -> Array[String]:
+	var out: Array[String] = []
+	for f in DirAccess.get_files_at(dir):
+		if f.ends_with(".tscn"):
+			out.append(dir.path_join(f))
+	return out
+
+
+## Every map scene the demo ships is baked: its painted tiles give exactly its map resource, with
+## runes for every magic node, and the layout rebuilds from its cells
+func test_shipped_map_scenes_are_baked() -> void:
+	var found := 0
+	for dir: String in SHIPPED_MAP_DIRS:
+		for path in scenes_in(dir):
+			var root := (load(path) as PackedScene).instantiate()
+			var scene := root as ItemMapScene
+			if scene == null:
+				root.free()
+				continue
+			found += 1
+			add_child(scene)
+			var map := scene.map_definition
+			check(map != null, "%s has a map definition" % path)
+			if map != null:
+				check(scene.check_cells() == "", "%s has bakeable cells" % path)
+				check(scene.is_baked(), "%s is baked into %s" % [path, map.resource_path])
+				check(scene.get_problems().is_empty(), "no warnings on %s" % path)
+				var magic := map.get_magic_nodes().size()
+				check(
+					(
+						map.magic_edge_runes.size() == magic
+						and map.magic_harvest_runes.size() == magic
+					),
+					"every magic node on %s has runes" % map.resource_path
+				)
+				check(
+					(
+						HexMapDefinition.layout_from_cells(map.get_cells(), map.get_magic_nodes())
+						== map.layout
+					),
+					"layout_from_cells rebuilds the %s layout" % map.resource_path
+				)
+			scene.free()
+	check(found > 0, "the demo ships map scenes")
+
+
+## Every enchantment scene the demo ships is baked into its enchantment, with a sound shape
+func test_shipped_enchantment_scenes_are_baked() -> void:
+	var found := 0
+	for path in scenes_in(SHIPPED_ENCHANTMENT_DIR):
+		var root := (load(path) as PackedScene).instantiate()
+		var scene := root as EnchantmentScene
+		if scene == null:
+			root.free()
+			continue
+		found += 1
+		add_child(scene)
+		check(scene.enchantment != null, "%s has an enchantment" % path)
+		check(scene.check_shape() == "", "%s has a sound shape: %s" % [path, scene.check_shape()])
+		check(scene.is_baked(), "%s is baked into its enchantment" % path)
+		check(scene.get_problems().is_empty(), "%s has no warnings" % path)
+		if scene.enchantment:
+			check(
+				InscriptionBoard.check_shape(scene.enchantment) == "",
+				"shipped %s passes the shape check" % scene.enchantment.resource_path
+			)
+		scene.free()
+	check(found > 0, "the demo ships enchantment scenes")
+
+
+## Every enchantment the demo player knows fits somewhere on the demo's largest item
+func test_shipped_enchantments_fit() -> void:
+	var largest: EnchantableItemDefinition = null
+	for item: EnchantableItemDefinition in SHIPPED_SETUP.items:
+		if (
+			largest == null
+			or (item.map_template.get_cells().size() > largest.map_template.get_cells().size())
+		):
+			largest = item
+	check(largest != null, "the demo has items")
+	if largest == null:
+		return
+	var inst := ItemInstance.new()
+	inst.definition = largest
+	var b := InscriptionBoard.new(inst, Player.new())
+	for e: Enchantment in SHIPPED_SETUP.enchantments:
+		var fits := false
+		for c in b.get_cells():
+			for r in 6:
+				fits = fits or b.check_place(e, c, r) == ""
+		check(fits, "%s fits on the %s" % [e.enchantment_name, largest.display_name])
+
+
+## The demo as it ships opens every item on the table (carving and disenchanting, hovering every
+## node) with no errors. A pre-carved item saved with an older enchantment shape is fitted to the
+## new shape, which only warns.
+func test_shipped_demo_runs_on_the_table() -> void:
+	var errors := await run_setup(SHIPPED_SETUP)
+	errors = errors.filter(
+		func(e: String) -> bool:
+			return not FITTING_WARNINGS.any(func(w: String) -> bool: return e.contains(w))
+	)
+	check(errors.is_empty(), "the shipped demo runs on the table: %s" % [errors])

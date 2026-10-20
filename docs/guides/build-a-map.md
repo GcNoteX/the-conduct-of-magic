@@ -149,4 +149,4 @@ All the art in the map scenes is placeholder art in `art/placeholder/`, drawn by
 
 ## Check it headless
 
-`godot --headless --path . res://tests/test_scene_bake.tscn` checks that each demo sword scene bakes to its shipped map, that the magic node tiles and the Ember Well carry the right runes, and that the demo swords are clean, symmetric silhouettes. `tools/build_demo_content.tscn` regenerates the demo swords' maps, scenes and items from the layouts written in it.
+`godot --headless --path . res://tests/test_scene_bake.tscn` checks that every map scene the demo ships (in `inscribing/demo/` and `items/maps/`) is baked into its map resource. Its other checks (the magic node tiles and the Ember Well carry the right runes, the swords are clean, symmetric silhouettes) run on frozen copies in `tests/fixtures/`, so painting the demo never breaks them. `tools/build_demo_content.tscn` regenerates the demo swords' maps, scenes and items from the layouts written in it.

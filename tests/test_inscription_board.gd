@@ -7,15 +7,15 @@ Exits with code 1 if any check fails.
 """
 
 const SWORD := preload("res://tests/fixtures/test_sword.tres")
-const KINDLE := preload("res://enchantments/patterns/kindle.tres")
-const GLOW := preload("res://enchantments/patterns/glow.tres")
-const KEEN := preload("res://enchantments/patterns/keen.tres")
-const WARD := preload("res://enchantments/patterns/ward.tres")
-const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
-const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
-const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
+const KINDLE := preload("res://tests/fixtures/enchantments/kindle.tres")
+const GLOW := preload("res://tests/fixtures/enchantments/glow.tres")
+const KEEN := preload("res://tests/fixtures/enchantments/keen.tres")
+const WARD := preload("res://tests/fixtures/enchantments/ward.tres")
+const FIRE := preload("res://tests/fixtures/materials/fire_stone.tres")
+const WATER := preload("res://tests/fixtures/materials/water_stone.tres")
+const BLUE := preload("res://tests/fixtures/materials/blue_stone.tres")
 const PortBoard := preload("res://tests/fixtures/port_board.gd")
-const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+const YELLOW := preload("res://tests/fixtures/materials/yellow_stone.tres")
 
 var _failures := 0
 var _checks := 0
@@ -374,7 +374,7 @@ func test_multi_cell_nodes() -> void:
 ## The short sword's Ember Well covers two cells: lines attach at its own cell only
 func test_bigger_magic_nodes() -> void:
 	var inst := ItemInstance.new()
-	inst.definition = preload("res://inscribing/demo/short_sword.tres")
+	inst.definition = preload("res://tests/fixtures/items/short_sword.tres")
 	var b := InscriptionBoard.new(inst, Player.new())
 	var well := Hex.offset_to_axial(0, 12)
 	var extra := well + Vector2i(1, 0)

@@ -1,19 +1,22 @@
 extends Node
 
 """
-Headless checks for the solvability checker dev tool.
+Headless checks for the solvability checker dev tool. The rule checks run on frozen copies of
+the demo in tests/fixtures/; test_shipped_demo_is_solvable checks the demo as it ships.
 Run: godot --headless --path . res://tests/test_solvability_checker.tscn
 Exits with code 1 if any check fails.
 """
 
-const CARVED := preload("res://inscribing/demo/carved_demo_sword.tres")
-const SWORD := preload("res://inscribing/demo/long_sword.tres")
-const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
-const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
-const RED := preload("res://items/enchantment_materials/red_stone/red_stone.tres")
-const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
-const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+const CARVED := preload("res://tests/fixtures/carved_demo_sword.tres")
+const SWORD := preload("res://tests/fixtures/items/long_sword.tres")
+const FIRE := preload("res://tests/fixtures/materials/fire_stone.tres")
+const WATER := preload("res://tests/fixtures/materials/water_stone.tres")
+const RED := preload("res://tests/fixtures/materials/red_stone.tres")
+const BLUE := preload("res://tests/fixtures/materials/blue_stone.tres")
+const YELLOW := preload("res://tests/fixtures/materials/yellow_stone.tres")
 const PortBoard := preload("res://tests/fixtures/port_board.gd")
+## The demo as it ships: test_shipped_demo_is_solvable reads whatever it is now
+const SHIPPED_SETUP := preload("res://inscribing/demo/demo_setup.tres")
 
 var _failures := 0
 var _checks := 0
@@ -28,6 +31,7 @@ func _ready() -> void:
 	test_plans_commit()
 	test_report_matches_the_plan_list()
 	test_bastion_parallel_lines()
+	test_shipped_demo_is_solvable()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -269,3 +273,15 @@ func test_bastion_parallel_lines() -> void:
 				check(d.plan_pull_out(d.find_carving(s.placement_id)) == "", "pull out planned")
 	check(d.check_commit() == "", "the plan commits: " + d.check_commit())
 	check(d.commit().size() == 1 and d.carvings().is_empty(), "Bastion is pulled out")
+
+
+## Every pre-carved item the demo ships can be cleared with the demo player's materials, and the
+## checker's solutions replay cleanly
+func test_shipped_demo_is_solvable() -> void:
+	for carved: ItemInstance in SHIPPED_SETUP.carved_items:
+		var d := DisenchantBoard.new(InscriptionBoard.new(carved.duplicate(true), Player.new()))
+		var all := d.carvings()
+		var found := SolvabilityChecker.new(d).solve(all, SHIPPED_SETUP.materials)
+		check(not found.is_empty(), "the shipped %s can be cleared" % carved.id)
+		for s in found:
+			check(replays_cleanly(d, s, all), "%s: %s replays" % [carved.id, names(s)])

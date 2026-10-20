@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_scene.gd" id="1_n8wb3"]
+[ext_resource type="Resource" path="res://tests/fixtures/enchantments/glow.tres" id="2_ngvu8"]
+[ext_resource type="Script" path="res://enchantments/enchantment_node_component.gd" id="3_f0d3j"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="4_sms45"]
+[ext_resource type="Script" path="res://enchantments/enchantment_line_component.gd" id="5_n4nys"]
+
+[sub_resource type="Resource" id="Resource_0ujgb"]
+script = ExtResource("4_sms45")
+attribute = 2
+required = false
+
+[node name="Glow" type="Node2D" unique_id=1330685105]
+script = ExtResource("1_n8wb3")
+enchantment = ExtResource("2_ngvu8")
+
+[node name="NodeA" type="Node2D" parent="." unique_id=2067300511]
+z_index = 1
+script = ExtResource("3_f0d3j")
+
+[node name="NodeB" type="Node2D" parent="." unique_id=1160214360]
+z_index = 1
+position = Vector2(110.85125, 0)
+script = ExtResource("3_f0d3j")
+
+[node name="NodeC" type="Node2D" parent="." unique_id=203403020]
+z_index = 1
+position = Vector2(55.425625, 96)
+script = ExtResource("3_f0d3j")
+tier_requirement = 2
+material_requirements = Array[ExtResource("4_sms45")]([SubResource("Resource_0ujgb")])
+
+[node name="LineAB" type="Line2D" parent="." unique_id=1216379001 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(0, 0, 110.85125, 0)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_n4nys")
+from_node = NodePath("../NodeA")
+to_node = NodePath("../NodeB")
+
+[node name="LineBC" type="Line2D" parent="." unique_id=1099512687 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(110.85125, 0, 55.425625, 96)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_n4nys")
+from_node = NodePath("../NodeB")
+to_node = NodePath("../NodeC")
+
+[node name="LineCA" type="Line2D" parent="." unique_id=1933946027 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(55.425625, 96, 0, 0)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_n4nys")
+from_node = NodePath("../NodeC")
+to_node = NodePath("../NodeA")

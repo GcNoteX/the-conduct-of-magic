@@ -7,12 +7,12 @@ Exits with code 1 if any check fails.
 """
 
 const SWORD := preload("res://tests/fixtures/test_sword.tres")
-const KINDLE := preload("res://enchantments/patterns/kindle.tres")
-const FIRE := preload("res://items/enchantment_materials/fire_stone/fire_stone.tres")
-const WATER := preload("res://items/enchantment_materials/water_stone/water_stone.tres")
-const RED := preload("res://items/enchantment_materials/red_stone/red_stone.tres")
-const BLUE := preload("res://items/enchantment_materials/blue_stone/blue_stone.tres")
-const YELLOW := preload("res://items/enchantment_materials/yellow_stone/yellow_stone.tres")
+const KINDLE := preload("res://tests/fixtures/enchantments/kindle.tres")
+const FIRE := preload("res://tests/fixtures/materials/fire_stone.tres")
+const WATER := preload("res://tests/fixtures/materials/water_stone.tres")
+const RED := preload("res://tests/fixtures/materials/red_stone.tres")
+const BLUE := preload("res://tests/fixtures/materials/blue_stone.tres")
+const YELLOW := preload("res://tests/fixtures/materials/yellow_stone.tres")
 const PortBoard := preload("res://tests/fixtures/port_board.gd")
 
 var _failures := 0
