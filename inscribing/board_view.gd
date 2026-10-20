@@ -185,8 +185,10 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	var key := event as InputEventKey
 	if key.keycode == KEY_R:
 		_rotate_held(-1 if key.shift_pressed else 1)
-	elif key.keycode == KEY_ESCAPE:
+	elif key.keycode == KEY_ESCAPE and (held_enchantment or is_drawing()):
+		# Escape puts down what's held; with nothing held it falls through to the pause menu
 		cancel()
+		get_viewport().set_input_as_handled()
 
 
 func mouse_left() -> void:
