@@ -43,8 +43,9 @@ func _ready() -> void:
 		var wanted := c.visit.slip.enchantments
 		_carve(c.item, wanted.slice(0, 1) if wanted.size() > 1 else wanted)
 	day.table.resume()
-	day.table._items.select(2)
-	day.table._open_item(2)
+	var elsas := day.player.items.find(day.player.commissions[0].item)
+	day.table._item_picker.select(elsas)
+	day.table._open_item(elsas)
 	await _frames(2)
 	_shot("04_table_shows_owner")
 	day.end_side()

@@ -15,3 +15,11 @@ enum MATERIAL_ATTRIBUTES { Soft, Hard, Shiny, Flame, Water }
 @export var material_attributes: Array[MATERIAL_ATTRIBUTES]
 ## Conditions for the EnchantmentMaterialDefinition to be activated in an EnchantmentNode
 @export var activation_conditions: Array[EnchantmentCondition]
+
+@export_category("Disenchanting")
+## The runes this material puts on every line at its node. A line costs both its ends' runes.
+@export var edge_runes: RuneSet
+## The runes its node gives back once, when the node's last line is cut
+@export var harvest_runes: RuneSet
+## The runes you get for dissolving one of this material
+@export var dissolve_runes: RuneSet

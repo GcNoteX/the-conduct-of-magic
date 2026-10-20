@@ -26,6 +26,7 @@ Mocker="*res://mocking/mocker.tscn"
 PlayerManager="*res://globals/player_manager.gd"
 UtilityFunctions="*res://globals/UtilityFunctions.gd"
 EmapUpdateManager="*res://globals/emap_update_manager.gd"
+GameCalendar="*res://globals/game_calendar.gd"
 
 [display]
 
@@ -100,5 +101,5 @@ cursor_toggle_emap_layout={
 
 [rendering]
 
-anti_aliasing/quality/msaa_2d=2
 viewport/hdr_2d=true
+anti_aliasing/quality/msaa_2d=2

@@ -107,7 +107,7 @@ func test_counter_hands_over_items() -> void:
 		ids.append(inst.id)
 	day.switch_to(Day.ShopSide.INSCRIBING)
 	check(
-		day.table._items.item_count == day.player.items.size(),
+		day.table._item_picker.item_count == day.player.items.size(),
 		"the table lists the new item when it opens"
 	)
 	day.queue_free()
@@ -231,7 +231,7 @@ func test_customer_collects_and_pays() -> void:
 	day.switch_to(Day.ShopSide.INSCRIBING)
 	check(day.table.board == null or day.table.board.item != c.item, "the table drops her item")
 	check(
-		day.table._items.item_count == day.player.items.size(),
+		day.table._item_picker.item_count == day.player.items.size(),
 		"the table lists only the items still in the shop"
 	)
 	day.end_side()

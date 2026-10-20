@@ -8,7 +8,7 @@ Gavin is the designer. Only decisions he has confirmed go into documents, includ
 
 1. **Design doc.** Gameplay decisions come from the design doc. If a task needs a design decision the doc doesn't settle, ask Gavin rather than inventing one.
 2. **Planning sheet (macro work only).** Before writing any code for macro work, draft a planning sheet (format below) and get Gavin's approval.
-3. **Branch and draft PR.** One branch per piece of work. Open the PR as a draft.
+3. **Branch and draft PR.** One branch per piece of work, with a readable name that says what it is (`map-editor`, `disenchanting-rules`). Open the PR as a draft.
 4. **Checks.** The PR must pass the automatic checks (see "Checks").
 5. **Review and merge.** Gavin reviews and merges. Claude never merges.
 
@@ -27,6 +27,17 @@ Bug fixes, renames and one-function changes are not macro work. They skip the sh
 - Draft it as a Claude Doc so Gavin can comment inline.
 - Once approved, commit it to `docs/plans/NNNN-short-title.md` (next free number) in the same PR as the code it describes, so later work can read it.
 - Code follows the approved sheet. If the plan has to change mid-way, stop and update the sheet with Gavin before continuing.
+
+## Branches and test reports
+
+Gavin tests features when he gets back to the project, so every batch of work leaves him a clear list of what to test and where.
+
+- Each feature is built on its own branch.
+- Also build **one combined branch** that merges every feature branch in the batch, so everything can be tested from one checkout. If that isn't possible (the features conflict, or one has to be tested alone), use the fewest branches you can and say in the report why they're separate.
+- Write a **test report** for the batch from [docs/test-reports/TEMPLATE.md](docs/test-reports/TEMPLATE.md). For each branch to test, it lists what to test, how, and the acceptance criteria. This applies even when the batch is a single feature.
+- Commit the report to `docs/test-reports/YYYY-MM-DD-short-title.md` on the combined branch.
+- Open the PR from the combined branch, or one PR per branch that couldn't be combined. The PR description repeats the test report. When either one changes, update the other.
+- Once a batch is merged, delete its remote branches: the combined branch and every feature branch in it. Also delete any other branch whose PR has been merged. Keep any branch that still has an open PR, or commits that aren't in a merged PR. If you can't delete them yourself, list them for Gavin, and remind him that turning on "Automatically delete head branches" (Settings → General) would do it for him.
 
 ## Coding style
 
@@ -58,4 +69,4 @@ Run these locally before pushing. CI runs the same on every PR.
 
 - **Lint and format**: `pip install gdtoolkit==4.5.0`, then `gdformat --check <files>` and `gdlint <files>` on the `.gd` files you changed. CI only checks changed files, so a file you touch is brought up to style as part of that change.
 - **Script check**: Godot 4.7.2 headless. `godot --headless --path . --import`, then `godot --headless --path . res://tools/ci/check_scripts.tscn`. It loads every project script (skipping `addons/` and `demo/`) and fails if any doesn't compile.
-- Unit tests (GUT) will be added once an item owns its enchantment map.
+- **Rule tests**: `godot --headless --path . res://tests/test_inscription_board.tscn`. It exits with an error if any check fails. Add checks there when you change the inscribing rules.

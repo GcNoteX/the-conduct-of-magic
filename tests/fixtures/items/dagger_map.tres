@@ -1,0 +1,65 @@
+[gd_resource type="Resource" script_class="HexMapDefinition" format=3]
+
+[ext_resource type="Script" path="res://disenchanting/rune_set.gd" id="1_1y6ed"]
+[ext_resource type="Script" path="res://inscribing/hex_map_definition.gd" id="2_35i0g"]
+
+[sub_resource type="Resource" id="Resource_1y6ed"]
+script = ExtResource("1_1y6ed")
+wind = 1
+
+[sub_resource type="Resource" id="Resource_35i0g"]
+script = ExtResource("1_1y6ed")
+water = 1
+
+[sub_resource type="Resource" id="Resource_62343"]
+script = ExtResource("1_1y6ed")
+fire = 1
+
+[sub_resource type="Resource" id="Resource_7kjo6"]
+script = ExtResource("1_1y6ed")
+stone = 1
+
+[sub_resource type="Resource" id="Resource_d7o7w"]
+script = ExtResource("1_1y6ed")
+fire = 1
+
+[sub_resource type="Resource" id="Resource_5knvi"]
+script = ExtResource("1_1y6ed")
+water = 1
+
+[sub_resource type="Resource" id="Resource_vbuwc"]
+script = ExtResource("1_1y6ed")
+wind = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_6fbeh"]
+script = ExtResource("1_1y6ed")
+water = 1
+fire = 1
+
+[sub_resource type="Resource" id="Resource_yc1a7"]
+script = ExtResource("1_1y6ed")
+fire = 1
+wind = 1
+
+[sub_resource type="Resource" id="Resource_wl8tn"]
+script = ExtResource("1_1y6ed")
+water = 1
+stone = 1
+
+[sub_resource type="Resource" id="Resource_km00d"]
+script = ExtResource("1_1y6ed")
+fire = 1
+wind = 1
+
+[sub_resource type="Resource" id="Resource_8odpb"]
+script = ExtResource("1_1y6ed")
+water = 1
+fire = 1
+
+[resource]
+script = ExtResource("2_35i0g")
+map_name = "Dagger"
+layout = PackedStringArray("...#...", "..##...", "..#M#..", "..##...", "..#M#..", "..##...", "..#M#..", "######.", "M#####M", "..##...", "..#M#..")
+magic_edge_runes = Array[ExtResource("1_1y6ed")]([SubResource("Resource_1y6ed"), SubResource("Resource_35i0g"), SubResource("Resource_62343"), SubResource("Resource_7kjo6"), SubResource("Resource_d7o7w"), SubResource("Resource_5knvi")])
+magic_harvest_runes = Array[ExtResource("1_1y6ed")]([SubResource("Resource_vbuwc"), SubResource("Resource_6fbeh"), SubResource("Resource_yc1a7"), SubResource("Resource_wl8tn"), SubResource("Resource_km00d"), SubResource("Resource_8odpb")])

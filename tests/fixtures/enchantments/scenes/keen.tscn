@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment_scene.gd" id="1_1grc7"]
+[ext_resource type="Resource" path="res://tests/fixtures/enchantments/keen.tres" id="2_u4dhy"]
+[ext_resource type="Script" path="res://enchantments/enchantment_node_component.gd" id="3_xna12"]
+[ext_resource type="Script" path="res://enchantments/material_condition.gd" id="4_hiq6u"]
+[ext_resource type="Script" path="res://enchantments/enchantment_line_component.gd" id="5_y7wqw"]
+
+[sub_resource type="Resource" id="Resource_m8ruw"]
+script = ExtResource("4_hiq6u")
+attribute = 0
+required = false
+
+[sub_resource type="Resource" id="Resource_k6dw1"]
+script = ExtResource("4_hiq6u")
+attribute = 1
+required = false
+
+[sub_resource type="Resource" id="Resource_8kmwj"]
+script = ExtResource("4_hiq6u")
+attribute = 0
+required = false
+
+[node name="Keen" type="Node2D" unique_id=1571680060]
+script = ExtResource("1_1grc7")
+enchantment = ExtResource("2_u4dhy")
+
+[node name="NodeA" type="Node2D" parent="." unique_id=2097367676]
+z_index = 1
+script = ExtResource("3_xna12")
+material_requirements = Array[ExtResource("4_hiq6u")]([SubResource("Resource_m8ruw")])
+
+[node name="NodeB" type="Node2D" parent="." unique_id=1790821992]
+z_index = 1
+position = Vector2(110.85125, 0)
+script = ExtResource("3_xna12")
+material_requirements = Array[ExtResource("4_hiq6u")]([SubResource("Resource_k6dw1")])
+
+[node name="NodeC" type="Node2D" parent="." unique_id=2131234947]
+z_index = 1
+position = Vector2(221.7025, 0)
+script = ExtResource("3_xna12")
+material_requirements = Array[ExtResource("4_hiq6u")]([SubResource("Resource_8kmwj")])
+
+[node name="LineAB" type="Line2D" parent="." unique_id=446687326 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(0, 0, 110.85125, 0)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_y7wqw")
+from_node = NodePath("../NodeA")
+to_node = NodePath("../NodeB")
+
+[node name="LineBC" type="Line2D" parent="." unique_id=590935368 node_paths=PackedStringArray("from_node", "to_node")]
+points = PackedVector2Array(110.85125, 0, 221.7025, 0)
+width = 6.0
+default_color = Color(0.60784316, 0.56078434, 0.81960785, 1)
+script = ExtResource("5_y7wqw")
+from_node = NodePath("../NodeB")
+to_node = NodePath("../NodeC")

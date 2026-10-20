@@ -5,7 +5,7 @@
 [ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="3_jqcn5"]
 [ext_resource type="Script" path="res://counter/papers/permit.gd" id="4_h7442"]
 [ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="5_knqkv"]
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="6_4eswc"]
+[ext_resource type="Resource" path="res://inscribing/demo/long_sword.tres" id="6_4eswc"]
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="7_53rw4"]
 
 [sub_resource type="Resource" id="Resource_gt0ls"]

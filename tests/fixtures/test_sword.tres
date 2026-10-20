@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="EnchantableItemDefinition" format=3]
 
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword_map.tres" id="1_6cwsy"]
+[ext_resource type="Resource" path="res://tests/fixtures/test_sword_map.tres" id="1_6cwsy"]
 [ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="2_3802d"]
 
 [resource]
 script = ExtResource("2_3802d")
 map_template = ExtResource("1_6cwsy")
-id = &"demo_sword"
-display_name = "Demo sword"
+id = &"test_sword"
+display_name = "Test sword"

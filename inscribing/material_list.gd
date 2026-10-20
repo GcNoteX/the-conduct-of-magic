@@ -7,6 +7,9 @@ signal drag_started(material: EnchantmentMaterialDefinition)
 
 ## The material on each row, in row order
 var materials: Array[EnchantmentMaterialDefinition] = []
+## The materials whose rows can't be dragged right now (none left, or Disenchant mode).
+## A drag attempt on one only emits drag_started, so the table can say why.
+var locked: Array[EnchantmentMaterialDefinition] = []
 
 
 func _get_drag_data(at_position: Vector2) -> Variant:
@@ -14,6 +17,9 @@ func _get_drag_data(at_position: Vector2) -> Variant:
 	if i < 0 or i >= materials.size():
 		return null
 	var m := materials[i]
+	if m in locked:
+		drag_started.emit(m)
+		return null
 	set_drag_preview(_preview(m))
 	drag_started.emit(m)
 	return m

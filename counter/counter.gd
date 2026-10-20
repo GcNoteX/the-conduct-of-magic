@@ -265,7 +265,7 @@ func _show_current() -> void:
 
 ## The item being collected, each enchantment asked for ticked or crossed, and the payout
 func _return_text(c: Commission) -> String:
-	var text := "[b]Their %s[/b]\n" % c.item.display_name()
+	var text := "[b]Their %s[/b]\n" % InscriptionBoard.item_name(c.item)
 	var done := c.fulfilled()
 	for i in done.size():
 		var e := c.visit.slip.enchantments[i]

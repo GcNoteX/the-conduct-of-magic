@@ -4,7 +4,7 @@
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="2_slip"]
 [ext_resource type="Script" path="res://enchantments/enchantment.gd" id="3_ench"]
 [ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="4_ward"]
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="5_sword"]
+[ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="5_sword"]
 
 [sub_resource type="Resource" id="Resource_slip"]
 script = ExtResource("2_slip")
