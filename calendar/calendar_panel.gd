@@ -4,26 +4,20 @@ extends PanelContainer
 ## entries and reminders on their days. It only reads the GameCalendar and never changes it.
 
 const GRID_ROWS := 6
-const CELL_SIZE := Vector2(132, 92)
-const TODAY_COLOR := Color(0.95, 0.85, 0.45)
-const DAY_COLOR := Color(0.93, 0.9, 0.82)
-const PAST_COLOR := Color(0.62, 0.6, 0.56)
-const OUTSIDE_COLOR := Color(0.25, 0.24, 0.22)
-const TEXT_COLOR := Color(0.15, 0.13, 0.1)
-const ENTRY_COLORS := {
-	CalendarEntryDefinition.Kind.SEASONAL_EVENT: Color(0.2, 0.5, 0.25),
-	CalendarEntryDefinition.Kind.APPLICATION_DAY: Color(0.7, 0.2, 0.15),
-	CalendarEntryDefinition.Kind.ACCEPTANCE_LETTER: Color(0.25, 0.3, 0.7),
+const CELL_SIZE := Vector2(150, 104)
+const ENTRY_STYLES := {
+	CalendarEntryDefinition.Kind.SEASONAL_EVENT: UiStyles.CALENDAR_SEASONAL_EVENT,
+	CalendarEntryDefinition.Kind.APPLICATION_DAY: UiStyles.CALENDAR_APPLICATION_DAY,
+	CalendarEntryDefinition.Kind.ACCEPTANCE_LETTER: UiStyles.CALENDAR_LETTER,
 }
-const NOTE_COLORS := {
-	CalendarNote.Kind.DEADLINE: Color(0.75, 0.4, 0.05),
-	CalendarNote.Kind.CUSTOMER_RETURN: Color(0.45, 0.2, 0.6),
+const NOTE_STYLES := {
+	CalendarNote.Kind.DEADLINE: UiStyles.CALENDAR_DEADLINE,
+	CalendarNote.Kind.CUSTOMER_RETURN: UiStyles.CALENDAR_CUSTOMER_RETURN,
 }
 const NOTE_PREFIXES := {
 	CalendarNote.Kind.DEADLINE: "Due: ",
 	CalendarNote.Kind.CUSTOMER_RETURN: "Expected: ",
 }
-const ENTRY_FONT_SIZE := 13
 
 var _shown_slot: int = 0
 var _title_label: Label
@@ -102,7 +96,7 @@ func _build_ui() -> void:
 	_title_label = Label.new()
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_title_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_title_label.add_theme_font_size_override("font_size", 24)
+	_title_label.theme_type_variation = UiStyles.HEADER_LABEL
 	header.add_child(_title_label)
 	_next_button = Button.new()
 	_next_button.text = ">"
@@ -117,6 +111,7 @@ func _build_ui() -> void:
 		label.text = weekday_name.substr(0, 3)
 		label.custom_minimum_size.x = CELL_SIZE.x
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.theme_type_variation = UiStyles.CALENDAR_WEEKDAY
 		weekdays.add_child(label)
 
 	_grid = GridContainer.new()
@@ -130,54 +125,44 @@ func _build_ui() -> void:
 func _make_blank_cell() -> Control:
 	var cell := PanelContainer.new()
 	cell.custom_minimum_size = CELL_SIZE
-	cell.add_theme_stylebox_override("panel", _cell_style(OUTSIDE_COLOR))
+	cell.theme_type_variation = UiStyles.CALENDAR_OUTSIDE
 	return cell
 
 
 func _make_day_cell(day_index: int, day: int) -> Control:
-	var color := DAY_COLOR
-	if day_index == GameCalendar.get_today():
-		color = TODAY_COLOR
-	elif GameCalendar.is_past(day_index):
-		color = PAST_COLOR
 	var cell := PanelContainer.new()
 	cell.custom_minimum_size = CELL_SIZE
 	cell.mouse_filter = Control.MOUSE_FILTER_STOP
-	cell.add_theme_stylebox_override("panel", _cell_style(color))
+	cell.theme_type_variation = UiStyles.CALENDAR_DAY
+	if day_index == GameCalendar.get_today():
+		cell.theme_type_variation = UiStyles.CALENDAR_TODAY
+	elif GameCalendar.is_past(day_index):
+		cell.theme_type_variation = UiStyles.CALENDAR_PAST
 	var lines := VBoxContainer.new()
 	lines.add_theme_constant_override("separation", 0)
 	cell.add_child(lines)
-	lines.add_child(_make_line(str(day), TEXT_COLOR, 16))
+	lines.add_child(_make_line(str(day), UiStyles.CALENDAR_DAY_NUMBER))
 
 	var tooltip: Array[String] = [GameCalendar.definition.describe(day_index)]
 	for entry in GameCalendar.entries_on(day_index):
-		lines.add_child(_make_line(entry.title, ENTRY_COLORS[entry.kind], ENTRY_FONT_SIZE))
+		lines.add_child(_make_line(entry.title, ENTRY_STYLES[entry.kind]))
 		tooltip.append(_entry_tooltip(entry, day_index))
 	for note in GameCalendar.notes_on(day_index):
 		var text: String = NOTE_PREFIXES[note.kind] + note.text
-		lines.add_child(_make_line(text, NOTE_COLORS[note.kind], ENTRY_FONT_SIZE))
+		lines.add_child(_make_line(text, NOTE_STYLES[note.kind]))
 		tooltip.append(text)
 	cell.tooltip_text = "\n".join(tooltip)
 	return cell
 
 
-func _make_line(text: String, color: Color, font_size: int) -> Label:
+func _make_line(text: String, style: StringName) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.clip_text = true
 	label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
-	label.add_theme_color_override("font_color", color)
-	label.add_theme_font_size_override("font_size", font_size)
+	label.theme_type_variation = style
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	return label
-
-
-func _cell_style(color: Color) -> StyleBoxFlat:
-	var style := StyleBoxFlat.new()
-	style.bg_color = color
-	style.set_content_margin_all(4)
-	style.set_corner_radius_all(3)
-	return style
 
 
 func _entry_tooltip(entry: CalendarEntryDefinition, day_index: int) -> String:

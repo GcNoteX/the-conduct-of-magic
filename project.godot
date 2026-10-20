@@ -41,6 +41,10 @@ enchantment=""
 mapline=""
 mapnode=""
 
+[gui]
+
+theme/custom="res://ui/main_theme.tres"
+
 [input]
 
 dev_end_side={
