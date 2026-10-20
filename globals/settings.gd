@@ -6,9 +6,9 @@ extends Node
 signal changed
 
 const SAVE_PATH := "user://settings.cfg"
-const BUS_MASTER := &"Master"
-const BUS_MUSIC := &"Music"
-const BUS_SFX := &"SFX"
+const BUS_MASTER := AudioBuses.MASTER
+const BUS_MUSIC := AudioBuses.MUSIC
+const BUS_SFX := AudioBuses.SFX
 const BUSES: Array[StringName] = [BUS_MASTER, BUS_MUSIC, BUS_SFX]
 const DEFAULT_VOLUME := 0.8
 ## The text sizes the menu offers, as a multiple of each theme's own font sizes

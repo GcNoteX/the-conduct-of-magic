@@ -1,8 +1,8 @@
 class_name SoundBank
 extends Node
 
-## Plays short sound effects by name. Each sound gets its own player, so different sounds can
-## overlap while a repeated one restarts.
+## Plays short sound effects by name on the SFX bus. Each sound gets its own player, so different
+## sounds can overlap while a repeated one restarts.
 
 @export var sounds: Dictionary[StringName, AudioStream] = {}
 @export_range(-40.0, 6.0) var volume_db: float = -6.0
@@ -15,7 +15,7 @@ func _ready() -> void:
 		var p := AudioStreamPlayer.new()
 		p.stream = sounds[key]
 		p.volume_db = volume_db
-		p.bus = Settings.BUS_SFX
+		p.bus = AudioBuses.SFX
 		add_child(p)
 		_players[key] = p
 
