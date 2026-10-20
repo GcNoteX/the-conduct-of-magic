@@ -6,7 +6,8 @@ extends Control
 ## the clock; the counter comes first, and the day ends when the last side runs out of time.
 ## The inactive side is hidden and paused, so it picks up exactly where it stopped.
 ## Debug builds can jump between sides with the dev_switch_side action, whatever the plan says,
-## and run out the active side's time with dev_end_side.
+## and run out the active side's time with dev_end_side. Each side has its own music, which
+## cross-fades when the side changes.
 
 enum ShopSide { COUNTER, INSCRIBING }
 
@@ -20,6 +21,8 @@ const SIDE_NAMES: Dictionary[ShopSide, String] = {
 
 @export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
 @export var schedule: DaySchedule = preload("res://day/demo/demo_schedule.tres")
+@export var counter_music: AudioStream
+@export var table_music: AudioStream
 
 var player: Player
 var day_number: int = 1
@@ -34,6 +37,7 @@ var _day_over_text: RichTextLabel
 
 @onready var counter: Counter = $Sides/Counter
 @onready var table: InscribingTable = $Sides/InscribingTable
+@onready var music: MusicPlayer = $Music
 
 
 func _ready() -> void:
@@ -97,8 +101,10 @@ func switch_to(new_side: ShopSide) -> void:
 		node.process_mode = Node.PROCESS_MODE_INHERIT if s == side else Node.PROCESS_MODE_DISABLED
 	if side == ShopSide.COUNTER:
 		counter.resume()
+		music.play(counter_music)
 	else:
 		table.resume()
+		music.play(table_music)
 	_refresh_clock()
 
 
