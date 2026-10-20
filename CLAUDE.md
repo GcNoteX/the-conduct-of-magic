@@ -28,6 +28,17 @@ Bug fixes, renames and one-function changes are not macro work. They skip the sh
 - Once approved, commit it to `docs/plans/NNNN-short-title.md` (next free number) in the same PR as the code it describes, so later work can read it.
 - Code follows the approved sheet. If the plan has to change mid-way, stop and update the sheet with Gavin before continuing.
 
+## Branches and test reports
+
+Gavin tests features when he gets back to the project, so every batch of work leaves him a clear list of what to test and where.
+
+- Each feature is built on its own branch.
+- Also build **one combined branch** that merges every feature branch in the batch, so everything can be tested from one checkout. If that isn't possible (the features conflict, or one has to be tested alone), use the fewest branches you can and say in the report why they're separate.
+- Write a **test report** for the batch from [docs/test-reports/TEMPLATE.md](docs/test-reports/TEMPLATE.md). For each branch to test, it lists what to test, how, and the acceptance criteria. This applies even when the batch is a single feature.
+- Commit the report to `docs/test-reports/YYYY-MM-DD-short-title.md` on the combined branch.
+- Open the PR from the combined branch, or one PR per branch that couldn't be combined. The PR description repeats the test report. When either one changes, update the other.
+- Once a batch is merged, delete its remote branches: the combined branch and every feature branch in it. Also delete any other branch whose PR has been merged. Keep any branch that still has an open PR, or commits that aren't in a merged PR. If you can't delete them yourself, list them for Gavin, and remind him that turning on "Automatically delete head branches" (Settings → General) would do it for him.
+
 ## Coding style
 
 Follow the [official GDScript style guide](https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_styleguide.html): tabs, `snake_case` for files, functions and variables, `PascalCase` for `class_name`, `CONSTANT_CASE` for constants, and its ordering of class members. `gdformat` and `gdlint` (gdtoolkit) enforce it.

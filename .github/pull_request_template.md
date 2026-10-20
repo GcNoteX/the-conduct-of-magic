@@ -8,6 +8,6 @@ After:
 
 Link to the approved sheet in `docs/plans/`, or "Not macro work".
 
-## How to check it
+## Test report
 
-Steps to see it working in the editor.
+Paste the test report from `docs/test-reports/` here: the branches, what to test on each, and the acceptance criteria.
