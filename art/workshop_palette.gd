@@ -1,9 +1,9 @@
 class_name WorkshopPalette
 extends RefCounted
 
-## The shop's shared placeholder look: the dark wood, brass and parchment colours of the counter
-## (counter/counter_theme.tres), and the workbench art, so the counter and the inscribing table
-## read as one place. Change a colour here to restyle every panel and card that uses it.
+## The shop's shared placeholder look: the dark wood, brass and parchment colours of the counter's
+## theme, and the workbench art, so the counter and the inscribing table read as one place.
+## Change a colour here to restyle every panel and card that uses it.
 
 const WORKBENCH := preload("res://art/placeholder/workbench_wood.png")
 ## A nine-patch with LEATHER_MAT_MARGIN pixels of border on each side

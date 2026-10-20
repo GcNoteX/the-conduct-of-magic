@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-20
 **Planning sheet:** None. Gavin asked for this to go straight to a PR, without a sheet.
-**PR:** https://github.com/GcNoteX/the-conduct-of-magic/pull/PR_NUMBER
+**PR:** https://github.com/GcNoteX/the-conduct-of-magic/pull/32
 
 ## Branches
 
