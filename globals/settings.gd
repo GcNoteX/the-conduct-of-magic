@@ -10,7 +10,7 @@ const BUS_MASTER := AudioBuses.MASTER
 const BUS_MUSIC := AudioBuses.MUSIC
 const BUS_SFX := AudioBuses.SFX
 const BUSES: Array[StringName] = [BUS_MASTER, BUS_MUSIC, BUS_SFX]
-const DEFAULT_VOLUME := 0.8
+const DEFAULT_VOLUME := 1.0
 ## The text sizes the menu offers, as a multiple of each theme's own font sizes
 const TEXT_SCALES: Array[float] = [0.85, 1.0, 1.15, 1.3]
 const DEFAULT_TEXT_SCALE := 1.0
