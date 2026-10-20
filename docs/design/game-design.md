@@ -150,6 +150,11 @@ Options ranked from simplest to most complex, with **when in the game** each cou
 
 **Proposed path:** start with #1, then #2, then make **#4 (calendar pick)** the first real negotiation mechanic, with #5 alongside it. Hold #7 and #8 for later macro levels. Bartering is only overcomplicated in its full form (#7). The simple accept-or-decline version (#5) is cheap and fits the game.
 
+### 5.7 Gifts at pickup
+When an NPC collects a commission, the player can **add an extra gift**, going above and beyond: an inscribed trinket, a book, or a small thing they found.
+- **Every gift has a small visible effect** on the NPC's mood or reputation.
+- **A gift that fits what that person is going through** also sets a **hidden** flag. Its reward stays hidden until it pays off later as a story beat, so a gift given out of care isn't shown as a transaction.
+
 ## 6. Rules you inspect against
 
 What counts as acceptable work comes from several sources, which can conflict:
@@ -358,11 +363,12 @@ Why you first rather than the mentor first:
 
 ### 9.2.2 End of the workshop year
 - The game keeps progressing day to day across the year.
-- Near the end of the year is **application day** for the university, which costs money. Getting in needs both a **total amount of money** and **Mr. Leywin's recommendation**.
+- Near the end of the year is **application day** for the university, which costs money. Getting in needs three things: a **total amount of money**, **Mr. Leywin's recommendation** and a **resume** (§9.6).
+- **One place decides pass or fail.** It reads the player's state and Mr. Leywin's state and makes the call, separate from the systems that feed it (money, relationships, resume).
 - The year has a closing and ends with a **letter** saying whether the player got into the university.
 - The patron and the recruiter each give the player a **business-card-like item** that fits who they are.
 - The player then chooses from the routes open to them (§9.3).
-- **Fail state: no route out of the workshop.** The player can't go to the university (not enough money, or no recommendation) and impressed neither the recruiter nor the patron.
+- **Fail state: no route out of the workshop.** The player can't go to the university (not enough money, no recommendation or too thin a resume) and impressed neither the recruiter nor the patron.
 - **Running out of money** also leads to different endings. Death or similar may come later.
 
 ### 9.3 Progression routes
@@ -381,6 +387,15 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 
 ### 9.5 Example items
 - **Father's Sword**: an example item from the prototype, not a story commitment.
+
+### 9.6 The player's own life
+**Rent.** The player lives in a rented apartment and pays rent **each week**. Money comes from an **allowance** from his parents, which arrives by the mailman with their letters, plus his **pay** from Mr. Leywin's books. Missing rent once brings a warning; missing it twice leads to the **running out of money** ending (§9.2.2).
+
+**University side tasks.** A book (from the bookstore, the peddler or the writer) sets a **technical task**, such as making a cup that stays cold. The player gets the materials, attempts it, and finishing it adds a **resume entry**. The resume is one of the three university requirements (§9.2.2).
+
+**On hold** (to decide alongside the other pressures on the player):
+- **Stamina.** A fixed daily pool of **working and study hours** that sets how much of the day the player can use, with money buying longer days.
+- **Room builds.** Things the player builds for their room that give a boost.
 
 ## 10. Open questions
 
@@ -404,6 +419,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 11. Is there time pressure during the shop day?
 12. When does the mentor stop restocking, and how fast do catalogue orders arrive (next day, a few days)?
 13. Disenchanting balance: how do we decide which runes a material puts on the edges it touches, and what it returns when freed?
+14. How is inscribing used practically on the shop side (inspection consumables, shop items, the player's own items and home) without making the game stat-focused?
 
 ## 11. Decision log
 
@@ -464,6 +480,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-17 | Location streams are the **shop**, then the **university**, the **luxury shop** (temporary name) or the **guild**. Reputation is the player's relationship with particular people. The player chooses if more than one route is open. The **Black Market** is archived (A.13). |
 | 2026-10-18 | The mentor's-workshop chapter is a **one-year apprenticeship** with **four seasons**. How play days spread across the year is still open. Story details are in the [story bible](../story/story-bible.md). |
 | 2026-10-18 | **End of the workshop year** (§9.2.2): application day costs money; the university needs money plus Mr. Leywin's recommendation; a closing letter decides the university; the patron and recruiter give business-card-like items; the fail state is no route out of the workshop. |
+| 2026-10-20 | **Gifts at pickup** (§5.7): extra gifts to NPCs collecting commissions, with a visible effect and a hidden reward when the gift fits the person. **Rent** is paid weekly from the allowance plus pay (§9.6). **University side tasks** from books add **resume entries**, and the resume becomes a **third university requirement**, judged in one place from the player's and Mr. Leywin's state (§9.2.2). **Stamina** and **room builds** are on hold; stamina tonics from the potion maker are archived (A.14). |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
@@ -661,3 +678,6 @@ Maybe some **stable materials** that are just **rune pools**, unlike live runes,
 
 ### A.13 Black Market
 Archived as a route. Something black-market in style could be reached from any route: the things you would do for money, knowledge or reputation.
+
+### A.14 Stamina tonics
+Buying extra stamina as tonics from the potion maker. Archived until stamina itself is decided (§9.6).
