@@ -19,6 +19,7 @@ func _ready() -> void:
 	test_counter_hands_over_items()
 	test_rulebook()
 	test_counter_only_and_inscribing_only_days()
+	test_dev_end_side()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -142,4 +143,22 @@ func test_counter_only_and_inscribing_only_days() -> void:
 	check(not day.counter.visible, "the counter stays hidden on an inscribing-only day")
 	day.start_next_day()
 	check(day.side == Day.ShopSide.INSCRIBING, "days past the schedule repeat its last plan")
+	day.queue_free()
+
+
+func test_dev_end_side() -> void:
+	var day := _make_day([_plan(10.0, 0.0)])
+	for n in [1, 2, 3]:
+		check(
+			day.day_number == n and day.side == Day.ShopSide.COUNTER,
+			"day %d opens at the counter" % n
+		)
+		day.end_side()
+		check(
+			day.side == Day.ShopSide.INSCRIBING, "F3 at the counter goes to the table on day %d" % n
+		)
+		check(not day.is_day_over(), "F3 at the counter doesn't end day %d" % n)
+		day.end_side()
+		check(day.is_day_over(), "F3 at the table ends day %d" % n)
+		day.start_next_day()
 	day.queue_free()

@@ -8,14 +8,6 @@ script = ExtResource("1_plan")
 counter_seconds = 300.0
 inscribing_seconds = 3600.0
 
-[sub_resource type="Resource" id="Resource_counter"]
-script = ExtResource("1_plan")
-counter_seconds = 300.0
-
-[sub_resource type="Resource" id="Resource_inscribing"]
-script = ExtResource("1_plan")
-inscribing_seconds = 3600.0
-
 [resource]
 script = ExtResource("2_schedule")
-days = Array[ExtResource("1_plan")]([SubResource("Resource_split"), SubResource("Resource_counter"), SubResource("Resource_inscribing")])
+days = Array[ExtResource("1_plan")]([SubResource("Resource_split")])

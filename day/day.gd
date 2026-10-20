@@ -75,13 +75,16 @@ func advance(delta: float) -> void:
 	_refresh_clock()
 
 
-## Runs out the active side's time now, moving the day along as if its clock had reached zero
+## Dev: ends the active side now. The counter always hands over to the table, even on a day
+## with no table time, and the table ends the day.
 func end_side() -> void:
 	if is_day_over():
 		return
 	time_left[side] = 0.0
-	_on_side_time_up()
-	_refresh_clock()
+	if side == ShopSide.COUNTER:
+		switch_to(ShopSide.INSCRIBING)
+	else:
+		_end_day()
 
 
 ## Makes a side active, freezing the other one where it is

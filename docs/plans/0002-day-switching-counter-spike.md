@@ -42,7 +42,7 @@ A new Day scene becomes the main scene and holds the Counter and the InscribingT
 | Kind | Name | New / changed | Purpose |
 |---|---|---|---|
 | Scene + class | `Day` (`day/day.tscn`) | New | Root of a day. Owns the player, day number, clock and active side; switches sides; dev hotkey; end-of-day summary |
-| Resource | `DayPlan`, `DaySchedule` | New | Seconds for the counter and for inscribing on each day. The demo has a split day, a counter-only day and an inscribing-only day |
+| Resource | `DayPlan`, `DaySchedule` | New | Seconds for the counter and for inscribing on each day. The demo repeats a split day: 5 minutes at the counter, then 60 at the table |
 | Scene + class | `InscribingTable` | Changed | Opened by Day with the player. Its own player setup, timer and day-over panel are removed |
 | Scene + class | `Counter` (`counter/counter.tscn`) | New | Shows the current customer's papers and item, the rulebook panel, and Accept and Refuse. Signal `visit_decided(visit, accepted)` |
 | Resource | `CustomerVisit` | New | One mock customer: name, slip, optional ID, optional permit, optional item |
