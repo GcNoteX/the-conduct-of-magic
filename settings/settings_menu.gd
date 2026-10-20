@@ -3,7 +3,8 @@ extends Control
 
 ## The settings menu: a slider per volume, a choice of text size and a fullscreen switch. Each
 ## change goes straight to the Settings autoload, which applies and saves it, so closing the menu
-## needs nothing more. Esc or the Close button close it.
+## needs nothing more. Esc or the Close button close it. It takes its look from the project theme,
+## with a small look of its own for when the project has no theme.
 
 signal closed
 
@@ -31,8 +32,9 @@ var _close_button: Button
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
-	theme = _make_theme()
-	Settings.register_theme(theme)
+	if ThemeDB.get_project_theme() == null:
+		theme = _make_theme()
+		Settings.register_theme(theme)
 	_build_ui()
 	_refresh()
 	Settings.changed.connect(_refresh)
@@ -60,7 +62,8 @@ func _build_ui() -> void:
 
 	var panel := PanelContainer.new()
 	panel.custom_minimum_size.x = PANEL_WIDTH
-	panel.add_theme_stylebox_override("panel", _make_panel_style())
+	if ThemeDB.get_project_theme() == null:
+		panel.add_theme_stylebox_override("panel", _make_panel_style())
 	center.add_child(panel)
 
 	var margin := MarginContainer.new()
@@ -108,6 +111,7 @@ func _build_ui() -> void:
 	column.add_child(_close_button)
 
 
+## The menu's own look, used only when the project has no theme
 func _make_theme() -> Theme:
 	var t := Theme.new()
 	t.default_font_size = FONT_SIZE
