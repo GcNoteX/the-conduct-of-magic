@@ -797,6 +797,7 @@ func _build_ui() -> void:
 	_commit_button = Button.new()
 	_commit_button.custom_minimum_size.y = 44
 	_commit_button.clip_text = true
+	_commit_button.focus_mode = Control.FOCUS_NONE
 	_commit_button.pressed.connect(_on_commit_pressed)
 	right.add_child(_commit_button)
 	_message_label = Label.new()
@@ -893,6 +894,7 @@ func _mode_button(parent: Control, text: String, group: ButtonGroup) -> Button:
 	b.toggle_mode = true
 	b.button_group = group
 	b.custom_minimum_size = Vector2(120, 36)
+	b.focus_mode = Control.FOCUS_NONE
 	parent.add_child(b)
 	return b
 

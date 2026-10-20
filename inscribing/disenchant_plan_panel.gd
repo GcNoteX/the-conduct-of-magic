@@ -28,6 +28,7 @@ func _init() -> void:
 	add_child(_list)
 	_undo = Button.new()
 	_undo.text = "Undo last step"
+	_undo.focus_mode = Control.FOCUS_NONE  # So Space and Tab stay with the palette
 	_undo.pressed.connect(undo_requested.emit)
 	add_child(_undo)
 
