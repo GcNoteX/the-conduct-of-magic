@@ -1,28 +1,33 @@
 [gd_resource type="Resource" script_class="DemoSetup" format=3]
 
-[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="1_x6lbh"]
-[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="2_pcxvv"]
-[ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="3_euygr"]
-[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="4_v6kwb"]
-[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="5_ndyfw"]
-[ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="6_o50qw"]
-[ext_resource type="Resource" path="res://inscribing/demo/demo_sword.tres" id="7_fq3d4"]
-[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="8_borej"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/fire_stone/fire_stone.tres" id="9_xnjl6"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="10_f6r6g"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/red_stone/red_stone.tres" id="11_15xsu"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/blue_stone/blue_stone.tres" id="12_fggba"]
-[ext_resource type="Resource" path="res://items/enchantment_materials/yellow_stone/yellow_stone.tres" id="13_5x2an"]
-[ext_resource type="Script" path="res://inscribing/demo/demo_setup.gd" id="14_it10v"]
+[ext_resource type="Script" path="res://items/data/item_instance.gd" id="1_ndyfw"]
+[ext_resource type="Resource" path="res://inscribing/demo/carved_demo_sword.tres" id="2_o50qw"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="3_fq3d4"]
+[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="4_borej"]
+[ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="5_xnjl6"]
+[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="6_f6r6g"]
+[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="7_15xsu"]
+[ext_resource type="Script" path="res://items/definitions/enchantable_item_definition.gd" id="8_fggba"]
+[ext_resource type="Resource" path="res://inscribing/demo/dagger.tres" id="9_5x2an"]
+[ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="10_it10v"]
+[ext_resource type="Resource" path="res://inscribing/demo/long_sword.tres" id="11_iclr1"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="12_704wn"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/fire_stone/fire_stone.tres" id="13_b0621"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="14_04o2l"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/red_stone/red_stone.tres" id="15_0rb82"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/blue_stone/blue_stone.tres" id="16_mveye"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/yellow_stone/yellow_stone.tres" id="17_r54lt"]
+[ext_resource type="Script" path="res://inscribing/demo/demo_setup.gd" id="18_0j7d4"]
 
 [resource]
-script = ExtResource("14_it10v")
-materials = Dictionary[ExtResource("8_borej"), int]({
-ExtResource("9_xnjl6"): 3,
-ExtResource("10_f6r6g"): 3,
-ExtResource("11_15xsu"): 3,
-ExtResource("12_fggba"): 3,
-ExtResource("13_5x2an"): 1
+script = ExtResource("18_0j7d4")
+materials = Dictionary[ExtResource("12_704wn"), int]({
+ExtResource("13_b0621"): 3,
+ExtResource("14_04o2l"): 3,
+ExtResource("15_0rb82"): 3,
+ExtResource("16_mveye"): 3,
+ExtResource("17_r54lt"): 1
 })
-items = Array[ExtResource("6_o50qw")]([ExtResource("7_fq3d4"), ExtResource("7_fq3d4")])
-enchantments = Array[ExtResource("1_x6lbh")]([ExtResource("2_pcxvv"), ExtResource("3_euygr"), ExtResource("4_v6kwb"), ExtResource("5_ndyfw")])
+items = Array[ExtResource("8_fggba")]([ExtResource("9_5x2an"), ExtResource("10_it10v"), ExtResource("11_iclr1")])
+carved_items = Array[ExtResource("1_ndyfw")]([ExtResource("2_o50qw")])
+enchantments = Array[ExtResource("3_fq3d4")]([ExtResource("4_borej"), ExtResource("5_xnjl6"), ExtResource("6_f6r6g"), ExtResource("7_15xsu")])

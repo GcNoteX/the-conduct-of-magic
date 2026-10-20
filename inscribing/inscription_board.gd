@@ -13,11 +13,15 @@ The rules of carving on one item's hex map. Pure logic, no drawing, so it can be
 - Lines run cell by cell between two nodes and fill every cell between them,
   so "lines can't cross" means "no two lines share a cell"
 - Every check_* returns "" when allowed, or a player-facing reason when not
+- Planned materials stay with the item: inserting one into a draft node takes it out of the
+  inventory, and taking it back out (or swapping it) returns it
 """
 
 var item: ItemInstance
 var map: HexMapDefinition
 var state: GraphState
+## The player's materials. Planning a material moves it from here into the item.
+var inventory: Player
 
 var _cells: Dictionary = {}  ## Vector2i -> true
 var _magic_cells: Array[Vector2i] = []
@@ -25,10 +29,12 @@ var _nodes: Dictionary = {}  ## key -> {kind, cell, placement, index}
 var _cell_to_node: Dictionary = {}  ## Vector2i -> key
 var _adjacency: Dictionary = {}  ## key -> Array[String], drawn lines only
 var _occupied: Dictionary = {}  ## Vector2i -> LineState, or PlacementState for its fixed lines
+var _extra_cells: Dictionary = {}  ## Vector2i -> key of the multi-cell node covering it
 
 
-func _init(item_instance: ItemInstance) -> void:
+func _init(item_instance: ItemInstance, player_inventory: Player) -> void:
 	item = item_instance
+	inventory = player_inventory
 	var def := item.definition as EnchantableItemDefinition
 	assert(
 		def and def.map_template,
@@ -79,6 +85,11 @@ func node_at(cell: Vector2i) -> String:
 	return _cell_to_node.get(cell, "")
 
 
+## The node covering `cell`, by its own cell or one of its extra cells, or ""
+func node_covering(cell: Vector2i) -> String:
+	return _cell_to_node.get(cell, _extra_cells.get(cell, ""))
+
+
 func node_cell(key: String) -> Vector2i:
 	return _nodes[key].cell
 
@@ -116,6 +127,15 @@ func placement_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> A
 	return out
 
 
+## The extra cells of an enchantment's multi-cell nodes placed this way
+func node_extra_cells(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
+	var out: Array[Vector2i] = []
+	for n in e.nodes:
+		for c in n.extra_cells:
+			out.append(origin + Hex.rotate(n.offset + c, rotation_steps))
+	return out
+
+
 ## Each fixed line of an enchantment placed this way, as its full cell path from node to node
 func pattern_line_paths(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array:
 	var nodes := placement_cells(e, origin, rotation_steps)
@@ -129,9 +149,11 @@ func pattern_line_paths(e: Enchantment, origin: Vector2i, rotation_steps: int) -
 	return out
 
 
-## Every cell an enchantment placed this way covers: its nodes and the cells of its fixed lines
+## Every cell an enchantment placed this way covers: its nodes (with their extra cells)
+## and the cells of its fixed lines
 func footprint(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Array[Vector2i]:
 	var out := placement_cells(e, origin, rotation_steps)
+	out.append_array(node_extra_cells(e, origin, rotation_steps))
 	for l in e.lines:
 		for c in l.cells:
 			out.append(origin + Hex.rotate(c, rotation_steps))
@@ -241,7 +263,7 @@ func check_place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> Strin
 		if seen.has(c):
 			return "The enchantment's shape overlaps itself"
 		seen[c] = true
-		if _cell_to_node.has(c):
+		if node_covering(c) != "":
 			return "It overlaps another node"
 		if _occupied.has(c):
 			return "A line runs through there"
@@ -265,21 +287,34 @@ func place(e: Enchantment, origin: Vector2i, rotation_steps: int) -> PlacementSt
 
 func check_remove_placement(p: PlacementState) -> String:
 	if p.committed:
-		return "Committed carvings can't be removed (disenchanting comes later)"
+		return "Committed carvings are removed by disenchanting"
 	return ""
 
 
+## Takes a draft enchantment off the item, with its lines. Its planned materials go back to the
+## inventory.
 func remove_placement(p: PlacementState) -> String:
 	var err := check_remove_placement(p)
 	if err != "":
 		return err
-	var prefix := "e:%d:" % p.id
-	for l in state.lines.duplicate():
-		if l.a.begins_with(prefix) or l.b.begins_with(prefix):
-			state.lines.erase(l)
-	state.placements.erase(p)
-	_rebuild()
+	for m in p.materials:
+		if m:
+			inventory.add_material(m)
+	_erase_placement(p)
 	return ""
+
+
+## Removes a committed enchantment and every line in its chain, leaving its cells free.
+## Its materials are used up. Only a committed disenchant does this (see DisenchantBoard).
+func remove_carving(p: PlacementState) -> void:
+	var chain := {}
+	for i in p.enchantment.nodes.size():
+		for k in component(enchantment_key(p.id, i)):
+			chain[k] = true
+	for l in state.lines.duplicate():
+		if chain.has(l.a) or chain.has(l.b):
+			state.lines.erase(l)
+	_erase_placement(p)
 
 
 #
@@ -360,7 +395,7 @@ func find_line(a: String, b: String) -> LineState:
 
 func remove_line(l: LineState) -> String:
 	if l.committed:
-		return "Committed lines can't be removed (disenchanting comes later)"
+		return "Committed lines are cut by disenchanting"
 	state.lines.erase(l)
 	_rebuild()
 	return ""
@@ -377,32 +412,37 @@ func check_insert(key: String, m: EnchantmentMaterialDefinition) -> String:
 		return "That carving is already committed"
 	if not node_definition(key).accepts(m):
 		return "This node accepts %s" % node_definition(key).describe_requirements()
+	if node_material(key) != m and inventory.get_material_count(m) <= 0:
+		return "You don't have another %s" % material_name(m)
 	return ""
 
 
+## Moves `m` from the inventory into the draft node, returning any material it held
 func insert_material(key: String, m: EnchantmentMaterialDefinition) -> String:
 	var err := check_insert(key, m)
-	if err == "":
-		node_placement(key).materials[node_index(key)] = m
-	return err
+	if err != "" or node_material(key) == m:
+		return err
+	remove_material(key)
+	inventory.remove_material(m)
+	node_placement(key).materials[node_index(key)] = m
+	return ""
 
 
+## Takes the material out of a draft node and returns it to the inventory
 func remove_material(key: String) -> EnchantmentMaterialDefinition:
 	var p := node_placement(key)
 	if p == null or p.committed:
 		return null
 	var m: EnchantmentMaterialDefinition = p.materials[node_index(key)]
 	p.materials[node_index(key)] = null
+	if m:
+		inventory.add_material(m)
 	return m
 
 
-## How many of a material this item's drafts are planning to use
-func reserved_in_drafts(m: EnchantmentMaterialDefinition) -> int:
-	var n := 0
-	for p in state.placements:
-		if not p.committed:
-			n += p.materials.count(m)
-	return n
+## How many of a material this item's plans hold (carving drafts and planned dissolves)
+func planned_count(m: EnchantmentMaterialDefinition) -> int:
+	return state.planned_materials().get(m, 0)
 
 
 #
@@ -451,26 +491,6 @@ func commit_candidates() -> Array[PlacementState]:
 	return out
 
 
-func materials_needed(placements: Array[PlacementState]) -> Dictionary:
-	var need := {}
-	for p in placements:
-		for m in p.materials:
-			if m:
-				need[m] = need.get(m, 0) + 1
-	return need
-
-
-## Materials the player is short of to commit now: {material: shortfall}
-func missing_materials(player: Player) -> Dictionary:
-	var missing := {}
-	var need := materials_needed(commit_candidates())
-	for m in need:
-		var short: int = need[m] - player.get_material_count(m)
-		if short > 0:
-			missing[m] = short
-	return missing
-
-
 ## Draft enchantments that aren't fully activated yet. Any of these blocks a commit.
 func inactive_drafts() -> Array[PlacementState]:
 	var out: Array[PlacementState] = []
@@ -490,7 +510,7 @@ func dead_lines() -> Array[LineState]:
 
 
 ## You can only commit a clean board: every draft enchantment active and every line connected
-func check_commit(player: Player) -> String:
+func check_commit() -> String:
 	if not dead_lines().is_empty():
 		return "Some magic nodes aren't connected to an enchantment. Connect or remove them first"
 	var inactive := inactive_drafts()
@@ -501,25 +521,16 @@ func check_commit(player: Player) -> String:
 		return "Every planned enchantment has to be active to commit. Not yet: " + ", ".join(names)
 	if commit_candidates().is_empty():
 		return "Plan and activate an enchantment before committing"
-	var missing := missing_materials(player)
-	if not missing.is_empty():
-		var names: Array[String] = []
-		for m in missing:
-			names.append("%d× %s" % [missing[m], material_name(m)])
-		return "Not enough materials: " + ", ".join(names)
 	return ""
 
 
 ## Commits every draft enchantment (all must be active) with the lines chained to it.
-## Materials are used up.
-func commit(player: Player) -> Array[PlacementState]:
+## Its materials, already held by the item, are used up.
+func commit() -> Array[PlacementState]:
 	var done: Array[PlacementState] = []
-	if check_commit(player) != "":
+	if check_commit() != "":
 		return done
 	done = commit_candidates()
-	var need := materials_needed(done)
-	for m in need:
-		player.remove_material(m, need[m])
 	var ids := {}
 	for p in done:
 		p.committed = true
@@ -548,6 +559,61 @@ static func material_name(m: EnchantmentMaterialDefinition) -> String:
 
 
 #
+# ── Enchantment shapes ───────────────────────────
+#
+## Why an enchantment's own shape is broken, or "" when it's sound. Checked unrotated at the origin:
+## the first node sits on the origin, no two cells overlap,
+## and each fixed line runs cell by cell between two different nodes.
+static func check_shape(e: Enchantment) -> String:
+	if e == null or e.nodes.is_empty():
+		return "That enchantment has no shape yet"
+	if e.nodes[0].offset != Vector2i.ZERO:
+		return "The first node has to sit on the origin cell"
+	var taken := {}  ## Vector2i -> what takes it, for messages
+	for i in e.nodes.size():
+		var n: EnchantmentPatternNode = e.nodes[i]
+		var cells: Array[Vector2i] = [n.offset]
+		for c in n.extra_cells:
+			cells.append(n.offset + c)
+		for c in cells:
+			if taken.has(c):
+				return "Node %d overlaps %s" % [i, taken[c]]
+			taken[c] = "node %d" % i
+	var joined := {}
+	for i in e.lines.size():
+		var err := _check_shape_line(e, i, taken, joined)
+		if err != "":
+			return "Line %d: %s" % [i, err]
+	return ""
+
+
+static func _check_shape_line(
+	e: Enchantment, i: int, taken: Dictionary, joined: Dictionary
+) -> String:
+	var l: EnchantmentPatternLine = e.lines[i]
+	var count := e.nodes.size()
+	if l.from_node < 0 or l.from_node >= count or l.to_node < 0 or l.to_node >= count:
+		return "it has to join two of the enchantment's nodes"
+	if l.from_node == l.to_node:
+		return "it has to join two different nodes"
+	var pair := Vector2i(mini(l.from_node, l.to_node), maxi(l.from_node, l.to_node))
+	if joined.has(pair):
+		return "nodes %d and %d are already joined" % [pair.x, pair.y]
+	joined[pair] = true
+	var path: Array[Vector2i] = [e.nodes[l.from_node].offset]
+	path.append_array(l.cells)
+	path.append(e.nodes[l.to_node].offset)
+	for j in range(1, path.size()):
+		if Hex.distance(path[j - 1], path[j]) != 1:
+			return "its cells have to run from node to node, each next to the one before"
+	for c in l.cells:
+		if taken.has(c):
+			return "it runs over %s" % taken[c]
+		taken[c] = "line %d" % i
+	return ""
+
+
+#
 # ── Internals ────────────────────────────────────
 #
 func _rebuild() -> void:
@@ -558,12 +624,15 @@ func _rebuild() -> void:
 		var k := magic_key(c)
 		_nodes[k] = {"kind": "magic", "cell": c, "placement": null, "index": -1}
 		_cell_to_node[c] = k
+	_extra_cells.clear()
 	for p in state.placements:
 		var cells := placement_cells(p.enchantment, p.origin, p.rotation_steps)
 		for i in cells.size():
 			var k := enchantment_key(p.id, i)
 			_nodes[k] = {"kind": "enchantment", "cell": cells[i], "placement": p, "index": i}
 			_cell_to_node[cells[i]] = k
+			for c in p.enchantment.nodes[i].extra_cells:
+				_extra_cells[p.origin + Hex.rotate(p.enchantment.nodes[i].offset + c, p.rotation_steps)] = k
 	for l in state.lines:
 		if not _adjacency.has(l.a):
 			_adjacency[l.a] = []
@@ -581,6 +650,15 @@ func _rebuild() -> void:
 				_occupied[p.origin + Hex.rotate(c, p.rotation_steps)] = p
 
 
+func _erase_placement(p: PlacementState) -> void:
+	var prefix := "e:%d:" % p.id
+	for l in state.lines.duplicate():
+		if l.a.begins_with(prefix) or l.b.begins_with(prefix):
+			state.lines.erase(l)
+	state.placements.erase(p)
+	_rebuild()
+
+
 func _check_step_cell(path: Array[Vector2i], next: Vector2i) -> String:
 	var last: Vector2i = path.back()
 	if Hex.distance(last, next) != 1:
@@ -589,7 +667,14 @@ func _check_step_cell(path: Array[Vector2i], next: Vector2i) -> String:
 		return "Lines have to stay inside the item"
 	if next in path:
 		return "A line can't cross itself"
-	var owner: Variant = _occupied.get(next)
+	return _taken_reason(next)
+
+
+## Why a line can't run through `cell` because something already takes it, or ""
+func _taken_reason(cell: Vector2i) -> String:
+	if _extra_cells.has(cell):
+		return "An enchantment node covers this cell"
+	var owner: Variant = _occupied.get(cell)
 	if owner is LineState:
 		return "Another line runs through here"
 	if owner is PlacementState:

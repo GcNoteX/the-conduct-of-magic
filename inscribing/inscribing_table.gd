@@ -4,20 +4,64 @@ extends Control
 The inscribing (carving) table for the first build: pick an item, plan enchantments, lines and
 materials on its hex map, then commit. Plans are drafts kept on each item, so switching items and
 coming back keeps them. The day timer runs continuously; when it ends, the day is over.
+In Disenchant mode the same table plans cuts, dissolves and pull-outs on the item's committed
+carvings (see DisenchantBoard), with the runes in a bar above the board and the plan on the right.
 """
 
+## The palette layouts being compared (sheet 0004); the losers go once one is picked
+enum Layout { SIDEBAR, BOTTOM_TRAY, QUICK_PALETTE, LISTS }
+
+const CARVE_HELP := (
+	"Drag an enchantment onto the item (R rotates it), or click it to hold it. "
+	+ "Press on a node and drag through cells to draw a line; move back to undo. "
+	+ "Drag a material onto a node. Right click removes planned things. "
+	+ "Commit when every node shows a tick."
+)
+const DISENCHANT_HELP := (
+	"Double-click a material to dissolve it for runes. Click a line to plan cutting it: it costs "
+	+ "the runes shown on it. A node gives runes back when its last line is cut. Click an "
+	+ "enchantment node to pull it out once all its lines are cut. Right click undoes the last step."
+)
+const CARVE_LEGEND := (
+	"[b]Reading the board[/b]\n"
+	+ "Empty nodes show what they need: Fl flame, Wa water, So soft, Ha hard, Sh shiny, "
+	+ "any for any material. A gold number means that tier or higher.\n"
+	+ "Filled nodes show their material's progress, like 1/2 lines, with a red ring "
+	+ "until it's met and a green ring and tick after.\n"
+	+ "Hover a node for the details."
+)
+const DISENCHANT_LEGEND := (
+	"[b]Reading the board[/b]\n"
+	+ "Each committed line shows what cutting it costs: [color=#4aa3ff]water[/color], "
+	+ "[color=#ff7a3d]fire[/color], [color=#bfeccb]wind[/color] and "
+	+ "[color=#b49a74]stone[/color] runes. Planned cuts show their step number, red when "
+	+ "you can't afford them. A green ring marks a node that pays out in the plan. "
+	+ "Magic nodes show their number.\n"
+	+ "Hover a node or line for its runes."
+)
+const LAYOUT_NAMES: Array[String] = [
+	"Sidebar", "Bottom tray", "Quick palette (hold Space)", "Lists (original)"
+]
+
 @export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
+## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
+@export var solvability_check: SolvabilityCheck
 
 var player: Player
 var board: InscriptionBoard
+## The board's disenchant rules while in Disenchant mode, otherwise null
+var disenchant: DisenchantBoard
 var time_left: float = 0.0
 var day: int = 1
 
 var _view: BoardView
 var _board_area: BoardDropArea
-var _items: ItemList
-var _enchantments: ItemList
-var _materials: MaterialList
+var _item_picker: OptionButton
+var _layout_picker: OptionButton
+var _layout: PaletteLayout
+var _left_slot: Control
+var _bottom_slot: Control
+var _overlay: Control
 var _timer_label: Label
 var _item_label: RichTextLabel
 var _tooltip: PanelContainer
@@ -26,6 +70,11 @@ var _message_label: Label
 var _commit_button: Button
 var _day_over: PanelContainer
 var _day_over_text: RichTextLabel
+var _carve_button: Button
+var _disenchant_button: Button
+var _rune_bar: RuneBar
+var _plan_panel: DisenchantPlanPanel
+var _legend: RichTextLabel
 
 
 func _ready() -> void:
@@ -34,10 +83,13 @@ func _ready() -> void:
 	PlayerManager.set_player(player)
 	time_left = setup.day_length_seconds
 	_build_ui()
-	_refresh_lists()
+	_set_layout(Layout.SIDEBAR)
+	_refresh_items()
 	if not player.items.is_empty():
-		_items.select(0)
+		_item_picker.select(0)
 		_open_item(0)
+	if solvability_check:
+		solvability_check.check_items(player.items, player)
 
 
 func _process(delta: float) -> void:
@@ -56,54 +108,212 @@ func _process(delta: float) -> void:
 # ── Actions ──────────────────────────────────────
 #
 func _open_item(index: int) -> void:
-	board = InscriptionBoard.new(player.items[index])
+	board = InscriptionBoard.new(player.items[index], player)
 	_view.board = board
+	disenchant = DisenchantBoard.new(board) if is_disenchanting() else null
+	_view.disenchant = disenchant
 	_fit_board()
 	_view.held_enchantment = null
-	_enchantments.deselect_all()
+	_refresh_all()
+	if board.get_cells().is_empty():
+		_set_message("This item's map has no cells. Paint its map scene and press Bake.")
+
+
+func _on_item_picked(index: int) -> void:
+	_open_item(index)
+	if solvability_check:
+		solvability_check.check_item(player.items[index], player)
+
+
+func is_disenchanting() -> bool:
+	return _disenchant_button.button_pressed
+
+
+func _set_disenchanting(on: bool) -> void:
+	_disenchant_button.set_pressed_no_signal(on)
+	_carve_button.set_pressed_no_signal(not on)
+	_view.held_enchantment = null
+	disenchant = DisenchantBoard.new(board) if on and board else null
+	_view.disenchant = disenchant
+	if on and disenchant.carvings().is_empty():
+		_set_message(
+			"Nothing is carved on this item yet. Commit a carving first, or pick the carved sword."
+		)
+	elif on:
+		_set_message(
+			"Plan how to take carvings out. Dissolve a material first: you start with no runes."
+		)
+	else:
+		_set_message("Carving. Your disenchant plan stays on the item.")
 	_refresh_all()
 
 
-func _on_enchantment_selected(index: int) -> void:
+## Click-to-hold, kept as a fallback to dragging
+func _hold_enchantment(e: Enchantment) -> void:
+	if is_disenchanting():
+		_set_message("Switch to Carve to place enchantments")
+		return
 	_view.held_rotation = 0
-	_view.held_enchantment = player.known_enchantments[index]
+	_view.held_enchantment = e
 	_set_message(
 		(
 			"Click the item to place %s. Scroll or press R to rotate, right click to put it down."
-			% player.known_enchantments[index].enchantment_name
+			% e.enchantment_name
 		)
 	)
 
 
-func _on_material_drag_started(m: EnchantmentMaterialDefinition) -> void:
-	_enchantments.deselect_all()
+func _on_card_pressed(payload: Resource) -> void:
+	if payload is Enchantment:
+		_hold_enchantment(payload)
+	elif is_disenchanting():
+		_set_message(
+			(
+				"Double-click %s to dissolve it"
+				% InscriptionBoard.material_name(payload as EnchantmentMaterialDefinition)
+			)
+		)
+	elif _is_used_up(payload):
+		_set_message(_used_up_message(payload))
+	else:
+		_set_message("Drag the material onto an enchantment node.")
+
+
+## Whether `payload` is a material the player has none of
+func _is_used_up(payload: Resource) -> bool:
+	var m := payload as EnchantmentMaterialDefinition
+	return m != null and player.get_material_count(m) == 0
+
+
+func _used_up_message(payload: Resource) -> String:
+	return "No %s left" % InscriptionBoard.material_name(payload as EnchantmentMaterialDefinition)
+
+
+func _on_card_drag_started(payload: Resource) -> void:
+	if is_disenchanting():
+		_on_card_pressed(payload)
+		return
+	if _is_used_up(payload):
+		_set_message(_used_up_message(payload))
+		return
 	_view.held_enchantment = null
-	_set_message(
-		(
-			"Drop %s onto an enchantment node. Green rings show the nodes that accept it."
-			% InscriptionBoard.material_name(m)
+	if _layout:
+		_layout.on_drag_started()
+	if payload is Enchantment:
+		_view.held_rotation = 0
+		_set_message(
+			(
+				"Drop %s onto the item. Press R or scroll to rotate it while dragging."
+				% (payload as Enchantment).enchantment_name
+			)
 		)
-	)
+	else:
+		_set_message(
+			(
+				"Drop %s onto an enchantment node. Green rings show the nodes that accept it."
+				% InscriptionBoard.material_name(payload as EnchantmentMaterialDefinition)
+			)
+		)
 
 
-func _can_use_material(m: EnchantmentMaterialDefinition) -> String:
-	if player.get_material_count(m) - board.reserved_in_drafts(m) <= 0:
-		return "You don't have another %s for this item's plan" % InscriptionBoard.material_name(m)
-	return ""
+func _unhandled_key_input(event: InputEvent) -> void:
+	if _layout and not _day_over.visible and _layout.handle_key(event as InputEventKey):
+		get_viewport().set_input_as_handled()
 
 
-func _on_commit_pressed() -> void:
-	var err := board.check_commit(player)
+func _set_layout(which: Layout) -> void:
+	if _layout:
+		_layout.queue_free()
+	match which:
+		Layout.SIDEBAR:
+			_layout = CollapsibleSidebar.new()
+		Layout.BOTTOM_TRAY:
+			_layout = BottomTray.new()
+		Layout.QUICK_PALETTE:
+			_layout = QuickPalette.new()
+		_:
+			var lists := ClassicLists.new()
+			lists.enchantment_chosen.connect(_on_card_pressed)
+			lists.material_list().drag_started.connect(_on_card_drag_started)
+			lists.material_activated.connect(_on_material_activated)
+			_layout = lists
+	match _layout.slot():
+		PaletteLayout.Slot.LEFT:
+			_left_slot.add_child(_layout)
+			_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
+		PaletteLayout.Slot.BOTTOM:
+			_bottom_slot.add_child(_layout)
+			_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_:
+			_overlay.add_child(_layout)
+	_left_slot.visible = _layout.slot() == PaletteLayout.Slot.LEFT
+	_bottom_slot.visible = _layout.slot() == PaletteLayout.Slot.BOTTOM
+	_bottom_slot.custom_minimum_size.y = _layout.custom_minimum_size.y
+	_layout_picker.select(which)
+	_refresh_cards()
+
+
+## Plans dissolving `m` (a double-click on its card or list row)
+func _on_material_activated(m: EnchantmentMaterialDefinition) -> void:
+	if not is_disenchanting():
+		_set_message("Drag materials onto enchantment nodes. Dissolving is for Disenchant mode.")
+		return
+	var err := disenchant.plan_dissolve(m)
 	if err != "":
 		_set_message(err)
 		return
-	var done := board.commit(player)
+	_set_message(
+		(
+			"Planned: dissolve %s for %s. It's held by this item until you commit or undo."
+			% [InscriptionBoard.material_name(m), RuneSet.copy_of(m.dissolve_runes).describe()]
+		)
+	)
+	_on_board_changed()
+
+
+func _on_undo_pressed() -> void:
+	var undone := disenchant.undo_last()
+	if undone:
+		_set_message("Undid: %s" % disenchant.describe_step(undone))
+	_on_board_changed()
+
+
+func _on_commit_pressed() -> void:
+	if is_disenchanting():
+		_commit_disenchant()
+		return
+	var err := board.check_commit()
+	if err != "":
+		_set_message(err)
+		return
+	var done := board.commit()
 	var names: Array[String] = []
 	for p in done:
 		names.append(p.enchantment.enchantment_name)
 	_set_message("Committed %s. The materials are used up." % ", ".join(names))
 	_view.queue_redraw()
 	_refresh_all()
+
+
+func _commit_disenchant() -> void:
+	var err := disenchant.check_commit()
+	if err != "":
+		_set_message(err)
+		return
+	var done := disenchant.commit()
+	var names: Array[String] = []
+	for p in done:
+		names.append(p.enchantment.enchantment_name)
+	_set_message(
+		(
+			(
+				"Pulled out %s. Its cells are free again, the dissolved materials are used up and "
+				% ", ".join(names)
+			)
+			+ "leftover runes disperse."
+		)
+	)
+	_on_board_changed()
 
 
 func _end_day() -> void:
@@ -127,37 +337,74 @@ func _start_next_day() -> void:
 # ── Refreshing ───────────────────────────────────
 #
 func _refresh_all() -> void:
-	_refresh_lists()
+	_refresh_items()
+	_refresh_cards()
 	_refresh_item_panel()
 	_refresh_commit()
+	_refresh_mode()
 	_on_hovered("")
 
 
-func _refresh_lists() -> void:
-	var selected_item := _items.get_selected_items()
-	_items.clear()
+func _refresh_mode() -> void:
+	var on := is_disenchanting()
+	_rune_bar.visible = on
+	_plan_panel.visible = on
+	var texts := [DISENCHANT_LEGEND, DISENCHANT_HELP] if on else [CARVE_LEGEND, CARVE_HELP]
+	_legend.text = "%s\n\n[b]Working[/b]\n%s" % texts
+	if on and disenchant:
+		_rune_bar.show_runes(disenchant.runes())
+		_plan_panel.show_plan(disenchant)
+
+
+func _refresh_items() -> void:
+	var selected := _item_picker.selected
+	_item_picker.clear()
 	for inst in player.items:
-		_items.add_item(_item_name(inst))
-	if not selected_item.is_empty():
-		_items.select(selected_item[0])
+		var carved := _item_effects(inst) != "nothing"
+		_item_picker.add_item(_item_name(inst) + ("  (carved)" if carved else ""))
+	if selected >= 0 and selected < _item_picker.item_count:
+		_item_picker.select(selected)
 
-	if _enchantments.item_count != player.known_enchantments.size():
-		_enchantments.clear()
-		for e in player.known_enchantments:
-			_enchantments.add_item("%s  (%d nodes)" % [e.enchantment_name, e.nodes.size()])
-			_enchantments.set_item_tooltip(_enchantments.item_count - 1, _enchantment_tooltip(e))
 
-	_materials.clear()
-	_materials.materials = _material_order()
-	for m in _materials.materials:
-		var planned := board.reserved_in_drafts(m) if board else 0
-		var label := "%s ×%d" % [InscriptionBoard.material_name(m), player.get_material_count(m)]
+func _refresh_cards() -> void:
+	if _layout == null:
+		return
+	var on := is_disenchanting()
+	var enchantment_cards: Array[PaletteCard] = []
+	for e in player.known_enchantments:
+		var card := _card(
+			e, e.enchantment_name, "%d nodes" % e.nodes.size(), _enchantment_tooltip(e), on
+		)
+		card.draggable = not on
+		enchantment_cards.append(card)
+	var material_cards: Array[PaletteCard] = []
+	for m in _material_order():
+		var count := player.get_material_count(m)
+		var planned := board.planned_count(m) if board else 0
+		var sub := "×%d" % count
 		if planned > 0:
-			label += "  (%d planned)" % planned
-		_materials.add_item(label)
-		var idx := _materials.item_count - 1
-		_materials.set_item_custom_fg_color(idx, m.color.lightened(0.3))
-		_materials.set_item_tooltip(idx, _material_tooltip(m))
+			sub += "  (+%d planned here)" % planned
+		var card := _card(
+			m, InscriptionBoard.material_name(m), sub, _material_tooltip(m), count == 0
+		)
+		card.draggable = not on and count > 0
+		material_cards.append(card)
+	_layout.set_cards(enchantment_cards, material_cards)
+
+
+func _card(
+	payload: Resource, title: String, sub: String, tip: String, dimmed := false
+) -> PaletteCard:
+	var card := PaletteCard.new(payload, title, sub, tip, dimmed)
+	card.drag_started.connect(_on_card_drag_started)
+	card.pressed.connect(_on_card_pressed)
+	card.double_clicked.connect(_on_card_double_clicked)
+	return card
+
+
+func _on_card_double_clicked(payload: Resource) -> void:
+	if payload is EnchantmentMaterialDefinition:
+		_on_material_activated(payload)
 
 
 func _refresh_item_panel() -> void:
@@ -178,17 +425,22 @@ func _refresh_item_panel() -> void:
 				)
 			)
 	text += "Planned: %s" % (", ".join(drafts) if not drafts.is_empty() else "nothing")
+	var steps := board.state.disenchant_plan.size()
+	if steps > 0:
+		text += "\nDisenchant plan: %d step%s" % [steps, "" if steps == 1 else "s"]
 	_item_label.text = text
 
 
 func _refresh_commit() -> void:
 	if board == null:
 		return
+	_commit_button.modulate = Color.WHITE
+	if is_disenchanting():
+		_refresh_disenchant_commit()
+		return
 	var candidates := board.commit_candidates()
-	var missing := board.missing_materials(player)
 	var inactive := board.inactive_drafts()
 	_commit_button.disabled = candidates.is_empty() or not inactive.is_empty()
-	_commit_button.modulate = Color(1, 0.45, 0.45) if not missing.is_empty() else Color.WHITE
 	_commit_button.disabled = _commit_button.disabled or not board.dead_lines().is_empty()
 	if not board.dead_lines().is_empty():
 		_commit_button.text = "Commit (unconnected magic nodes)"
@@ -196,8 +448,6 @@ func _refresh_commit() -> void:
 		_commit_button.text = "Commit (%s not active)" % inactive[0].enchantment.enchantment_name
 	elif candidates.is_empty():
 		_commit_button.text = "Commit (nothing planned)"
-	elif not missing.is_empty():
-		_commit_button.text = "Commit (missing materials)"
 	else:
 		var names: Array[String] = []
 		for p in candidates:
@@ -205,8 +455,33 @@ func _refresh_commit() -> void:
 		_commit_button.text = "Commit " + ", ".join(names)
 
 
-## Shows the node's details in a tooltip that follows the mouse
+func _refresh_disenchant_commit() -> void:
+	var err := disenchant.check_commit()
+	var blocked := disenchant.first_blocked()
+	_commit_button.disabled = err != ""
+	if blocked >= 0:
+		_commit_button.text = "Commit (step %d can't be done)" % (blocked + 1)
+		_commit_button.modulate = Color(1, 0.45, 0.45)
+	elif disenchant.state.disenchant_plan.is_empty():
+		_commit_button.text = "Commit (nothing planned)"
+	elif disenchant.planned_pull_outs().is_empty():
+		_commit_button.text = "Commit (pull out an enchantment)"
+	elif err != "":
+		_commit_button.text = "Commit (finish every enchantment you cut)"
+	else:
+		var names: Array[String] = []
+		for p in disenchant.planned_pull_outs():
+			names.append(p.enchantment.enchantment_name)
+		_commit_button.text = "Commit: pull out " + ", ".join(names)
+
+
+## Shows the node's (or in Disenchant mode, the line's) details in a tooltip that follows the mouse
 func _on_hovered(key: String) -> void:
+	if board and disenchant and key != "":
+		var tip := _disenchant_tooltip(key)
+		if tip != "":
+			_show_tooltip(tip)
+			return
 	if board == null or key == "" or not board.has_node(key):
 		_tooltip.visible = false
 		return
@@ -246,10 +521,52 @@ func _on_hovered(key: String) -> void:
 						c[2]
 					]
 				)
+	_show_tooltip(text)
+
+
+func _show_tooltip(text: String) -> void:
 	_tooltip_label.text = text.strip_edges()
 	_tooltip.visible = true
 	_tooltip.reset_size()
 	_place_tooltip()
+
+
+## The runes of a committed line or node, or "" to fall back to the carving tooltip
+func _disenchant_tooltip(key: String) -> String:
+	if disenchant.has_edge(key):
+		var ends := disenchant.edge_ends(key)
+		var text := (
+			"[b]Line[/b] of %s\n" % disenchant.edge_placement(key).enchantment.enchantment_name
+		)
+		text += "Cutting costs %s\n" % disenchant.edge_cost(key).describe()
+		for n in ends:
+			text += (
+				"  %s puts %s on it\n"
+				% [disenchant.node_label(n), disenchant.node_edge_runes(n).describe()]
+			)
+		var step := disenchant.planned_step_of_edge(key)
+		text += (
+			"Planned as step %d. Right click undoes the last step." % (step + 1)
+			if step >= 0
+			else "Click to plan cutting it."
+		)
+		return text
+	if not board.has_node(key) or disenchant.node_edges(key).is_empty():
+		return ""
+	var label := disenchant.node_label(key)
+	var text := "[b]%s%s[/b]\n" % [label.left(1).to_upper(), label.substr(1)]
+	text += "Puts %s on each of its lines\n" % disenchant.node_edge_runes(key).describe()
+	text += (
+		"Gives back %s when its last line is cut\n" % disenchant.node_harvest_runes(key).describe()
+	)
+	text += "Committed lines: %d" % disenchant.node_edges(key).size()
+	var p := board.node_placement(key)
+	if p:
+		text += (
+			"\nClick to pull %s out once all %d lines of its chain are planned cut."
+			% [p.enchantment.enchantment_name, disenchant.chain(p).size()]
+		)
+	return text
 
 
 func _place_tooltip() -> void:
@@ -259,6 +576,7 @@ func _place_tooltip() -> void:
 
 
 func _on_board_changed() -> void:
+	_view.queue_redraw()
 	_refresh_all()
 
 
@@ -350,41 +668,59 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
-	var left := _panel(root, 300)
-	_items = _list(left, "Items", 2)
-	_items.item_selected.connect(_open_item)
-	_enchantments = _list(left, "Enchantments", 4)
-	_enchantments.item_selected.connect(_on_enchantment_selected)
-	_materials = MaterialList.new()
-	_list(left, "Materials", 6, _materials)
-	_materials.drag_started.connect(_on_material_drag_started)
-	var help := Label.new()
-	help.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	help.text = (
-		"Pick an enchantment and click the item to place it. Press on a node and drag through "
-		+ "cells to draw a line; move back to undo. Drag a material onto a node to insert it. "
-		+ "Right click removes planned things. Commit when every node shows a tick."
-	)
-	help.add_theme_font_size_override("font_size", 13)
-	left.add_child(help)
+	_left_slot = Control.new()
+	_left_slot.custom_minimum_size.x = 290
+	_left_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_left_slot)
 
+	var board_column := VBoxContainer.new()
+	board_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	board_column.add_theme_constant_override("separation", 0)
+	board_column.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(board_column)
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 8)
+	board_column.add_child(top)
+	var modes := ButtonGroup.new()
+	_carve_button = _mode_button(top, "Carve", modes)
+	_disenchant_button = _mode_button(top, "Disenchant", modes)
+	_carve_button.button_pressed = true
+	_carve_button.pressed.connect(_set_disenchanting.bind(false))
+	_disenchant_button.pressed.connect(_set_disenchanting.bind(true))
+	var gap := Control.new()
+	gap.custom_minimum_size.x = 24
+	top.add_child(gap)
+	_rune_bar = RuneBar.new()
+	top.add_child(_rune_bar)
+	var board_stack := Control.new()  # The board, with the overlay layouts on top of it
+	board_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	board_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_column.add_child(board_stack)
 	_board_area = BoardDropArea.new()
-	_board_area.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_board_area.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_board_area.resized.connect(_fit_board)
-	root.add_child(_board_area)
+	board_stack.add_child(_board_area)
 	_view = BoardView.new()
 	_board_area.view = _view
-	_view.can_use_material = _can_use_material
 	_view.message.connect(_set_message)
 	_view.changed.connect(_on_board_changed)
 	_view.hovered.connect(_on_hovered)
 	_board_area.add_child(_view)
+	_overlay = Control.new()
+	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_stack.add_child(_overlay)
+	_bottom_slot = Control.new()
+	_bottom_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_column.add_child(_bottom_slot)
 
 	var right := _panel(root, 320)
 	_timer_label = Label.new()
 	_timer_label.add_theme_font_size_override("font_size", 22)
 	right.add_child(_timer_label)
-	_item_label = _rich(right, 110)
+	_item_picker = _picker(right, "Item")
+	_item_picker.item_selected.connect(_on_item_picked)
+	_item_label = _rich(right, 130)
 	_commit_button = Button.new()
 	_commit_button.custom_minimum_size.y = 44
 	_commit_button.clip_text = true
@@ -395,16 +731,16 @@ func _build_ui() -> void:
 	_message_label.custom_minimum_size.y = 60
 	_message_label.add_theme_color_override("font_color", Color("f0d68a"))
 	right.add_child(_message_label)
-	var legend := _rich(right, 220)
-	legend.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	legend.text = (
-		"[b]Reading the board[/b]\n"
-		+ "Empty nodes show what they need: Fl flame, Wa water, So soft, Ha hard, Sh shiny, "
-		+ "any for any material. A gold number means that tier or higher.\n"
-		+ "Filled nodes show their material's progress, like 1/2 lines, with a red ring "
-		+ "until it's met and a green ring and tick after.\n"
-		+ "Hover a node for the details."
-	)
+	_plan_panel = DisenchantPlanPanel.new()
+	_plan_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_plan_panel.undo_requested.connect(_on_undo_pressed)
+	right.add_child(_plan_panel)
+	_legend = _rich(right, 200)
+	_legend.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	_layout_picker = _picker(right, "Layout (experiment)")
+	for n in LAYOUT_NAMES:
+		_layout_picker.add_item(n)
+	_layout_picker.item_selected.connect(func(i: int): _set_layout(i as Layout))
 
 	_tooltip = PanelContainer.new()
 	_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -465,16 +801,27 @@ func _panel(parent: Control, width: float) -> VBoxContainer:
 	return v
 
 
-func _list(parent: Control, title: String, rows: int, list: ItemList = null) -> ItemList:
+func _picker(parent: Control, title: String) -> OptionButton:
+	var row := HBoxContainer.new()
+	parent.add_child(row)
 	var l := Label.new()
 	l.text = title
-	l.add_theme_font_size_override("font_size", 18)
-	parent.add_child(l)
-	if list == null:
-		list = ItemList.new()
-	list.custom_minimum_size.y = rows * 30 + 8
-	parent.add_child(list)
-	return list
+	row.add_child(l)
+	var picker := OptionButton.new()
+	picker.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	picker.focus_mode = Control.FOCUS_NONE
+	row.add_child(picker)
+	return picker
+
+
+func _mode_button(parent: Control, text: String, group: ButtonGroup) -> Button:
+	var b := Button.new()
+	b.text = text
+	b.toggle_mode = true
+	b.button_group = group
+	b.custom_minimum_size = Vector2(120, 36)
+	parent.add_child(b)
+	return b
 
 
 func _rich(parent: Control, height: float) -> RichTextLabel:

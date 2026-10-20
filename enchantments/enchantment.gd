@@ -1,5 +1,8 @@
+@tool
 class_name Enchantment
 extends Resource
+## One enchantment: its name, what it does, and its fixed hex shape of nodes and lines.
+## The shape is authored in an EnchantmentScene and baked into this resource.
 
 @export var enchantment_name: String = "NULL"
 

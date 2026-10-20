@@ -67,3 +67,5 @@ jobs:
             echo "::error::Script errors found, see the log above."
             exit 1
           fi
+      - name: Run rule tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_inscription_board.tscn
