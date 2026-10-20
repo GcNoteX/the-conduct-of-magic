@@ -5,11 +5,13 @@ extends Control
 ## is active: the counter or the inscribing table. Each day's plan gives each side its share of
 ## the clock; the counter comes first, and the day ends when the last side runs out of time.
 ## The inactive side is hidden and paused, so it picks up exactly where it stopped.
-## Debug builds can jump between sides with the dev_switch_side action, whatever the plan says.
+## Debug builds can jump between sides with the dev_switch_side action, whatever the plan says,
+## and run out the active side's time with dev_end_side.
 
 enum ShopSide { COUNTER, INSCRIBING }
 
 const DEV_SWITCH_ACTION := &"dev_switch_side"
+const DEV_END_SIDE_ACTION := &"dev_end_side"
 const BAR_HEIGHT := 40.0
 const SIDE_NAMES: Dictionary[ShopSide, String] = {
 	ShopSide.COUNTER: "Counter",
@@ -56,6 +58,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(DEV_SWITCH_ACTION):
 		switch_to(ShopSide.INSCRIBING if side == ShopSide.COUNTER else ShopSide.COUNTER)
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed(DEV_END_SIDE_ACTION):
+		end_side()
+		get_viewport().set_input_as_handled()
 
 
 ## Runs the active side's clock on, and moves the day along when that side's time runs out
@@ -67,6 +72,15 @@ func advance(delta: float) -> void:
 		time_left[side] = maxf(left - delta, 0.0)
 		if time_left[side] <= 0.0:
 			_on_side_time_up()
+	_refresh_clock()
+
+
+## Runs out the active side's time now, moving the day along as if its clock had reached zero
+func end_side() -> void:
+	if is_day_over():
+		return
+	time_left[side] = 0.0
+	_on_side_time_up()
 	_refresh_clock()
 
 
@@ -184,7 +198,7 @@ func _refresh_clock() -> void:
 	if side == ShopSide.COUNTER and time_left.get(ShopSide.INSCRIBING, 0.0) > 0.0:
 		text += " · then inscribing"
 	if OS.is_debug_build():
-		text += "      (dev: F2 switches sides)"
+		text += "      (dev: F2 switches sides, F3 ends this side)"
 	_clock_label.text = text
 
 
