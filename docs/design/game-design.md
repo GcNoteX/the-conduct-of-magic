@@ -409,6 +409,13 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 **Memory aids.** The player keeps a **resume sheet** and a **letters drawer** that holds what people have said. Neither shows scores.
 
 **Pacing.** Pressures come in **a season at a time**: commissions, time and rules first, rent from the second week, and side tasks from the second season.
+### 9.7 The wall calendar
+The player keeps a **personal wall calendar** for the apprenticeship year. Planning sheet: [0007](../plans/0007-in-game-calendar.md).
+- It follows the **2026 calendar** with real month names and **no leap years**. The year runs from 1 March 2026 to 28 February 2027.
+- Seasons are **northern-hemisphere**: Spring is March to May, Summer June to August, Autumn September to November, and Winter December to February.
+- It shows **seasonal events**, **application day** and the **acceptance letter**, plus **commission deadlines** and the days **customers said they'd come back**. Character visits don't go on it.
+- It's **not the source of truth**. It shows plans and expectations for the player to look over, and customers and events follow their own rules, so a customer can come back on a different day.
+- Later it may be where the player changes the **work schedule**: how much of a day goes to the workshop and how much to inscribing.
 
 ## 10. Open questions
 
@@ -499,6 +506,7 @@ Each route is a **macro level**: a new place with slightly different mechanics a
 | 2026-10-20 | **Rent** is paid weekly from the allowance plus pay (§9.6). **University side tasks** from books add **resume entries**, and the resume becomes a **third university requirement**, judged in one place from the player's and Mr. Leywin's state (§9.2.2). Gifts are **not a system**: items to give back are added per storyline (§5.7). Stamina tonics from the potion maker are archived (A.14). |
 | 2026-10-20 | **Stamina** is the night's time budget and replaces a separate night timer. Its cap is the night hours before the next day, and ending customer work earlier starts the night with more. **Room builds** fold into practical inscribing as **home projects** that upgrade things or unlock views, not stats. A **resume sheet** and **letters drawer** carry what the player must remember. Pressures are introduced **a season at a time** (§9.6). |
 | 2026-10-20 | For the spike, stamina shows as a **yellow progress bar** (§9.6). |
+| 2026-10-20 | A personal **wall calendar** (§9.7) follows the 2026 calendar with northern seasons and no leap years. It shows seasonal events, application day, the letter, deadlines and expected customer returns, but it isn't the source of truth. It may later hold the work schedule. |
 
 ## Appendix A: Idea archive
 Ideas kept for reference when we need more. **Nothing here is decided.**
