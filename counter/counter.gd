@@ -66,6 +66,7 @@ var _supplier_rows: GridContainer
 
 
 func _ready() -> void:
+	Settings.register_theme(theme)
 	_build_ui()
 
 
