@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-22
 **Planning sheet:** None, as Gavin asked for this overnight batch without sheets
-**PR:** the GUT framework PR (`gut-tests`), and the combined PR (`automated-tests`)
+**PR:** #35 (this combined branch), and #34 for `gut-tests` on its own
 
 ## Branches
 
