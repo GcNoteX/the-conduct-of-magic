@@ -83,3 +83,5 @@ jobs:
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_settings.tscn
       - name: Run save and load tests
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_save_load.tscn
+      - name: Run DevLog tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_dev_log.tscn
