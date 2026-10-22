@@ -24,7 +24,7 @@ How to test:
 3. In `tools/bot_playtest/default_settings.tres`, change `customers_per_day`, `enchantments_per_night` or `days` and run again.
 
 Acceptance criteria:
-- [ ] The run finishes and writes the report. It exits with code 1 because it currently finds problems (stones lost on collection); that is expected until the game is fixed.
+- [ ] The run finishes, writes the report and exits with code 0. The only problems listed are the two warnings about the out-of-date demo sword.
 - [ ] The report has sections for problems found, economy, content use, carving, fit on a fresh item and performance.
 - [ ] "Fit on a fresh item" shows Ward with no room on the dagger and short sword, and fitting on the long sword.
 - [ ] Changing the settings changes the report (for example `customers_per_day = 1` lowers the money columns).

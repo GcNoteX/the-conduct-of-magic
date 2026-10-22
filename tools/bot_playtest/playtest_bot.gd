@@ -232,20 +232,9 @@ func _hand_back() -> void:
 	_set_context("counter", "hand %s their item back" % who)
 	var expected := c.payout()
 	var money_before := day.player.money
-	var planned: Dictionary[EnchantmentMaterialDefinition, int] = {}
-	if c.item.enchantment_graph_state:
-		planned = c.item.enchantment_graph_state.planned_materials()
 	var before := _snapshot()
 	counter.hand_back()
-	for m in planned:
-		before[m] -= planned[m]
-	if not planned.is_empty():
-		_issue(
-			"lost stones",
-			"Stones planned on an item leave with the customer when they collect it",
-			"%s took %s" % [who, _stones_text(planned)]
-		)
-	_check_unchanged(before, "a customer collecting")
+	_check_unchanged(before, "a customer collecting (planned stones should come back)")
 	if day.player.money != money_before + expected:
 		_issue(
 			"books",
@@ -680,13 +669,6 @@ func _who_is_waiting() -> String:
 	if c.current_visit():
 		return c.current_visit().slip.customer_name
 	return "no one"
-
-
-func _stones_text(stones: Dictionary) -> String:
-	var parts: Array[String] = []
-	for m in stones:
-		parts.append("%d %s" % [stones[m], InscriptionBoard.material_name(m)])
-	return ", ".join(parts)
 
 
 ## Adds the day's walk-ins once the authored days run out: copies of pool visits, their papers'
