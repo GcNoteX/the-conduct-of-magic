@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="EconomySimSettings" format=3]
+
+[ext_resource type="Script" path="res://tools/economy_sim/economy_sim_settings.gd" id="1_set"]
+[ext_resource type="Resource" path="res://inscribing/demo/demo_setup.tres" id="2_setup"]
+[ext_resource type="Resource" path="res://counter/supplier/demo_catalogue.tres" id="3_cat"]
+[ext_resource type="Resource" path="res://counter/demo/demo_rulebook.tres" id="4_rules"]
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="5_visit"]
+[ext_resource type="Resource" path="res://counter/demo/visit_01_elsa.tres" id="6_v1"]
+[ext_resource type="Resource" path="res://counter/demo/visit_02_bram.tres" id="7_v2"]
+[ext_resource type="Resource" path="res://counter/demo/visit_03_ines.tres" id="8_v3"]
+[ext_resource type="Resource" path="res://counter/demo/visit_04_oskar.tres" id="9_v4"]
+[ext_resource type="Resource" path="res://counter/demo/visit_05_rhea.tres" id="10_v5"]
+[ext_resource type="Resource" path="res://counter/demo/visit_06_tomas.tres" id="11_v6"]
+[ext_resource type="Resource" path="res://counter/demo/visit_07_wil.tres" id="12_v7"]
+[ext_resource type="Resource" path="res://counter/demo/visit_08_mara.tres" id="13_v8"]
+[ext_resource type="Resource" path="res://counter/demo/visit_09_jory.tres" id="14_v9"]
+
+[resource]
+script = ExtResource("1_set")
+setup = ExtResource("2_setup")
+catalogue = ExtResource("3_cat")
+rulebook = ExtResource("4_rules")
+customers = Array[ExtResource("5_visit")]([ExtResource("6_v1"), ExtResource("7_v2"), ExtResource("8_v3"), ExtResource("9_v4"), ExtResource("10_v5"), ExtResource("11_v6"), ExtResource("12_v7"), ExtResource("13_v8"), ExtResource("14_v9")])
