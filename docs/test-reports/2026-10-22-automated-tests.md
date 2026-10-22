@@ -1,4 +1,4 @@
-# Test report: Automated tests, CI and a bot playtest
+# Test report: Automated tests and CI
 
 **Date:** 2026-10-22
 **Planning sheet:** None, as Gavin asked for this overnight batch without sheets
@@ -12,9 +12,10 @@
 | `gut-tests` | GUT, the CI step, AutoCarver, the solvability and disenchanting tests. Branches from `main` | Only to check it alone before merging it |
 | `shop-loop-tests` | Shop loop, economy and customer job tests, on `gut-tests` + #24 | No |
 | `save-load-tests` | Save round-trip tests, on `shop-loop-tests` + #29 | No |
-| `bot-playtest` | The bot playtest, on `shop-loop-tests` | No |
 
 `gut-tests` has its own PR because it only needs `main`, so it can merge now. Everything else tests code that is still in open PRs (#20, #24, #29), so it goes in the combined PR, which should merge after those.
+
+The bot playtest is not in this batch. A separate thread built a fuller one in #33 (three play styles, disenchanting, settings), at the same paths, so this batch dropped its own to avoid two bots.
 
 ## What to test
 
@@ -62,28 +63,13 @@ Acceptance criteria:
 - [ ] A busy day-2 save (carved commissions, a collection, a draft carving holding a stone, a planned disenchant) loads back with money, stock, items, carvings, lines, plans, commissions, the counter's calls and queue and the clock all identical.
 - [ ] Saving the loaded run again changes nothing, and the loaded run plays the next day exactly like the original.
 
-### Bot playtest
-**Scene to run:** `res://tools/bot_playtest/run_bot_playtest.tscn`
-
-How to test:
-1. Run `godot --headless --path . res://tools/bot_playtest/run_bot_playtest.tscn -- --days=300 --seeds=1,2,3 --random=0,0.3,1 --out=bot_report.md` (about 90 seconds), or F6 on the scene for the default 200 days.
-2. Read `bot_report.md`. A copy of tonight's run is in the project files at `testing/bot-playtest/2026-10-22-bot-report.md`.
-
-Acceptance criteria:
-- [ ] Every run plays all its days and lists no problems; the command exits 0.
-- [ ] Each run's report has a money table, counter numbers, enchantments asked for and carved, and stones bought.
-- [ ] The notes match what you'd expect from the demo: money piles up, nobody asks for Bastion, and Ward never fits on the Dagger or Short sword.
-
 ## What the tests found
 
 - **Ward doesn't fit on the Dagger or the Short sword**, anywhere or in any rotation, so Elsa's, Tomas's and Jory's commissions can't be finished. They're listed in `KNOWN_UNFIT` in `test_customer_jobs.gd`; a fix to Ward's shape or to those customers' items will make the test say to take them off the list.
 - **The carved demo sword is out of date**: Kindle now has 3 nodes, the saved carving has 2, so loading it prints "Kindle changed shape" and drops a line.
-- **Money piles up**: over 300 days the sensible bot ends with about 20,000g (400× the start) and keeps gaining 60–75g a day, since nothing costs money except stones yet. Even a fully random bot ends near 12,000g.
-- **No customer asks for Bastion.**
 - A player who carves Kindle with all three starter Fire stones can't disenchant it with the stones left. Not a bug by the design doc's rule, which is about layouts, but worth knowing when the in-game solvability guarantee gets its numbers.
 
 ## Known gaps
 - AutoCarver is greedy: it places each enchantment at the first spot it fits and draws shortest lines. A job it can't carve might still be carvable by hand; Ward on the Dagger is a real "no" because no placement fits at all.
-- The bot's customers after day 3 are copies of the nine demo customers.
 - The 3 pending tests are the known unfit jobs above, not skipped work.
 - The existing hand-written test scenes (`tests/test_*.tscn`) still run in CI as before; nothing was moved to GUT.
