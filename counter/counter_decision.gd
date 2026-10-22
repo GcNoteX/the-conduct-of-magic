@@ -1,14 +1,14 @@
 class_name CounterDecision
-extends RefCounted
+extends Resource
 
 ## A call the player made at the counter, with what the rulebook said about it.
 
-var visit: CustomerVisit
-var accepted: bool
-var problems: Array[String]
+@export var visit: CustomerVisit
+@export var accepted: bool = false
+@export var problems: Array[String] = []
 
 
-func _init(v: CustomerVisit, was_accepted: bool, found: Array[String]) -> void:
+func _init(v: CustomerVisit = null, was_accepted: bool = false, found: Array[String] = []) -> void:
 	visit = v
 	accepted = was_accepted
 	problems = found
