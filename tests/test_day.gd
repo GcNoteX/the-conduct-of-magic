@@ -216,6 +216,14 @@ func test_customer_collects_and_pays() -> void:
 	day.switch_to(Day.ShopSide.INSCRIBING)
 	day.table._open_item(day.player.items.find(c.item))
 	_carve(c.item, [elsa.slip.enchantments[0]])
+	# A half-planned second enchantment holds a material taken from the player
+	var spare: EnchantmentMaterialDefinition = day.player.material_inventory.keys()[0]
+	var spare_count := day.player.get_material_count(spare)
+	day.player.remove_material(spare)
+	var draft := PlacementState.new()
+	draft.enchantment = elsa.slip.enchantments[1]
+	draft.materials = [spare]
+	c.item.enchantment_graph_state.placements.append(draft)
 	var money := day.player.money
 	day.end_side()
 	day.start_next_day()
@@ -226,6 +234,11 @@ func test_customer_collects_and_pays() -> void:
 	check(day.player.money == money + share, "she pays for one of two enchantments")
 	check(c.collected and c.paid == share, "the commission is marked collected and paid")
 	check(c.item not in day.player.items, "her item leaves with her")
+	check(
+		day.player.get_material_count(spare) == spare_count,
+		"materials planned on her item stay in the shop"
+	)
+	check(draft not in c.item.enchantment_graph_state.placements, "her item leaves without drafts")
 	check(day.counter.collections == [c], "the counter remembers the collection")
 	check(day.counter.current_visit() != null, "then the day's new customers step up")
 	day.switch_to(Day.ShopSide.INSCRIBING)
