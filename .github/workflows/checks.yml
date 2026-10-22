@@ -94,3 +94,5 @@ jobs:
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_dev_log.tscn
       - name: Run day and counter tests
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_day.tscn
+      - name: Run settings tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_settings.tscn
