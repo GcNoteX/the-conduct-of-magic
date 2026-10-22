@@ -53,6 +53,10 @@ workstation_controller=""
 workstation_cursor=""
 cursor=""
 
+[gui]
+
+theme/custom="res://ui/main_theme.tres"
+
 [input]
 
 dev_end_side={
