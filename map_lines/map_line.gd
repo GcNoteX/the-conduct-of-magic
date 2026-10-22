@@ -80,6 +80,25 @@ func validate_current_overlaps() -> void:
 			_handle_overlap_validation(area)
 
 
+## When this line overlaps a MagicLine that is still being drawn (it has no end yet), the
+## drawn line is killed. Lines that share a node only kill each other when their smaller
+## collision shapes touch, which feels better than using the whole line.
+func _on_area_shape_entered(
+	_area_rid: RID, area: Area2D, area_shape_index: int, local_shape_index: int
+) -> void:
+	if area is not MagicLine:
+		return
+	if area.end:  # Lines that have both a start (implicit) and end are not touched
+		return
+	if not UtilityFunctions._are_adjacent_lines(self, area):
+		area.kill_line()
+		return
+	var other_shape_node := area.shape_owner_get_owner(area.shape_find_owner(area_shape_index))
+	var local_shape_node := shape_owner_get_owner(shape_find_owner(local_shape_index))
+	if local_shape_node == collision_shape and other_shape_node == area.collision_shape:
+		area.kill_line()
+
+
 func _initialize_line() -> void:
 	# Collision shapes in instances share shape resource when they shouldnt
 	collision_shape.shape = collision_shape.shape.duplicate()
