@@ -1,11 +1,14 @@
 class_name Player
 extends Resource
 
-## What the player owns: materials, items and the enchantments they know.
+## What the player owns: money, materials, items, the enchantments they know, and the
+## commissions they have taken on.
 
+@export var money: int = 0
 @export var material_inventory: Dictionary[EnchantmentMaterialDefinition, int] = {}
 @export var items: Array[ItemInstance] = []
 @export var known_enchantments: Array[Enchantment] = []
+@export var commissions: Array[Commission] = []
 
 
 func add_material(mat: EnchantmentMaterialDefinition, amount: int = 1) -> void:
@@ -45,3 +48,11 @@ func materials_in_order(
 		if m not in out:
 			out.append(m)
 	return out
+
+
+## Takes the amount from their money if they have enough; returns whether they did
+func spend(amount: int) -> bool:
+	if amount > money:
+		return false
+	money -= amount
+	return true

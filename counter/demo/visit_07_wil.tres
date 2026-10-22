@@ -5,6 +5,7 @@
 [ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="3_quwp8"]
 [ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="4_2l8wq"]
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="5_2tvdu"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="ench_script"]
 
 [sub_resource type="Resource" id="Resource_aod14"]
 script = ExtResource("1_380wj")
@@ -17,7 +18,7 @@ expires_day = 30
 script = ExtResource("5_2tvdu")
 customer_name = "Wil Hart"
 kingdom = "Velmor"
-enchantment = ExtResource("3_quwp8")
+enchantments = Array[ExtResource("ench_script")]([ExtResource("3_quwp8")])
 item = ExtResource("4_2l8wq")
 payment = 100
 

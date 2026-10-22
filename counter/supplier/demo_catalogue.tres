@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SupplierCatalogue" format=3]
+
+[ext_resource type="Script" path="res://counter/supplier/supplier_catalogue.gd" id="1_cat"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="2_mat"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/fire_stone/fire_stone.tres" id="3_fire"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="4_water"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/red_stone/red_stone.tres" id="5_red"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/blue_stone/blue_stone.tres" id="6_blue"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/yellow_stone/yellow_stone.tres" id="7_yellow"]
+
+[resource]
+script = ExtResource("1_cat")
+prices = Dictionary[ExtResource("2_mat"), int]({
+ExtResource("3_fire"): 8,
+ExtResource("4_water"): 8,
+ExtResource("5_red"): 5,
+ExtResource("6_blue"): 5,
+ExtResource("7_yellow"): 15
+})

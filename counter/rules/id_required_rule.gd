@@ -7,7 +7,9 @@ extends CounterRule
 
 
 func check(visit: CustomerVisit, _day_number: int) -> String:
-	var wanted := visit.slip.enchantment
-	if wanted in enchantments and visit.adventurer_id == null:
-		return "No adventurer ID shown for %s" % wanted.enchantment_name
+	if visit.adventurer_id != null:
+		return ""
+	for wanted in visit.slip.enchantments:
+		if wanted in enchantments:
+			return "No adventurer ID shown for %s" % wanted.enchantment_name
 	return ""

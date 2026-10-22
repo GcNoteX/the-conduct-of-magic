@@ -7,12 +7,12 @@ extends CounterRule
 
 
 func check(visit: CustomerVisit, _day_number: int) -> String:
-	var wanted := visit.slip.enchantment
-	if wanted not in min_tiers or visit.adventurer_id == null:
+	if visit.adventurer_id == null:
 		return ""
-	if visit.adventurer_id.tier < min_tiers[wanted]:
-		return (
-			"%s needs tier %d, but the ID is tier %d"
-			% [wanted.enchantment_name, min_tiers[wanted], visit.adventurer_id.tier]
-		)
+	for wanted in visit.slip.enchantments:
+		if wanted in min_tiers and visit.adventurer_id.tier < min_tiers[wanted]:
+			return (
+				"%s needs tier %d, but the ID is tier %d"
+				% [wanted.enchantment_name, min_tiers[wanted], visit.adventurer_id.tier]
+			)
 	return ""
