@@ -1,9 +1,12 @@
-@abstract class_name EnchantmentCursor extends Area2D
-
+@abstract
+class_name EnchantmentCursor extends Area2D
+## Base for the legacy play map's cursors: follows the mouse while enabled and keeps a
+## PriorityQueue of what it hovers.
 
 @export var enabled: bool = true
 
 var selection_manager: PriorityQueue = PriorityQueue.new()
+
 
 func _input(event: InputEvent) -> void:
 	if not enabled:
@@ -11,7 +14,6 @@ func _input(event: InputEvent) -> void:
 
 	if event is InputEventMouseMotion:
 		global_position += event.relative
-		#print("Global positon from cursor script:", global_position)
 
 
 func enable_cursor() -> void:
@@ -20,7 +22,6 @@ func enable_cursor() -> void:
 	monitoring = true
 	monitorable = true
 	set_physics_process(true)
-
 
 
 func disable_cursor() -> void:

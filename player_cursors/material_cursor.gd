@@ -22,23 +22,19 @@ func _physics_process(_delta: float) -> void:
 
 	if Input.is_action_just_pressed("left_click"):
 		# Attempt to grab a MapItem
-		var obj: Object = selection_manager.peek()
-		if obj and obj.has_method("take_material"):
-			var m := obj.take_material() as MapItem
-			if m is MapItem:
+		var box := selection_manager.peek() as ItemBox
+		if box:
+			var m := box.take_material()
+			if m:
 				EmapUpdateManager.add_to_enchantment_map(m, global_position)
-				controlled_item = m
-			elif m == null:
-				controlled_item = m
-			else:
-				push_warning("take_material() should return a MapItem or null!")
+			controlled_item = m
 
 	if Input.is_action_just_released("left_click"):
 		# Attempt to drop a MapItem
-		var obj: Object = selection_manager.peek()
+		var dropper := selection_manager.peek() as MaterialDropper
 		var res := false
-		if obj and obj.has_method("insert_material") and controlled_item:
-			res = obj.insert_material(controlled_item.e_material)
+		if dropper and controlled_item:
+			res = dropper.insert_material(controlled_item.e_material)
 		if res and controlled_item:  # i.e. the MapItem was used for something
 			print("Insertion successful")
 			controlled_item.queue_free()
@@ -47,9 +43,9 @@ func _physics_process(_delta: float) -> void:
 		controlled_item = null
 
 	if Input.is_action_just_pressed("right_click"):
-		var o: Object = selection_manager.peek()
-		if o is MaterialDropper:
-			return_material_to_player(o)
+		var dropper := selection_manager.peek() as MaterialDropper
+		if dropper:
+			return_material_to_player(dropper)
 
 
 ## Takes the material out of a dropper and gives it back to the player. An empty or sealed

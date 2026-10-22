@@ -29,7 +29,6 @@ func _physics_process(_delta: float) -> void:
 	## Drag logic: cursor produces a screen-space delta,
 	## WorkspaceObject decides how to apply it based on active form
 	if controlled_object:
-		#print("Moving object to ", global_position - _prev_pos)
 		controlled_object.move(global_position - _prev_pos)
 
 	## Begin grab
@@ -49,7 +48,6 @@ func _physics_process(_delta: float) -> void:
 
 	## End grab
 	if Input.is_action_just_released("left_click"):
-		#print("Ending grab")
 		controlled_object = null
 
 	_prev_pos = global_position
@@ -64,8 +62,11 @@ func teleport_to_object(form: WorkplaceForm) -> void:
 
 	elif form is WorkStationForm:
 		## Convert workstation world → screen
-		var controller := get_tree().get_first_node_in_group(Groups.WORKSTATION_CONTROLLER)
-		if controller and controller.has_method("workstation_world_to_screen"):
+		var controller := (
+			get_tree().get_first_node_in_group(Groups.WORKSTATION_CONTROLLER)
+			as WorkstationController
+		)
+		if controller:
 			global_position = controller.workstation_world_to_screen(form.position)
 
 	_prev_pos = global_position
