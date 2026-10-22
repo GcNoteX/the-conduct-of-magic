@@ -8,8 +8,8 @@ extends Control
 ## carvings (see DisenchantBoard), with the runes in a bar above the board and the plan on the
 ## right.
 
-## The palette layouts being compared (sheet 0004); the losers go once one is picked
-enum Layout { SIDEBAR, BOTTOM_TRAY, QUICK_PALETTE, LISTS }
+## The two palette layouts (sheet 0004), switched with the Palette dropdown
+enum Layout { SIDEBAR, QUICK_PALETTE }
 
 const CARVE_HELP := (
 	"Drag an enchantment onto the item (R rotates it), or click it to hold it. "
@@ -43,9 +43,7 @@ const DISENCHANT_LEGEND := (
 const MAT_INSET := 18
 ## How big item icons are drawn in the item picker
 const ITEM_ICON_SIZE := 28
-const LAYOUT_NAMES: Array[String] = [
-	"Sidebar", "Bottom tray", "Quick palette (hold Space)", "Lists (original)"
-]
+const LAYOUT_NAMES: Array[String] = ["Sidebar", "Quick palette (hold Space)"]
 
 ## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
 @export var solvability_check: SolvabilityCheck
@@ -70,8 +68,6 @@ var _board_area: BoardDropArea
 var _item_picker: OptionButton
 var _layout_picker: OptionButton
 var _layout: PaletteLayout
-var _left_slot: Control
-var _bottom_slot: Control
 var _overlay: Control
 var _item_label: RichTextLabel
 var _tooltip: PanelContainer
@@ -266,35 +262,16 @@ func _set_layout(which: Layout) -> void:
 	if _layout:
 		_layout.queue_free()
 	match which:
-		Layout.SIDEBAR:
-			_layout = CollapsibleSidebar.new()
-		Layout.BOTTOM_TRAY:
-			_layout = BottomTray.new()
 		Layout.QUICK_PALETTE:
 			_layout = QuickPalette.new()
 		_:
-			var lists := ClassicLists.new()
-			lists.enchantment_chosen.connect(_on_card_pressed)
-			lists.material_list().drag_started.connect(_on_card_drag_started)
-			lists.material_activated.connect(_on_material_activated)
-			_layout = lists
-	match _layout.slot():
-		PaletteLayout.Slot.LEFT:
-			_left_slot.add_child(_layout)
-			_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
-		PaletteLayout.Slot.BOTTOM:
-			_bottom_slot.add_child(_layout)
-			_layout.set_anchors_preset(Control.PRESET_FULL_RECT)
-		_:
-			_overlay.add_child(_layout)
-	_left_slot.visible = _layout.slot() == PaletteLayout.Slot.LEFT
-	_bottom_slot.visible = _layout.slot() == PaletteLayout.Slot.BOTTOM
-	_bottom_slot.custom_minimum_size.y = _layout.custom_minimum_size.y
+			_layout = CollapsibleSidebar.new()
+	_overlay.add_child(_layout)
 	_layout_picker.select(which)
 	_refresh_cards()
 
 
-## Plans dissolving `m` (a double-click on its card or list row)
+## Plans dissolving `m` (a double-click on its card)
 func _on_material_activated(m: EnchantmentMaterialDefinition) -> void:
 	if not is_disenchanting():
 		_set_message("Drag materials onto enchantment nodes. Dissolving is for Disenchant mode.")
@@ -739,11 +716,6 @@ func _build_ui() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(root)
 
-	_left_slot = Control.new()
-	_left_slot.custom_minimum_size.x = 290
-	_left_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	root.add_child(_left_slot)
-
 	var board_column := VBoxContainer.new()
 	board_column.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	board_column.add_theme_constant_override("separation", 0)
@@ -767,7 +739,7 @@ func _build_ui() -> void:
 	_name_key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name_key.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	top.add_child(_name_key)
-	var board_stack := Control.new()  # The board, with the overlay layouts on top of it
+	var board_stack := Control.new()  # The board, with the palette layout on top of it
 	board_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	board_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	board_column.add_child(board_stack)
@@ -797,9 +769,6 @@ func _build_ui() -> void:
 	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	board_stack.add_child(_overlay)
-	_bottom_slot = Control.new()
-	_bottom_slot.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	board_column.add_child(_bottom_slot)
 
 	var right := _panel(root, 320)
 	_item_picker = _picker(right, "Item")
@@ -810,6 +779,7 @@ func _build_ui() -> void:
 	_commit_button = Button.new()
 	_commit_button.custom_minimum_size.y = 44
 	_commit_button.clip_text = true
+	_commit_button.focus_mode = Control.FOCUS_NONE
 	_commit_button.pressed.connect(_on_commit_pressed)
 	right.add_child(_commit_button)
 	_message_label = Label.new()
@@ -823,7 +793,7 @@ func _build_ui() -> void:
 	right.add_child(_plan_panel)
 	_legend = _rich(right, 200)
 	_legend.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_layout_picker = _picker(right, "Layout (experiment)")
+	_layout_picker = _picker(right, "Palette")
 	for n in LAYOUT_NAMES:
 		_layout_picker.add_item(n)
 	_layout_picker.item_selected.connect(func(i: int): _set_layout(i as Layout))
@@ -871,6 +841,7 @@ func _mode_button(parent: Control, text: String, group: ButtonGroup) -> Button:
 	b.toggle_mode = true
 	b.button_group = group
 	b.custom_minimum_size = Vector2(120, 36)
+	b.focus_mode = Control.FOCUS_NONE
 	parent.add_child(b)
 	return b
 
