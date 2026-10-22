@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="CustomerVisit" format=3]
+
+[ext_resource type="Script" path="res://counter/papers/adventurer_id.gd" id="1_sqtjv"]
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_rb5km"]
+[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="3_6lrkd"]
+[ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="4_tmwmh"]
+[ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="5_q4sps"]
+
+[sub_resource type="Resource" id="Resource_sbe80"]
+script = ExtResource("1_sqtjv")
+holder_name = "Rhea Vance"
+tier = 2
+kingdom = "Astren"
+
+[sub_resource type="Resource" id="Resource_qtbvs"]
+script = ExtResource("5_q4sps")
+customer_name = "Rhea Vance"
+kingdom = "Astren"
+enchantment = ExtResource("3_6lrkd")
+item = ExtResource("4_tmwmh")
+payment = 95
+
+[resource]
+script = ExtResource("2_rb5km")
+day = 2
+slip = SubResource("Resource_qtbvs")
+adventurer_id = SubResource("Resource_sbe80")

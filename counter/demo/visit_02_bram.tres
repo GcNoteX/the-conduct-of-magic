@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="CustomerVisit" format=3]
+
+[ext_resource type="Script" path="res://counter/papers/adventurer_id.gd" id="1_40i5x"]
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_wodcf"]
+[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="3_dpysw"]
+[ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="4_awngi"]
+[ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="5_q1cui"]
+
+[sub_resource type="Resource" id="Resource_ypcdx"]
+script = ExtResource("1_40i5x")
+holder_name = "Bram Tull"
+kingdom = "Velmor"
+expires_day = 30
+
+[sub_resource type="Resource" id="Resource_y37x7"]
+script = ExtResource("5_q1cui")
+customer_name = "Bram Tull"
+kingdom = "Velmor"
+enchantment = ExtResource("3_dpysw")
+item = ExtResource("4_awngi")
+payment = 90
+
+[resource]
+script = ExtResource("2_wodcf")
+slip = SubResource("Resource_y37x7")
+adventurer_id = SubResource("Resource_ypcdx")
