@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="BotPlaytestSettings" format=3]
+
+[ext_resource type="Script" path="res://tools/bot_playtest/bot_playtest_settings.gd" id="1_settings"]
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_visit"]
+[ext_resource type="Resource" path="res://inscribing/demo/demo_setup.tres" id="3_setup"]
+[ext_resource type="Resource" path="res://counter/supplier/demo_catalogue.tres" id="4_catalogue"]
+[ext_resource type="Resource" path="res://counter/demo/visit_01_elsa.tres" id="v1"]
+[ext_resource type="Resource" path="res://counter/demo/visit_02_bram.tres" id="v2"]
+[ext_resource type="Resource" path="res://counter/demo/visit_03_ines.tres" id="v3"]
+[ext_resource type="Resource" path="res://counter/demo/visit_04_oskar.tres" id="v4"]
+[ext_resource type="Resource" path="res://counter/demo/visit_05_rhea.tres" id="v5"]
+[ext_resource type="Resource" path="res://counter/demo/visit_06_tomas.tres" id="v6"]
+[ext_resource type="Resource" path="res://counter/demo/visit_07_wil.tres" id="v7"]
+[ext_resource type="Resource" path="res://counter/demo/visit_08_mara.tres" id="v8"]
+[ext_resource type="Resource" path="res://counter/demo/visit_09_jory.tres" id="v9"]
+
+[resource]
+script = ExtResource("1_settings")
+setup = ExtResource("3_setup")
+catalogue = ExtResource("4_catalogue")
+customer_pool = Array[ExtResource("2_visit")]([ExtResource("v1"), ExtResource("v2"), ExtResource("v3"), ExtResource("v4"), ExtResource("v5"), ExtResource("v6"), ExtResource("v7"), ExtResource("v8"), ExtResource("v9")])
