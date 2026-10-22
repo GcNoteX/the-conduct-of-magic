@@ -2,7 +2,8 @@ extends Node
 
 """
 Headless checks for the day: which side is active, freezing the other side, items handed
-over from the counter, the demo rulebook, customers collecting and paying, and the supplier.
+over from the counter, the demo rulebook, customers collecting and paying, the supplier, and
+music and sound on their own buses.
 Run: godot --headless --path . res://tests/test_day.tscn
 Exits with code 1 if any check fails.
 """
@@ -23,6 +24,7 @@ func _ready() -> void:
 	test_payout_scales_with_enchantments_done()
 	test_customer_collects_and_pays()
 	test_supplier()
+	test_music_and_buses()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -269,4 +271,27 @@ func test_supplier() -> void:
 	check(not day.counter.buy(yellow), "a stone the player can't afford isn't sold")
 	check(day.player.money == price - 1, "a failed purchase costs nothing")
 	check(day.player.get_material_count(yellow) == count + 1, "and adds nothing")
+	day.queue_free()
+
+
+func test_music_and_buses() -> void:
+	for bus_name: StringName in [AudioBuses.MUSIC, AudioBuses.SFX]:
+		var index := AudioServer.get_bus_index(bus_name)
+		check(index != -1, "there is a %s bus" % bus_name)
+		check(AudioServer.get_bus_send(index) == AudioBuses.MASTER, "%s sends to Master" % bus_name)
+	var day := _make_day([_plan(10.0, 20.0)])
+	for stream: AudioStream in [day.counter_music, day.table_music]:
+		var ogg := stream as AudioStreamOggVorbis
+		check(ogg != null and ogg.loop, "each side's music is a looping track")
+	check(day.music.current_stream() == day.counter_music, "the counter plays its own music")
+	day.switch_to(Day.ShopSide.INSCRIBING)
+	check(day.music.current_stream() == day.table_music, "the table plays its own music")
+	day.switch_to(Day.ShopSide.COUNTER)
+	check(day.music.current_stream() == day.counter_music, "going back brings the counter's back")
+	for child in day.music.get_children():
+		check((child as AudioStreamPlayer).bus == AudioBuses.MUSIC, "music plays on the Music bus")
+	for child in day.counter.get_node("Sounds").get_children():
+		check(
+			(child as AudioStreamPlayer).bus == AudioBuses.SFX, "sound effects play on the SFX bus"
+		)
 	day.queue_free()

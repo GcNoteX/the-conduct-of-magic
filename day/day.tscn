@@ -3,6 +3,9 @@
 [ext_resource type="Script" path="res://day/day.gd" id="1_day"]
 [ext_resource type="PackedScene" path="res://counter/counter.tscn" id="2_counter"]
 [ext_resource type="PackedScene" path="res://inscribing/inscribing_table.tscn" id="3_table"]
+[ext_resource type="Script" path="res://audio/music_player.gd" id="4_music"]
+[ext_resource type="AudioStream" uid="uid://cghj5bq7oaqp6" path="res://audio/placeholder_music/counter_theme.ogg" id="5_counter_theme"]
+[ext_resource type="AudioStream" uid="uid://dlhasx3ropvwn" path="res://audio/placeholder_music/table_theme.ogg" id="6_table_theme"]
 
 [node name="Day" type="Control"]
 layout_mode = 3
@@ -13,6 +16,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_day")
+counter_music = ExtResource("5_counter_theme")
+table_music = ExtResource("6_table_theme")
 
 [node name="Sides" type="Control" parent="."]
 layout_mode = 1
@@ -29,3 +34,6 @@ layout_mode = 1
 
 [node name="InscribingTable" parent="Sides" instance=ExtResource("3_table")]
 layout_mode = 1
+
+[node name="Music" type="Node" parent="."]
+script = ExtResource("4_music")
