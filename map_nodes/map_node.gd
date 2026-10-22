@@ -180,7 +180,7 @@ func _may_connect(_l: MapLine) -> bool:
 func _initialize_node() -> void:
 	mapnode_connections.clear()
 	mapline_connections.clear()
-	connections_updated.connect(EmapUpdateManager._on_MapNode_connections_updated)
+	connections_updated.connect(EmapUpdateManager._on_MapNode_connections_updated.bind(self))
 
 
 func _add_node_from_line(node: MapNode) -> void:

@@ -1,7 +1,8 @@
 extends Node
 
 ## Headless regression checks for the legacy play map (play_map.tscn): the line and connection
-## conditions, taking materials out of slots, and the player inventory the map hands them back to.
+## conditions, taking materials out of slots, the player inventory the map hands them back to,
+## which lines may connect, and the once-per-frame map updates.
 ## Run: godot --headless --path . res://tests/test_legacy_map_fixes.tscn
 ## Exits with code 1 if any check fails.
 
@@ -28,6 +29,7 @@ func _ready() -> void:
 	test_connections_are_not_saved_into_scenes()
 	test_nodes_decide_which_lines_may_connect()
 	test_box_areas_find_their_box()
+	await test_updates_wait_for_the_end_of_the_frame()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -194,3 +196,37 @@ func test_box_areas_find_their_box() -> void:
 	check(item_area.get_box() is MapSourceBox, "box areas share the parent walk")
 	item_box.free()
 	enchantment_box.free()
+
+
+func test_updates_wait_for_the_end_of_the_frame() -> void:
+	var map := EnchantmentMap.new()
+	var other_map := EnchantmentMap.new()
+	add_child(map)
+	add_child(other_map)
+	var grid: EnchantmentGrid = ENCHANTMENT_GRID.instantiate()
+	map.add_child(grid)
+	var other_grid: EnchantmentGrid = ENCHANTMENT_GRID.instantiate()
+	other_map.add_child(other_grid)
+	await get_tree().process_frame
+	check(EmapUpdateManager.pending_roots().is_empty(), "nothing waits once the maps are set up")
+
+	var enode: EnchantmentNode = grid.get_node("EnchantmentNode")
+	var ctx := enode.activation_context()
+	check(ctx.source_node == enode, "the context names the node")
+	check(ctx.enchantment == grid, "the context names the node's grid")
+	check(ctx.map == map, "the context names the node's map")
+
+	var always := EnchantmentMaterialDefinition.new()
+	enode.material_holder.embbed_material(always)
+	EmapUpdateManager.request_update(enode)
+	EmapUpdateManager.request_update(grid)
+	check(not enode.is_activated, "a change does not update the map straight away")
+	check(EmapUpdateManager.pending_roots() == [map], "several changes wait as one update")
+	EmapUpdateManager.request_update(other_grid)
+	check(EmapUpdateManager.pending_roots().size() == 2, "each map waits on its own")
+	await get_tree().process_frame
+	check(enode.is_activated, "the map is updated at the end of the frame")
+	check(EmapUpdateManager.pending_roots().is_empty(), "and nothing waits afterwards")
+
+	map.free()
+	other_map.free()
