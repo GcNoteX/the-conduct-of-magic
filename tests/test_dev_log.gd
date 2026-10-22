@@ -58,6 +58,13 @@ func test_panel_filters() -> void:
 	check(shown.contains("Kindle") and not shown.contains("Line lacks"), "level toggles")
 	panel.clear_entries()
 	check(panel._output.get_parsed_text() == "", "clear empties the tab")
+	for i in DevLogPanel.MAX_ENTRIES + 1:
+		panel.add_entry("map", DevLog.Level.INFO, "message %d" % i, i)
+	check(
+		panel._entries.size() == DevLogPanel.MAX_ENTRIES + 1 - DevLogPanel.TRIM_ENTRIES,
+		"a full tab drops its oldest messages in one go"
+	)
+	check(panel._entries[0][2] == "message %d" % DevLogPanel.TRIM_ENTRIES, "the newest are kept")
 	panel.free()
 
 

@@ -10,6 +10,8 @@ const LEVEL_COLORS: Array[Color] = [Color("d0d0d0"), Color("ffd166"), Color("ff6
 const CHANNEL_COLOR := Color("8ecae6")
 const TIME_COLOR := Color("7a7a7a")
 const MAX_ENTRIES := 5000
+## How many of the oldest messages go at once when the tab is full, so it isn't redrawn per message
+const TRIM_ENTRIES := 500
 
 ## Each entry is [channel: String, level: int, text: String, msec: int]
 var _entries: Array[Array] = []
@@ -72,7 +74,7 @@ func add_entry(channel: String, level: int, text: String, msec: int) -> void:
 		_channels.append(channel)
 		_channel_filter.add_item(channel)
 	if _entries.size() > MAX_ENTRIES:
-		_entries.pop_front()
+		_entries = _entries.slice(TRIM_ENTRIES)
 		_rebuild()
 	elif _passes(entry):
 		_output.append_text(_format(entry))
