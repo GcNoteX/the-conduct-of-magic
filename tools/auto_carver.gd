@@ -139,7 +139,7 @@ func _activate(p: PlacementState) -> String:
 func _wants_reach(key: String) -> bool:
 	var ctx := MaterialActivationContext.for_board(_board, key)
 	for c in _board.node_material(key).activation_conditions:
-		if c is NumberOfConnectionsConditon and not c.is_fulfilled(ctx):
+		if c is NumberOfConnectionsCondition and not c.is_fulfilled(ctx):
 			return true
 	return false
 

@@ -1,29 +1,26 @@
-extends Area2D
 class_name MaterialDropper
-
-"""
-- Provides a location to insert and remove from a MaterialHolder
-- Requires a Shape to function
-"""
+extends Area2D
+## A drop zone over a MaterialHolder: the material cursor inserts materials here and takes them
+## back out. Needs a collision shape to be hovered.
 
 @export var holder: MaterialHolder
 
-## Return true if material inserted successfully else false
+
+## Returns true if the material was inserted, false otherwise
 func insert_material(m: EnchantmentMaterialDefinition) -> bool:
-	if !holder:
+	if not holder:
 		push_warning("MaterialDropper needs a MaterialHolder to drop into")
 		return false
-	
+
 	if holder.can_embbed_material(m):
 		holder.embbed_material(m)
-		#print("Holder took material")
 		return true
-	#print("Holder did not take material")
-	return false 
+	return false
 
+
+## Takes the embedded material out and returns it. Returns null, and changes nothing, when the
+## slot is empty or sealed: a sealed slot keeps its material.
 func remove_material() -> EnchantmentMaterialDefinition:
-	var m = holder.remove_material()
-	if holder.sealed:
+	if not holder or holder.sealed or holder.get_embedded_material() == null:
 		return null
-	else:
-		return m
+	return holder.remove_material()
