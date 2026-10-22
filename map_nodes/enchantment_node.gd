@@ -44,7 +44,7 @@ func update() -> void:
 ## Updates the state of the EnchantmentNode based on whether it can be activated.
 ## Returns whether the node can be activated.
 func update_activation() -> bool:
-	var ctx := MaterialActivationContext.new(self)
+	var ctx := activation_context()
 	if material_holder.can_material_be_activated(ctx):
 		if not is_activated:
 			_activate_node()
@@ -53,6 +53,13 @@ func update_activation() -> bool:
 	if is_activated:
 		_deactivate_node()
 	return false
+
+
+## What the material's activation conditions get to look at: this node, its grid and its map
+func activation_context() -> MaterialActivationContext:
+	return MaterialActivationContext.new(
+		self, get_parent() as EnchantmentGrid, EnchantmentMap.of(self)
+	)
 
 
 # Handling Material
