@@ -756,7 +756,7 @@ func _node_keys(p: PlacementState) -> Array[String]:
 ## to the one listed first)
 func _material_for(def: EnchantmentPatternNode) -> EnchantmentMaterialDefinition:
 	var best: EnchantmentMaterialDefinition = null
-	for m in table._material_order():
+	for m in table.player.materials_in_order(table.material_order):
 		if not def.accepts(m) or table.player.get_material_count(m) == 0:
 			continue
 		if best == null or _lines_needed(m) < _lines_needed(best):
