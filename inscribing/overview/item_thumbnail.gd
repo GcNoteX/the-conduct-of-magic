@@ -6,8 +6,8 @@ extends Control
 ## never been opened shows its bare map. A map taller than the thumbnail is wide is turned a
 ## quarter so it fills more of the card.
 
-## Behind the map, so its cells stand out from the card (the table's background)
-const COLOR_BACKDROP := Color("17161c")
+## Behind the map, so its cells stand out from the card (the leather mat on the table)
+const COLOR_BACKDROP := Color(0.18, 0.26, 0.2)
 const BACKDROP_RADIUS := 6
 ## How much of a hex's size each drawn cell takes, as on the board
 const CELL_FILL := 0.96

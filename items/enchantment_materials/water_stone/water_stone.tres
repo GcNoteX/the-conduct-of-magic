@@ -7,6 +7,7 @@
 [ext_resource type="Texture2D" uid="uid://eynjhepuxifl" path="res://items/enchantment_materials/water_stone/water stone.png" id="3_8taoa"]
 [ext_resource type="PackedScene" uid="uid://ba0l3ry8ni2q1" path="res://items/enchantment_materials/water_stone/water_stone_wsf.tscn" id="4_8taoa"]
 [ext_resource type="Script" uid="uid://dli7lulxgf2hr" path="res://disenchanting/rune_set.gd" id="4_sk3wx"]
+[ext_resource type="Texture2D" path="res://art/placeholder/stones/water_stone.png" id="art_icon"]
 
 [sub_resource type="Resource" id="Resource_sk3wx"]
 script = ExtResource("2_xlesn")
@@ -41,4 +42,5 @@ id = &"water_stone"
 display_name = "Water stone"
 workstation_form = ExtResource("4_8taoa")
 channel_form = ExtResource("2_7j3pp")
+inventory_sprite_normal = ExtResource("art_icon")
 metadata/_custom_type_script = "uid://dnrj7bcgrqnhu"

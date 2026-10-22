@@ -7,6 +7,9 @@ Editing the generated .tres files in the editor is fine; rerunning this overwrit
 """
 
 const STONES := "res://items/enchantment_materials/%s/%s.tres"
+## Placeholder icons from tools/placeholder_art/make_workshop_art.py, by file name
+const STONE_ART := "res://art/placeholder/stones/%s.png"
+const ITEM_ART := "res://art/placeholder/items/%s.png"
 const A := EnchantmentMaterialDefinition.MATERIAL_ATTRIBUTES
 const TILES := preload("res://inscribing/tiles/hex_map_tiles.tres")
 ## The tile set's sources: plain cells, and magic nodes (one tile per rune kind, in RuneSet.Rune
@@ -222,6 +225,7 @@ func _stone(
 	m.id = StringName(folder)
 	m.display_name = display
 	m.color = color
+	m.inventory_sprite_normal = load(STONE_ART % folder)
 	m.tier = tier
 	var attrs: Array[EnchantmentMaterialDefinition.MATERIAL_ATTRIBUTES] = []
 	attrs.assign(attributes)
@@ -286,6 +290,7 @@ func _sword(
 	var item := EnchantableItemDefinition.new()
 	item.id = StringName(file)
 	item.display_name = display
+	item.inventory_sprite_normal = load(ITEM_ART % file)
 	item.map_template = load(map_path)
 	var path := "res://inscribing/demo/%s.tres" % file
 	_save(item, path)

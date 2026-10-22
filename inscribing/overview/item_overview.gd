@@ -18,12 +18,8 @@ const TITLE := "Your items"
 const CLOSE_TEXT := "Close (Esc)"
 const HINT := "Click an item to open it. Hover a card for everything on it."
 const COLOR_DIM := Color(0, 0, 0, 0.65)
-const COLOR_PANEL := Color("24232b")
-const COLOR_HINT := Color("a8a4b0")
 const MAX_COLUMNS := 4
 const SEPARATION := 12
-const PANEL_MARGIN := 20
-const CORNER_RADIUS := 8
 const TITLE_FONT_SIZE := 22
 ## The most of the screen the card area takes before it scrolls
 const MAX_SCREEN_FRACTION := 0.8
@@ -103,11 +99,6 @@ func _build() -> void:
 	centre.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(centre)
 	var panel := PanelContainer.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = COLOR_PANEL
-	style.set_corner_radius_all(CORNER_RADIUS)
-	style.set_content_margin_all(PANEL_MARGIN)
-	panel.add_theme_stylebox_override("panel", style)
 	centre.add_child(panel)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", SEPARATION)
@@ -126,7 +117,7 @@ func _build() -> void:
 	header.add_child(close_button)
 	var hint := Label.new()
 	hint.text = HINT
-	hint.add_theme_color_override("font_color", COLOR_HINT)
+	hint.theme_type_variation = UiStyles.CAPTION_LABEL
 	box.add_child(hint)
 	_scroll = ScrollContainer.new()
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED

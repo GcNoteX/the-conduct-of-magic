@@ -17,6 +17,14 @@ const PAPER_PANEL := &"PaperPanel"
 const PAPER_TEXT := &"PaperText"
 const ACCEPT_BUTTON := &"AcceptButton"
 const REFUSE_BUTTON := &"RefuseButton"
+## A strip across the top of the screen, like the day's clock bar
+const BAR_PANEL := &"BarPanel"
+## A card the player picks up or opens, like a palette card or an item card, and how it looks
+## under the mouse
+const CARD_PANEL := &"CardPanel"
+const CARD_PANEL_HOVER := &"CardPanelHover"
+## A dark tooltip, for tooltips that show bright rune and material colours (the board's)
+const DARK_TOOLTIP_PANEL := &"DarkTooltipPanel"
 
 const CALENDAR_DAY := &"CalendarDay"
 const CALENDAR_TODAY := &"CalendarToday"
@@ -40,6 +48,10 @@ const ALL: Array[StringName] = [
 	PAPER_TEXT,
 	ACCEPT_BUTTON,
 	REFUSE_BUTTON,
+	BAR_PANEL,
+	CARD_PANEL,
+	CARD_PANEL_HOVER,
+	DARK_TOOLTIP_PANEL,
 	CALENDAR_DAY,
 	CALENDAR_TODAY,
 	CALENDAR_PAST,
