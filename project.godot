@@ -21,6 +21,7 @@ config/icon="res://placeholder_assets/icon.svg"
 
 [autoload]
 
+DevLog="*res://globals/dev_log.gd"
 SceneReferences="*res://globals/SceneReferences.gd"
 Mocker="*res://mocking/mocker.tscn"
 PlayerManager="*res://globals/player_manager.gd"
@@ -37,7 +38,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gut/plugin.cfg")
+enabled=PackedStringArray("res://addons/devlog/plugin.cfg", "res://addons/gut/plugin.cfg")
 
 [global_group]
 

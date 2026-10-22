@@ -90,3 +90,5 @@ jobs:
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_legacy_map_fixes.tscn
       - name: Run project names tests
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_project_names.tscn
+      - name: Run DevLog tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_dev_log.tscn

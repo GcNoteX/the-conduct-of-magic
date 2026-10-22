@@ -58,11 +58,11 @@ func add_to_enchantment_map(node: Node2D, global_pos: Vector2 = Vector2.ZERO) ->
 		map.add_child(node)
 		node.position = map.to_local(global_pos)
 	else:
-		push_error("No EnchantmentMap found in the current scene!")
+		DevLog.error(DevLog.MAP, "No EnchantmentMap found in the current scene!")
 
 
 func handle_unhandled_map_item(i: MapItem) -> void:
-	print("Adding material back to player")
+	DevLog.info(DevLog.MAP, "Adding %s back to the player" % i.e_material)
 	PlayerManager.add_material(i.e_material)
 	i.queue_free()
 
@@ -103,7 +103,7 @@ func _update_map_nodes(root: Node) -> void:
 		if node is MapNode:
 			node.update_bounded_identity()
 		else:
-			push_warning("%s in group '%s' is not a MapNode" % [node, Groups.MAP_NODE])
+			DevLog.warn(DevLog.MAP, "%s in group '%s' is not a MapNode" % [node, Groups.MAP_NODE])
 
 
 #
@@ -116,7 +116,7 @@ func _update_map_lines(root: Node) -> void:
 		if line is MapLine:
 			line.update_bounded_identity()
 		else:
-			push_warning("%s in group '%s' is not a MapLine" % [line, Groups.MAP_LINE])
+			DevLog.warn(DevLog.MAP, "%s in group '%s' is not a MapLine" % [line, Groups.MAP_LINE])
 
 
 #
@@ -140,8 +140,8 @@ func _update_enchantments(root: Node) -> void:
 		if e is EnchantmentGrid:
 			e.update_enchantment()
 		else:
-			push_warning(
-				"[MapSystem] %s in group '%s' is not an EnchantmentGrid" % [e, Groups.ENCHANTMENT]
+			DevLog.warn(
+				DevLog.MAP, "%s in group '%s' is not an EnchantmentGrid" % [e, Groups.ENCHANTMENT]
 			)
 
 
