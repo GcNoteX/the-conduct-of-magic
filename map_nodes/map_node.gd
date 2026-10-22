@@ -21,6 +21,8 @@ var mapnode_connections: Dictionary[MapNode, int] = {}
 ## Lines drawn onto this node. Runtime state.
 var mapline_connections: Array[MapLine] = []
 
+@onready var line_detector: LineDetector = $LineDetector
+
 
 func _ready() -> void:
 	_initialize_node()
@@ -140,15 +142,39 @@ func has_capacity() -> bool:
 # Cursor Functions
 
 
-func handle_drag_out(_c: EnchantmentCursor) -> void:
-	pass
+## Dragging out of a node with the draw cursor starts a new MagicLine from it
+func handle_drag_out(c: EnchantmentCursor) -> void:
+	if c is DrawCursor:
+		if not c.controlled_line and has_capacity():
+			# Create a new MagicLine
+			var l: MagicLine = preload(SceneReferences.magic_line).instantiate()
+			l.start = self
+			# Draw the line from this node
+			EmapUpdateManager.call_deferred("add_to_enchantment_map", l, global_position)
+			# Attach it to the DrawCursor
+			l.locked.connect(c._on_MagicLine_locked)
+			c.controlled_line = l
 
 
 # Detection Handling
 
-@abstract func disable_detection() -> void
 
-@abstract func enable_detection() -> void
+func enable_detection() -> void:
+	_set_detection(true)
+
+
+func disable_detection() -> void:
+	_set_detection(false)
+
+
+## The areas that enable_detection() and disable_detection() switch on and off
+func _detection_areas() -> Array[Area2D]:
+	return [self, line_detector]
+
+
+## Whether a line that passed the base conditions may connect to this node
+func _may_connect(_l: MapLine) -> bool:
+	return true
 
 
 func _initialize_node() -> void:
@@ -194,3 +220,27 @@ func _remove_node_from_line(node: MapNode) -> void:
 func _clear_connections() -> void:
 	mapnode_connections.clear()
 	mapline_connections.clear()
+
+
+func _set_detection(on: bool) -> void:
+	for a in _detection_areas():
+		a.monitorable = on
+		a.monitoring = on
+
+
+func _on_line_connector_allowed_line_type_detected(l: MapLine) -> void:
+	# Sometimes the detector will detect the same line again, these are ignored by this node
+	if l in mapline_connections:
+		return
+
+	if not passes_base_conditions(l) or not _may_connect(l):
+		l.kill_line()
+		return
+
+	add_line_connection(l)
+	l.lock_line(self)
+
+
+func _on_line_connector_invalid_line_type_detected(l: MapLine) -> void:
+	# Destroys invalid
+	l.kill_line()

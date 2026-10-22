@@ -11,6 +11,9 @@ const BLUE := preload("res://tests/fixtures/materials/blue_stone.tres")
 const MAGIC_NODE := preload("res://map_nodes/magic_node.tscn")
 const MAGIC_LINE := preload("res://map_lines/magic_line.tscn")
 const ENCHANTMENT_GRID := preload("res://enchantments/enchantments/e1.tscn")
+const ENCHANTMENT_NODE := preload("res://map_nodes/enchantment_node.tscn")
+const ITEM_BOX := preload("res://map_item/item_box.tscn")
+const ENCHANTMENT_BOX := preload("res://map_item/enchantment_box.tscn")
 
 var _failures := 0
 var _checks := 0
@@ -23,6 +26,8 @@ func _ready() -> void:
 	test_cursor_returns_only_real_materials()
 	test_player_manager_follows_player_rules()
 	test_connections_are_not_saved_into_scenes()
+	test_nodes_decide_which_lines_may_connect()
+	test_box_areas_find_their_box()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -151,3 +156,41 @@ func is_stored(o: Object, property: String) -> bool:
 		if p.name == property:
 			return p.usage & PROPERTY_USAGE_STORAGE != 0
 	return false
+
+
+func test_nodes_decide_which_lines_may_connect() -> void:
+	var grid_a := EnchantmentGrid.new()
+	var grid_b := EnchantmentGrid.new()
+	var line: MagicLine = MAGIC_LINE.instantiate()
+	var magic: MagicNode = MAGIC_NODE.instantiate()
+	var enode: EnchantmentNode = ENCHANTMENT_NODE.instantiate()
+	enode.bounded_identity = grid_a
+
+	check(magic._may_connect(line), "a free magic node takes a free line")
+	check(enode._may_connect(line), "an enchantment node takes a free line")
+	line.bounded_identity = grid_a
+	check(magic._may_connect(line), "a free magic node takes a grid's line")
+	check(enode._may_connect(line), "an enchantment node takes its own grid's line")
+	magic.bounded_identity = grid_b
+	check(not magic._may_connect(line), "a magic node bound to another grid refuses it")
+	line.bounded_identity = grid_b
+	check(magic._may_connect(line), "a magic node takes a line of its own grid")
+	check(not enode._may_connect(line), "an enchantment node refuses another grid's line")
+
+	for n: Node in [grid_a, grid_b, line, magic, enode]:
+		n.free()
+
+
+func test_box_areas_find_their_box() -> void:
+	var item_box: ItemBox = ITEM_BOX.instantiate()
+	var item_area: ItemBoxArea = item_box.get_node("PhysicalArea")
+	check(item_area.get_item_box() == item_box, "an item box area finds its box")
+	var enchantment_box: EnchantmentBox = ENCHANTMENT_BOX.instantiate()
+	var enchantment_area: EnchantmentBoxArea = enchantment_box.get_node("PhysicalArea")
+	check(
+		enchantment_area.get_enchantment_box() == enchantment_box,
+		"an enchantment box area finds its box"
+	)
+	check(item_area.get_box() is MapSourceBox, "box areas share the parent walk")
+	item_box.free()
+	enchantment_box.free()
