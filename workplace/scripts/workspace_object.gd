@@ -1,5 +1,7 @@
-extends Area2D
 class_name WorkspaceObject
+extends Area2D
+## An item lying on the workplace. This probe area is the single source of truth for its
+## position; it shows the item as a channel form or a workstation form depending on the zone.
 
 ## Emitted whenever the active visual form changes.
 ## The cursor listens to this to realign itself to the new form.
@@ -20,7 +22,7 @@ var _workstation_controller: Node = null
 
 func _ready() -> void:
 	## Cache controller once (single source of workstation conversions)
-	_workstation_controller = get_tree().get_first_node_in_group("workstation_controller")
+	_workstation_controller = get_tree().get_first_node_in_group(Groups.WORKSTATION_CONTROLLER)
 
 	## WorkspaceObject itself is a probe Area2D; it detects channel/workstation zones
 	if not area_entered.is_connected(_on_area_entered):
@@ -32,7 +34,7 @@ func _ready() -> void:
 		assert(channel_form is ChannelForm, "channel_form must be a ChannelForm node")
 		channel_form.disable()
 
-		var channel_controller := get_tree().get_first_node_in_group("channel_controller")
+		var channel_controller := get_tree().get_first_node_in_group(Groups.CHANNEL_CONTROLLER)
 		if channel_controller:
 			channel_controller.visual_root.add_child(channel_form)
 			channel_form.global_position = global_position
@@ -42,7 +44,9 @@ func _ready() -> void:
 	## --- WORKSTATION FORM SETUP ---
 	if item.definition.workstation_form:
 		workstation_form = item.definition.workstation_form.instantiate()
-		assert(workstation_form is WorkStationForm, "workstation_form must be a WorkStationForm node")
+		assert(
+			workstation_form is WorkStationForm, "workstation_form must be a WorkStationForm node"
+		)
 
 		## Inject inspectable runtime state if present
 		if item.inspectable_state:
@@ -55,7 +59,9 @@ func _ready() -> void:
 
 			## Initial alignment: probe → workstation world
 			if _workstation_controller.has_method("screen_to_workstation_world"):
-				workstation_form.position = _workstation_controller.screen_to_workstation_world(global_position)
+				workstation_form.position = _workstation_controller.screen_to_workstation_world(
+					global_position
+				)
 
 		workstation_form.owner_object = self
 
@@ -80,10 +86,11 @@ func move(v: Vector2) -> void:
 	## Workstation form lives in SubViewport world → converted delta
 	if active_form == workstation_form and workstation_form and _workstation_controller:
 		if _workstation_controller.has_method("screen_to_workstation_world"):
-			var ws := _workstation_controller.screen_to_workstation_world(global_position) as Vector2
+			var ws := (
+				_workstation_controller.screen_to_workstation_world(global_position) as Vector2
+			)
 			if ws != Vector2.INF:
 				workstation_form.position = ws
-
 
 
 ## Switches between channel/workstation forms.
@@ -131,7 +138,7 @@ func _align_workstation_form_to_probe() -> void:
 
 ## Probe detects entering channel/workstation zones and switches form accordingly
 func _on_area_entered(area: Area2D) -> void:
-	if area.is_in_group("channel") and channel_form:
+	if area.is_in_group(Groups.CHANNEL) and channel_form:
 		call_deferred("change_form", channel_form)
-	elif area.is_in_group("workstation") and workstation_form:
+	elif area.is_in_group(Groups.WORKSTATION) and workstation_form:
 		call_deferred("change_form", workstation_form)

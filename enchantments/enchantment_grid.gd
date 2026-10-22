@@ -18,7 +18,7 @@ var overlaps: Array[Area2D]
 
 
 func _ready() -> void:
-	add_to_group("enchantment")
+	add_to_group(Groups.ENCHANTMENT)
 	enodes.clear()
 	elines.clear()
 
@@ -34,8 +34,11 @@ func _ready() -> void:
 	tween.stop()  # we’ll restart it manually
 
 	# Setup mask and layers
-	collision_layer = 1 << 2
-	collision_mask = (1 << 2) | (1 << 0)
+	collision_layer = CollisionLayers.bit(CollisionLayers.ENCHANTMENT_GRID)
+	collision_mask = (
+		CollisionLayers.bit(CollisionLayers.ENCHANTMENT_GRID)
+		| CollisionLayers.bit(CollisionLayers.ENCHANTMENT_MAP_COMP)
+	)
 
 	# Setup self signals so do not have to do it via scene
 	area_entered.connect(_on_area_entered)

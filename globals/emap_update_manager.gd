@@ -53,7 +53,7 @@ func update_map(root: Node) -> void:
 # ────────────────────────────────────────────
 #
 func add_to_enchantment_map(node: Node2D, global_pos: Vector2 = Vector2.ZERO) -> void:
-	var map := get_tree().get_first_node_in_group("enchantment_map") as Node2D
+	var map := get_tree().get_first_node_in_group(Groups.ENCHANTMENT_MAP) as Node2D
 	if map:
 		map.add_child(node)
 		node.position = map.to_local(global_pos)
@@ -99,11 +99,13 @@ func _members(group: StringName, root: Node) -> Array[Node]:
 # ────────────────────────────────────────────
 #
 func _update_map_nodes(root: Node) -> void:
-	for node in _members("mapnode", root):
+	for node in _members(Groups.MAP_NODE, root):
 		if node.has_method("update_bounded_identity"):
 			node.update_bounded_identity()
 		else:
-			push_warning("%s in group 'mapnode' lacks update_bounded_identity()" % str(node))
+			push_warning(
+				"%s in group '%s' lacks update_bounded_identity()" % [node, Groups.MAP_NODE]
+			)
 
 
 #
@@ -112,11 +114,13 @@ func _update_map_nodes(root: Node) -> void:
 # ────────────────────────────────────────────
 #
 func _update_map_lines(root: Node) -> void:
-	for line in _members("mapline", root):
+	for line in _members(Groups.MAP_LINE, root):
 		if line.has_method("update_bounded_identity"):
 			line.update_bounded_identity()
 		else:
-			push_warning("%s in group 'mapline' lacks update_bounded_identity()" % str(line))
+			push_warning(
+				"%s in group '%s' lacks update_bounded_identity()" % [line, Groups.MAP_LINE]
+			)
 
 
 #
@@ -125,7 +129,7 @@ func _update_map_lines(root: Node) -> void:
 # ────────────────────────────────────────────
 #
 func _update_overlaps(root: Node) -> void:
-	for line in _members("mapline", root):
+	for line in _members(Groups.MAP_LINE, root):
 		if line.has_method("validate_current_overlaps"):
 			line.validate_current_overlaps()
 
@@ -136,7 +140,7 @@ func _update_overlaps(root: Node) -> void:
 # ────────────────────────────────────────────
 #
 func _update_enchantments(root: Node) -> void:
-	for e in _members("enchantment", root):
+	for e in _members(Groups.ENCHANTMENT, root):
 		if e.has_method("update_enchantment"):
 			e.update_enchantment()
 		else:

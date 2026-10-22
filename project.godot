@@ -44,6 +44,13 @@ enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 enchantment=""
 mapline=""
 mapnode=""
+enchantment_map=""
+channel=""
+channel_controller=""
+workstation=""
+workstation_controller=""
+workstation_cursor=""
+cursor=""
 
 [input]
 
