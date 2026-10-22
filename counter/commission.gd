@@ -57,10 +57,15 @@ func payout() -> int:
 	return visit.slip.payment * fulfilled_count() / wanted
 
 
-## Hands the item back to the customer, who pays the payout; returns what they paid
+## Hands the item back to the customer, who pays the payout; returns what they paid. Materials
+## still planned on the item go back to the player rather than leaving with it.
 func collect(player: Player) -> int:
 	paid = payout()
 	collected = true
 	player.money += paid
+	if item.enchantment_graph_state != null:
+		var held := item.enchantment_graph_state.drop_plans()
+		for m in held:
+			player.add_material(m, held[m])
 	player.items.erase(item)
 	return paid
