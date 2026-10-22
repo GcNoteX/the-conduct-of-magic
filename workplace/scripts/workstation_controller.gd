@@ -1,5 +1,6 @@
+class_name WorkstationController
 extends Node
-## WorkstationController: handles the workstation camera's zoom and pan, and maps positions
+## Handles the workstation camera's zoom and pan, and maps positions
 ## between the main screen and the workstation SubViewport so their pixels line up.
 
 ## Discrete zoom levels for the workstation camera.
@@ -92,9 +93,6 @@ func _process(_delta: float) -> void:
 		if world_pos != Vector2.INF:
 			workstation_cursor.position = world_pos
 
-		#if !_was_cursor_inside:
-		#print(workstation_cursor.get_overlapping_areas())
-		#workstation_cursor.refresh_hover()
 	_was_cursor_inside = _cursor_inside
 
 

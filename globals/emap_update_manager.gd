@@ -100,12 +100,10 @@ func _members(group: StringName, root: Node) -> Array[Node]:
 #
 func _update_map_nodes(root: Node) -> void:
 	for node in _members(Groups.MAP_NODE, root):
-		if node.has_method("update_bounded_identity"):
+		if node is MapNode:
 			node.update_bounded_identity()
 		else:
-			push_warning(
-				"%s in group '%s' lacks update_bounded_identity()" % [node, Groups.MAP_NODE]
-			)
+			push_warning("%s in group '%s' is not a MapNode" % [node, Groups.MAP_NODE])
 
 
 #
@@ -115,12 +113,10 @@ func _update_map_nodes(root: Node) -> void:
 #
 func _update_map_lines(root: Node) -> void:
 	for line in _members(Groups.MAP_LINE, root):
-		if line.has_method("update_bounded_identity"):
+		if line is MapLine:
 			line.update_bounded_identity()
 		else:
-			push_warning(
-				"%s in group '%s' lacks update_bounded_identity()" % [line, Groups.MAP_LINE]
-			)
+			push_warning("%s in group '%s' is not a MapLine" % [line, Groups.MAP_LINE])
 
 
 #
@@ -130,7 +126,7 @@ func _update_map_lines(root: Node) -> void:
 #
 func _update_overlaps(root: Node) -> void:
 	for line in _members(Groups.MAP_LINE, root):
-		if line.has_method("validate_current_overlaps"):
+		if line is MapLine:
 			line.validate_current_overlaps()
 
 
@@ -141,10 +137,12 @@ func _update_overlaps(root: Node) -> void:
 #
 func _update_enchantments(root: Node) -> void:
 	for e in _members(Groups.ENCHANTMENT, root):
-		if e.has_method("update_enchantment"):
+		if e is EnchantmentGrid:
 			e.update_enchantment()
 		else:
-			push_warning("[MapSystem] %s lacks update_enchantment()!" % str(e))
+			push_warning(
+				"[MapSystem] %s in group '%s' is not an EnchantmentGrid" % [e, Groups.ENCHANTMENT]
+			)
 
 
 #

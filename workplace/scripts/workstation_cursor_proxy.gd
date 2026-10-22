@@ -1,22 +1,16 @@
-extends Area2D
 class_name WorkstationCursorProxy
+extends Area2D
+## The workstation cursor's stand-in inside the workstation SubViewport: works out which
+## WorkspaceObject the cursor is over there.
 
 var hovered_object: WorkspaceObject = null
 
 @onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
 
-#func _on_area_entered(area: Area2D) -> void:
-	#var form := area as WorkplaceForm
-	#if form and form.owner_object:
-		#hovered_object = form.owner_object
-#
-#func _on_area_exited(area: Area2D) -> void:
-	#var form := area as WorkplaceForm
-	#if form and form.owner_object == hovered_object:
-		#hovered_object = null
 
 func _physics_process(_delta: float) -> void:
 	_refresh_hover_authoritative()
+
 
 func _refresh_hover_authoritative() -> void:
 	var found: WorkspaceObject = null
@@ -29,7 +23,7 @@ func _refresh_hover_authoritative() -> void:
 
 	if found != hovered_object:
 		hovered_object = found
-		#print("proxy hovered_object ->", hovered_object)
+
 
 func _resolve_owner_object_strict(area: Area2D) -> WorkspaceObject:
 	# Walk up to the WorkplaceForm that owns this collider (could be child detector Area2D)
