@@ -5,7 +5,7 @@ extends Node2D
 
 
 func _ready() -> void:
-	add_to_group("enchantment_map")
+	add_to_group(Groups.ENCHANTMENT_MAP)
 
 
 ## The EnchantmentMap that `node` sits in, or null when it is not on a map

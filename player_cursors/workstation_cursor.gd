@@ -1,11 +1,11 @@
-extends EnchantmentCursor
 class_name WorkstationCursor
+extends EnchantmentCursor
+## The workplace's main cursor: drags WorkspaceObjects between the channel and the workstation,
+## working with a WorkstationCursorProxy inside the workstation's SubViewport.
 
 ## Proxy cursor that exists inside the workstation SubViewport world.
 ## Used as an equivalent cursor on the other screenscapoe
 var workstation_cursor_proxy: WorkstationCursorProxy
-
-@onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
 
 ## Currently dragged workspace object (if any)
 var controlled_object: WorkspaceObject = null
@@ -13,12 +13,12 @@ var controlled_object: WorkspaceObject = null
 ## Previous cursor position (used to compute screen-space delta)
 var _prev_pos: Vector2 = Vector2.ZERO
 
+@onready var collision_shape_2d: CollisionShape2D = $CollisionShape2D
+
 
 func _ready() -> void:
 	## WorkspaceObjects have priority for selection
-	selection_manager.set_priority_order([
-		WorkspaceObject
-	])
+	selection_manager.set_priority_order([WorkspaceObject])
 
 	## Mirror collision shape into the proxy cursor so both cursors
 	## have identical interaction footprints
@@ -64,7 +64,7 @@ func teleport_to_object(form: WorkplaceForm) -> void:
 
 	elif form is WorkStationForm:
 		## Convert workstation world → screen
-		var controller := get_tree().get_first_node_in_group("workstation_controller")
+		var controller := get_tree().get_first_node_in_group(Groups.WORKSTATION_CONTROLLER)
 		if controller and controller.has_method("workstation_world_to_screen"):
 			global_position = controller.workstation_world_to_screen(form.position)
 

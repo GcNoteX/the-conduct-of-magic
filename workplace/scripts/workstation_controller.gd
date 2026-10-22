@@ -1,11 +1,13 @@
 extends Node
+## WorkstationController: handles the workstation camera's zoom and pan, and maps positions
+## between the main screen and the workstation SubViewport so their pixels line up.
 
 ## Discrete zoom levels for the workstation camera.
 ## Higher values = more zoomed in (Camera2D semantics).
 const ZOOM_LEVELS: Array[float] = [1.0, 2.0, 4.0]
 
 ## Group name for the main cursor (screen-space cursor)
-@export var cursor_group: StringName = &"cursor"
+@export var cursor_group: StringName = Groups.CURSOR
 
 ## Camera rendering the workstation SubViewport
 @export var workstation_camera: Camera2D
@@ -27,7 +29,6 @@ const ZOOM_LEVELS: Array[float] = [1.0, 2.0, 4.0]
 @export var table_origin: Vector2 = Vector2.ZERO
 @export var table_size: Vector2 = Vector2(1080, 1080)
 
-
 ## Current zoom index into ZOOM_LEVELS
 var _zoom_index: int = 0
 
@@ -41,10 +42,6 @@ var _cursor_node: WorkstationCursor = null
 var _is_panning: bool = false
 var _pan_last_screen: Vector2 = Vector2.ZERO
 
-"""
-This script handles zoom and provides a way
-to map the main and subviewport pixels to be identical
-"""
 
 func _ready() -> void:
 	## --- VALIDATION ---
@@ -75,7 +72,7 @@ func _ready() -> void:
 	_cursor_node.workstation_cursor_proxy = workstation_cursor
 
 	## Get workstation area
-	var workstation_area = get_tree().get_first_node_in_group("workstation") as Area2D
+	var workstation_area = get_tree().get_first_node_in_group(Groups.WORKSTATION) as Area2D
 	if not workstation_area.area_entered.is_connected(_on_workstation_entered):
 		workstation_area.area_entered.connect(_on_workstation_entered)
 	if not workstation_area.area_exited.is_connected(_on_workstation_exited):
@@ -96,12 +93,13 @@ func _process(_delta: float) -> void:
 			workstation_cursor.position = world_pos
 
 		#if !_was_cursor_inside:
-			#print(workstation_cursor.get_overlapping_areas())
-			#workstation_cursor.refresh_hover()
+		#print(workstation_cursor.get_overlapping_areas())
+		#workstation_cursor.refresh_hover()
 	_was_cursor_inside = _cursor_inside
 
 
 ## --- AREA DETECTION ----------------------------------------------------------
+
 
 func _on_workstation_entered(area: Area2D) -> void:
 	if area.is_in_group(cursor_group):
@@ -114,6 +112,7 @@ func _on_workstation_exited(area: Area2D) -> void:
 
 
 ## --- INPUT HANDLING ----------------------------------------------------------
+
 
 func _input(event: InputEvent) -> void:
 	if not _cursor_inside:
@@ -144,6 +143,7 @@ func _input(event: InputEvent) -> void:
 
 
 ## --- ZOOM --------------------------------------------------------------------
+
 
 func _zoom_step(dir: int) -> void:
 	var new_index: int = clampi(_zoom_index + dir, 0, ZOOM_LEVELS.size() - 1)
@@ -185,6 +185,7 @@ func _apply_zoom() -> void:
 
 ## --- PAN ---------------------------------------------------------------------
 
+
 func _pan_update() -> void:
 	if _cursor_node == null:
 		return
@@ -208,6 +209,7 @@ func _pan_update() -> void:
 
 
 ## --- CAMERA CONSTRAINTS ------------------------------------------------------
+
 
 func _center_camera_on_table() -> void:
 	var rect := Rect2(table_origin, table_size)
@@ -243,6 +245,7 @@ func _clamp_camera_to_table() -> void:
 ##
 ## Everything else is private glue.
 
+
 func _screen_to_container_local(screen_pos: Vector2) -> Vector2:
 	# Accounts for canvas/UI scaling, anchors, stretch, etc.
 	var inv := subviewport_container.get_global_transform_with_canvas().affine_inverse()
@@ -261,10 +264,7 @@ func _container_local_to_vp_pixel(local: Vector2) -> Vector2:
 		return Vector2.INF
 
 	var vp_size := Vector2(subviewport.size)
-	return Vector2(
-		local.x * (vp_size.x / rect_size.x),
-		local.y * (vp_size.y / rect_size.y)
-	)
+	return Vector2(local.x * (vp_size.x / rect_size.x), local.y * (vp_size.y / rect_size.y))
 
 
 func _vp_pixel_to_container_local(vp_pixel: Vector2) -> Vector2:
@@ -273,10 +273,7 @@ func _vp_pixel_to_container_local(vp_pixel: Vector2) -> Vector2:
 	if vp_size.x == 0.0 or vp_size.y == 0.0:
 		return Vector2.INF
 
-	return Vector2(
-		(vp_pixel.x / vp_size.x) * rect_size.x,
-		(vp_pixel.y / vp_size.y) * rect_size.y
-	)
+	return Vector2((vp_pixel.x / vp_size.x) * rect_size.x, (vp_pixel.y / vp_size.y) * rect_size.y)
 
 
 func _vp_pixel_to_world(vp_pixel: Vector2) -> Vector2:
@@ -295,7 +292,12 @@ func screen_to_workstation_world(screen_pos: Vector2) -> Vector2:
 	var local := _screen_to_container_local(screen_pos)
 
 	# Optional bounds guard: if you want INF when outside container:
-	if local.x < 0.0 or local.y < 0.0 or local.x > subviewport_container.size.x or local.y > subviewport_container.size.y:
+	if (
+		local.x < 0.0
+		or local.y < 0.0
+		or local.x > subviewport_container.size.x
+		or local.y > subviewport_container.size.y
+	):
 		return Vector2.INF
 
 	var vp_pixel := _container_local_to_vp_pixel(local)
