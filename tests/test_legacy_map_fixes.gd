@@ -1,0 +1,153 @@
+extends Node
+
+## Headless regression checks for the legacy play map (play_map.tscn): the line and connection
+## conditions, taking materials out of slots, and the player inventory the map hands them back to.
+## Run: godot --headless --path . res://tests/test_legacy_map_fixes.tscn
+## Exits with code 1 if any check fails.
+
+const FIRE := preload("res://tests/fixtures/materials/fire_stone.tres")
+const WATER := preload("res://tests/fixtures/materials/water_stone.tres")
+const BLUE := preload("res://tests/fixtures/materials/blue_stone.tres")
+const MAGIC_NODE := preload("res://map_nodes/magic_node.tscn")
+const MAGIC_LINE := preload("res://map_lines/magic_line.tscn")
+const ENCHANTMENT_GRID := preload("res://enchantments/enchantments/e1.tscn")
+
+var _failures := 0
+var _checks := 0
+
+
+func _ready() -> void:
+	test_condition_classes_load()
+	test_lines_condition_counts_lines_not_neighbours()
+	test_dropper_keeps_empty_and_sealed_slots()
+	test_cursor_returns_only_real_materials()
+	test_player_manager_follows_player_rules()
+	test_connections_are_not_saved_into_scenes()
+	print("%d checks, %d failed" % [_checks, _failures])
+	get_tree().quit(1 if _failures > 0 else 0)
+
+
+func check(cond: bool, what: String) -> void:
+	_checks += 1
+	if not cond:
+		_failures += 1
+		printerr("FAIL: ", what)
+
+
+func test_condition_classes_load() -> void:
+	check(FIRE.activation_conditions.size() == 1, "fire stone has one condition")
+	check(FIRE.activation_conditions[0] is NumberOfLinesCondition, "fire stone: lines condition")
+	check(
+		WATER.activation_conditions.any(func(c): return c is NumberOfConnectionsCondition),
+		"water stone: connections condition"
+	)
+
+
+func test_lines_condition_counts_lines_not_neighbours() -> void:
+	var node: MagicNode = MAGIC_NODE.instantiate()
+	var other: MagicNode = MAGIC_NODE.instantiate()
+	var first: MagicLine = MAGIC_LINE.instantiate()
+	var second: MagicLine = MAGIC_LINE.instantiate()
+	# Two lines joining the same pair of nodes: two lines, one neighbour
+	node.mapline_connections.append(first)
+	node.mapline_connections.append(second)
+	node.mapnode_connections[other] = 2
+	var ctx := MaterialActivationContext.new(node)
+
+	var lines := NumberOfLinesCondition.new()
+	lines.number_of_lines = 2
+	check(lines.is_fulfilled(ctx), "two lines pass a 2-line condition")
+	check(
+		lines.progress(ctx) == "2/2 lines", "line progress counts lines: %s" % lines.progress(ctx)
+	)
+	var connections := NumberOfConnectionsCondition.new()
+	connections.number_of_lines = 2
+	check(not connections.is_fulfilled(ctx), "one neighbour fails a 2-node condition")
+
+	for n: Node in [node, other, first, second]:
+		n.free()
+
+
+func test_dropper_keeps_empty_and_sealed_slots() -> void:
+	var holder := MaterialHolder.new()
+	var dropper := MaterialDropper.new()
+	dropper.holder = holder
+	var removed := [0]
+	holder.material_removed.connect(func(): removed[0] += 1)
+
+	check(dropper.remove_material() == null, "an empty slot gives nothing")
+	check(removed[0] == 0, "an empty slot is left alone")
+
+	holder.embbed_material(FIRE)
+	holder.sealed = true
+	check(dropper.remove_material() == null, "a sealed slot gives nothing")
+	check(holder.get_embedded_material() == FIRE, "a sealed slot keeps its material")
+
+	holder.sealed = false
+	check(dropper.remove_material() == FIRE, "an open slot gives its material back")
+	check(holder.get_embedded_material() == null, "and is empty afterwards")
+
+	dropper.free()
+	holder.free()
+
+
+func test_cursor_returns_only_real_materials() -> void:
+	var previous := PlayerManager.get_player()
+	var player := Player.new()
+	PlayerManager.set_player(player)
+	var holder := MaterialHolder.new()
+	var dropper := MaterialDropper.new()
+	dropper.holder = holder
+	var cursor := MaterialCursor.new()
+
+	cursor.return_material_to_player(dropper)
+	check(player.material_inventory.is_empty(), "right-clicking an empty slot adds nothing")
+
+	holder.embbed_material(BLUE)
+	holder.sealed = true
+	cursor.return_material_to_player(dropper)
+	check(player.material_inventory.is_empty(), "right-clicking a sealed slot adds nothing")
+
+	holder.sealed = false
+	cursor.return_material_to_player(dropper)
+	check(player.get_material_count(BLUE) == 1, "right-clicking a filled slot returns it")
+	check(holder.get_embedded_material() == null, "and empties the slot")
+
+	cursor.free()
+	dropper.free()
+	holder.free()
+	PlayerManager.set_player(previous)
+
+
+func test_player_manager_follows_player_rules() -> void:
+	var previous := PlayerManager.get_player()
+	var player := Player.new()
+	PlayerManager.set_player(player)
+
+	PlayerManager.add_material(null)
+	check(player.material_inventory.is_empty(), "a null material is not added")
+	PlayerManager.add_material(BLUE, 2)
+	check(player.get_material_count(BLUE) == 2, "adding goes to the player")
+	PlayerManager.remove_material(BLUE, 2)
+	check(not player.material_inventory.has(BLUE), "using up a material drops its entry")
+
+	PlayerManager.set_player(previous)
+
+
+func test_connections_are_not_saved_into_scenes() -> void:
+	var node: MagicNode = MAGIC_NODE.instantiate()
+	for p in ["mapnode_connections", "mapline_connections"]:
+		check(not is_stored(node, p), "MapNode.%s is not saved into scenes" % p)
+	node.free()
+
+	var grid: EnchantmentGrid = ENCHANTMENT_GRID.instantiate()
+	for p in ["enodes", "elines"]:
+		check(not is_stored(grid, p), "EnchantmentGrid.%s is not saved into scenes" % p)
+	grid.free()
+
+
+func is_stored(o: Object, property: String) -> bool:
+	for p in o.get_property_list():
+		if p.name == property:
+			return p.usage & PROPERTY_USAGE_STORAGE != 0
+	return false

@@ -41,18 +41,8 @@ script = ExtResource("2_u2jdw")
 [node name="E1" parent="EnchantmentMap" unique_id=2014770013 instance=ExtResource("3_i2ton")]
 position = Vector2(1308, 410)
 
-[node name="EnchantmentNode" parent="EnchantmentMap/E1" index="1" node_paths=PackedStringArray("mapnode_connections")]
-mapnode_connections = {
-NodePath("../EnchantmentNode2"): 1
-}
-
 [node name="CircularMotionAnim" parent="EnchantmentMap/E1/EnchantmentNode/MaterialHeld" index="0"]
 center_position = Vector2(-11.981816, 2.2448087)
-
-[node name="EnchantmentNode2" parent="EnchantmentMap/E1" index="2" node_paths=PackedStringArray("mapnode_connections")]
-mapnode_connections = {
-NodePath("../EnchantmentNode3"): 1
-}
 
 [node name="CircularMotionAnim" parent="EnchantmentMap/E1/EnchantmentNode2/MaterialHeld" index="0"]
 center_position = Vector2(-11.981816, 2.2448087)

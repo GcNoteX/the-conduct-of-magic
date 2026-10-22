@@ -401,14 +401,14 @@ func _node(
 	return n
 
 
-func _lines(n: int) -> NumberOfLinesConditon:
-	var c := NumberOfLinesConditon.new()
+func _lines(n: int) -> NumberOfLinesCondition:
+	var c := NumberOfLinesCondition.new()
 	c.number_of_lines = n
 	return c
 
 
-func _connections(n: int) -> NumberOfConnectionsConditon:
-	var c := NumberOfConnectionsConditon.new()
+func _connections(n: int) -> NumberOfConnectionsCondition:
+	var c := NumberOfConnectionsCondition.new()
 	c.number_of_lines = n
 	return c
 

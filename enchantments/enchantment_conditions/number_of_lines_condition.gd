@@ -1,5 +1,6 @@
-class_name NumberOfLinesConditon
+class_name NumberOfLinesCondition
 extends EnchantmentCondition
+## Passes once at least `number_of_lines` lines are drawn onto the node holding the material.
 
 ## The number of lines that have to be drawn onto the holder of this condition
 @export var number_of_lines: int = 0

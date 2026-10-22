@@ -48,46 +48,22 @@ func has_player() -> bool:
 # ────────────────────────────────────────────────
 
 
-## Safely adds a given amount of material to the player's inventory.
-## If no player exists, prints an error.
+## Adds a given amount of material to the player's inventory.
+## Delegates to Player, which ignores a null material.
 func add_material(material: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if not _player:
 		push_warning("⚠️ No active player — cannot add material.")
 		return
-
-	if material not in _player.material_inventory:
-		_player.material_inventory[material] = 0
-
-	_player.material_inventory[material] += amount
-	#print("Added %d × %s" % [amount, str(material.material_id)])
-	#print(get_inventory())
+	_player.add_material(material, amount)
 
 
 ## Removes a given amount of material from the player's inventory.
-## If the amount exceeds what is owned, it will clamp to 0 and issue a warning.
+## Delegates to Player, which drops the entry once its count reaches 0.
 func remove_material(material: EnchantmentMaterialDefinition, amount: int = 1) -> void:
 	if not _player:
 		push_warning("⚠️ No active player — cannot remove material.")
 		return
-
-	if material not in _player.material_inventory:
-		push_warning("⚠️ Tried to remove material the player doesn't have: %s" % str(material))
-		return
-
-	var current_amount := _player.material_inventory[material]
-	var new_amount := current_amount - amount
-
-	if new_amount < 0:
-		push_warning(
-			(
-				"⚠️ Tried to remove more '%s' than available (%d > %d). Clamping to 0."
-				% [str(material), amount, current_amount]
-			)
-		)
-		new_amount = 0
-
-	_player.material_inventory[material] = new_amount
-	print("Removed %d × %s (remaining: %d)" % [amount, str(material), new_amount])
+	_player.remove_material(material, amount)
 
 
 ## Returns a copy of the player's material inventory.

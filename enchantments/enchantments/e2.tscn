@@ -24,20 +24,13 @@ size = Vector2(15, 451.53625)
 radius = 68.393005
 height = 463.18594
 
-[node name="E2" type="Area2D" node_paths=PackedStringArray("enodes", "elines")]
+[node name="E2" type="Area2D"]
 collision_layer = 4
 collision_mask = 5
 script = ExtResource("1_ltbjf")
-enodes = [NodePath("EnchantmentNode"), NodePath("EnchantmentNode2"), NodePath("EnchantmentNode3")]
-elines = [NodePath("EnchantmentLine"), NodePath("EnchantmentLine2")]
 
-[node name="EnchantmentNode" parent="." node_paths=PackedStringArray("mapnode_connections", "mapline_connections") instance=ExtResource("2_dlsgk")]
+[node name="EnchantmentNode" parent="." instance=ExtResource("2_dlsgk")]
 position = Vector2(-192, 142)
-mapnode_connections = {
-NodePath("../EnchantmentNode2"): 1,
-NodePath("../EnchantmentNode3"): 1
-}
-mapline_connections = [NodePath("../EnchantmentLine"), NodePath("../EnchantmentLine2")]
 
 [node name="MaterialHeld" parent="EnchantmentNode" index="3"]
 texture = ExtResource("3_hymt6")

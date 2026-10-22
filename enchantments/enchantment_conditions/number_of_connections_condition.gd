@@ -1,5 +1,6 @@
-class_name NumberOfConnectionsConditon
+class_name NumberOfConnectionsCondition
 extends EnchantmentCondition
+## Passes once the node holding the material reaches at least `number_of_lines` magic nodes.
 
 ## The number of magic nodes the holder of this condition has to reach (directly or through a chain)
 @export var number_of_lines: int = 0
