@@ -28,3 +28,17 @@ func planned_materials() -> Dictionary[EnchantmentMaterialDefinition, int]:
 		if s.kind == DisenchantStep.Kind.DISSOLVE and s.material:
 			out[s.material] = out.get(s.material, 0) + 1
 	return out
+
+
+## Drops every plan that isn't committed (draft enchantments, their lines and the disenchant
+## plan) and returns the materials those plans held, so the caller can give them back
+func drop_plans() -> Dictionary[EnchantmentMaterialDefinition, int]:
+	var held := planned_materials()
+	for p in placements.duplicate():
+		if not p.committed:
+			placements.erase(p)
+	for l in lines.duplicate():
+		if not l.committed:
+			lines.erase(l)
+	disenchant_plan.clear()
+	return held
