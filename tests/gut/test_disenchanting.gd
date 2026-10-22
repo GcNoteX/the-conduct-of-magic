@@ -18,13 +18,17 @@ func before_each() -> void:
 	_player = Player.new()
 	for m in SETUP.materials:
 		_player.add_material(m, SETUP.materials[m])
+	# The carving's stones come from someone else, so the player disenchants with a full stock
+	var carver_stock := Player.new()
+	for m in SETUP.materials:
+		carver_stock.add_material(m, SETUP.materials[m])
 	var inst := ItemInstance.new()
 	inst.definition = LONG_SWORD
-	_inscription = InscriptionBoard.new(inst, _player)
 	var materials: Array[EnchantmentMaterialDefinition] = []
 	materials.assign(SETUP.materials.keys())
-	_carving = AutoCarver.new(_inscription, materials).carve(KINDLE)
+	_carving = AutoCarver.new(InscriptionBoard.new(inst, carver_stock), materials).carve(KINDLE)
 	assert_not_null(_carving, "Kindle carves on the long sword")
+	_inscription = InscriptionBoard.new(inst, _player)
 	_board = DisenchantBoard.new(_inscription)
 
 
