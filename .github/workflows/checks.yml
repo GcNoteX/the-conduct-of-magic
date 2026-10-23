@@ -86,3 +86,5 @@ jobs:
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_solvability_checker.tscn
       - name: Run scene bake tests
         run: timeout 300 ~/godot/godot --headless --path . res://tests/test_scene_bake.tscn
+      - name: Run DevLog tests
+        run: timeout 300 ~/godot/godot --headless --path . res://tests/test_dev_log.tscn

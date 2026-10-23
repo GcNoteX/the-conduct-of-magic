@@ -2,25 +2,25 @@
 class_name SolvabilityCheck
 extends Node
 
-## Dev component: tick Enabled in the inspector and, when the scene runs, it prints to the Output
-## panel whether each carved item's disenchant board can be cleared, with which materials, and a
-## cut order that works. Nodes go by the labels drawn on the board in Disenchant mode: "M4" for
-## magic node 4, "Keen B" for Keen's second node. The inscribing table holds one and calls it when
-## it opens a carved item.
+## Dev component: tick Enabled in the inspector and, when the scene runs, it reports to DevLog's
+## solvability channel (the DevLog tab in the Debugger panel, and the Output panel) whether each
+## carved item's disenchant board can be cleared, with which materials, and a cut order that works.
+## Nodes go by the labels drawn on the board in Disenchant mode: "M4" for magic node 4, "Keen B"
+## for Keen's second node. The inscribing table holds one and calls it when it opens a carved item.
 
-## Prints a report when the table starts and whenever it opens a carved item
+## Reports when the table starts and whenever it opens a carved item
 @export var enabled: bool = false
 ## The most materials a solution may dissolve
 @export_range(0, 10) var max_dissolves: int = 6
 
 
-## Prints the report for every item in `items` that has carvings, when enabled
+## Reports on every item in `items` that has carvings, when enabled
 func check_items(items: Array[ItemInstance], player: Player) -> void:
 	for inst in items:
 		check_item(inst, player)
 
 
-## Prints the report for `inst` when enabled and it has carvings, checked against the player's
+## Reports on `inst` when enabled and it has carvings, checked against the player's
 ## materials (and any the item's disenchant plan already holds, since undoing the plan gives them
 ## back). Returns the report, or "" when nothing was checked.
 func check_item(inst: ItemInstance, player: Player) -> String:
@@ -34,7 +34,7 @@ func check_item(inst: ItemInstance, player: Player) -> String:
 		if s.kind == DisenchantStep.Kind.DISSOLVE and s.material:
 			available[s.material] = available.get(s.material, 0) + 1
 	var text := report(board, available, max_dissolves)
-	print(text)
+	DevLog.info(DevLog.SOLVABILITY, text)
 	return text
 
 
