@@ -76,17 +76,28 @@ func open(p: Player) -> void:
 ## Lines up the day's customers: those back to collect first, then the new ones. Anyone still
 ## waiting from before has left, and a collector who left comes back the next day.
 func open_day(day_number: int) -> void:
+	resume_day(day_number, [], [])
+
+
+## Lines the day up again part way through, as a loaded save left it: the calls already made and
+## the commissions already collected today. Customers already decided don't come back.
+func resume_day(
+	day_number: int, decided: Array[CounterDecision], collected: Array[Commission]
+) -> void:
 	_day_number = day_number
-	decisions.clear()
-	collections.clear()
+	decisions = decided.duplicate()
+	collections = collected.duplicate()
 	_returns.clear()
 	if player != null:
 		for c in player.commissions:
 			if c.is_due(day_number):
 				_returns.append(c)
+	var seen: Array[CustomerVisit] = []
+	for d in decisions:
+		seen.append(d.visit)
 	_queue.clear()
 	for v in visits:
-		if v.day == day_number:
+		if v.day == day_number and v not in seen:
 			_queue.append(v)
 	_status_label.text = ""
 	_refresh_rules()
