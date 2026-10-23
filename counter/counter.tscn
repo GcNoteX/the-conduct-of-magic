@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://counter/counter.gd" id="1_counter"]
 [ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_visit"]
 [ext_resource type="Resource" path="res://counter/demo/demo_rulebook.tres" id="3_rulebook"]
-[ext_resource type="Theme" path="res://counter/counter_theme.tres" id="4_theme"]
 [ext_resource type="Resource" path="res://counter/supplier/demo_catalogue.tres" id="5_catalogue"]
 [ext_resource type="Script" path="res://counter/sound_bank.gd" id="6_sounds"]
 [ext_resource type="AudioStream" path="res://counter/sounds/bell.wav" id="s_bell"]
@@ -29,7 +28,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("4_theme")
 script = ExtResource("1_counter")
 visits = Array[ExtResource("2_visit")]([ExtResource("v1"), ExtResource("v2"), ExtResource("v3"), ExtResource("v4"), ExtResource("v5"), ExtResource("v6"), ExtResource("v7"), ExtResource("v8"), ExtResource("v9")])
 rulebook = ExtResource("3_rulebook")
