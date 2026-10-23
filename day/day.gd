@@ -7,11 +7,13 @@ extends Control
 ## The inactive side is hidden and paused, so it picks up exactly where it stopped.
 ## Debug builds can jump between sides with the dev_switch_side action, whatever the plan says,
 ## and run out the active side's time with dev_end_side.
+## Escape or the Menu button opens the pause menu, which can save the run.
 
 enum ShopSide { COUNTER, INSCRIBING }
 
 const DEV_SWITCH_ACTION := &"dev_switch_side"
 const DEV_END_SIDE_ACTION := &"dev_end_side"
+const PAUSE_ACTION := PauseMenu.PAUSE_ACTION
 const BAR_HEIGHT := 40.0
 const SIDE_NAMES: Dictionary[ShopSide, String] = {
 	ShopSide.COUNTER: "Counter",
@@ -31,6 +33,7 @@ var time_left: Dictionary[ShopSide, float] = {}
 var _clock_label: Label
 var _day_over: PanelContainer
 var _day_over_text: RichTextLabel
+var _pause_menu: PauseMenu
 
 @onready var counter: Counter = $Sides/Counter
 @onready var table: InscribingTable = $Sides/InscribingTable
@@ -38,13 +41,15 @@ var _day_over_text: RichTextLabel
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	player = setup.create_player()
-	PlayerManager.set_player(player)
 	_build_ui()
 	counter.visit_decided.connect(_on_visit_decided)
-	counter.open(player)
-	table.open(player, setup.shown_materials())
+	var pending := SaveManager.take_pending_load()
+	if pending != null:
+		load_game(pending)
+		return
+	_open_player(setup.create_player())
 	_start_day()
+	SaveManager.autosave(to_save())
 
 
 func _process(delta: float) -> void:
@@ -52,6 +57,10 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(PAUSE_ACTION):
+		open_pause_menu()
+		get_viewport().set_input_as_handled()
+		return
 	if not OS.is_debug_build() or is_day_over():
 		return
 	if event.is_action_pressed(DEV_SWITCH_ACTION):
@@ -109,6 +118,56 @@ func is_day_over() -> bool:
 func start_next_day() -> void:
 	day_number += 1
 	_start_day()
+	SaveManager.autosave(to_save())
+
+
+func open_pause_menu() -> void:
+	_suspend(side)
+	_pause_menu.open()
+
+
+## A snapshot of the run as it stands. Saved on the day-over screen, it opens on the next day.
+func to_save() -> SaveGame:
+	var game := SaveGame.new()
+	game.player = player
+	if is_day_over():
+		var next_plan := schedule.plan_for(day_number + 1)
+		game.day_number = day_number + 1
+		game.counter_seconds_left = next_plan.counter_seconds
+		game.inscribing_seconds_left = next_plan.inscribing_seconds
+		game.side = ShopSide.COUNTER if next_plan.counter_seconds > 0.0 else ShopSide.INSCRIBING
+		return game
+	game.day_number = day_number
+	game.side = side
+	game.counter_seconds_left = time_left[ShopSide.COUNTER]
+	game.inscribing_seconds_left = time_left[ShopSide.INSCRIBING]
+	game.decisions = counter.decisions.duplicate()
+	game.collections = counter.collections.duplicate()
+	return game
+
+
+## Picks the run up where a save left it: same day, same side, same time left, and the counter's
+## queue without the customers already seen today
+func load_game(game: SaveGame) -> void:
+	_open_player(game.player)
+	day_number = game.day_number
+	plan = schedule.plan_for(day_number)
+	time_left = {
+		ShopSide.COUNTER: game.counter_seconds_left,
+		ShopSide.INSCRIBING: game.inscribing_seconds_left,
+	}
+	_day_over.visible = false
+	counter.resume_day(day_number, game.decisions, game.collections)
+	switch_to(game.side)
+	if time_left[side] <= 0.0:
+		_on_side_time_up()
+
+
+func _open_player(p: Player) -> void:
+	player = p
+	PlayerManager.set_player(player)
+	counter.open(player)
+	table.open(player, setup.shown_materials())
 
 
 func _start_day() -> void:
@@ -186,6 +245,7 @@ func _end_day() -> void:
 	_day_over_text.text = text
 	_day_over.visible = true
 	_refresh_clock()
+	SaveManager.autosave(to_save())
 
 
 func _describe(d: CounterDecision) -> String:
@@ -237,9 +297,17 @@ func _build_ui() -> void:
 	bar_style.set_content_margin_all(8)
 	bar.add_theme_stylebox_override("panel", bar_style)
 	add_child(bar)
+	var bar_row := HBoxContainer.new()
+	bar.add_child(bar_row)
 	_clock_label = Label.new()
 	_clock_label.add_theme_font_size_override("font_size", 20)
-	bar.add_child(_clock_label)
+	_clock_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	bar_row.add_child(_clock_label)
+	var menu_button := Button.new()
+	menu_button.text = "Menu"
+	menu_button.focus_mode = Control.FOCUS_NONE
+	menu_button.pressed.connect(open_pause_menu)
+	bar_row.add_child(menu_button)
 
 	# Day-over screen: a dimmer that blocks both sides, with a summary panel on top
 	_day_over = PanelContainer.new()
@@ -274,3 +342,30 @@ func _build_ui() -> void:
 	next.add_theme_font_size_override("font_size", 24)
 	next.pressed.connect(start_next_day)
 	box.add_child(next)
+
+	_pause_menu = PauseMenu.new()
+	_pause_menu.save_requested.connect(_on_save_requested)
+	_pause_menu.quit_to_main_menu_requested.connect(_on_quit_requested.bind(false))
+	_pause_menu.quit_game_requested.connect(_on_quit_requested.bind(true))
+	_pause_menu.closed.connect(_on_pause_menu_closed)
+	add_child(_pause_menu)
+
+
+func _on_save_requested() -> void:
+	var err := SaveManager.write_save(to_save())
+	_pause_menu.show_status("Saved." if err == OK else "Couldn't save (error %d)." % err)
+
+
+func _on_quit_requested(to_desktop: bool) -> void:
+	if SaveManager.write_save(to_save()) != OK:
+		_pause_menu.show_status("Couldn't save, so the game is still open.")
+		return
+	if to_desktop:
+		get_tree().quit()
+	else:
+		SaveManager.quit_to_main_menu()
+
+
+func _on_pause_menu_closed() -> void:
+	if not is_day_over():
+		switch_to(side)
