@@ -1,4 +1,4 @@
-# 0008: Shop loop follow-ups
+# 0011: Shop loop follow-ups
 
 **Status:** Approved (2026-10-23; Gavin said to skip sheet approval and build on the recommended answers)
 **Design doc:** §4.4 Material supply, §5.1 Lifecycle

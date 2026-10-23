@@ -1,7 +1,7 @@
 # Test report: Shop loop follow-ups
 
 **Date:** 2026-10-23
-**Planning sheet:** [0008-shop-loop-follow-ups.md](../plans/0008-shop-loop-follow-ups.md)
+**Planning sheet:** [0011-shop-loop-follow-ups.md](../plans/0011-shop-loop-follow-ups.md)
 **PR:** draft PR from `shop-loop-follow-ups`
 
 ## Branches
