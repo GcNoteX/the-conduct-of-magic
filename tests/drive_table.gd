@@ -765,10 +765,10 @@ func _material_for(def: EnchantmentPatternNode) -> EnchantmentMaterialDefinition
 func _lines_needed(m: EnchantmentMaterialDefinition) -> int:
 	var n := 0
 	for c in m.activation_conditions:
-		if c is NumberOfLinesConditon:
-			n = maxi(n, (c as NumberOfLinesConditon).number_of_lines)
-		elif c is NumberOfConnectionsConditon:
-			n = maxi(n, (c as NumberOfConnectionsConditon).number_of_lines)
+		if c is NumberOfLinesCondition:
+			n = maxi(n, (c as NumberOfLinesCondition).number_of_lines)
+		elif c is NumberOfConnectionsCondition:
+			n = maxi(n, (c as NumberOfConnectionsCondition).number_of_lines)
 	return n
 
 
