@@ -230,6 +230,16 @@ func _on_card_drag_started(payload: Resource) -> void:
 		)
 
 
+## Tab is taken here, before the GUI sees it, so it never moves focus between controls
+func _input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key == null or key.keycode != KEY_TAB:
+		return
+	get_viewport().set_input_as_handled()
+	if _layout and not _overview.visible and not _day_over.visible:
+		_layout.handle_key(key)
+
+
 func _unhandled_key_input(event: InputEvent) -> void:
 	if _handle_overview_key(event as InputEventKey):
 		return
