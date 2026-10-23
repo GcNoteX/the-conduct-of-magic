@@ -9,12 +9,6 @@ extends Node
 # Internal player instance (do not access directly outside this class)
 var _player: Player = null
 
-
-func _ready() -> void:
-	if Mocker.is_mocking:
-		_player = Mocker.player
-
-
 # ────────────────────────────────────────────────
 # 🧍 PLAYER MANAGEMENT
 # ────────────────────────────────────────────────
