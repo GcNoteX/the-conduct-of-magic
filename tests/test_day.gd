@@ -1,8 +1,8 @@
 extends Node
 
 """
-Headless checks for the day: which side is active, freezing the other side, and items handed
-over from the counter, and the demo rulebook.
+Headless checks for the day: which side is active, freezing the other side, items handed
+over from the counter, the demo rulebook, customers collecting and paying, and the supplier.
 Run: godot --headless --path . res://tests/test_day.tscn
 Exits with code 1 if any check fails.
 """
@@ -20,6 +20,9 @@ func _ready() -> void:
 	test_rulebook()
 	test_counter_only_and_inscribing_only_days()
 	test_dev_end_side()
+	test_payout_scales_with_enchantments_done()
+	test_customer_collects_and_pays()
+	test_supplier()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -161,4 +164,109 @@ func test_dev_end_side() -> void:
 		day.end_side()
 		check(day.is_day_over(), "F3 at the table ends day %d" % n)
 		day.start_next_day()
+	day.queue_free()
+
+
+## Commits a placement of each enchantment on the item, as if carved at the table
+func _carve(inst: ItemInstance, carved: Array[Enchantment]) -> void:
+	if inst.enchantment_graph_state == null:
+		inst.enchantment_graph_state = GraphState.new()
+	for e in carved:
+		var p := PlacementState.new()
+		p.enchantment = e
+		p.materials.resize(e.nodes.size())
+		p.committed = true
+		inst.enchantment_graph_state.placements.append(p)
+
+
+func test_payout_scales_with_enchantments_done() -> void:
+	var glow: Enchantment = load("res://enchantments/patterns/glow.tres")
+	var ward: Enchantment = load("res://enchantments/patterns/ward.tres")
+	var keen: Enchantment = load("res://enchantments/patterns/keen.tres")
+	var visit := CustomerVisit.new()
+	visit.slip = CommissionSlip.new()
+	visit.slip.enchantments = [glow, ward, keen]
+	visit.slip.payment = 100
+	var inst := ItemInstance.new()
+	var c := Commission.create(visit, inst, 1)
+	check(c.payout() == 0, "nothing carved pays nothing")
+	_carve(inst, [ward])
+	check(c.fulfilled() == [false, true, false], "only the carved enchantment counts")
+	check(c.payout() == 33, "one of three pays a third, rounded down")
+	var draft := PlacementState.new()
+	draft.enchantment = glow
+	inst.enchantment_graph_state.placements.append(draft)
+	check(c.payout() == 33, "a planned but uncommitted enchantment doesn't count")
+	_carve(inst, [glow, keen])
+	check(c.payout() == 100, "all three pays the full offer")
+	visit.slip.enchantments = [glow, glow]
+	check(c.fulfilled_count() == 1, "each carving fulfils only one request")
+	check(not c.is_due(1) and c.is_due(2), "the customer comes back on a later day")
+
+
+func test_customer_collects_and_pays() -> void:
+	var day := _make_day([_plan(10.0, 20.0)])
+	var elsa := day.counter.current_visit()
+	day.counter.accept()
+	check(day.player.commissions.size() == 1, "accepting records a commission")
+	var c := day.player.commissions[0]
+	check(c.visit == elsa and c.item in day.player.items, "the commission holds Elsa's item")
+	var wanted := elsa.slip.enchantments.size()
+	check(wanted == 2, "Elsa wants two enchantments")
+	day.switch_to(Day.ShopSide.INSCRIBING)
+	day.table._open_item(day.player.items.find(c.item))
+	_carve(c.item, [elsa.slip.enchantments[0]])
+	# A half-planned second enchantment holds a material taken from the player
+	var spare: EnchantmentMaterialDefinition = day.player.material_inventory.keys()[0]
+	var spare_count := day.player.get_material_count(spare)
+	day.player.remove_material(spare)
+	var draft := PlacementState.new()
+	draft.enchantment = elsa.slip.enchantments[1]
+	draft.materials = [spare]
+	c.item.enchantment_graph_state.placements.append(draft)
+	var money := day.player.money
+	day.end_side()
+	day.start_next_day()
+	check(day.counter.current_return() == c, "Elsa is first at the counter the next day")
+	check(day.counter.current_visit() == null, "new customers wait behind collectors")
+	day.counter.hand_back()
+	var share := elsa.slip.payment / wanted
+	check(day.player.money == money + share, "she pays for one of two enchantments")
+	check(c.collected and c.paid == share, "the commission is marked collected and paid")
+	check(c.item not in day.player.items, "her item leaves with her")
+	check(
+		day.player.get_material_count(spare) == spare_count,
+		"materials planned on her item stay in the shop"
+	)
+	check(draft not in c.item.enchantment_graph_state.placements, "her item leaves without drafts")
+	check(day.counter.collections == [c], "the counter remembers the collection")
+	check(day.counter.current_visit() != null, "then the day's new customers step up")
+	day.switch_to(Day.ShopSide.INSCRIBING)
+	check(day.table.board == null or day.table.board.item != c.item, "the table drops her item")
+	check(
+		day.table._item_picker.item_count == day.player.items.size(),
+		"the table lists only the items still in the shop"
+	)
+	day.end_side()
+	day.start_next_day()
+	check(day.counter.current_return() == null, "a collected commission doesn't come back")
+	day.queue_free()
+
+
+func test_supplier() -> void:
+	var day := _make_day([_plan(10.0, 20.0)])
+	var yellow: EnchantmentMaterialDefinition = load(
+		"res://items/enchantment_materials/yellow_stone/yellow_stone.tres"
+	)
+	var price := day.counter.catalogue.price_of(yellow)
+	check(price > 0, "the supplier sells Yellow stone")
+	var money := day.player.money
+	var count := day.player.get_material_count(yellow)
+	check(day.counter.buy(yellow), "the player can afford a stone")
+	check(day.player.money == money - price, "buying takes the price")
+	check(day.player.get_material_count(yellow) == count + 1, "the stone joins the materials")
+	day.player.money = price - 1
+	check(not day.counter.buy(yellow), "a stone the player can't afford isn't sold")
+	check(day.player.money == price - 1, "a failed purchase costs nothing")
+	check(day.player.get_material_count(yellow) == count + 1, "and adds nothing")
 	day.queue_free()

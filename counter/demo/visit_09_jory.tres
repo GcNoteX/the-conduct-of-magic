@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CustomerVisit" format=3]
+
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="1_visit"]
+[ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="2_slip"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="3_ench"]
+[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="4_ward"]
+[ext_resource type="Resource" path="res://inscribing/demo/short_sword.tres" id="5_sword"]
+
+[sub_resource type="Resource" id="Resource_slip"]
+script = ExtResource("2_slip")
+customer_name = "Jory Pell"
+kingdom = "Velmor"
+enchantments = Array[ExtResource("3_ench")]([ExtResource("4_ward")])
+item = ExtResource("5_sword")
+payment = 55
+
+[resource]
+script = ExtResource("1_visit")
+day = 3
+slip = SubResource("Resource_slip")

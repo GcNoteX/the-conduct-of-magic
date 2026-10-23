@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="CustomerVisit" format=3]
+
+[ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="1_visit"]
+[ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="2_slip"]
+[ext_resource type="Script" path="res://counter/papers/adventurer_id.gd" id="3_id"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="4_ench"]
+[ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="5_glow"]
+[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="6_ward"]
+[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="7_keen"]
+[ext_resource type="Resource" path="res://inscribing/demo/long_sword.tres" id="8_sword"]
+
+[sub_resource type="Resource" id="Resource_id"]
+script = ExtResource("3_id")
+holder_name = "Mara Quill"
+tier = 2
+kingdom = "Astren"
+expires_day = 30
+
+[sub_resource type="Resource" id="Resource_slip"]
+script = ExtResource("2_slip")
+customer_name = "Mara Quill"
+kingdom = "Astren"
+enchantments = Array[ExtResource("4_ench")]([ExtResource("5_glow"), ExtResource("6_ward"), ExtResource("7_keen")])
+item = ExtResource("8_sword")
+payment = 180
+
+[resource]
+script = ExtResource("1_visit")
+day = 3
+slip = SubResource("Resource_slip")
+adventurer_id = SubResource("Resource_id")

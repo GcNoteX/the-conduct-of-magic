@@ -4,14 +4,16 @@
 [ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="2_qermq"]
 [ext_resource type="Resource" path="res://inscribing/demo/dagger.tres" id="3_qbyw4"]
 [ext_resource type="Script" path="res://counter/papers/commission_slip.gd" id="4_1grt6"]
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="ench_script"]
+[ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="extra_glow"]
 
 [sub_resource type="Resource" id="Resource_1r5mq"]
 script = ExtResource("4_1grt6")
 customer_name = "Tomas Reed"
 kingdom = "Velmor"
-enchantment = ExtResource("2_qermq")
+enchantments = Array[ExtResource("ench_script")]([ExtResource("2_qermq"), ExtResource("extra_glow")])
 item = ExtResource("3_qbyw4")
-payment = 60
+payment = 110
 
 [resource]
 script = ExtResource("1_ccfmd")

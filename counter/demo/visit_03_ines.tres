@@ -27,7 +27,7 @@ expires_day = 30
 script = ExtResource("7_53rw4")
 customer_name = "Ines Calder"
 kingdom = "Astren"
-enchantment = ExtResource("3_jqcn5")
+enchantments = Array[ExtResource("2_iwh73")]([ExtResource("3_jqcn5")])
 item = ExtResource("6_4eswc")
 payment = 150
 

@@ -115,6 +115,11 @@ func open(p: Player, shown_materials: Array[EnchantmentMaterialDefinition]) -> v
 func resume() -> void:
 	if player == null:
 		return
+	if board != null and board.item not in player.items:
+		board = null
+		_view.board = null
+		disenchant = null
+		_view.disenchant = null
 	_refresh_items()
 	if board == null and not player.items.is_empty():
 		_item_picker.select(0)
@@ -361,13 +366,15 @@ func _refresh_mode() -> void:
 
 
 func _refresh_items() -> void:
-	var selected := _item_picker.selected
 	_item_picker.clear()
 	for inst in player.items:
 		var carved := inst.carved_effects() != "nothing"
-		_item_picker.add_item(_item_name(inst) + ("  (carved)" if carved else ""))
-	if selected >= 0 and selected < _item_picker.item_count:
-		_item_picker.select(selected)
+		var commission := _commission_for(inst)
+		var for_whom := " for %s" % commission.visit.slip.customer_name if commission else ""
+		_item_picker.add_item(_item_name(inst) + for_whom + ("  (carved)" if carved else ""))
+	var open_index := player.items.find(board.item) if board else -1
+	if open_index >= 0:
+		_item_picker.select(open_index)
 
 
 func _refresh_cards() -> void:
@@ -415,6 +422,13 @@ func _refresh_item_panel() -> void:
 	if board == null:
 		return
 	var text := "[b]%s[/b]\n" % _item_name(board.item)
+	var commission := _commission_for(board.item)
+	if commission != null:
+		var slip := commission.visit.slip
+		text += (
+			"For %s, who wants %s (%dg)\n"
+			% [slip.customer_name, slip.enchantment_names(), slip.payment]
+		)
 	text += "Carved: %s\n" % board.item.carved_effects()
 	var drafts: Array[String] = []
 	for p in board.state.placements:
@@ -591,6 +605,14 @@ func _set_message(t: String) -> void:
 #
 # ── Helpers ──────────────────────────────────────
 #
+## The open commission this item was left for, or null for the player's own items
+func _commission_for(inst: ItemInstance) -> Commission:
+	for c in player.commissions:
+		if c.item == inst and not c.collected:
+			return c
+	return null
+
+
 func _item_name(inst: ItemInstance) -> String:
 	return InscriptionBoard.item_name(inst)
 

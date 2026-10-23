@@ -3,6 +3,15 @@
 [ext_resource type="Script" path="res://counter/counter.gd" id="1_counter"]
 [ext_resource type="Script" path="res://counter/papers/customer_visit.gd" id="2_visit"]
 [ext_resource type="Resource" path="res://counter/demo/demo_rulebook.tres" id="3_rulebook"]
+[ext_resource type="Theme" path="res://counter/counter_theme.tres" id="4_theme"]
+[ext_resource type="Resource" path="res://counter/supplier/demo_catalogue.tres" id="5_catalogue"]
+[ext_resource type="Script" path="res://counter/sound_bank.gd" id="6_sounds"]
+[ext_resource type="AudioStream" path="res://counter/sounds/bell.wav" id="s_bell"]
+[ext_resource type="AudioStream" path="res://counter/sounds/paper.wav" id="s_paper"]
+[ext_resource type="AudioStream" path="res://counter/sounds/stamp.wav" id="s_stamp"]
+[ext_resource type="AudioStream" path="res://counter/sounds/coins.wav" id="s_coins"]
+[ext_resource type="AudioStream" path="res://counter/sounds/purchase.wav" id="s_purchase"]
+[ext_resource type="AudioStream" path="res://counter/sounds/error.wav" id="s_error"]
 [ext_resource type="Resource" path="res://counter/demo/visit_01_elsa.tres" id="v1"]
 [ext_resource type="Resource" path="res://counter/demo/visit_02_bram.tres" id="v2"]
 [ext_resource type="Resource" path="res://counter/demo/visit_03_ines.tres" id="v3"]
@@ -10,6 +19,8 @@
 [ext_resource type="Resource" path="res://counter/demo/visit_05_rhea.tres" id="v5"]
 [ext_resource type="Resource" path="res://counter/demo/visit_06_tomas.tres" id="v6"]
 [ext_resource type="Resource" path="res://counter/demo/visit_07_wil.tres" id="v7"]
+[ext_resource type="Resource" path="res://counter/demo/visit_08_mara.tres" id="v8"]
+[ext_resource type="Resource" path="res://counter/demo/visit_09_jory.tres" id="v9"]
 
 [node name="Counter" type="Control"]
 layout_mode = 3
@@ -18,6 +29,19 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("4_theme")
 script = ExtResource("1_counter")
-visits = Array[ExtResource("2_visit")]([ExtResource("v1"), ExtResource("v2"), ExtResource("v3"), ExtResource("v4"), ExtResource("v5"), ExtResource("v6"), ExtResource("v7")])
+visits = Array[ExtResource("2_visit")]([ExtResource("v1"), ExtResource("v2"), ExtResource("v3"), ExtResource("v4"), ExtResource("v5"), ExtResource("v6"), ExtResource("v7"), ExtResource("v8"), ExtResource("v9")])
 rulebook = ExtResource("3_rulebook")
+catalogue = ExtResource("5_catalogue")
+
+[node name="Sounds" type="Node" parent="."]
+script = ExtResource("6_sounds")
+sounds = Dictionary[StringName, AudioStream]({
+&"bell": ExtResource("s_bell"),
+&"coins": ExtResource("s_coins"),
+&"error": ExtResource("s_error"),
+&"paper": ExtResource("s_paper"),
+&"purchase": ExtResource("s_purchase"),
+&"stamp": ExtResource("s_stamp")
+})
