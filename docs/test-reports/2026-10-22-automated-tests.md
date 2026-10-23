@@ -2,25 +2,25 @@
 
 **Date:** 2026-10-22
 **Planning sheet:** None, as Gavin asked for this overnight batch without sheets
-**PR:** #35 (this combined branch), and #34 for `gut-tests` on its own
+**PR:** #35 (this combined branch). `gut-tests` was merged on its own as #34
 
 ## Branches
 
 | Branch | Contains | Test here? |
 |---|---|---|
 | `automated-tests` | Everything below, on top of the save/load PR (#29), which contains the shop loop (#24) and Day and counter (#20) | Yes |
-| `gut-tests` | GUT, the CI step, AutoCarver, the solvability and disenchanting tests. Branches from `main` | Only to check it alone before merging it |
+| `gut-tests` | GUT, the CI step, AutoCarver, the solvability and disenchanting tests. Merged as #34 | No, it's on `main` now |
 | `shop-loop-tests` | Shop loop, economy and customer job tests, on `gut-tests` + #24 | No |
 | `save-load-tests` | Save round-trip tests, on `shop-loop-tests` + #29 | No |
 
-`gut-tests` has its own PR because it only needs `main`, so it can merge now. Everything else tests code that is still in open PRs (#20, #24, #29), so it goes in the combined PR, which should merge after those.
+`gut-tests` had its own PR because it only needed `main`; it's merged. Everything else tests code that is still in open PRs (#20, #24, #29), so it goes in the combined PR, which should merge after those.
 
 The bot playtest is not in this batch. A separate thread built a fuller one in #33 (three play styles, disenchanting, settings), at the same paths, so this batch dropped its own to avoid two bots.
 
 ## What to test
 
 ### GUT and the CI step
-**Branch:** `automated-tests` (or `gut-tests`)
+**Branch:** `automated-tests` (or `main`)
 **Scene to run:** none, it's a command
 
 How to test:
