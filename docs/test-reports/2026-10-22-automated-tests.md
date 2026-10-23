@@ -25,7 +25,7 @@ The bot playtest is not in this batch. A separate thread built a fuller one in #
 
 How to test:
 1. Run `godot --headless --path . -s addons/gut/gut_cmdln.gd`.
-2. In the editor, open the GUT panel at the bottom (the plugin is on in Project Settings → Plugins) and press Run All.
+2. In the editor, open the GUT panel at the bottom (the plugin is on in Project Settings → Plugins) and press Run All. If it says "You do not have any directories set", the panel already had settings from before this branch: open its settings (the tools icon), set Test Directories to `res://tests/gut/` with Include Subdirectories on, and run again.
 3. Look at the PR's checks: the "Godot script check" job now has a "Run GUT tests" step.
 4. Optional: break a rule on purpose, for example delete the `board.inventory.add_material(s.material)` line in `DisenchantBoard.undo_last()`, and run step 1 again.
 
