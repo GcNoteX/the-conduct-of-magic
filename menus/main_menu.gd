@@ -6,9 +6,11 @@ extends Control
 ## Borrowed until the project-wide theme replaces it; once that file is gone the menus fall
 ## back to the project theme, which defines the same type variations
 const FALLBACK_THEME_PATH := "res://counter/counter_theme.tres"
-const WOOD_ART := preload("res://counter/art/counter_wood.png")
+const BACKGROUND_ART := preload("res://art/title/title_background.png")
+const LOGO_ART := preload("res://art/title/title_logo.png")
+## The pixel art is drawn small and shown this many times larger, as crisp squares
+const LOGO_SCALE := 5
 const BUTTON_SIZE := Vector2(480, 72)
-const GAME_TITLE := "The Conduct of Magic"
 
 var _continue_button: Button
 var _save_label: Label
@@ -52,24 +54,25 @@ func _on_new_game() -> void:
 
 func _build_ui() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var bg := TextureRect.new()
-	bg.texture = WOOD_ART
-	bg.stretch_mode = TextureRect.STRETCH_TILE
+	var bg := _pixel_art(BACKGROUND_ART)
+	bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(bg)
 	var centre := CenterContainer.new()
 	centre.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(centre)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 48)
+	centre.add_child(column)
+	var logo := _pixel_art(LOGO_ART)
+	logo.custom_minimum_size = Vector2(LOGO_ART.get_size() * LOGO_SCALE)
+	column.add_child(logo)
 	var card := PanelContainer.new()
-	centre.add_child(card)
+	card.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	column.add_child(card)
 	var box := VBoxContainer.new()
 	box.add_theme_constant_override("separation", 18)
 	card.add_child(box)
-	var title := Label.new()
-	title.text = GAME_TITLE
-	title.theme_type_variation = &"HeaderLabel"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(title)
 	_continue_button = _button(box, "Continue", _on_continue)
 	_save_label = Label.new()
 	_save_label.theme_type_variation = &"TagLabel"
@@ -100,3 +103,13 @@ func _button(parent: Control, label: String, action: Callable) -> Button:
 	b.pressed.connect(action)
 	parent.add_child(b)
 	return b
+
+
+func _pixel_art(texture: Texture2D) -> TextureRect:
+	var rect := TextureRect.new()
+	rect.texture = texture
+	rect.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return rect
