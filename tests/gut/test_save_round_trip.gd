@@ -6,6 +6,7 @@ extends GutTest
 ## a plain-data snapshot of the run before saving with one of the loaded run.
 
 const DAY_SCENE := preload("res://day/day.tscn")
+const DEMO_SETUP := preload("res://inscribing/demo/demo_setup.tres")
 const TEST_PATH := "user://test_saves/gut_round_trip.tres"
 const GLOW := preload("res://enchantments/patterns/glow.tres")
 
@@ -16,6 +17,8 @@ func after_all() -> void:
 
 func _make_day() -> Day:
 	var day: Day = DAY_SCENE.instantiate()
+	# The test bench's setup, which has the shop's own items, including a carved one to disenchant
+	day.setup = DEMO_SETUP
 	var plan := DayPlan.new()
 	plan.counter_seconds = 60.0
 	plan.inscribing_seconds = 90.0
