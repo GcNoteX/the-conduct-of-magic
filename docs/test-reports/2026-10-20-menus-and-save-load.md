@@ -2,13 +2,13 @@
 
 **Date:** 2026-10-20
 **Planning sheet:** None. Gavin asked for this overnight batch to go straight to a PR.
-**PR:** [#29](https://github.com/GcNoteX/the-conduct-of-magic/pull/29), stacked on #24 (End-to-end shop loop), which is stacked on #20
+**PR:** [#29](https://github.com/GcNoteX/the-conduct-of-magic/pull/29), based on main
 
 ## Branches
 
 | Branch | Contains | Test here? |
 |---|---|---|
-| `claude/project-thread-co4f0w` | Menus and save/load, on top of #24's shop loop | Yes |
+| `claude/project-thread-co4f0w` | Menus and save/load, on top of `main` | Yes |
 
 One feature, so the feature branch is also the combined branch.
 
