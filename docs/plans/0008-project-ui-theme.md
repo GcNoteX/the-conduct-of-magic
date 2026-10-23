@@ -2,7 +2,7 @@
 
 **Status:** Built without sign-off at Gavin's request (2026-10-20). It follows the recommendations in the [UI themes guide](https://claude.ai/code/artifact/6354bfbc-f04e-4383-a244-e8c092e366f8).
 **Design doc:** none (presentation only)
-**PRs:** the project UI theme PR, stacked on #24
+**PRs:** #31
 
 ## Goal
 Every screen shares one look, set in one Theme resource that can be tuned in the Theme editor. Text is easier to read, and tooltips have a solid background.

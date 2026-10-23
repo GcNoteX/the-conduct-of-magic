@@ -2,15 +2,15 @@
 
 **Date:** 2026-10-20
 **Planning sheet:** [0008: Project-wide UI theme](../plans/0008-project-ui-theme.md) (built without sign-off, as asked)
-**PR:** the project UI theme PR
+**PR:** #31
 
 ## Branches
 
 | Branch | Contains | Test here? |
 |---|---|---|
-| `claude/project-thread-naec78` | The project theme, on top of #24 (shop loop) | Yes |
+| `claude/project-thread-naec78` | The project theme | Yes |
 
-This branch is stacked on #24, because it folds #24's counter theme into the project theme. Merge #24 first, then this PR. Its diff shows only the theme work.
+It's a single feature, so there's no combined branch. #24 is merged, so this PR now targets main.
 
 ## What to test
 
@@ -40,5 +40,4 @@ Acceptance criteria:
 
 ## Known gaps
 - Other screens still set some sizes and colours in their own code (the inscribing table, the sidebar, the counter's spacing). They'll move onto the theme as they're worked on.
-- `drive_table.tscn` stops with "Nonexistent function '_material_order'". It does the same on #24 without this change.
 - There is no decorative heading font yet. The guide suggests one later, for titles only.
