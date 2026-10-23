@@ -1,7 +1,7 @@
 extends Node
 
 """
-Drives the inscribing table with simulated mouse input and saves screenshots.
+Drives the inscribing table, inside a Day, with simulated mouse input and saves screenshots.
 Run (needs a display): godot --path . res://tests/drive_table.tscn -- <output_dir>
 """
 
@@ -22,7 +22,8 @@ const NOWHERE := Vector2(1300, 900)
 const TOOLTIP_WAIT := 1.0
 
 var out_dir := "user://"
-var table: Control
+var day: Day
+var table: InscribingTable
 var view: BoardView
 
 
@@ -35,8 +36,10 @@ func _ready() -> void:
 	var args := OS.get_cmdline_user_args()
 	if not args.is_empty():
 		out_dir = args[0]
-	table = preload("res://inscribing/inscribing_table.tscn").instantiate()
-	add_child(table)
+	day = preload("res://day/day.tscn").instantiate()
+	add_child(day)
+	day.switch_to(Day.ShopSide.INSCRIBING)
+	table = day.table
 	await _frames(5)
 	view = table._view
 	_shot("00_dagger")
@@ -153,7 +156,7 @@ func _ready() -> void:
 	await _bastion_parallel_cut()
 	await _art_on_and_off()
 
-	table.time_left = 0.01
+	day.time_left[Day.ShopSide.INSCRIBING] = 0.01
 	await _frames(3)
 	_shot("08_day_over")
 	get_tree().quit()
@@ -476,8 +479,8 @@ func _fresh_carved_sword() -> int:
 	fresh.id = table.player.items[index].id
 	table.player.items[index] = fresh
 	table.player.material_inventory.clear()
-	for m: EnchantmentMaterialDefinition in table.setup.materials:
-		table.player.add_material(m, table.setup.materials[m])
+	for m: EnchantmentMaterialDefinition in day.setup.materials:
+		table.player.add_material(m, day.setup.materials[m])
 	table._refresh_cards()
 	return index
 
@@ -627,8 +630,8 @@ func _art_on_and_off() -> void:
 ## Gives the player the demo's starting materials again
 func _refill_materials() -> void:
 	table.player.material_inventory.clear()
-	for m: EnchantmentMaterialDefinition in table.setup.materials:
-		table.player.add_material(m, table.setup.materials[m])
+	for m: EnchantmentMaterialDefinition in day.setup.materials:
+		table.player.add_material(m, day.setup.materials[m])
 	table._refresh_cards()
 
 
@@ -753,7 +756,7 @@ func _node_keys(p: PlacementState) -> Array[String]:
 ## to the one listed first)
 func _material_for(def: EnchantmentPatternNode) -> EnchantmentMaterialDefinition:
 	var best: EnchantmentMaterialDefinition = null
-	for m in table._material_order():
+	for m in table.player.materials_in_order(table.material_order):
 		if not def.accepts(m) or table.player.get_material_count(m) == 0:
 			continue
 		if best == null or _lines_needed(m) < _lines_needed(best):

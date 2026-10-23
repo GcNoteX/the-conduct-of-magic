@@ -1,12 +1,12 @@
+class_name InscribingTable
 extends Control
 
-"""
-The inscribing (carving) table for the first build: pick an item, plan enchantments, lines and
-materials on its hex map, then commit. Plans are drafts kept on each item, so switching items and
-coming back keeps them. The day timer runs continuously; when it ends, the day is over.
-In Disenchant mode the same table plans cuts, dissolves and pull-outs on the item's committed
-carvings (see DisenchantBoard), with the runes in a bar above the board and the plan on the right.
-"""
+## The inscribing (carving) side of the day: pick an item, plan enchantments, lines and materials
+## on its hex map, then commit. Plans are drafts kept on each item, so switching items and coming
+## back keeps them. The Day above it opens it with the player and owns the clock.
+## In Disenchant mode the same table plans cuts, dissolves and pull-outs on the item's committed
+## carvings (see DisenchantBoard), with the runes in a bar above the board and the plan on the
+## right.
 
 ## The two palette layouts (sheet 0004), switched with the Palette dropdown
 enum Layout { SIDEBAR, QUICK_PALETTE }
@@ -41,7 +41,6 @@ const DISENCHANT_LEGEND := (
 )
 const LAYOUT_NAMES: Array[String] = ["Sidebar", "Quick palette (hold Space)"]
 
-@export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
 ## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
 @export var solvability_check: SolvabilityCheck
 ## The art the board is drawn with (sheet 0006)
@@ -57,8 +56,8 @@ var player: Player
 var board: InscriptionBoard
 ## The board's disenchant rules while in Disenchant mode, otherwise null
 var disenchant: DisenchantBoard
-var time_left: float = 0.0
-var day: int = 1
+## Materials always listed first, even at zero, so rows don't jump around as they run out
+var material_order: Array[EnchantmentMaterialDefinition] = []
 
 var _view: BoardView
 var _board_area: BoardDropArea
@@ -66,14 +65,11 @@ var _item_picker: OptionButton
 var _layout_picker: OptionButton
 var _layout: PaletteLayout
 var _overlay: Control
-var _timer_label: Label
 var _item_label: RichTextLabel
 var _tooltip: PanelContainer
 var _tooltip_label: RichTextLabel
 var _message_label: Label
 var _commit_button: Button
-var _day_over: PanelContainer
-var _day_over_text: RichTextLabel
 var _carve_button: Button
 var _disenchant_button: Button
 var _rune_bar: RuneBar
@@ -85,13 +81,22 @@ var _overview: ItemOverview
 
 
 func _ready() -> void:
-	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
-	player = setup.create_player()
-	PlayerManager.set_player(player)
-	time_left = setup.day_length_seconds
 	_build_ui()
 	_build_overview()
 	_set_layout(Layout.SIDEBAR)
+
+
+func _process(_delta: float) -> void:
+	if _tooltip.visible:
+		_place_tooltip()
+
+
+## Starts the table on this player's items, opening the first one
+func open(p: Player, shown_materials: Array[EnchantmentMaterialDefinition]) -> void:
+	player = p
+	material_order = shown_materials
+	board = null
+	_view.board = null
 	_refresh_items()
 	# Opening an item fits its saved carvings to the enchantments' current shapes. Doing it for
 	# every item now hands any extra planned materials back to the player, and the item overview
@@ -106,16 +111,23 @@ func _ready() -> void:
 		solvability_check.check_items(player.items, player)
 
 
-func _process(delta: float) -> void:
-	if _day_over.visible:
+## Called when the table becomes the active side again: picks up items that arrived meanwhile
+func resume() -> void:
+	if player == null:
 		return
-	time_left = maxf(time_left - delta, 0.0)
-	var s := int(ceil(time_left))
-	_timer_label.text = "Day %d · %02d:%02d left" % [day, s / 60, s % 60]
-	if time_left <= 0.0:
-		_end_day()
-	if _tooltip.visible:
-		_place_tooltip()
+	_refresh_items()
+	if board == null and not player.items.is_empty():
+		_item_picker.select(0)
+		_open_item(0)
+	else:
+		_refresh_all()
+
+
+## Called before the table is frozen: puts down whatever the player is holding
+func suspend() -> void:
+	_view.cancel()
+	get_viewport().gui_cancel_drag()
+	_tooltip.visible = false
 
 
 #
@@ -236,14 +248,14 @@ func _input(event: InputEvent) -> void:
 	if key == null or key.keycode != KEY_TAB:
 		return
 	get_viewport().set_input_as_handled()
-	if _layout and not _overview.visible and not _day_over.visible:
+	if _layout and not _overview.visible:
 		_layout.handle_key(key)
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
 	if _handle_overview_key(event as InputEventKey):
 		return
-	if _layout and not _day_over.visible and _layout.handle_key(event as InputEventKey):
+	if _layout and _layout.handle_key(event as InputEventKey):
 		get_viewport().set_input_as_handled()
 
 
@@ -323,23 +335,6 @@ func _commit_disenchant() -> void:
 	_on_board_changed()
 
 
-func _end_day() -> void:
-	var text := "[b]The day is over.[/b]\n\nYour inventory:\n"
-	for inst in player.items:
-		text += "• %s: %s\n" % [_item_name(inst), _item_effects(inst)]
-	text += "\nMaterials left:\n"
-	for m in _material_order():
-		text += "• %s ×%d\n" % [InscriptionBoard.material_name(m), player.get_material_count(m)]
-	_day_over_text.text = text
-	_day_over.visible = true
-
-
-func _start_next_day() -> void:
-	day += 1
-	time_left = setup.day_length_seconds
-	_day_over.visible = false
-
-
 #
 # ── Refreshing ───────────────────────────────────
 #
@@ -369,14 +364,14 @@ func _refresh_items() -> void:
 	var selected := _item_picker.selected
 	_item_picker.clear()
 	for inst in player.items:
-		var carved := _item_effects(inst) != "nothing"
+		var carved := inst.carved_effects() != "nothing"
 		_item_picker.add_item(_item_name(inst) + ("  (carved)" if carved else ""))
 	if selected >= 0 and selected < _item_picker.item_count:
 		_item_picker.select(selected)
 
 
 func _refresh_cards() -> void:
-	if _layout == null:
+	if _layout == null or player == null:
 		return
 	var on := is_disenchanting()
 	var enchantment_cards: Array[PaletteCard] = []
@@ -387,7 +382,7 @@ func _refresh_cards() -> void:
 		card.draggable = not on
 		enchantment_cards.append(card)
 	var material_cards: Array[PaletteCard] = []
-	for m in _material_order():
+	for m in player.materials_in_order(material_order):
 		var count := player.get_material_count(m)
 		var planned := board.planned_count(m) if board else 0
 		var sub := "×%d" % count
@@ -420,7 +415,7 @@ func _refresh_item_panel() -> void:
 	if board == null:
 		return
 	var text := "[b]%s[/b]\n" % _item_name(board.item)
-	text += "Carved: %s\n" % _item_effects(board.item)
+	text += "Carved: %s\n" % board.item.carved_effects()
 	var drafts: Array[String] = []
 	for p in board.state.placements:
 		if not p.committed:
@@ -596,16 +591,6 @@ func _set_message(t: String) -> void:
 #
 # ── Helpers ──────────────────────────────────────
 #
-func _material_order() -> Array[EnchantmentMaterialDefinition]:
-	var out: Array[EnchantmentMaterialDefinition] = []
-	for m in setup.materials:
-		out.append(m)
-	for m in player.material_inventory:
-		if m not in out:
-			out.append(m)
-	return out
-
-
 func _item_name(inst: ItemInstance) -> String:
 	return InscriptionBoard.item_name(inst)
 
@@ -616,18 +601,6 @@ func _name_key_text() -> String:
 	if disenchant and not disenchant.carvings().is_empty():
 		example = disenchant.carving_name(disenchant.carvings().back())
 	return "Labels: M4 = magic node 4 · %s B = %s's second node" % [example, example]
-
-
-func _item_effects(inst: ItemInstance) -> String:
-	if inst.enchantment_graph_state == null:
-		return "nothing"
-	var effects: Array[String] = []
-	for p in inst.enchantment_graph_state.placements:
-		if p.committed:
-			effects.append(
-				"%s (%s)" % [p.enchantment.enchantment_name, p.enchantment.effect_description]
-			)
-	return ", ".join(effects) if not effects.is_empty() else "nothing"
 
 
 func _enchantment_tooltip(e: Enchantment) -> String:
@@ -665,7 +638,7 @@ func _fit_board() -> void:
 #
 # ── Item overview ────────────────────────────────
 #
-## The Items button beside the item picker, and the overview under the day-over screen
+## The Items button beside the item picker, and the overview over the board
 func _build_overview() -> void:
 	var button := Button.new()
 	button.text = ItemOverview.OPEN_TEXT
@@ -676,7 +649,6 @@ func _build_overview() -> void:
 	_overview.item_chosen.connect(_on_overview_item_chosen)
 	_overview.close_requested.connect(_overview.close)
 	add_child(_overview)
-	move_child(_overview, _day_over.get_index())
 
 
 func _open_overview() -> void:
@@ -695,7 +667,7 @@ func _on_overview_item_chosen(index: int) -> void:
 
 
 func _handle_overview_key(event: InputEventKey) -> bool:
-	if _day_over.visible or not event.pressed or event.echo:
+	if not event.pressed or event.echo:
 		return false
 	if event.keycode != ItemOverview.OPEN_KEY:
 		return false
@@ -767,9 +739,6 @@ func _build_ui() -> void:
 	board_stack.add_child(_overlay)
 
 	var right := _panel(root, 320)
-	_timer_label = Label.new()
-	_timer_label.add_theme_font_size_override("font_size", 22)
-	right.add_child(_timer_label)
 	_item_picker = _picker(right, "Item")
 	_item_picker.item_selected.connect(_on_item_picked)
 	_item_label = _rich(right, 130)
@@ -813,33 +782,6 @@ func _build_ui() -> void:
 	_tooltip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tooltip.add_child(_tooltip_label)
 	add_child(_tooltip)
-
-	# Day-over screen: a dimmer that blocks the board, with a summary panel on top
-	_day_over = PanelContainer.new()
-	_day_over.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_day_over.mouse_filter = Control.MOUSE_FILTER_STOP
-	var dim := StyleBoxFlat.new()
-	dim.bg_color = Color(0, 0, 0, 0.6)
-	_day_over.add_theme_stylebox_override("panel", dim)
-	_day_over.visible = false
-	add_child(_day_over)
-	var centre := CenterContainer.new()
-	_day_over.add_child(centre)
-	var card := PanelContainer.new()
-	card.custom_minimum_size = Vector2(480, 380)
-	var card_style := StyleBoxFlat.new()
-	card_style.bg_color = Color("24232b")
-	card_style.set_corner_radius_all(8)
-	card_style.set_content_margin_all(20)
-	card.add_theme_stylebox_override("panel", card_style)
-	centre.add_child(card)
-	var box := VBoxContainer.new()
-	card.add_child(box)
-	_day_over_text = _rich(box, 280)
-	var next := Button.new()
-	next.text = "Start the next day"
-	next.pressed.connect(_start_next_day)
-	box.add_child(next)
 
 
 func _panel(parent: Control, width: float) -> VBoxContainer:

@@ -96,8 +96,9 @@ func test_clicking_a_card_chooses_it() -> void:
 
 
 func test_table_opens_the_chosen_item() -> void:
-	var table: Control = TABLE.instantiate()
+	var table: InscribingTable = TABLE.instantiate()
 	add_child(table)
+	table.open(SETUP.create_player(), SETUP.shown_materials())
 	await get_tree().process_frame
 	var overview: ItemOverview = table._overview
 	check(not overview.visible, "the overview starts closed")

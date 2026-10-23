@@ -1,15 +1,13 @@
 class_name DemoSetup
 extends Resource
 
-## What a test player starts the inscribing table with
+## What a test player starts the game with
 
 @export var materials: Dictionary[EnchantmentMaterialDefinition, int] = {}
 @export var items: Array[EnchantableItemDefinition] = []
 ## Items that arrive already carved. The player gets a copy of each.
 @export var carved_items: Array[ItemInstance] = []
 @export var enchantments: Array[Enchantment] = []
-## Length of the enchanting day for playtesting
-@export var day_length_seconds: float = 3600.0
 
 
 func create_player() -> Player:
@@ -27,3 +25,10 @@ func create_player() -> Player:
 		p.items.append(inst)
 	p.known_enchantments = enchantments.duplicate()
 	return p
+
+
+## The starting materials, in the order they are listed
+func shown_materials() -> Array[EnchantmentMaterialDefinition]:
+	var out: Array[EnchantmentMaterialDefinition] = []
+	out.assign(materials.keys())
+	return out

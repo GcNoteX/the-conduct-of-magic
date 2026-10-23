@@ -563,9 +563,9 @@ func run_table(map: HexMapDefinition, carved_item: ItemInstance = null) -> Array
 func run_setup(setup: DemoSetup) -> Array[String]:
 	var catcher := ErrorCatcher.new()
 	OS.add_logger(catcher)
-	var table: Control = TABLE.instantiate()
-	table.setup = setup
+	var table: InscribingTable = TABLE.instantiate()
 	add_child(table)
+	table.open(setup.create_player(), setup.shown_materials())
 	for i in table.player.items.size():
 		table._open_item(i)
 		await get_tree().process_frame
