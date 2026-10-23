@@ -12,5 +12,6 @@ func materials() -> Array[EnchantmentMaterialDefinition]:
 	return out
 
 
-func price_of(m: EnchantmentMaterialDefinition) -> int:
-	return prices.get(m, 0)
+## The price with a markup, like 1.5 for half as much again, rounded up to whole gold
+func price_of(m: EnchantmentMaterialDefinition, multiplier: float = 1.0) -> int:
+	return ceili(prices.get(m, 0) * multiplier)

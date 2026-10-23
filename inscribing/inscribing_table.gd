@@ -40,12 +40,17 @@ const DISENCHANT_LEGEND := (
 	+ "Hover a node or line for its runes."
 )
 const LAYOUT_NAMES: Array[String] = ["Sidebar", "Quick palette (hold Space)"]
+const COUNTER_THEME := preload("res://counter/counter_theme.tres")
 
 ## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
 @export var solvability_check: SolvabilityCheck
 ## The art the board is drawn with (sheet 0006)
 @export var board_skin: BoardSkin = preload("res://art/placeholder/board_skin.tres")
 ## Draw the board with board_skin's art; untick to compare with the flat drawing
+## The stones you can rush-order at the table; none hides the Supplier button
+@export var supplier_catalogue: SupplierCatalogue
+## Rush orders at the table cost the catalogue price times this, rounded up
+@export var supplier_markup: float = 1.5
 @export var use_art: bool = true:
 	set(value):
 		use_art = value
@@ -78,10 +83,16 @@ var _legend: RichTextLabel
 ## The Disenchant-mode key to node names, above the board
 var _name_key: Label
 var _overview: ItemOverview
+var _commission_card: CommissionCard
+var _supplier_button: Button
+## A dimmer over the table holding the supplier while it is open
+var _supplier_popup: PanelContainer
+var _supplier: SupplierPanel
 
 
 func _ready() -> void:
 	_build_ui()
+	_supplier_button.visible = supplier_catalogue != null
 	_build_overview()
 	_set_layout(Layout.SIDEBAR)
 
@@ -107,6 +118,8 @@ func open(p: Player, shown_materials: Array[EnchantmentMaterialDefinition]) -> v
 	if not player.items.is_empty():
 		_item_picker.select(0)
 		_open_item(0)
+	else:
+		_refresh_all()
 	if solvability_check:
 		solvability_check.check_items(player.items, player)
 
@@ -130,9 +143,40 @@ func resume() -> void:
 
 ## Called before the table is frozen: puts down whatever the player is holding
 func suspend() -> void:
+	close_supplier()
 	_view.cancel()
 	get_viewport().gui_cancel_drag()
 	_tooltip.visible = false
+
+
+## Opens the supplier over the table, at the rush-order markup
+func open_supplier() -> void:
+	if player == null or supplier_catalogue == null:
+		return
+	_supplier.open(
+		player,
+		supplier_catalogue,
+		supplier_markup,
+		"Rush order (+%d%%)" % roundi((supplier_markup - 1.0) * 100.0)
+	)
+	_supplier_popup.visible = true
+
+
+func close_supplier() -> void:
+	if _supplier_popup:
+		_supplier_popup.visible = false
+
+
+## Buys one stone at the table's price; returns whether the player could afford it
+func buy(m: EnchantmentMaterialDefinition) -> bool:
+	if _supplier.player == null:
+		_supplier.open(player, supplier_catalogue, supplier_markup, "")
+	return _supplier.buy(m)
+
+
+func _on_supplier_purchased(_m: EnchantmentMaterialDefinition, _price: int) -> void:
+	_refresh_cards()
+	_refresh_commit()
 
 
 #
@@ -258,6 +302,10 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_key_input(event: InputEvent) -> void:
+	if _supplier_popup.visible and event.is_action_pressed(&"ui_cancel"):
+		close_supplier()
+		get_viewport().set_input_as_handled()
+		return
 	if _handle_overview_key(event as InputEventKey):
 		return
 	if _layout and _layout.handle_key(event as InputEventKey):
@@ -419,16 +467,16 @@ func _on_card_double_clicked(payload: Resource) -> void:
 
 
 func _refresh_item_panel() -> void:
+	_commission_card.show_commission(_commission_for(board.item) if board else null)
+	_commit_button.visible = board != null
 	if board == null:
+		_item_label.text = (
+			"[i]No items yet. A customer's item comes here when you accept it at the counter.[/i]"
+			if player != null and player.items.is_empty()
+			else ""
+		)
 		return
 	var text := "[b]%s[/b]\n" % _item_name(board.item)
-	var commission := _commission_for(board.item)
-	if commission != null:
-		var slip := commission.visit.slip
-		text += (
-			"For %s, who wants %s (%dg)\n"
-			% [slip.customer_name, slip.enchantment_names(), slip.payment]
-		)
 	text += "Carved: %s\n" % board.item.carved_effects()
 	var drafts: Array[String] = []
 	for p in board.state.placements:
@@ -763,6 +811,9 @@ func _build_ui() -> void:
 	var right := _panel(root, 320)
 	_item_picker = _picker(right, "Item")
 	_item_picker.item_selected.connect(_on_item_picked)
+	_commission_card = CommissionCard.new()
+	_commission_card.visible = false
+	right.add_child(_commission_card)
 	_item_label = _rich(right, 130)
 	_commit_button = Button.new()
 	_commit_button.custom_minimum_size.y = 44
@@ -770,6 +821,11 @@ func _build_ui() -> void:
 	_commit_button.focus_mode = Control.FOCUS_NONE
 	_commit_button.pressed.connect(_on_commit_pressed)
 	right.add_child(_commit_button)
+	_supplier_button = Button.new()
+	_supplier_button.text = "Supplier (rush order)"
+	_supplier_button.focus_mode = Control.FOCUS_NONE
+	_supplier_button.pressed.connect(open_supplier)
+	right.add_child(_supplier_button)
 	_message_label = Label.new()
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message_label.custom_minimum_size.y = 60
@@ -785,6 +841,8 @@ func _build_ui() -> void:
 	for n in LAYOUT_NAMES:
 		_layout_picker.add_item(n)
 	_layout_picker.item_selected.connect(func(i: int): _set_layout(i as Layout))
+
+	_build_supplier_popup()
 
 	_tooltip = PanelContainer.new()
 	_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -804,6 +862,33 @@ func _build_ui() -> void:
 	_tooltip_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tooltip.add_child(_tooltip_label)
 	add_child(_tooltip)
+
+
+func _build_supplier_popup() -> void:
+	_supplier_popup = PanelContainer.new()
+	_supplier_popup.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_supplier_popup.mouse_filter = Control.MOUSE_FILTER_STOP
+	var dim := StyleBoxFlat.new()
+	dim.bg_color = Color(0, 0, 0, 0.6)
+	_supplier_popup.add_theme_stylebox_override("panel", dim)
+	_supplier_popup.theme = COUNTER_THEME
+	_supplier_popup.visible = false
+	add_child(_supplier_popup)
+	var centre := CenterContainer.new()
+	_supplier_popup.add_child(centre)
+	var box := VBoxContainer.new()
+	box.custom_minimum_size.x = 600
+	box.add_theme_constant_override("separation", 12)
+	centre.add_child(box)
+	_supplier = SupplierPanel.new()
+	_supplier.message.connect(_set_message)
+	_supplier.purchased.connect(_on_supplier_purchased)
+	box.add_child(_supplier)
+	var close := Button.new()
+	close.text = "Close (Esc)"
+	close.focus_mode = Control.FOCUS_NONE
+	close.pressed.connect(close_supplier)
+	box.add_child(close)
 
 
 func _panel(parent: Control, width: float) -> VBoxContainer:

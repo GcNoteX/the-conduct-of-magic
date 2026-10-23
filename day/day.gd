@@ -18,7 +18,7 @@ const SIDE_NAMES: Dictionary[ShopSide, String] = {
 	ShopSide.INSCRIBING: "Inscribing",
 }
 
-@export var setup: DemoSetup = preload("res://inscribing/demo/demo_setup.tres")
+@export var setup: DemoSetup = preload("res://day/demo/shop_start.tres")
 @export var schedule: DaySchedule = preload("res://day/demo/demo_schedule.tres")
 
 var player: Player

@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="DemoSetup" format=3]
+
+[ext_resource type="Script" path="res://enchantments/enchantment.gd" id="3_fq3d4"]
+[ext_resource type="Resource" path="res://enchantments/patterns/kindle.tres" id="4_borej"]
+[ext_resource type="Resource" path="res://enchantments/patterns/glow.tres" id="5_xnjl6"]
+[ext_resource type="Resource" path="res://enchantments/patterns/keen.tres" id="6_f6r6g"]
+[ext_resource type="Resource" path="res://enchantments/patterns/ward.tres" id="7_15xsu"]
+[ext_resource type="Resource" path="res://enchantments/patterns/bastion.tres" id="19_bastn"]
+[ext_resource type="Script" path="res://items/definitions/enchantment_material_definition.gd" id="12_704wn"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/fire_stone/fire_stone.tres" id="13_b0621"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/water_stone/water_stone.tres" id="14_04o2l"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/red_stone/red_stone.tres" id="15_0rb82"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/blue_stone/blue_stone.tres" id="16_mveye"]
+[ext_resource type="Resource" path="res://items/enchantment_materials/yellow_stone/yellow_stone.tres" id="17_r54lt"]
+[ext_resource type="Script" path="res://inscribing/demo/demo_setup.gd" id="18_0j7d4"]
+
+[resource]
+script = ExtResource("18_0j7d4")
+money = 50
+materials = Dictionary[ExtResource("12_704wn"), int]({
+ExtResource("13_b0621"): 3,
+ExtResource("14_04o2l"): 3,
+ExtResource("15_0rb82"): 3,
+ExtResource("16_mveye"): 3,
+ExtResource("17_r54lt"): 1
+})
+enchantments = Array[ExtResource("3_fq3d4")]([ExtResource("4_borej"), ExtResource("5_xnjl6"), ExtResource("6_f6r6g"), ExtResource("7_15xsu"), ExtResource("19_bastn")])
