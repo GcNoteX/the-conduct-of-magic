@@ -363,7 +363,7 @@ func _on_quit_requested(to_desktop: bool) -> void:
 	if to_desktop:
 		get_tree().quit()
 	else:
-		SaveManager.quit_to_main_menu()
+		SaveManager.open_main_menu()
 
 
 func _on_pause_menu_closed() -> void:

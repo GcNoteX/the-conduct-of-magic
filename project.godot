@@ -15,9 +15,11 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="The Conduct of Magic"
-run/main_scene="res://menus/main_menu.tscn"
+run/main_scene="res://menus/splash_screen.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://placeholder_assets/icon.svg"
+boot_splash/show_image=false
+boot_splash/bg_color=Color(0.078431375, 0.047058824, 0.03137255, 1)
 
 [autoload]
 

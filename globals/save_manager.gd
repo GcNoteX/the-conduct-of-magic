@@ -90,7 +90,8 @@ func take_pending_load() -> SaveGame:
 	return game
 
 
-func quit_to_main_menu() -> void:
+## Leaves any run without saving it (the caller saves first) and shows the main menu
+func open_main_menu() -> void:
 	_autosave_enabled = false
 	get_tree().paused = false
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
