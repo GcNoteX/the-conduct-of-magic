@@ -10,7 +10,7 @@ Story: [docs/story/story-bible.md](docs/story/story-bible.md)
 Open the project in Godot 4.7 and run it (F5). The main scene is the inscribing table (`inscribing/inscribing_table.tscn`), set up with the demo player in `inscribing/demo/demo_setup.tres`: three swords of different sizes (a dagger, a short sword and a long sword) and a pre-carved long sword. Bastion, in the enchantment list, is an example of a big node with two ports, not a real enchantment.
 
 - **Place an enchantment:** drag its card onto the item, pressing R or scrolling to rotate it on the way. Clicking a card holds it instead, so you can click to place.
-- **Try the layouts:** the Layout dropdown at the bottom right switches between the sidebar (Tab opens and closes it), a bottom tray, a quick palette (hold Space) and the original lists.
+- **Palette:** the Palette dropdown at the bottom right switches between the sidebar (its handle or Tab opens and closes it, and Pin keeps it open while you drag) and the quick palette (hold Space to show every card at the mouse).
 - **Draw a line:** press on a node and drag through neighbouring cells to another node. A line fills every cell it passes, so lines can't cross; move back along the line to undo cells. Lines can join magic nodes to each other to build a chain.
 - **Insert a material:** drag its card onto an enchantment node. Nodes that accept it get a green ring. A planned material leaves your inventory and is held by that item until you take it back out.
 - **Take back planned things:** right click a material, a line, then an enchantment. Esc drops what you're holding or cancels a line.
