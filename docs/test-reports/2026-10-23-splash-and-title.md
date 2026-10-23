@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-23
 **Planning sheet:** [0010](../plans/0010-splash-and-title.md)
-**PR:** #PR_NUMBER, stacked on #29 (Main menu, pause menu and save/load)
+**PR:** [#46](https://github.com/GcNoteX/the-conduct-of-magic/pull/46), stacked on #29 (Main menu, pause menu and save/load)
 
 ## Branches
 

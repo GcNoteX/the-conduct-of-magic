@@ -2,7 +2,7 @@
 
 **Status:** Approved (2026-10-23). Gavin approved building with the recommended answers.
 **Design doc:** none yet. The design doc doesn't cover what happens when the game starts.
-**PRs:** one draft PR, stacked on #29 (Main menu, pause menu and save/load)
+**PRs:** #46 (draft), stacked on #29 (Main menu, pause menu and save/load)
 
 ## Goal
 When the game launches, the player sees a short studio splash. It fades into the main menu from #29, which now has title art behind it: the game's name over a pixel-art view of the workshop.
