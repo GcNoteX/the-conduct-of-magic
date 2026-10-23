@@ -23,6 +23,8 @@ func _ready() -> void:
 	test_payout_scales_with_enchantments_done()
 	test_customer_collects_and_pays()
 	test_supplier()
+	test_counter_buttons_take_no_focus()
+	test_dev_hint_names_the_bound_keys()
 	print("%d checks, %d failed" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -269,4 +271,26 @@ func test_supplier() -> void:
 	check(not day.counter.buy(yellow), "a stone the player can't afford isn't sold")
 	check(day.player.money == price - 1, "a failed purchase costs nothing")
 	check(day.player.get_material_count(yellow) == count + 1, "and adds nothing")
+	day.queue_free()
+
+
+## A focused button would take Space or Enter, accepting the next customer or buying again
+func test_counter_buttons_take_no_focus() -> void:
+	var day := _make_day([_plan(10.0, 20.0)])
+	var buttons := day.counter.find_children("*", "Button", true, false)
+	check(not buttons.is_empty(), "the counter has buttons")
+	for b in buttons:
+		check(
+			(b as Button).focus_mode == Control.FOCUS_NONE,
+			"the counter's %s button can't take focus" % (b as Button).text
+		)
+	day.queue_free()
+
+
+func test_dev_hint_names_the_bound_keys() -> void:
+	var day := _make_day([_plan(10.0, 20.0)])
+	if OS.is_debug_build():
+		var hint := day._clock_label.text
+		check(hint.contains("F2 switches sides"), "the dev hint names the switch key")
+		check(hint.contains("F3 ends this side"), "the dev hint names the end-side key")
 	day.queue_free()

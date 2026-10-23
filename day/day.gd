@@ -224,8 +224,19 @@ func _refresh_clock() -> void:
 	if side == ShopSide.COUNTER and time_left.get(ShopSide.INSCRIBING, 0.0) > 0.0:
 		text += " · then inscribing"
 	if OS.is_debug_build():
-		text += "      (dev: F2 switches sides, F3 ends this side)"
+		text += (
+			"      (dev: %s switches sides, %s ends this side)"
+			% [_key_name(DEV_SWITCH_ACTION), _key_name(DEV_END_SIDE_ACTION)]
+		)
 	_clock_label.text = text
+
+
+## The key bound to an action in the Input Map, such as "F2"
+func _key_name(action: StringName) -> String:
+	for event in InputMap.action_get_events(action):
+		if event is InputEventKey:
+			return (event as InputEventKey).as_text_physical_keycode()
+	return "?"
 
 
 func _build_ui() -> void:

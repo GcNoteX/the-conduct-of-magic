@@ -316,6 +316,7 @@ func _refresh_supplier() -> void:
 		buy_button.text = "Buy %dg" % price
 		buy_button.custom_minimum_size.x = 140
 		buy_button.disabled = price > player.money
+		buy_button.focus_mode = Control.FOCUS_NONE
 		buy_button.pressed.connect(buy.bind(m))
 		_supplier_rows.add_child(buy_button)
 
@@ -457,6 +458,8 @@ func _button(parent: Control, label: String, action: Callable, variation: String
 	b.text = label
 	b.theme_type_variation = variation
 	b.custom_minimum_size = Vector2(220, 64)
+	# Unfocusable, so Space or Enter after a click doesn't accept the next customer unseen
+	b.focus_mode = Control.FOCUS_NONE
 	b.pressed.connect(action)
 	parent.add_child(b)
 	return b
