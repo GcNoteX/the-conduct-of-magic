@@ -1,15 +1,9 @@
 class_name PaletteLayout
 extends Control
 
-## Base for the experimental layouts that hold the palette cards (sheet 0004).
-## The table builds the cards and hands them over; a layout only decides where they sit.
-
-## Where the table should put this layout
-enum Slot { OVERLAY, BOTTOM, LEFT }
-
-
-func slot() -> Slot:
-	return Slot.OVERLAY
+## Base for the layouts that hold the palette cards (sheet 0004): the collapsible sidebar and
+## the quick palette. The table builds the cards and hands them over, and lays the layout over
+## the board; a layout only decides where its cards sit.
 
 
 ## Replaces the cards shown, grouped into enchantments and materials

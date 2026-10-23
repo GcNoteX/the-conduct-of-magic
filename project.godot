@@ -38,7 +38,7 @@ window/stretch/aspect="expand"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/devlog/plugin.cfg")
+enabled=PackedStringArray("res://addons/devlog/plugin.cfg", "res://addons/gut/plugin.cfg")
 
 [global_group]
 
