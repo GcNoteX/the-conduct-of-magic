@@ -37,6 +37,7 @@ func _ready() -> void:
 	if not args.is_empty():
 		out_dir = args[0]
 	day = preload("res://day/day.tscn").instantiate()
+	day.setup = preload("res://inscribing/demo/demo_setup.tres")  # The test bench's demo items
 	add_child(day)
 	day.switch_to(Day.ShopSide.INSCRIBING)
 	table = day.table

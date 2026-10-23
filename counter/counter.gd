@@ -15,12 +15,9 @@ const SFX_BELL := &"bell"
 const SFX_PAPER := &"paper"
 const SFX_STAMP := &"stamp"
 const SFX_COINS := &"coins"
-const SFX_PURCHASE := &"purchase"
 const SFX_ERROR := &"error"
 const CUSTOMER_ART := preload("res://placeholder_assets/human.png")
 const WOOD_ART := preload("res://counter/art/counter_wood.png")
-const COIN_ART := preload("res://counter/art/coin.png")
-const STONE_ART := preload("res://counter/art/stone.png")
 const SIDE_WIDTH := 600.0
 const PORTRAIT_HEIGHT := 220.0
 const ID_TINT := Color("dce8f4")
@@ -57,8 +54,7 @@ var _refuse_button: Button
 var _hand_back_button: Button
 var _status_label: Label
 var _rules_text: RichTextLabel
-var _money_label: Label
-var _supplier_rows: GridContainer
+var _supplier: SupplierPanel
 
 @onready var _sounds: SoundBank = $Sounds
 
@@ -70,7 +66,7 @@ func _ready() -> void:
 ## Gives the counter the player whose money, items and commissions it works with
 func open(p: Player) -> void:
 	player = p
-	_refresh_supplier()
+	_supplier.open(p, catalogue, 1.0, "Supplier")
 
 
 ## Lines up the day's customers: those back to collect first, then the new ones. Anyone still
@@ -90,14 +86,14 @@ func open_day(day_number: int) -> void:
 			_queue.append(v)
 	_status_label.text = ""
 	_refresh_rules()
-	_refresh_supplier()
+	_supplier.refresh()
 	_next_customer()
 
 
 ## Called when the counter becomes the active side
 func resume() -> void:
 	_show_current()
-	_refresh_supplier()
+	_supplier.refresh()
 
 
 ## Called before the counter is frozen
@@ -142,23 +138,13 @@ func hand_back() -> void:
 		_status_label.text = "Nothing %s asked for was carved. They leave without paying." % who
 	_sounds.play(SFX_COINS if paid > 0 else SFX_ERROR)
 	commission_collected.emit(c)
-	_refresh_supplier()
+	_supplier.refresh()
 	_next_customer()
 
 
 ## Buys one of a material from the supplier; returns whether the player could afford it
 func buy(m: EnchantmentMaterialDefinition) -> bool:
-	var price := catalogue.price_of(m)
-	var mat_name := InscriptionBoard.material_name(m)
-	if not player.spend(price):
-		_status_label.text = "You can't afford a %s (%dg)." % [mat_name, price]
-		_sounds.play(SFX_ERROR)
-		return false
-	player.add_material(m)
-	_status_label.text = "Bought a %s for %dg." % [mat_name, price]
-	_sounds.play(SFX_PURCHASE)
-	_refresh_supplier()
-	return true
+	return _supplier.buy(m)
 
 
 func _decide(accepted: bool) -> void:
@@ -288,38 +274,6 @@ func _refresh_rules() -> void:
 	_rules_text.text = text
 
 
-func _refresh_supplier() -> void:
-	if player == null or _supplier_rows == null:
-		return
-	_money_label.text = "%dg" % player.money
-	for child in _supplier_rows.get_children():
-		_supplier_rows.remove_child(child)
-		child.queue_free()
-	for m in catalogue.materials():
-		var icon := TextureRect.new()
-		icon.texture = STONE_ART
-		icon.self_modulate = m.color
-		icon.custom_minimum_size = Vector2(40, 40)
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		_supplier_rows.add_child(icon)
-		var mat_label := Label.new()
-		mat_label.text = InscriptionBoard.material_name(m)
-		mat_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		_supplier_rows.add_child(mat_label)
-		var owned := Label.new()
-		owned.text = "×%d" % player.get_material_count(m)
-		owned.custom_minimum_size.x = 60
-		_supplier_rows.add_child(owned)
-		var price := catalogue.price_of(m)
-		var buy_button := Button.new()
-		buy_button.text = "Buy %dg" % price
-		buy_button.custom_minimum_size.x = 140
-		buy_button.disabled = price > player.money
-		buy_button.pressed.connect(buy.bind(m))
-		_supplier_rows.add_child(buy_button)
-
-
 ## A steady colour per customer, so the placeholder figure tells them apart
 func _customer_tint(customer_name: String) -> Color:
 	return Color.from_hsv(float(hash(customer_name) % 360) / 360.0, 0.35, 0.95)
@@ -408,32 +362,9 @@ func _build_side(parent: VBoxContainer) -> void:
 	_rules_text.bbcode_enabled = true
 	rules_panel.add_child(_rules_text)
 
-	var supplier := PanelContainer.new()
-	parent.add_child(supplier)
-	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 12)
-	supplier.add_child(box)
-	var header := HBoxContainer.new()
-	header.add_theme_constant_override("separation", 10)
-	box.add_child(header)
-	var title := Label.new()
-	title.text = "Supplier"
-	title.theme_type_variation = &"TagLabel"
-	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	header.add_child(title)
-	var coin := TextureRect.new()
-	coin.texture = COIN_ART
-	coin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	coin.custom_minimum_size = Vector2(40, 40)
-	header.add_child(coin)
-	_money_label = Label.new()
-	_money_label.theme_type_variation = &"MoneyLabel"
-	header.add_child(_money_label)
-	_supplier_rows = GridContainer.new()
-	_supplier_rows.columns = 4
-	_supplier_rows.add_theme_constant_override("h_separation", 14)
-	_supplier_rows.add_theme_constant_override("v_separation", 10)
-	box.add_child(_supplier_rows)
+	_supplier = SupplierPanel.new()
+	_supplier.message.connect(func(text: String): _status_label.text = text)
+	parent.add_child(_supplier)
 
 
 ## A paper on the counter: dark text on parchment, tinted per kind of paper

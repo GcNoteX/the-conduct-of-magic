@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dpyn1qn3ye47w" path="res://inscribing/inscribing_table.gd" id="1"]
 [ext_resource type="Script" uid="uid://beq2p12jemwa6" path="res://disenchanting/solvability_check.gd" id="2"]
+[ext_resource type="Resource" path="res://counter/supplier/demo_catalogue.tres" id="3_catalogue"]
 
 [node name="InscribingTable" type="Control" unique_id=1925579232 node_paths=PackedStringArray("solvability_check")]
 layout_mode = 3
@@ -12,6 +13,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1")
 solvability_check = NodePath("SolvabilityCheck")
+supplier_catalogue = ExtResource("3_catalogue")
 
 [node name="SolvabilityCheck" type="Node" parent="." unique_id=266410572]
 script = ExtResource("2")

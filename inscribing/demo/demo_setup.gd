@@ -1,7 +1,8 @@
 class_name DemoSetup
 extends Resource
 
-## What a test player starts the game with
+## What a player starts with: money, materials, items and the enchantments they know. The Day
+## uses day/demo/shop_start.tres; the test bench uses inscribing/demo/demo_setup.tres.
 
 @export var money: int = 0
 @export var materials: Dictionary[EnchantmentMaterialDefinition, int] = {}

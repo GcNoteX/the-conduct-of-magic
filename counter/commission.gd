@@ -4,6 +4,9 @@ extends Resource
 ## A commission the player accepted: the customer's visit and the item left with the shop.
 ## The customer comes back on a later day to collect it and pays for each enchantment carved.
 
+## How far along one requested enchantment is on the item
+enum Progress { MISSING, PLANNED, DONE }
+
 @export var visit: CustomerVisit
 @export var item: ItemInstance
 ## The day the commission was accepted, counting from 1
@@ -42,6 +45,29 @@ func fulfilled() -> Array[bool]:
 				found = true
 				break
 		out.append(found)
+	return out
+
+
+## Each requested enchantment's progress, in slip order: committed, only planned, or neither
+func progress() -> Array[Progress]:
+	var done := fulfilled()
+	var used: Array[PlacementState] = []
+	var out: Array[Progress] = []
+	var placements: Array[PlacementState] = []
+	if item.enchantment_graph_state != null:
+		placements = item.enchantment_graph_state.placements
+	for i in done.size():
+		if done[i]:
+			out.append(Progress.DONE)
+			continue
+		var wanted := visit.slip.enchantments[i]
+		var state := Progress.MISSING
+		for p in placements:
+			if not p.committed and p.enchantment == wanted and p not in used:
+				used.append(p)
+				state = Progress.PLANNED
+				break
+		out.append(state)
 	return out
 
 

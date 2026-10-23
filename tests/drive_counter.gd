@@ -21,6 +21,11 @@ func _ready() -> void:
 	day = preload("res://day/day.tscn").instantiate()
 	add_child(day)
 	await _frames(5)
+	day.switch_to(Day.ShopSide.INSCRIBING)
+	await _frames(2)
+	_shot("00_table_empty")
+	day.switch_to(Day.ShopSide.COUNTER)
+	await _frames(2)
 	_shot("01_new_customer")
 
 	# Accept Elsa, refuse Bram, then show Ines with her ID and permit
@@ -48,6 +53,10 @@ func _ready() -> void:
 	day.table._open_item(elsas)
 	await _frames(2)
 	_shot("04_table_shows_owner")
+	day.table.open_supplier()
+	await _frames(2)
+	_shot("04b_rush_order")
+	day.table.close_supplier()
 	day.end_side()
 	await _frames(2)
 	_shot("05_day_over")
