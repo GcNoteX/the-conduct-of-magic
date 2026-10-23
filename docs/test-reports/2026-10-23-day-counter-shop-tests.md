@@ -2,7 +2,7 @@
 
 **Date:** 2026-10-23
 **Planning sheet:** Not macro work (tests only, and Gavin asked for this overnight batch without sheets)
-**PR:** the draft PR from `day-counter-tests`
+**PR:** #43
 
 ## Branches
 
