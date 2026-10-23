@@ -44,3 +44,6 @@ None.
 ## Steps
 1. PR `table-sidebar`: cards, the four layouts, dragging enchantments, the dropdown.
 2. Once a layout is picked, a small follow-up PR deletes the others.
+
+## Outcome
+Gavin (2026-10-20): keep the sidebar, with its pin, and the quick palette, and maintain both. They stay switchable with the dropdown, now labelled Palette, with the sidebar as the default. The branch `keep-sidebar-and-quick-palette` deletes the bottom tray and the original lists.
