@@ -3,9 +3,10 @@ extends Node
 ## Runs the bot playtest: one bot per run, each playing the real day scene for many days, then
 ## writes a Markdown report of what went wrong and how the economy and content held up.
 ## Run: godot --headless --path . res://tools/bot_playtest/run_bot_playtest.tscn -- --out=<path>
-## Optional: --days=<n> --runs=<n per style> --seed=<n>. Without --out the report goes to
-## user://bot_playtest_report.md. Exits with 1 when the bots found errors, broken books or
-## softlocks.
+## Optional: --days=<n> --runs=<n per style> --seed=<n> --customers=<walk-ins a day>
+## --stamina=<enchantments a night> --styles=careful,greedy,chaotic.
+## Without --out the report goes to user://bot_playtest_report.md. Exits with 1 when the bots
+## found errors, broken books or softlocks.
 
 const DEFAULT_OUT := "user://bot_playtest_report.md"
 const DEFAULT_SETTINGS := preload("res://tools/bot_playtest/default_settings.tres")
@@ -27,6 +28,12 @@ func _ready() -> void:
 			s.runs_per_style = arg.trim_prefix("--runs=").to_int()
 		elif arg.begins_with("--seed="):
 			s.random_seed = arg.trim_prefix("--seed=").to_int()
+		elif arg.begins_with("--customers="):
+			s.customers_per_day = arg.trim_prefix("--customers=").to_int()
+		elif arg.begins_with("--stamina="):
+			s.enchantments_per_night = arg.trim_prefix("--stamina=").to_int()
+		elif arg.begins_with("--styles="):
+			s.styles = _styles(arg.trim_prefix("--styles="))
 	OS.add_logger(_error_log)
 	var started := Time.get_ticks_msec()
 	var bots: Array[PlaytestBot] = []
@@ -58,3 +65,15 @@ func _ready() -> void:
 	file.close()
 	print("Report written to ", ProjectSettings.globalize_path(out))
 	get_tree().quit(1 if report.has_hard_problems() else 0)
+
+
+## Styles named in a comma-separated list, like "careful,greedy"
+func _styles(names: String) -> Array[BotPlaytestSettings.Style]:
+	var out: Array[BotPlaytestSettings.Style] = []
+	for n in names.split(","):
+		var key := n.strip_edges().to_upper()
+		if BotPlaytestSettings.Style.has(key):
+			out.append(BotPlaytestSettings.Style[key])
+		else:
+			printerr("Unknown style: ", n)
+	return out
