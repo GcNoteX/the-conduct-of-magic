@@ -1,11 +1,9 @@
 [gd_resource type="Resource" script_class="EnchantmentMaterialDefinition" format=3 uid="uid://bl5bba42eukkp"]
 
 [ext_resource type="Script" uid="uid://buedytf1h1hyg" path="res://enchantments/enchantment_conditions/enchantment_condition.gd" id="1_woo3m"]
-[ext_resource type="PackedScene" uid="uid://klg0qktnokpk" path="res://items/enchantment_materials/water_stone/water_stone_cf.tscn" id="2_7j3pp"]
 [ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="2_o6csc"]
 [ext_resource type="Script" uid="uid://bo4c3r6ga2sr0" path="res://enchantments/enchantment_conditions/number_of_connections_condition.gd" id="2_xlesn"]
 [ext_resource type="Texture2D" uid="uid://eynjhepuxifl" path="res://items/enchantment_materials/water_stone/water stone.png" id="3_8taoa"]
-[ext_resource type="PackedScene" uid="uid://ba0l3ry8ni2q1" path="res://items/enchantment_materials/water_stone/water_stone_wsf.tscn" id="4_8taoa"]
 [ext_resource type="Script" uid="uid://dli7lulxgf2hr" path="res://disenchanting/rune_set.gd" id="4_sk3wx"]
 
 [sub_resource type="Resource" id="Resource_sk3wx"]
@@ -39,6 +37,4 @@ harvest_runes = SubResource("Resource_soc4s")
 dissolve_runes = SubResource("Resource_1r86g")
 id = &"water_stone"
 display_name = "Water stone"
-workstation_form = ExtResource("4_8taoa")
-channel_form = ExtResource("2_7j3pp")
 metadata/_custom_type_script = "uid://dnrj7bcgrqnhu"

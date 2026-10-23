@@ -1,17 +1,15 @@
 @tool
 class_name EnchantmentPatternNode
 extends Resource
-
-"""
-One enchantment node in an Enchantment's fixed shape.
-Acceptance uses the same rules as MaterialHolder: a minimum tier, then the attribute requirements.
-"""
+## One enchantment node in an Enchantment's fixed shape.
+## A material fits if it meets the minimum tier, passes every required condition, and passes at
+## least one condition (any material passes when there are none).
 
 ## Axial offset from the enchantment's origin cell
 @export var offset: Vector2i = Vector2i.ZERO
 ## The tier the material has to be or greater
 @export var tier_requirement: int = 1
-## Same semantics as MaterialHolder.material_requirements
+## The material's attribute conditions, checked as described above
 @export var material_requirements: Array[MaterialCondition] = []
 ## Other cells this node covers, as axial offsets from the node's own cell (`offset`).
 ## They're taken like the node's own cell. Lines attach only at the node's ports.

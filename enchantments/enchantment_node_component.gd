@@ -19,7 +19,7 @@ const COLOR_PORT := Color("7ee08a")
 	set(value):
 		tier_requirement = value
 		queue_redraw()
-## Same semantics as MaterialHolder.material_requirements
+## Same semantics as EnchantmentPatternNode.material_requirements
 @export var material_requirements: Array[MaterialCondition] = []:
 	set(value):
 		material_requirements = value

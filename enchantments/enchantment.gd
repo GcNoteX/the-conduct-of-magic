@@ -8,8 +8,6 @@ extends Resource
 
 @export var icon: Texture2D
 
-@export var map: PackedScene  ## Should be an EnchantmentGrid (old free-placement play map)
-
 @export_category("Hex pattern")
 ## What a customer can tell the enchantment does
 @export_multiline var effect_description: String = ""
