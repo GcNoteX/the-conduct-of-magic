@@ -8,9 +8,9 @@
 
 | Branch | Contains | Test here? |
 |---|---|---|
-| `claude/project-thread-2k4j2o` | Placeholder music, stacked on the shop loop (#24) | Yes |
+| `claude/project-thread-2k4j2o` | Placeholder music | Yes |
 
-One feature, so the feature branch is also the branch to test. It is stacked on #24 because #24 added the sound effects this puts on their own bus.
+One feature, so the feature branch is also the branch to test.
 
 ## What to test
 
