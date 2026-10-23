@@ -5,6 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://benmq6067ehxx" path="res://placeholder_assets/circle.png" id="3_atkc2"]
 [ext_resource type="Script" uid="uid://dli7lulxgf2hr" path="res://disenchanting/rune_set.gd" id="3_c2tdp"]
 [ext_resource type="Script" uid="uid://dnrj7bcgrqnhu" path="res://items/definitions/enchantment_material_definition.gd" id="3_ipdwk"]
+[ext_resource type="Texture2D" path="res://art/placeholder/stones/red_stone.png" id="art_icon"]
 
 [sub_resource type="Resource" id="Resource_c2tdp"]
 script = ExtResource("2_atkc2")
@@ -34,3 +35,4 @@ harvest_runes = SubResource("Resource_i7dat")
 dissolve_runes = SubResource("Resource_uvk8c")
 id = &"red_stone"
 display_name = "Red stone"
+inventory_sprite_normal = ExtResource("art_icon")

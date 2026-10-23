@@ -22,6 +22,8 @@ const WOOD_ART := preload("res://counter/art/counter_wood.png")
 const COIN_ART := preload("res://counter/art/coin.png")
 const STONE_ART := preload("res://counter/art/stone.png")
 const SIDE_WIDTH := 600.0
+## How big an item's icon is drawn on the counter
+const ITEM_ICON_SIZE := 64
 const PORTRAIT_HEIGHT := 220.0
 const ID_TINT := Color("dce8f4")
 const PERMIT_TINT := Color("e2f0d6")
@@ -259,13 +261,23 @@ func _show_current() -> void:
 	else:
 		_permit_text.text = "[i]No permit shown[/i]"
 	_item_text.text = (
-		"[b]On the counter[/b]\n%s" % (slip.item.display_name if slip.item else "Nothing")
+		"[b]On the counter[/b]\n%s%s"
+		% [_item_art(slip.item), slip.item.display_name if slip.item else "Nothing"]
 	)
+
+
+## The item's icon as BBCode, followed by a space, or nothing when it has no icon
+func _item_art(item: ItemDefinition) -> String:
+	if item == null or item.inventory_sprite_normal == null:
+		return ""
+	return "[img=%d]%s[/img] " % [ITEM_ICON_SIZE, item.inventory_sprite_normal.resource_path]
 
 
 ## The item being collected, each enchantment asked for ticked or crossed, and the payout
 func _return_text(c: Commission) -> String:
-	var text := "[b]Their %s[/b]\n" % InscriptionBoard.item_name(c.item)
+	var text := (
+		"%s[b]Their %s[/b]\n" % [_item_art(c.item.definition), InscriptionBoard.item_name(c.item)]
+	)
 	var done := c.fulfilled()
 	for i in done.size():
 		var e := c.visit.slip.enchantments[i]
@@ -297,8 +309,11 @@ func _refresh_supplier() -> void:
 		child.queue_free()
 	for m in catalogue.materials():
 		var icon := TextureRect.new()
-		icon.texture = STONE_ART
-		icon.self_modulate = m.color
+		if m.inventory_sprite_normal:
+			icon.texture = m.inventory_sprite_normal
+		else:
+			icon.texture = STONE_ART
+			icon.self_modulate = m.color
 		icon.custom_minimum_size = Vector2(40, 40)
 		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED

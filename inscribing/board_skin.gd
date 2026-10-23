@@ -44,6 +44,12 @@ const ART_HEX_SIZE := 32.0
 @export var enchantment_node_radius := 0.45
 ## How much of the node a material fills, from its centre
 @export var material_fill := 0.72
+## Draw a material in its node with the material's own art (its inventory sprite); untick to draw
+## a disc of its colour
+@export var material_art := true
+## How big a material's art is drawn, in node radii from its centre. The art leaves a margin
+## around the stone, so this is bigger than material_fill.
+@export var material_art_size := 1.15
 @export var enchantment_drafted_tint := Color(0.78, 0.76, 0.92)
 @export var enchantment_taken_tint := Color.WHITE
 

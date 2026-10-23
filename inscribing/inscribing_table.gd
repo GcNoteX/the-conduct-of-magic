@@ -39,6 +39,10 @@ const DISENCHANT_LEGEND := (
 	+ "Nodes show their names: M4 is magic node 4, Keen B is Keen's second node.\n"
 	+ "Hover a node or line for its runes."
 )
+## How much of the workbench shows around the leather mat, in pixels
+const MAT_INSET := 18
+## How big item icons are drawn in the item picker
+const ITEM_ICON_SIZE := 28
 const LAYOUT_NAMES: Array[String] = ["Sidebar", "Quick palette (hold Space)"]
 
 ## Dev tool: prints whether carved items can be disenchanted. Tick Enabled on it to use it.
@@ -371,7 +375,12 @@ func _refresh_items() -> void:
 		var carved := inst.carved_effects() != "nothing"
 		var commission := _commission_for(inst)
 		var for_whom := " for %s" % commission.visit.slip.customer_name if commission else ""
-		_item_picker.add_item(_item_name(inst) + for_whom + ("  (carved)" if carved else ""))
+		var label := _item_name(inst) + for_whom + ("  (carved)" if carved else "")
+		var icon := inst.definition.inventory_sprite_normal if inst.definition else null
+		if icon:
+			_item_picker.add_icon_item(icon, label)
+		else:
+			_item_picker.add_item(label)
 	var open_index := player.items.find(board.item) if board else -1
 	if open_index >= 0:
 		_item_picker.select(open_index)
@@ -704,8 +713,9 @@ func _handle_overview_key(event: InputEventKey) -> bool:
 func _build_ui() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE  # Let board clicks reach the BoardView
-	var bg := ColorRect.new()
-	bg.color = Color("17161c")
+	var bg := TextureRect.new()
+	bg.texture = WorkshopPalette.WORKBENCH
+	bg.stretch_mode = TextureRect.STRETCH_TILE
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(bg)
@@ -736,7 +746,6 @@ func _build_ui() -> void:
 	_rune_bar = RuneBar.new()
 	top.add_child(_rune_bar)
 	_name_key = Label.new()
-	_name_key.add_theme_color_override("font_color", Color("b8b4c4"))
 	_name_key.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_name_key.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	top.add_child(_name_key)
@@ -744,6 +753,17 @@ func _build_ui() -> void:
 	board_stack.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	board_stack.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	board_column.add_child(board_stack)
+	var mat := NinePatchRect.new()  # The leather mat the item lies on
+	mat.texture = WorkshopPalette.LEATHER_MAT
+	for side in [SIDE_LEFT, SIDE_TOP, SIDE_RIGHT, SIDE_BOTTOM]:
+		mat.set_patch_margin(side, WorkshopPalette.LEATHER_MAT_MARGIN)
+	mat.set_anchors_preset(Control.PRESET_FULL_RECT)
+	mat.offset_left = MAT_INSET
+	mat.offset_top = MAT_INSET
+	mat.offset_right = -MAT_INSET
+	mat.offset_bottom = -MAT_INSET
+	mat.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	board_stack.add_child(mat)
 	_board_area = BoardDropArea.new()
 	_board_area.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_board_area.resized.connect(_fit_board)
@@ -763,6 +783,8 @@ func _build_ui() -> void:
 	var right := _panel(root, 320)
 	_item_picker = _picker(right, "Item")
 	_item_picker.item_selected.connect(_on_item_picked)
+	_item_picker.add_theme_constant_override("icon_max_width", ITEM_ICON_SIZE)
+	_item_picker.get_popup().add_theme_constant_override("icon_max_width", ITEM_ICON_SIZE)
 	_item_label = _rich(right, 130)
 	_commit_button = Button.new()
 	_commit_button.custom_minimum_size.y = 44
@@ -773,7 +795,7 @@ func _build_ui() -> void:
 	_message_label = Label.new()
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_message_label.custom_minimum_size.y = 60
-	_message_label.add_theme_color_override("font_color", Color("f0d68a"))
+	_message_label.theme_type_variation = UiStyles.TAG_LABEL
 	right.add_child(_message_label)
 	_plan_panel = DisenchantPlanPanel.new()
 	_plan_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -790,13 +812,7 @@ func _build_ui() -> void:
 	_tooltip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_tooltip.top_level = true
 	_tooltip.visible = false
-	var tip_style := StyleBoxFlat.new()
-	tip_style.bg_color = Color(0.1, 0.1, 0.12, 0.95)
-	tip_style.border_color = Color("45434f")
-	tip_style.set_border_width_all(1)
-	tip_style.set_corner_radius_all(6)
-	tip_style.set_content_margin_all(10)
-	_tooltip.add_theme_stylebox_override("panel", tip_style)
+	_tooltip.theme_type_variation = UiStyles.DARK_TOOLTIP_PANEL
 	_tooltip_label = RichTextLabel.new()
 	_tooltip_label.bbcode_enabled = true
 	_tooltip_label.fit_content = true
@@ -807,14 +823,12 @@ func _build_ui() -> void:
 
 
 func _panel(parent: Control, width: float) -> VBoxContainer:
-	var margin := MarginContainer.new()
-	margin.custom_minimum_size.x = width
-	for side in ["left", "right", "top", "bottom"]:
-		margin.add_theme_constant_override("margin_" + side, 12)
-	parent.add_child(margin)
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size.x = width
+	parent.add_child(panel)
 	var v := VBoxContainer.new()
 	v.add_theme_constant_override("separation", 8)
-	margin.add_child(v)
+	panel.add_child(v)
 	return v
 
 

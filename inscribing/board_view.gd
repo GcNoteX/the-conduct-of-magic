@@ -684,6 +684,17 @@ func _draw_magic_node_art(k: String, committed: bool, dead: bool) -> bool:
 	return true
 
 
+## A material sitting in a node of `radius`: its own art when the skin allows it and it has some,
+## otherwise a disc of its colour
+func _draw_material(mat: EnchantmentMaterialDefinition, pos: Vector2, radius: float) -> void:
+	var art := mat.inventory_sprite_normal if skin.material_art else null
+	if art == null:
+		draw_circle(pos, radius * skin.material_fill, mat.color, true, -1.0, true)
+		return
+	var corner := Vector2.ONE * radius * skin.material_art_size
+	draw_texture_rect(art, Rect2(pos - corner, corner * 2.0), false)
+
+
 ## Empty nodes show what they accept; filled nodes show their material and condition progress
 func _draw_enchantment_node(k: String) -> void:
 	var pos := _screen(k)
@@ -709,7 +720,7 @@ func _draw_enchantment_node(k: String) -> void:
 			var corner := Vector2(radius, radius)
 			draw_texture_rect(art, Rect2(pos - corner, corner * 2.0), false, tint)
 		if mat:
-			draw_circle(pos, radius * skin.material_fill, mat.color, true, -1.0, true)
+			_draw_material(mat, pos, radius)
 	var ring := COLOR_COMMITTED if p.committed else COLOR_FIXED_LINE
 	if mat and not p.committed:
 		ring = COLOR_ACTIVE if board.is_node_active(k) else COLOR_UNMET
